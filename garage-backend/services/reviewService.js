@@ -32,7 +32,7 @@ export const createReview = async (rating, comment, customerId, garageId) => {
 
 export const fetchGarageReviews = async (garageId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Reviews WHERE GarageID = ? ORDER BY CreatedAt DESC",
+    "SELECT * FROM Reviews WHERE GarageID = ? ORDER BY ReviewDate DESC",
     [garageId]
   );
   return rows;
@@ -40,7 +40,7 @@ export const fetchGarageReviews = async (garageId) => {
 
 export const fetchCustomerReviews = async (customerId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Reviews WHERE CustomerID = ? ORDER BY CreatedAt DESC",
+    "SELECT * FROM Reviews WHERE CustomerID = ? ORDER BY ReviewDate DESC",
     [customerId]
   );
   return rows;

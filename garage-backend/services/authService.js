@@ -18,6 +18,11 @@ export const registerUser = async (userData) => {
   // Insert into role table based on constrained explicit logic
   if (role === "Customer") {
     await db.query("INSERT INTO Customers (UserID) VALUES (?)", [userId]);
+  } else if (role === "SuperAdmin") {
+    await db.query("INSERT INTO SuperAdmins (UserID) VALUES (?)", [userId]);
+  } else if (role === "GarageManager") {
+    // Note: GarageID must be assigned separately via updateRole/assignToGarage
+    await db.query("INSERT INTO GarageManagers (UserID) VALUES (?)", [userId]);
   }
 
   return { userId, role };
@@ -38,7 +43,7 @@ export const loginUser = async (email, password) => {
 
   if (!isMatch) {
     const error = new Error("Invalid credentials");
-    error.status = 400;
+    error.status = 401; // Should be 401 Unauthorized
     throw error;
   }
 

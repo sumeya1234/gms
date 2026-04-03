@@ -3,3 +3,169 @@
 {"level":"error","message":"500 - Not Found - / - / - GET - ::1","timestamp":"2026-03-29 13:35:54"}
 {"level":"error","message":"500 - Not Found - / - / - GET - ::1","timestamp":"2026-03-29 13:35:57"}
 {"level":"error","message":"500 - Not Found - / - / - GET - ::1","timestamp":"2026-03-29 13:35:58"}
+{"level":"error","message":"500 - Not Found - /api/unknown-route - /api/unknown-route - GET - ::ffff:127.0.0.1","timestamp":"2026-03-30 14:01:43"}
+{"level":"error","message":"500 - Not Found - /api/unknown-route - /api/unknown-route - GET - ::ffff:127.0.0.1","timestamp":"2026-03-30 14:02:31"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 08:32:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 08:34:34"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 08:58:58"}
+{"level":"error","message":"500 - Table 'garage_test.pushtokens' doesn't exist - /api/users/push-token - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 08:58:58"}
+{"level":"error","message":"500 - Table 'garage_test.notifications' doesn't exist - /api/users/notifications - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 08:58:58"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:15:36"}
+{"level":"error","message":"500 - Table 'garage_test.pushtokens' doesn't exist - /api/users/push-token - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:15:36"}
+{"level":"error","message":"500 - Table 'garage_test.notifications' doesn't exist - /api/users/notifications - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:15:36"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:19:07"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:33:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:33:09"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:39:07"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:39:08"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:40:35"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:40:36"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:46:33"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:48:54"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 09:49:31"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:28:54"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:28:54"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:28:54"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:30:29"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:30:29"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:30:30"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:34:20"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:34:20"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:34:21"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:37:09"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:37:09"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:37:10"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:42:12"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:42:12"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:42:12"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:45:12"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:45:12"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:45:13"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:47:31"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:47:31"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 10:47:32"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:29:10"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:29:10"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:29:11"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:31:57"}
+{"level":"error","message":"500 - Unknown column 'RejectionReason' in 'field list' - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:31:57"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:31:58"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:34:30"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:34:31"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:36:32"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:36:32"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:49:51"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:49:51"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:49:51"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:51:29"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:51:29"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 11:51:29"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:00:41"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:19:25"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:19:25"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:19:25"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:21:02"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:21:02"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:21:02"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:22:30"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:22:30"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:22:30"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:24:36"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:24:36"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:25:33"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:25:33"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:28:02"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:28:02"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:29:39"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:29:40"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:31:48"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:31:49"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:35:30"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:35:30"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:41:26"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:41:26"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:55:39"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 12:55:39"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:20:39"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:20:39"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:21:14"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:21:14"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:03"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:03"}
+{"level":"error","message":"500 - Table 'garage_test.complaints' doesn't exist - /api/complaints/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:03"}
+{"level":"error","message":"500 - Table 'garage_test.complaints' doesn't exist - /api/complaints/my-complaints - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:03"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:27"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:23:27"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:24:33"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:24:34"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:25:17"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:25:17"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:50:05"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:50:05"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:50:50"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:50:50"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:53:50"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:53:50"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:55:53"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:55:53"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:59:44"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 13:59:45"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 14:43:07"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 14:43:12"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-03-31 15:36:35"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-03-31 15:36:35"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 06:56:25"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 06:56:25"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 06:57:07"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 06:57:07"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:22:23"}
+{"level":"error","message":"500 - Unknown column 'CreatedAt' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:22:24"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:32"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:35"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:35"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:37"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:41"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:41"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:41"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:42"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:42"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:45"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`garage_test`.`complaints`, CONSTRAINT `complaints_ibfk_2` FOREIGN KEY (`GarageID`) REFERENCES `garages` (`GarageID`)) - /api/garages/1 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:47"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:25:48"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:27:22"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:11"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:14"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:17"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:19"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:22"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:22"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:22"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/6 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:26"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:26"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:28"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:29"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-01 07:28:30"}
+{"level":"error","message":"400 - Expected ',' or '}' after property value in JSON at position 24 (line 3 column 1) - /register - POST - ::1","timestamp":"2026-04-01 07:55:21"}
+{"level":"error","message":"500 - Duplicate entry 'john@test.com' for key 'Email' - /api/auth/register - POST - ::1","timestamp":"2026-04-01 10:31:31"}
+{"level":"error","message":"500 - Duplicate entry '0123456789' for key 'PhoneNumber' - /api/auth/register - POST - ::1","timestamp":"2026-04-01 10:34:50"}
+{"level":"error","message":"500 - Cannot destructure property 'email' of 'req.body' as it is undefined. - /api/auth/login - POST - ::1","timestamp":"2026-04-01 11:24:09"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-04-01 11:59:44"}
+{"level":"error","message":"500 - Cannot destructure property 'plateNumber' of 'req.body' as it is undefined. - /api/vehicles - POST - ::1","timestamp":"2026-04-01 14:39:15"}
+{"level":"error","message":"500 - Cannot destructure property 'rating' of 'req.body' as it is undefined. - /api/reviews/ - POST - ::1","timestamp":"2026-04-01 15:12:01"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-04-02 07:10:39"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:32"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:34"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`garage_test`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/users/7/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:38"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this request - /api/services/2/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:38"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:39"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:46"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:46"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:46"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`garage_test`.`complaints`, CONSTRAINT `complaints_ibfk_2` FOREIGN KEY (`GarageID`) REFERENCES `garages` (`GarageID`)) - /api/garages/1 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:50"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:54"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:57"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:11:57"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:12:02"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-02 07:12:04"}
+{"level":"error","message":"500 - Cannot convert undefined or null to object - /api/garages/2 - PUT - ::1","timestamp":"2026-04-03 11:13:58"}
+{"level":"error","message":"500 - Cannot convert undefined or null to object - /api/garages/1 - PUT - ::1","timestamp":"2026-04-03 11:14:18"}

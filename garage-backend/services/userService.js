@@ -1,5 +1,17 @@
 import db from "../config/db.js";
 import bcrypt from "bcryptjs";
+export const getUserProfile = async (userId) => {
+  const [rows] = await db.query(
+    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status FROM Users WHERE UserID = ?",
+    [userId]
+  );
+  if (rows.length === 0) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+  return rows[0];
+};
 
 export const updateProfile = async (userId, data) => {
   const { fullName, phone } = data;
@@ -46,9 +58,21 @@ export const updateRole = async (userId, newRole) => {
 
   await db.query("UPDATE Users SET Role = ? WHERE UserID = ?", [newRole, userId]);
 
-  // If user becomes customer, ensure they are in the Customers table
+  // Maintain Sub-tables for role consistency
+  // 1. Remove from all possible sub-role tables first (except Mechanics if it's separate logic)
+  await db.query("DELETE FROM Customers WHERE UserID = ?", [userId]);
+  await db.query("DELETE FROM SuperAdmins WHERE UserID = ?", [userId]);
+  // Note: GarageManagers deletion might affect Garage assignment, usually handled in assignUserToGarage
+  // But for a clean role change, we should be careful.
+  
   if (newRole === "Customer") {
     await db.query("INSERT IGNORE INTO Customers (UserID) VALUES (?)", [userId]);
+  } else if (newRole === "SuperAdmin") {
+    await db.query("INSERT IGNORE INTO SuperAdmins (UserID) VALUES (?)", [userId]);
+  } else if (newRole === "GarageManager") {
+    // If they were already a manager, this keeps the record. 
+    // If not, they'll need assignUserToGarage to link to a specific garage.
+    await db.query("INSERT IGNORE INTO GarageManagers (UserID) VALUES (?)", [userId]);
   }
 };
 

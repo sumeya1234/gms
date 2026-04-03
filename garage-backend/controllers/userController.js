@@ -1,11 +1,20 @@
-import { updateProfile, changePassword, updateRole, assignUserToGarage } from "../services/userService.js";
+import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage } from "../services/userService.js";
 import { fetchMyNotifications, savePushToken } from "../services/notificationService.js";
 import { getSuperAdminStats } from "../services/dashboardService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const getProfile = asyncHandler(async (req, res) => {
-  // Return the logged in user's profile
-  res.json({ user: req.user });
+  const userProfile = await getUserProfile(req.user.id);
+  res.json({
+    user: {
+      id: userProfile.UserID,
+      fullName: userProfile.FullName,
+      email: userProfile.Email,
+      phone: userProfile.PhoneNumber,
+      role: userProfile.Role,
+      status: userProfile.Status
+    }
+  });
 });
 
 export const editProfile = asyncHandler(async (req, res) => {

@@ -17,7 +17,7 @@ export const validateAssignMechanic = Joi.object({
 
 export const validateUpdateStatus = Joi.object({
   requestId: idSchema.optional(), // Optional if in params
-  status: Joi.string().valid("pending", "approved", "rejected", "in_progress", "completed").required(),
+  status: Joi.string().valid("Pending", "Approved", "Rejected", "InProgress", "Completed").required(),
   rejectionReason: Joi.string().optional().allow("")
 });
 

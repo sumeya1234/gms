@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS SuperAdmins;
 DROP TABLE IF EXISTS Customers;
 DROP TABLE IF EXISTS Garages;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Notifications;
+DROP TABLE IF EXISTS PushTokens;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -78,6 +80,7 @@ CREATE TABLE ServiceRequests (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     ServiceType VARCHAR(100),
     Description TEXT,
+    RejectionReason TEXT,
     RequestDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Status ENUM('Pending','Approved','Rejected','InProgress','Completed') DEFAULT 'Pending',
     IsEmergency BOOLEAN DEFAULT FALSE,
@@ -153,6 +156,26 @@ CREATE TABLE Complaints (
     FOREIGN KEY (CustomerID) REFERENCES Customers(UserID),
     FOREIGN KEY (GarageID) REFERENCES Garages(GarageID),
     FOREIGN KEY (ResolvedBy) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Notifications (
+    NotificationID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    Title VARCHAR(255),
+    Message TEXT,
+    Type VARCHAR(50),
+    IsRead BOOLEAN DEFAULT FALSE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE PushTokens (
+    TokenID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT UNIQUE,
+    Token VARCHAR(255) UNIQUE,
+    DeviceType VARCHAR(50),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 CREATE TRIGGER limit_mechanic_jobs

@@ -72,7 +72,7 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     }
   }
 
-  const validStatuses = ["pending", "approved", "rejected", "in_progress", "completed"];
+  const validStatuses = ["Pending", "Approved", "Rejected", "InProgress", "Completed"];
   if (!validStatuses.includes(status)) {
     const error = new Error("Invalid status");
     error.status = 400;
@@ -91,16 +91,16 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     let message = `Your service request for ${request[0].ServiceType} has been marked as ${status}.`;
     let type = status.toUpperCase();
 
-    if (status === "approved") {
+    if (status === "Approved") {
       title = "Request Approved";
       message = "Your car has been approved for service";
-    } else if (status === "rejected") {
+    } else if (status === "Rejected") {
       title = "Request Rejected";
       message = rejectionReason || "Your request was rejected.";
-    } else if (status === "in_progress") {
+    } else if (status === "InProgress") {
       message = "Repair started";
       type = "REPAIR_STARTED";
-    } else if (status === "completed") {
+    } else if (status === "Completed") {
       title = "Service Ready";
       message = "Your car is ready for pickup";
       type = "CAR_READY";
@@ -181,6 +181,8 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
     }
 
     // 4. Update status to 'Completed'
+    await connection.query("UPDATE ServiceRequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
+    
     await connection.commit();
 
     // 5. Notify Customer
