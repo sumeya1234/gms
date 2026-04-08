@@ -9,6 +9,20 @@ export const addComplaint = async (customerId, garageId, description) => {
     throw error;
   }
 
+  // Complaint Integrity: Check for at least one completed service at this garage
+  const [completedService] = await db.query(
+    `SELECT 1 FROM ServiceRequests sr 
+     JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
+     WHERE v.CustomerID = ? AND sr.GarageID = ? AND sr.Status = 'Completed'`,
+    [customerId, garageId]
+  );
+
+  if (completedService.length === 0) {
+    const error = new Error("You can only file a complaint against a garage after a completed service");
+    error.status = 403;
+    throw error;
+  }
+
   await db.query(
     `INSERT INTO Complaints (CustomerID, GarageID, Description)
      VALUES (?, ?, ?)`,
@@ -34,6 +48,17 @@ export const fetchCustomerComplaints = async (customerId) => {
   const [rows] = await db.query(
     "SELECT * FROM Complaints WHERE CustomerID = ? ORDER BY CreatedAt DESC",
     [customerId]
+  );
+  return rows;
+};
+
+export const fetchGarageComplaints = async (garageId) => {
+  const [rows] = await db.query(
+    `SELECT c.*, u.FullName as CustomerName, u.Email as CustomerEmail 
+     FROM Complaints c 
+     JOIN Users u ON c.CustomerID = u.UserID 
+     WHERE c.GarageID = ? ORDER BY c.CreatedAt DESC`,
+    [garageId]
   );
   return rows;
 };

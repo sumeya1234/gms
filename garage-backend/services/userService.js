@@ -10,7 +10,21 @@ export const getUserProfile = async (userId) => {
     error.status = 404;
     throw error;
   }
-  return rows[0];
+  
+  const user = rows[0];
+
+  // If GarageManager, fetch their assigned GarageID
+  if (user.Role === "GarageManager") {
+    const [managerRows] = await db.query(
+      "SELECT GarageID FROM GarageManagers WHERE UserID = ?",
+      [userId]
+    );
+    if (managerRows.length > 0) {
+      user.GarageID = managerRows[0].GarageID;
+    }
+  }
+
+  return user;
 };
 
 export const updateProfile = async (userId, data) => {
@@ -101,7 +115,7 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
     const assignerGarageId = managerRecord[0].GarageID;
 
     // A manager can only assign mechanics, and only to their OWN garage
-    if (targetGarageId !== assignerGarageId) {
+    if (Number(targetGarageId) !== Number(assignerGarageId)) {
       const error = new Error("Garage Managers can only assign mechanics to their own garage");
       error.status = 403;
       throw error;
@@ -118,4 +132,49 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
     error.status = 403;
     throw error;
   }
+};
+
+export const unassignManagerFromGarage = async (garageId) => {
+  await db.query("DELETE FROM GarageManagers WHERE GarageID = ?", [garageId]);
+  await db.query("UPDATE Garages SET ManagerID = NULL WHERE GarageID = ?", [garageId]);
+};
+
+export const getAllUsers = async () => {
+  const [rows] = await db.query(
+    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status, CreatedAt FROM Users ORDER BY CreatedAt DESC"
+  );
+  return rows;
+};
+
+export const getMechanicsByGarage = async (garageId) => {
+  const [rows] = await db.query(
+    `SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status 
+     FROM Users u 
+     JOIN Mechanics m ON u.UserID = m.UserID 
+     WHERE m.GarageID = ? AND u.Status != 'Archived'`,
+    [garageId]
+  );
+  return rows;
+};
+
+export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user) => {
+  if (user.role === "GarageManager") {
+    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+    if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(garageId)) {
+      const error = new Error("Garage Managers can only modify mechanics in their own garage");
+      error.status = 403;
+      throw error;
+    }
+  }
+
+  // Verify mechanic belongs to this garage
+  const [mechanic] = await db.query("SELECT * FROM Mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
+  if (!mechanic.length) {
+    const error = new Error("Mechanic not found in this garage");
+    error.status = 404;
+    throw error;
+  }
+
+  // Update status in Users table
+  await db.query("UPDATE Users SET Status = ? WHERE UserID = ?", [newStatus, mechanicId]);
 };

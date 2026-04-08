@@ -1,24 +1,33 @@
 import db from "../config/db.js";
 
 export const getAllGarages = async (location) => {
-  let query = "SELECT * FROM Garages";
+  let query = `
+    SELECT g.*, 
+           COUNT(r.ReviewID) as TotalReviews, 
+           IFNULL(AVG(r.Rating), 0) as AverageRating
+    FROM Garages g
+    LEFT JOIN Reviews r ON g.GarageID = r.GarageID
+  `;
   const params = [];
 
   if (location) {
-    query += " WHERE Location LIKE ?";
+    query += " WHERE g.Location LIKE ?";
     params.push(`%${location}%`);
   }
+  
+  query += " GROUP BY g.GarageID";
 
   const [rows] = await db.query(query, params);
   return rows;
 };
 
 export const addGarage = async (name, location, contact) => {
-  await db.query(
+  const [result] = await db.query(
     `INSERT INTO Garages (Name, Location, ContactNumber)
      VALUES (?, ?, ?)`,
     [name, location, contact]
   );
+  return result.insertId;
 };
 
 export const fetchGarageById = async (id) => {
@@ -31,9 +40,19 @@ export const fetchGarageById = async (id) => {
   return rows[0];
 };
 
-export const modifyGarage = async (id, updateData) => {
+export const modifyGarage = async (id, updateData, user) => {
   // Check if garage exists
   await fetchGarageById(id);
+
+  if (user && user.role === "GarageManager") {
+    // Check if user's garage matches id
+    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+    if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(id)) {
+      const error = new Error("Garage Managers can only update their own garage details");
+      error.status = 403;
+      throw error;
+    }
+  }
 
   const updates = [];
   const values = [];

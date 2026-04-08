@@ -59,6 +59,13 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     throw error;
   }
 
+  // Prevent changing terminal statuses
+  if (request[0].Status === 'Rejected' || request[0].Status === 'Completed') {
+    const error = new Error(`Cannot update status of a ${request[0].Status} service request`);
+    error.status = 400;
+    throw error;
+  }
+
   // Tenant Isolation
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
@@ -138,6 +145,12 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
     if (service.length === 0) {
       const error = new Error("Service request not found");
       error.status = 404;
+      throw error;
+    }
+
+    if (service[0].Status === 'Rejected' || service[0].Status === 'Completed') {
+      const error = new Error(`Cannot complete a ${service[0].Status} service request`);
+      error.status = 400;
       throw error;
     }
 

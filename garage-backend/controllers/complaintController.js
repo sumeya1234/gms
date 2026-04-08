@@ -1,4 +1,4 @@
-import { addComplaint, updateComplaintStatus, fetchCustomerComplaints } from "../services/complaintService.js";
+import { addComplaint, updateComplaintStatus, fetchCustomerComplaints, fetchGarageComplaints } from "../services/complaintService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const createComplaint = asyncHandler(async (req, res) => {
@@ -9,6 +9,12 @@ export const createComplaint = asyncHandler(async (req, res) => {
 
 export const getMyComplaints = asyncHandler(async (req, res) => {
   const complaints = await fetchCustomerComplaints(req.user.id);
+  res.json(complaints);
+});
+
+export const getGarageComplaints = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  const complaints = await fetchGarageComplaints(garageId);
   res.json(complaints);
 });
 

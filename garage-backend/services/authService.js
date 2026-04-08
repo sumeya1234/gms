@@ -55,3 +55,59 @@ export const loginUser = async (email, password) => {
 
   return { token, role: user.Role };
 };
+
+export const generatePasswordResetOTP = async (email) => {
+  const [rows] = await db.query("SELECT UserID FROM Users WHERE Email = ?", [email]);
+  if (rows.length === 0) {
+    const error = new Error("User with that email not found");
+    error.status = 404;
+    throw error;
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Set expiry to 15 minutes from now
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  await db.query(
+    "INSERT INTO PasswordResets (Email, OTP, ExpiresAt) VALUES (?, ?, ?)",
+    [email, otp, expiresAt]
+  );
+
+  return otp;
+};
+
+export const verifyAndResetPassword = async (email, otp, newPassword) => {
+  // Check if OTP is valid and not expired
+  const [resetRows] = await db.query(
+    "SELECT * FROM PasswordResets WHERE Email = ? AND OTP = ? AND ExpiresAt > NOW()",
+    [email, otp]
+  );
+
+  if (resetRows.length === 0) {
+    const error = new Error("Invalid or expired OTP");
+    error.status = 400;
+    throw error;
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  // Update user's password
+  const [updateResult] = await db.query(
+    "UPDATE Users SET PasswordHash = ? WHERE Email = ?",
+    [hashedPassword, email]
+  );
+
+  if (updateResult.affectedRows === 0) {
+    const error = new Error("User not found to update password");
+    error.status = 404;
+    throw error;
+  }
+
+  // Delete all password resets for this email to prevent reuse
+  await db.query("DELETE FROM PasswordResets WHERE Email = ?", [email]);
+
+  return true;
+};

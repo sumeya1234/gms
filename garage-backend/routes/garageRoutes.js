@@ -11,7 +11,7 @@ router.get("/", protect, getGarages);
 router.get("/:id", protect, validate(validateGarageId, "params"), getGarage);
 router.get("/:id/stats", protect, authorize("GarageManager", "SuperAdmin"), validate(validateGarageId, "params"), getStats);
 router.post("/", protect, authorize("SuperAdmin"), validate(validateGarage), createGarage);
-router.put("/:id", protect, authorize("SuperAdmin"), validate(validateGarageId, "params"), validate(validateGarageUpdate, "body"), updateGarageDetails);
+router.put("/:id", protect, authorize("SuperAdmin", "GarageManager"), validate(validateGarageId, "params"), validate(validateGarageUpdate, "body"), updateGarageDetails);
 router.delete("/:id", protect, authorize("SuperAdmin"), validate(validateGarageId, "params"), archiveGarage);
 
 export default router;

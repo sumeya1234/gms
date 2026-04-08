@@ -1,5 +1,6 @@
-import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage } from "../services/userService.js";
-import { fetchMyNotifications, savePushToken } from "../services/notificationService.js";
+import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage, getAllUsers, getMechanicsByGarage, changeMechanicStatus } from "../services/userService.js";
+import { registerUser } from "../services/authService.js";
+import { fetchMyNotifications, savePushToken, markAsRead } from "../services/notificationService.js";
 import { getSuperAdminStats } from "../services/dashboardService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
@@ -12,7 +13,8 @@ export const getProfile = asyncHandler(async (req, res) => {
       email: userProfile.Email,
       phone: userProfile.PhoneNumber,
       role: userProfile.Role,
-      status: userProfile.Status
+      status: userProfile.Status,
+      GarageID: userProfile.GarageID
     }
   });
 });
@@ -47,6 +49,11 @@ export const getNotifications = asyncHandler(async (req, res) => {
   res.json(notifications);
 });
 
+export const readNotification = asyncHandler(async (req, res) => {
+  await markAsRead(req.params.id, req.user.id);
+  res.json({ message: "Notification marked as read" });
+});
+
 export const registerToken = asyncHandler(async (req, res) => {
   const { token, deviceType } = req.body;
   await savePushToken(req.user.id, token, deviceType);
@@ -56,4 +63,42 @@ export const registerToken = asyncHandler(async (req, res) => {
 export const getAdminDashboard = asyncHandler(async (req, res) => {
   const stats = await getSuperAdminStats();
   res.json(stats);
+});
+
+export const getUsers = asyncHandler(async (req, res) => {
+  const users = await getAllUsers();
+  res.json(users);
+});
+
+export const getGarageMechanics = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  const mechanics = await getMechanicsByGarage(garageId);
+  res.json(mechanics);
+});
+
+export const createMechanic = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  const { fullName, email, phone, password } = req.body;
+
+  // 1. Create the user with role 'Mechanic'
+  const result = await registerUser({
+    fullName,
+    email,
+    phone,
+    password,
+    role: "Mechanic"
+  });
+
+  // 2. Assign to garage
+  await assignUserToGarage(result.userId, garageId, req.user);
+
+  res.status(201).json({ message: "Mechanic created and assigned successfully", userId: result.userId });
+});
+
+export const updateMechanicStatus = asyncHandler(async (req, res) => {
+  const { garageId, mechanicId } = req.params;
+  const { status } = req.body;
+  
+  await changeMechanicStatus(garageId, mechanicId, status, req.user);
+  res.json({ message: `Mechanic status updated to ${status}` });
 });
