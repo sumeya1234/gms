@@ -1,3 +1,6 @@
 node_modules
 .env
 .env.example
+garage-backend/scripts
+garage-backend/combined.log
+garage-backend/error.log
