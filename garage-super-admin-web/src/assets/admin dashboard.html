@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MechAtelier Admin Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#414753",
+                        "primary-container": "#0074db",
+                        "on-primary-container": "#fefcff",
+                        "secondary-fixed": "#d5e3ff",
+                        "secondary-container": "#b2cdfd",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#3c5780",
+                        "on-primary-fixed-variant": "#004689",
+                        "on-secondary-fixed": "#001b3c",
+                        "on-secondary-fixed-variant": "#2c4770",
+                        "on-tertiary-fixed-variant": "#753400",
+                        "primary-fixed-dim": "#a8c8ff",
+                        "surface-container": "#f0edf2",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbf8fe",
+                        "surface-container-low": "#f6f2f8",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#fbf8fe",
+                        "secondary-fixed-dim": "#adc8f7",
+                        "on-background": "#1b1b1f",
+                        "primary-fixed": "#d5e3ff",
+                        "primary": "#005baf",
+                        "outline": "#717785",
+                        "surface-container-high": "#eae7ed",
+                        "on-surface": "#1b1b1f",
+                        "tertiary-fixed-dim": "#ffb68c",
+                        "inverse-on-surface": "#f3f0f5",
+                        "on-tertiary-fixed": "#321200",
+                        "tertiary-fixed": "#ffdbc9",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#303034",
+                        "on-primary-fixed": "#001b3c",
+                        "on-tertiary-container": "#fffbff",
+                        "outline-variant": "#c1c6d5",
+                        "surface-container-highest": "#e4e1e7",
+                        "tertiary": "#964400",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#455f89",
+                        "tertiary-container": "#bc5700",
+                        "surface-variant": "#e4e1e7",
+                        "inverse-primary": "#a8c8ff",
+                        "surface-tint": "#005eb4",
+                        "surface-dim": "#dcd9de",
+                        "error": "#ba1a1a",
+                        "surface": "#fbf8fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col py-8 px-4 z-40 transition-all">
+<div class="mb-10 px-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">build</span>
+</div>
+<div>
+<h1 class="text-2xl font-black text-blue-700 dark:text-blue-500 tracking-tighter leading-none">MechAtelier</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1">Admin Console</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard (Active) -->
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all relative text-blue-700 dark:text-blue-400 font-bold before:absolute before:left-0 before:w-1 before:h-6 before:bg-blue-600 before:rounded-full bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Users</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Mechanics</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Approvals</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-public-sans tracking-tight text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">add</span>
+<span>New Service</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-30 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md flex justify-between items-center px-8 shadow-sm shadow-slate-200/50 dark:shadow-none">
+<div class="flex items-center bg-surface-container rounded-full px-4 py-1.5 w-96 border border-outline-variant/20 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-400" placeholder="Search operations, vehicles, or mechanics..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 border-r border-slate-200 pr-6">
+<button class="text-slate-600 hover:text-blue-500 transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="text-slate-600 hover:text-blue-500 transition-all">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Alex Mercer</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-tighter">Chief Administrator</p>
+</div>
+<img alt="Admin Profile" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="professional male portrait with a friendly smile, neutral background, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_dvRuBHFg9zgrCN-kdwcPZG6kQCl0VI4-qoboiAl2uM6Pl1NME9Yjdx-RFoWtVz59dDP-9eZyi34I4H_2hVkGbLx-Dybiezt4Gu0bnxc71pE89RxDAIr0H0AdpoiECFNA_Io2NI3BwM0qKJVvzXYrIqW2q3lb5ze36HqdN-8K6oy1qrp55zGFcbrbx0khpXWlZ5Fo7Sll9c0NK4CMRuspYPuBZ5xXb1bhk-LXJs60oQ0dJp30YZz7ufDFELGx5p-vD9c3UVIMDeUj"/>
+</div>
+</div>
+</header>
+<div class="pt-24 px-10 pb-12 space-y-10">
+<!-- Greeting & Metrics -->
+<section class="grid grid-cols-12 gap-8 items-end">
+<div class="col-span-12 lg:col-span-5">
+<h2 class="text-5xl font-black tracking-tight text-on-surface">Welcome back, Alex</h2>
+<p class="text-on-surface-variant mt-2 text-lg">The workshop is operating at <span class="font-bold text-primary">87% capacity</span> today.</p>
+</div>
+<div class="col-span-12 lg:col-span-7 flex justify-end gap-4">
+<div class="flex items-center gap-3 bg-surface-container-low p-4 rounded-2xl min-w-[180px]">
+<div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Revenue</p>
+<p class="text-xl font-black text-on-surface">$12,840</p>
+<span class="text-[10px] text-green-600 font-bold flex items-center">
+<span class="material-symbols-outlined text-xs">trending_up</span> +12%
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-low p-4 rounded-2xl min-w-[180px]">
+<div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Bookings</p>
+<p class="text-xl font-black text-on-surface">42</p>
+<span class="text-[10px] text-red-600 font-bold flex items-center">
+<span class="material-symbols-outlined text-xs">trending_down</span> -3%
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-low p-4 rounded-2xl min-w-[180px]">
+<div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined">speed</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Efficiency</p>
+<p class="text-xl font-black text-on-surface">94%</p>
+<span class="text-[10px] text-green-600 font-bold flex items-center">
+<span class="material-symbols-outlined text-xs">trending_up</span> +2.1%
+                            </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Content -->
+<section class="grid grid-cols-12 gap-8">
+<!-- Urgent Alerts - The High Priority Card -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-low p-8 rounded-3xl relative overflow-hidden flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold tracking-tight">Urgent Attention</h3>
+<span class="bg-error-container text-on-error-container text-[10px] font-black px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-xs animate-pulse">priority_high</span> 3 CRITICAL
+                        </span>
+</div>
+<div class="space-y-4 flex-1">
+<div class="bg-surface-container-lowest p-4 rounded-2xl border-l-4 border-error flex gap-4 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">leak_add</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">Engine Coolant Leak</h4>
+<p class="text-xs text-on-surface-variant">Bay 4 • BMW M3 (ABC-1234)</p>
+<button class="mt-2 text-xs font-bold text-primary">Assign Senior Tech →</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl border-l-4 border-tertiary flex gap-4 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">Delayed Parts Arrival</h4>
+<p class="text-xs text-on-surface-variant">Shipping Delay • Order #9921</p>
+<button class="mt-2 text-xs font-bold text-primary">Contact Supplier →</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-2xl border-l-4 border-primary flex gap-4 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">person_alert</span>
+</div>
+<div>
+<h4 class="text-sm font-bold">New Mechanic Pending</h4>
+<p class="text-xs text-on-surface-variant">Security Verification Required</p>
+<button class="mt-2 text-xs font-bold text-primary">Verify Docs →</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-outline-variant/30 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-surface-container transition-colors">
+                        View All Issues
+                    </button>
+</div>
+<!-- Main Trend Chart -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low p-8 rounded-3xl">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="text-xl font-bold tracking-tight">Service Request Trends</h3>
+<p class="text-sm text-on-surface-variant">Weekly volume vs previous period</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold">Weekly</button>
+<button class="px-4 py-2 bg-surface-container-high rounded-lg text-xs font-bold">Monthly</button>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-2">
+<!-- Simplified Chart Visual Representation -->
+<div class="w-full h-24 bg-primary-container/20 rounded-t-xl relative group transition-all hover:h-32">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">12</div>
+</div>
+<div class="w-full h-40 bg-primary-container/40 rounded-t-xl relative group transition-all hover:h-48">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">18</div>
+</div>
+<div class="w-full h-32 bg-primary-container/30 rounded-t-xl relative group transition-all hover:h-40">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">15</div>
+</div>
+<div class="w-full h-56 bg-primary rounded-t-xl relative group transition-all hover:h-64 shadow-lg shadow-primary/20">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">24</div>
+</div>
+<div class="w-full h-48 bg-primary-container/60 rounded-t-xl relative group transition-all hover:h-56">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">21</div>
+</div>
+<div class="w-full h-36 bg-primary-container/40 rounded-t-xl relative group transition-all hover:h-44">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">16</div>
+</div>
+<div class="w-full h-44 bg-primary-container/50 rounded-t-xl relative group transition-all hover:h-52">
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">19</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 px-2">
+<span class="text-[10px] font-bold text-slate-400">MON</span>
+<span class="text-[10px] font-bold text-slate-400">TUE</span>
+<span class="text-[10px] font-bold text-slate-400">WED</span>
+<span class="text-[10px] font-bold text-slate-400">THU</span>
+<span class="text-[10px] font-bold text-slate-400">FRI</span>
+<span class="text-[10px] font-bold text-slate-400">SAT</span>
+<span class="text-[10px] font-bold text-slate-400">SUN</span>
+</div>
+</div>
+</section>
+<!-- Lower Section: Actions and Activity -->
+<section class="grid grid-cols-12 gap-8">
+<!-- Quick Actions -->
+<div class="col-span-12 lg:col-span-3 space-y-4">
+<h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-4">Management Actions</h3>
+<button class="w-full flex items-center justify-between p-5 bg-surface-container-low rounded-2xl hover:bg-primary hover:text-on-primary transition-all group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary">engineering</span>
+<span class="font-bold text-sm">Update Mechanics</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-on-primary">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-5 bg-surface-container-low rounded-2xl hover:bg-primary hover:text-on-primary transition-all group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary">inventory_2</span>
+<span class="font-bold text-sm">Inventory Check</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-on-primary">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-5 bg-surface-container-low rounded-2xl hover:bg-primary hover:text-on-primary transition-all group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary">summarize</span>
+<span class="font-bold text-sm">Export Daily PDF</span>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-on-primary">chevron_right</span>
+</button>
+<div class="mt-8 p-6 bg-tertiary-container rounded-3xl text-on-tertiary-container relative overflow-hidden group">
+<div class="relative z-10">
+<h4 class="font-black text-xl leading-tight">Garage<br/>Health Score</h4>
+<p class="text-4xl font-black mt-4">9.2</p>
+<p class="text-[10px] font-bold uppercase mt-2 opacity-80">Top 5% Regionally</p>
+</div>
+<span class="material-symbols-outlined absolute -right-6 -bottom-6 text-9xl opacity-10 group-hover:scale-110 transition-transform">verified</span>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="col-span-12 lg:col-span-9 bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-bold tracking-tight">Recent Activity Feed</h3>
+<div class="flex items-center gap-2 text-xs font-bold text-primary cursor-pointer hover:underline">
+                            View Historical Logs <span class="material-symbols-outlined text-sm">history</span>
+</div>
+</div>
+<div class="space-y-6">
+<!-- Feed Item -->
+<div class="flex gap-6 items-start pb-6 border-b border-outline-variant/10">
+<div class="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-slate-100">
+<img alt="Tech Marcus" class="w-full h-full object-cover" data-alt="close up of a professional mechanic with focused expression in a workshop setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXdWvuTWgZlDAoGB80R_5pVprFKF8HRm69uEWgEH8j0jsKXwPlsvMj_9eoY-H2tFi7HmYht9wTou_84D97p_xZKb_tH9PXnkvb93u6NHAp0tyrMdDY1257sN3Iw12WqMZJR3PHQb8NOlIAiOr790wnmPi5h-qdlWL0XMX4UJ9k8dmPebmHSWY_d1ycmIIRSU_Z_amf7v1UxUvxDUuIwZNYnxjqg2YaWDrwU50iKSL9963eDaUbpXR0pN5lDpgzRtAjpx0J9tKiG6Wj"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h5 class="text-sm font-bold">Marcus Chen <span class="font-normal text-slate-500">completed</span> Brake System Overhaul</h5>
+<span class="text-xs text-slate-400">2 mins ago</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Vehicle: Porsche 911 (GT3-RS) • Total Labor: 4.5 hrs</p>
+<div class="mt-3 flex gap-2">
+<span class="px-2 py-1 bg-surface-container text-[10px] font-bold rounded">ENGINE</span>
+<span class="px-2 py-1 bg-surface-container text-[10px] font-bold rounded">BRAKES</span>
+</div>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="flex gap-6 items-start pb-6 border-b border-outline-variant/10">
+<div class="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-slate-100">
+<img alt="Admin Sarah" class="w-full h-full object-cover" data-alt="portrait of a focused professional woman in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkU-2hGFu9vDrbgic4Ip8cK8j49Hi7ZAbGRwFqydRxvj1LZ2rC6KnNMv4er3H8mF0UCN4zm6trWlFa_oXZ93u9JO0SjcCdWSoaPuKZGjJ3KIpxcnk1KcmRs1oKTUupOVjwbnzglIh1LaDtkQcO1Ur4_jCsU_gjb8ofapesKDq92SgvXOSBgWLHZ4uydC2kkxGmt3zA-ej1e6-WezBOsDdSTKHLJ7fJHQC9O4jazZofrATi-5X-3PEnWw_LInz2OA8BDm3DUQ9bZc3X"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h5 class="text-sm font-bold">Sarah Jenkins <span class="font-normal text-slate-500">approved</span> New Service Category</h5>
+<span class="text-xs text-slate-400">14 mins ago</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Category: "Electric Vehicle Battery Diagnostic"</p>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="flex gap-6 items-start pb-6 border-b border-outline-variant/10">
+<div class="shrink-0 w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h5 class="text-sm font-bold">Payment Processed <span class="font-normal text-slate-500">via</span> Stripe</h5>
+<span class="text-xs text-slate-400">28 mins ago</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Order #8812 • Total: $1,420.00 • Client: Riverside Logistis</p>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="flex gap-6 items-start">
+<div class="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-slate-100">
+<img alt="Client David" class="w-full h-full object-cover" data-alt="professional man in business attire looking forward with neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxocuofkpIdmbmg8J3RX5c6CL4UJ6QXIaY81cFUqvOV-a45amytDUq3nI9Dbn50ZuJVgP3tDQZGCoiAGcaJifIl5hmYddoHToDk42kZGWuYSeApwDnBA5q_TCoUjr3w3j8W8w_m6f_t5b1Q-pSuPjRgMp5mdJ5CRERXMQ2u538uzNOY0BTNZEoyE5cRCqMYUSihhqi226VgqQSBDOjtpoXxSOuuR1WcVcBPLqgH3smZ2nDWOA-gH4FVk7BJ3NNDUxnOvHnK55xzkcH"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h5 class="text-sm font-bold">New Booking Request <span class="font-normal text-slate-500">from</span> David Miller</h5>
+<span class="text-xs text-slate-400">1 hr ago</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Vehicle: Tesla Model S • Service: Annual Inspection</p>
+<div class="mt-3 flex gap-2">
+<button class="px-3 py-1 bg-primary text-on-primary text-[10px] font-bold rounded-lg">Confirm</button>
+<button class="px-3 py-1 border border-outline-variant text-[10px] font-bold rounded-lg">Decline</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>
