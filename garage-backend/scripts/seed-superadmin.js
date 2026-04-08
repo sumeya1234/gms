@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 const seedSuperAdmin = async () => {
   const fullName = "Super Admin";
   const email = "admin@gms.com";
-  const phone = "0900000000";
+  const phone = "0914567689";
   const password = "adminpassword123";
   const role = "SuperAdmin";
 
