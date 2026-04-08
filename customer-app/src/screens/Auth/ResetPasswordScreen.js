@@ -1,0 +1,133 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { Lock, Key, ChevronLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../../store/authStore';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
+import { colors } from '../../theme/colors';
+
+export default function ResetPasswordScreen({ navigation, route }) {
+  const { t } = useTranslation();
+  const { resetPassword, isLoading, error, clearError } = useAuthStore();
+  
+  const email = route.params?.email || '';
+  const otp = route.params?.otp || '';
+
+  const [newPassword, setNewPassword] = useState('');
+  const [localError, setLocalError] = useState('');
+
+  useEffect(() => {
+    if (error) clearError();
+    if (localError) setLocalError('');
+  }, [newPassword]);
+
+  const handleReset = async () => {
+    setLocalError('');
+    if (!newPassword) {
+      setLocalError('Please enter a new password');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setLocalError('Password must be at least 8 characters long');
+      return;
+    }
+    
+    try {
+      await resetPassword(email, otp, newPassword);
+      Alert.alert(t('Success'), t('Your password has been reset successfully. Please log in with your new password.'), [
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
+      ]);
+    } catch (err) {
+      // handled by authStore
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={styles.content}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <ChevronLeft size={24} color={colors.textDark} />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>{t('Create New Password')}</Text>
+        <Text style={styles.subtitle}>
+          {t('Enter your new password.')}
+        </Text>
+
+        {(error || localError) && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error || localError}</Text>
+          </View>
+        )}
+
+        <Input 
+          label={t('New Password')}
+          placeholder="••••••••"
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          leftIcon={<Lock color={colors.textGray} size={20} />}
+        />
+        <Text style={styles.hintText}>{t('Minimum 8 characters')}</Text>
+
+        <Button 
+          title={t('Reset Password')}
+          onPress={handleReset}
+          style={{ marginTop: 24 }}
+          disabled={isLoading}
+        />
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  backBtn: {
+    padding: 8,
+    marginLeft: -8,
+    marginBottom: 20,
+    alignSelf: 'flex-start',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textGray,
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  errorContainer: {
+    backgroundColor: '#fee2e2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+  },
+  hintText: {
+    fontSize: 12,
+    color: colors.textGray,
+    marginTop: -8,
+    marginLeft: 4,
+    marginBottom: 8,
+  }
+});
