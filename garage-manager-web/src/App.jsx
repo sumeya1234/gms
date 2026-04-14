@@ -8,6 +8,7 @@ import { useAuthStore } from './stores/authStore';
 import Bookings from './pages/Bookings';
 import Mechanics from './pages/Mechanics';
 import Services from './pages/Services';
+import Inventory from './pages/Inventory';
 import Settings from './pages/Settings';
 import Feedback from './pages/Feedback';
 
@@ -45,6 +46,7 @@ function App() {
         <Route path="bookings" element={<Bookings />} />
         <Route path="mechanics" element={<Mechanics />} />
         <Route path="services" element={<Services />} />
+        <Route path="inventory" element={<Inventory />} />
         <Route path="feedback" element={<Feedback />} />
         <Route path="settings" element={<Settings />} />
       </Route>

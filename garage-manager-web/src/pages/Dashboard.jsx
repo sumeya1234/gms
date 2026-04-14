@@ -24,7 +24,7 @@ export default function Dashboard() {
         api.get(`/garages/${user.GarageID}/stats`)
       ]);
       
-      setRequests(reqsResponse.data);
+      setRequests(reqsResponse.data.data);
       setGarageStats(statsResponse.data);
       setError('');
     } catch (err) {
@@ -40,9 +40,9 @@ export default function Dashboard() {
   }, [fetchDashboardData]);
 
   const stats = [
-    { title: 'Active Jobs', value: garageStats.activeJobs || '0', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { title: 'Total Revenue', value: `$${parseFloat(garageStats.totalRevenue || 0).toLocaleString()}`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50' },
-    { title: 'Low Stock Alerts', value: garageStats.lowStockItems?.length || '0', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
+    { title: t('activeJobs'), value: garageStats.activeJobs || '0', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { title: t('totalRevenue'), value: `${parseFloat(garageStats.totalRevenue || 0).toLocaleString()} ETB`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50' },
+    { title: t('lowStockWarnings'), value: garageStats.lowStockItems?.length || '0', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
   ];
 
   return (
@@ -82,8 +82,8 @@ export default function Dashboard() {
         {/* Recent Bookings Panel */}
         <div className="lg:col-span-2 card p-6 min-h-[350px] flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Recent Service Bookings</h2>
-            <Link to="/bookings" className="text-sm font-semibold text-[var(--color-primary)] hover:underline">View All</Link>
+            <h2 className="text-xl font-bold text-gray-900">{t('recentBookings')}</h2>
+            <Link to="/bookings" className="text-sm font-semibold text-[var(--color-primary)] hover:underline">{t('viewAll')}</Link>
           </div>
           
           {loading ? (
@@ -93,17 +93,17 @@ export default function Dashboard() {
           ) : requests.length === 0 ? (
              <div className="flex-1 flex flex-col justify-center items-center text-gray-400 p-4">
                <Calendar size={48} className="mb-2 opacity-20" />
-               <p>No recent bookings found.</p>
+               <p>{t('noRecentBookings')}</p>
              </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b-2 border-gray-100 text-xs uppercase tracking-wider text-gray-500">
-                    <th className="p-3 font-semibold">Req ID</th>
-                    <th className="p-3 font-semibold">Service Type</th>
-                    <th className="p-3 font-semibold">Emergency</th>
-                    <th className="p-3 font-semibold">Status</th>
+                    <th className="p-3 font-semibold">{t('reqId')}</th>
+                    <th className="p-3 font-semibold">{t('serviceType')}</th>
+                    <th className="p-3 font-semibold">{t('emergency')}</th>
+                    <th className="p-3 font-semibold">{t('status')}</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -113,9 +113,9 @@ export default function Dashboard() {
                       <td className="p-3 text-gray-900 font-bold">{req.ServiceType}</td>
                       <td className="p-3">
                         {req.IsEmergency ? (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded text-xs font-bold uppercase">Yes</span>
+                          <span className="px-2 py-0.5 bg-red-100 text-red-600 rounded text-xs font-bold uppercase">{t('yes')}</span>
                         ) : (
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs uppercase font-medium">No</span>
+                          <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs uppercase font-medium">{t('no')}</span>
                         )}
                       </td>
                       <td className="p-3">
@@ -138,13 +138,13 @@ export default function Dashboard() {
         </div>
 
         {/* Low Stock Warning Panel */}
-        <div className="card border-t-4 border-t-red-500 p-6 flex flex-col h-full bg-gradient-to-b from-red-50/30 to-white">
+        <div className={`card border-t-4 p-6 flex flex-col h-full bg-gradient-to-b ${!garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? 'border-t-green-500 from-green-50/30' : 'border-t-red-500 from-red-50/30'} to-white`}>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <AlertTriangle className="text-red-500" size={20} />
-              Low Stock Warnings
+              <AlertTriangle className={!garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? 'text-green-500' : 'text-red-500'} size={20} />
+              {(!garageStats.lowStockItems || garageStats.lowStockItems.length === 0) ? t('inventoryStatus') : t('lowStockWarnings')}
             </h2>
-            <Link to="/services" className="text-sm font-semibold text-red-600 hover:underline">Manage All</Link>
+            <Link to="/inventory" className={`text-sm font-semibold hover:underline ${!garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? 'text-green-600' : 'text-red-600'}`}>{t('manageAll')}</Link>
           </div>
 
           <div className="flex-1">
@@ -157,8 +157,8 @@ export default function Dashboard() {
                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
                    <Wrench size={32} />
                  </div>
-                 <p className="font-semibold text-sm">Inventory is healthy!</p>
-                 <p className="text-xs text-gray-500 mt-1">No items are below minimum stock limits.</p>
+                 <p className="font-semibold text-sm">{t('inventoryHealthy')}</p>
+                 <p className="text-xs text-gray-500 mt-1">{t('noMinimumStockLimits')}</p>
                </div>
             ) : (
               <div className="space-y-3">
@@ -168,7 +168,7 @@ export default function Dashboard() {
                       <p className="font-bold text-gray-800 text-sm">{item.ItemName}</p>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <span className="text-xs text-gray-500 uppercase font-medium">Qty:</span>
+                      <span className="text-xs text-gray-500 uppercase font-medium">{t('qty')}:</span>
                       <span className={`font-black text-lg ${item.Quantity === 0 ? 'text-red-600' : 'text-orange-500'}`}>
                         {item.Quantity}
                       </span>

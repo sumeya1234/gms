@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, Star, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { MessageSquare, Star, AlertCircle, CheckCircle, Clock, MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
+import ComplaintMessageModal from '../components/complaints/ComplaintMessageModal';
 
 export default function Feedback() {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export default function Feedback() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   const showSuccess = (msg) => {
     setSuccessMessage(msg);
@@ -50,6 +52,7 @@ export default function Feedback() {
     try {
       await api.put(`/complaints/${complaintId}/resolve`, { status: 'Resolved' });
       showSuccess('Complaint officially marked as resolved');
+      setSelectedComplaint(null);
       fetchFeedbackParams();
     } catch (err) {
       console.error('Failed to resolve complaint', err);
@@ -210,20 +213,13 @@ export default function Feedback() {
                               </span>
                             </td>
                             <td className="p-4 text-right">
-                              {complaint.Status !== 'Resolved' ? (
-                                <button
-                                  onClick={() => handleResolveComplaint(complaint.ComplaintID)}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-md font-semibold text-xs transition-colors"
-                                >
-                                  <CheckCircle size={14} />
-                                  Mark Resolved
-                                </button>
-                              ) : (
-                                <span className="inline-flex items-center gap-1.5 text-gray-400 text-xs font-semibold px-3 py-1.5">
-                                  <CheckCircle size={14} />
-                                  Resolved
-                                </span>
-                              )}
+                              <button
+                                onClick={() => setSelectedComplaint(complaint)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-semibold text-xs transition-colors"
+                              >
+                                <MessageCircle size={14} />
+                                View Thread
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -236,6 +232,14 @@ export default function Feedback() {
           </>
         )}
       </div>
+
+      {selectedComplaint && (
+        <ComplaintMessageModal 
+          complaint={selectedComplaint} 
+          onClose={() => setSelectedComplaint(null)} 
+          onResolved={handleResolveComplaint}
+        />
+      )}
     </div>
   );
 }

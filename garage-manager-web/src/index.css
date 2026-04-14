@@ -16,9 +16,13 @@
 }
 
 @layer base {
-  body {
+html, body {
+  @apply overflow-x-hidden;
+}
+
+body {
     @apply bg-[var(--color-secondary)] text-[var(--color-text-main)] antialiased;
-  }
+}
 }
 
 @layer components {

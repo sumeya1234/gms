@@ -2,7 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { UserPlus, Users, X, Check, Search, Eye, EyeOff, Trash2, Power } from 'lucide-react';
+import { UserPlus, Users, X, Check, Search, Eye, EyeOff, Trash2, Power, Wrench } from 'lucide-react';
+
+const PREDEFINED_SKILLS = [
+  'Engine Repair', 'Brake Service', 'Oil Change', 'Electrical/Wiring',
+  'Transmission', 'Suspension', 'Body Work', 'Tire Service', 'AC/Heating', 'Diagnostics'
+];
 
 export default function Mechanics() {
   const { t } = useTranslation();
@@ -24,13 +29,17 @@ export default function Mechanics() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedMechanic, setSelectedMechanic] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+  const [skillsMechanic, setSkillsMechanic] = useState(null);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [customSkill, setCustomSkill] = useState('');
+  const [skillsLoading, setSkillsLoading] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
-    password: ''
+    phone: ''
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -68,7 +77,7 @@ export default function Mechanics() {
       await api.post(`/users/garage/${user.GarageID}/mechanics`, formData);
       
       // Reset form and close modal
-      setFormData({ fullName: '', email: '', phone: '', password: '' });
+      setFormData({ fullName: '', email: '', phone: '' });
       setIsAddModalOpen(false);
       
       // Refresh list
@@ -122,6 +131,43 @@ export default function Mechanics() {
       alert(err.response?.data?.message || 'Failed to archive mechanic');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const openSkillsModal = (mechanic) => {
+    setSkillsMechanic(mechanic);
+    setSelectedSkills(mechanic.Skills || []);
+    setCustomSkill('');
+    setIsSkillsModalOpen(true);
+  };
+
+  const toggleSkill = (skill) => {
+    setSelectedSkills(prev => 
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+    );
+  };
+
+  const addCustomSkill = () => {
+    const trimmed = customSkill.trim();
+    if (trimmed && !selectedSkills.includes(trimmed)) {
+      setSelectedSkills(prev => [...prev, trimmed]);
+      setCustomSkill('');
+    }
+  };
+
+  const handleSaveSkills = async () => {
+    if (!skillsMechanic) return;
+    setSkillsLoading(true);
+    try {
+      await api.put(`/users/garage/${user.GarageID}/mechanics/${skillsMechanic.UserID}/skills`, { skills: selectedSkills });
+      showSuccess(`Skills updated for ${skillsMechanic.FullName}`);
+      setIsSkillsModalOpen(false);
+      fetchMechanics();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Failed to update skills');
+    } finally {
+      setSkillsLoading(false);
     }
   };
 
@@ -185,7 +231,17 @@ export default function Mechanics() {
                   <tr key={mechanic.UserID} className="border-b border-[var(--color-border)] hover:bg-slate-50/50 transition-colors">
                     <td className="p-4 text-gray-500 font-mono">#{mechanic.UserID}</td>
                     <td className="p-4 text-[var(--color-text-main)] font-bold">
-                      {mechanic.FullName}
+                      <div>{mechanic.FullName}</div>
+                      {mechanic.Skills && mechanic.Skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {mechanic.Skills.slice(0, 2).map(skill => (
+                            <span key={skill} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded">{skill}</span>
+                          ))}
+                          {mechanic.Skills.length > 2 && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-semibold rounded">+{mechanic.Skills.length - 2} more</span>
+                          )}
+                        </div>
+                      )}
                     </td>
                     <td className="p-4 text-gray-600">
                       {mechanic.Email}
@@ -203,6 +259,13 @@ export default function Mechanics() {
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => openSkillsModal(mechanic)}
+                          className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
+                          title="Manage Skills"
+                        >
+                          <Wrench size={16} />
+                        </button>
                         <button
                           onClick={() => openStatusModal(mechanic)}
                           className={`p-1.5 rounded transition-colors ${
@@ -300,27 +363,9 @@ export default function Mechanics() {
                 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Temporary Password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="••••••••"
-                      className="input-field w-full pr-10"
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Mechanics can change this later.</p>
+                  <p className="text-sm text-gray-500 mt-1 italic">
+                    A secure temporary password will be automatically generated and emailed to the mechanic. They will be directed to change it upon first login.
+                  </p>
                 </div>
               </div>
 
@@ -421,6 +466,102 @@ export default function Mechanics() {
                 ) : (
                   "Yes, Archive"
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skills Modal */}
+      {isSkillsModalOpen && skillsMechanic && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Wrench size={20} className="text-[var(--color-primary)]" />
+                Skills — {skillsMechanic.FullName}
+              </h2>
+              <button onClick={() => setIsSkillsModalOpen(false)} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <p className="text-sm text-gray-500 mb-4">Select the skills this mechanic specializes in:</p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {PREDEFINED_SKILLS.map(skill => {
+                  const isSelected = selectedSkills.includes(skill);
+                  return (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                        isSelected
+                          ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm'
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                      }`}
+                    >
+                      {isSelected && <span className="mr-1">✓</span>}
+                      {skill}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom skills that are not in predefined list */}
+              {selectedSkills.filter(s => !PREDEFINED_SKILLS.includes(s)).length > 0 && (
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Custom Skills</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSkills.filter(s => !PREDEFINED_SKILLS.includes(s)).map(skill => (
+                      <span key={skill} className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200 flex items-center gap-1">
+                        {skill}
+                        <button onClick={() => toggleSkill(skill)} className="ml-1 text-purple-400 hover:text-purple-700">
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customSkill}
+                  onChange={(e) => setCustomSkill(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+                  placeholder="Add custom skill..."
+                  className="input-field flex-1 text-sm"
+                />
+                <button
+                  onClick={addCustomSkill}
+                  disabled={!customSkill.trim()}
+                  className="px-3 py-2 text-sm font-semibold text-[var(--color-primary)] bg-blue-50 hover:bg-blue-100 disabled:opacity-40 rounded-lg transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end p-5 border-t border-gray-100 bg-gray-50/30">
+              <button
+                onClick={() => setIsSkillsModalOpen(false)}
+                className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveSkills}
+                disabled={skillsLoading}
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+              >
+                {skillsLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                ) : (
+                  <Check size={16} />
+                )}
+                Save Skills
               </button>
             </div>
           </div>

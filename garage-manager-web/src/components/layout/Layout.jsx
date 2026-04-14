@@ -1,16 +1,23 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare, Package, Globe, Building2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { useTranslation } from 'react-i18next';
 
 export const Layout = () => {
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('language', lng);
+    setLangMenuOpen(false);
+  };
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -18,6 +25,14 @@ export const Layout = () => {
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  
+  // Set language from local storage on mount
+  useEffect(() => {
+     const savedLang = localStorage.getItem('language');
+     if (savedLang && i18n.language !== savedLang) {
+       i18n.changeLanguage(savedLang);
+     }
+  }, []);
   
   const fetchNotifications = async () => {
     try {
@@ -48,19 +63,25 @@ export const Layout = () => {
   const unreadCount = notifications.filter(n => !n.IsRead).length;
 
   const navItems = [
-    { path: '/', icon: LayoutDashboard, label: t('dashboard') || 'Dashboard' },
-    { path: '/bookings', icon: Calendar, label: 'Bookings' },
-    { path: '/mechanics', icon: Users, label: 'Mechanics' },
-    { path: '/services', icon: Wrench, label: 'Services' },
-    { path: '/feedback', icon: MessageSquare, label: 'Feedback' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/', icon: LayoutDashboard, label: t('dashboard') },
+    { path: '/bookings', icon: Calendar, label: t('bookings') },
+    { path: '/mechanics', icon: Users, label: t('mechanics') },
+    { path: '/services', icon: Wrench, label: t('services') },
+    { path: '/inventory', icon: Package, label: t('inventory') },
+    { path: '/feedback', icon: MessageSquare, label: t('feedback') },
+    { path: '/settings', icon: Settings, label: t('settings') },
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--color-secondary)] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--color-secondary)] font-sans">
       {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b border-[var(--color-border)] p-4 flex justify-between items-center z-10 sticky top-0">
-        <h1 className="text-xl font-bold text-[var(--color-primary)]">Garage Admin</h1>
+      <div className="md:hidden bg-white border-b border-[var(--color-border)] p-4 flex justify-between items-center z-20 fixed top-0 left-0 w-full h-16">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <Building2 size={18} />
+          </div>
+          <h1 className="text-lg font-black text-[#1890ff] tracking-tighter leading-none">GMS Manager</h1>
+        </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setIsNotificationOpen(true)}
@@ -71,16 +92,39 @@ export const Layout = () => {
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>
             )}
           </button>
+          
+          <div className="relative">
+             <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="p-1 text-gray-500">
+               <Globe size={20} />
+             </button>
+             {langMenuOpen && (
+               <div className="absolute right-0 mt-2 py-2 w-32 bg-white rounded shadow-xl border z-50">
+                  <button onClick={() => changeLanguage('en')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">English</button>
+                  <button onClick={() => changeLanguage('am')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Amharic</button>
+                  <button onClick={() => changeLanguage('om')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Afaan Oromo</button>
+               </div>
+             )}
+          </div>
+
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--color-text-main)] focus:outline-none">
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Sidebar Navigation */}
-      <aside className={`md:block w-full md:w-64 bg-white border-r border-[var(--color-border)] min-h-screen flex flex-col transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="p-6 hidden md:block">
-          <h1 className="text-2xl font-bold text-[var(--color-primary)]">Garage Admin</h1>
+      <aside className={`fixed top-0 left-0 h-screen bg-white border-r border-[var(--color-border)] flex flex-col transition-all duration-300 z-40 ${sidebarOpen ? 'w-full block' : 'w-64 hidden md:block'}`}>
+        <div className="mb-8 px-6 hidden md:block mt-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <Building2 size={24} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-[#1890ff] tracking-tighter leading-none">GMS Manager</h1>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1 truncate max-w-[140px]" title={user?.GarageName || t('garageAdmin')}>
+                {user?.GarageName || t('garageAdmin')}
+              </p>
+            </div>
+          </div>
         </div>
         <nav className="flex-1 mt-4 md:mt-0 p-4 space-y-2">
           {navItems.map((item) => {
@@ -105,27 +149,41 @@ export const Layout = () => {
             className="flex items-center space-x-3 p-3 w-full rounded-lg text-[var(--color-error)] hover:bg-[#fff1f0] transition-colors focus:outline-none"
           >
             <LogOut size={20} />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium">{t('logout')}</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[var(--color-secondary)] relative">
-        {/* Desktop Top Bar */}
-        <div className="bg-white border-b border-[var(--color-border)] p-4 flex justify-end items-center sticky top-0 z-10 hidden md:flex">
+      <main className="min-h-screen bg-[var(--color-secondary)] md:ml-64 flex flex-col pt-16">
+        {/* Desktop Top Bar - Fixed at top */}
+        <div className="bg-white border-b border-[var(--color-border)] p-4 justify-end items-center hidden md:flex fixed top-0 right-0 left-0 md:left-64 h-16 z-20 shadow-sm">
           <button 
             onClick={() => setIsNotificationOpen(true)}
-            className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+            className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
           >
             <Bell size={20} />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
             )}
           </button>
+
+          <div className="relative">
+             <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="flex items-center gap-2 p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors">
+               <Globe size={20} />
+               <span className="text-sm font-medium">{i18n.language?.toUpperCase() || 'EN'}</span>
+             </button>
+             {langMenuOpen && (
+               <div className="absolute right-0 mt-2 py-2 w-36 bg-white rounded-lg shadow-xl border z-50">
+                  <button onClick={() => changeLanguage('en')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'en' ? 'font-bold text-[var(--color-primary)]' : ''}`}>English</button>
+                  <button onClick={() => changeLanguage('am')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'am' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Amharic</button>
+                  <button onClick={() => changeLanguage('om')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'om' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Afaan Oromo</button>
+               </div>
+             )}
+          </div>
         </div>
         
-        <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 max-w-7xl mx-auto w-full">
           <Outlet />
         </div>
       </main>
@@ -138,8 +196,8 @@ export const Layout = () => {
             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/80">
               <div className="flex items-center gap-2">
                 <Bell className="text-blue-500" size={20} />
-                <h2 className="text-lg font-bold text-gray-800">Notifications</h2>
-                {unreadCount > 0 && <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{unreadCount} new</span>}
+                <h2 className="text-lg font-bold text-gray-800">{t('notifications')}</h2>
+                {unreadCount > 0 && <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
               </div>
               <button 
                 onClick={() => setIsNotificationOpen(false)} 

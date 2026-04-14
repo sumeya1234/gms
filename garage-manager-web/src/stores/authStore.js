@@ -26,9 +26,17 @@ export const useAuthStore = create((set, get) => ({
         const response = await api.get('/users/profile');
         const user = response.data.user;
         set({ user, isAuthenticated: true, loading: false });
-    } catch {
-        localStorage.removeItem('token');
-        set({ user: null, token: null, isAuthenticated: false, loading: false });
+    } catch (err) {
+        // Only clear auth on genuine 401 (token expired/invalid)
+        // Network errors, timeouts, or server restarts should NOT force logout
+        if (err.response && err.response.status === 401) {
+          localStorage.removeItem('token');
+          set({ user: null, token: null, isAuthenticated: false, loading: false });
+        } else {
+          // Keep the user logged in, just stop loading
+          console.warn('Profile fetch failed (non-auth error):', err.message);
+          set({ loading: false });
+        }
     }
   }
 }));
