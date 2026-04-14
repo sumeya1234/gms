@@ -14,6 +14,7 @@ import garageRoutes from "./routes/garageRoutes.js";
 import inventoryRoutes from "./routes/inventoryRoutes.js";
 import vehicleRoutes from "./routes/vehicleRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import catalogRoutes from "./routes/catalogRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
 import notFound from "./middleware/notFound.js";
 import logger from "./utils/logger.js";
@@ -49,6 +50,7 @@ app.use("/api/garages", garageRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/catalog", catalogRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

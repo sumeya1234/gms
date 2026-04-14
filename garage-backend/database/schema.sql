@@ -3,6 +3,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS Complaints;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Payments;
+DROP TABLE IF EXISTS GarageServices;
 DROP TABLE IF EXISTS InventoryRequests;
 DROP TABLE IF EXISTS Inventory;
 DROP TABLE IF EXISTS MechanicAssignments;
@@ -27,7 +28,7 @@ CREATE TABLE Users (
     PhoneNumber VARCHAR(20) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
     Role ENUM('Customer','Mechanic','GarageManager','SuperAdmin') NOT NULL,
-    Status ENUM('Active','Inactive') DEFAULT 'Active',
+    Status ENUM('Active','Inactive','Suspended','Archived') DEFAULT 'Active',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -82,6 +83,9 @@ CREATE TABLE ServiceRequests (
     Description TEXT,
     RejectionReason TEXT,
     RequestDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    BookingDate DATE,
+    DropOffTime TIME,
+    EstimatedDuration DECIMAL(5,2),
     Status ENUM('Pending','Approved','Rejected','InProgress','Completed') DEFAULT 'Pending',
     IsEmergency BOOLEAN DEFAULT FALSE,
     VehicleID INT,
@@ -111,6 +115,14 @@ CREATE TABLE Inventory (
     FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
 );
 
+CREATE TABLE GarageServices (
+    ServiceID INT AUTO_INCREMENT PRIMARY KEY,
+    ServiceName VARCHAR(100),
+    Price DECIMAL(10,2),
+    GarageID INT,
+    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID) ON DELETE CASCADE
+);
+
 CREATE TABLE InventoryRequests (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     MechanicID INT,
@@ -129,6 +141,7 @@ CREATE TABLE Payments (
     PaymentStatus ENUM('Pending','Completed') DEFAULT 'Pending',
     PaymentDate TIMESTAMP,
     RequestID INT UNIQUE,
+    TransactionRef VARCHAR(100) UNIQUE,
     FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID)
 );
 

@@ -39,6 +39,12 @@ export const loginUser = async (email, password) => {
 
   const user = rows[0];
 
+  if (user.Status === 'Suspended' || user.Status === 'Archived') {
+    const error = new Error("Account suspended by Garage Manager");
+    error.status = 403;
+    throw error;
+  }
+
   const isMatch = await bcrypt.compare(password, user.PasswordHash);
 
   if (!isMatch) {

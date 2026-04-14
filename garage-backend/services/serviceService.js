@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export const createServiceRequest = async (serviceType, vehicleId, garageId, description, isEmergency) => {
+export const createServiceRequest = async (serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime) => {
   const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
   if (garage.length === 0) {
     const error = new Error("Garage not found");
@@ -15,14 +15,64 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
     throw error;
   }
 
+  const calculateDuration = (types) => {
+    let duration = 0;
+    const typeStr = (types || '').toLowerCase();
+    if (typeStr.includes('oil change')) duration += 0.5;
+    if (typeStr.includes('diagnostics')) duration += 1.5;
+    if (typeStr.includes('tires')) duration += 1.0;
+    if (typeStr.includes('battery')) duration += 0.5;
+    if (typeStr.includes('electrical')) duration += 2.0;
+    if (typeStr.includes('repair')) duration += 3.0; // General repair
+    if (typeStr.includes('towing')) duration += 2.0;
+    return duration > 0 ? duration : 1.0; 
+  };
+  const estimatedDuration = calculateDuration(serviceType);
+
+  if (bookingDate) {
+    const availability = await fetchGarageAvailability(garageId, bookingDate);
+    if (availability.isFullyBooked) {
+      const error = new Error("Garage daily limit exceeded. Please pick another date.");
+      error.status = 400;
+      throw error;
+    }
+    if (dropOffTime) {
+      const formattedDropOff = dropOffTime.slice(0, 5); // "HH:mm"
+      const isCongested = availability.congestedTimes.some(t => {
+        const timeStr = typeof t === 'string' ? t.slice(0, 5) : t;
+        return timeStr === formattedDropOff;
+      });
+      if (isCongested) {
+        const error = new Error("This drop-off time is congested. Please select another time.");
+        error.status = 400;
+        throw error;
+      }
+    }
+  }
+
   await db.query(
-    `INSERT INTO ServiceRequests (ServiceType, VehicleID, GarageID, Description, IsEmergency)
-     VALUES (?, ?, ?, ?, ?)`,
-    [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0]
+    `INSERT INTO ServiceRequests (ServiceType, VehicleID, GarageID, Description, IsEmergency, BookingDate, DropOffTime, EstimatedDuration)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0, bookingDate || null, dropOffTime || null, estimatedDuration]
   );
 };
 
 export const assignServiceMechanic = async (requestId, mechanicId) => {
+  // Check request exists and is in a valid state for assignment
+  const [request] = await db.query("SELECT * FROM ServiceRequests WHERE RequestID = ?", [requestId]);
+  if (request.length === 0) {
+    const error = new Error("Service request not found");
+    error.status = 404;
+    throw error;
+  }
+
+  // Issue 6: Only allow assignment after Approval
+  if (request[0].Status !== 'Approved' && request[0].Status !== 'InProgress') {
+    const error = new Error(`Cannot assign mechanic to a '${request[0].Status}' request. The request must be Approved first.`);
+    error.status = 400;
+    throw error;
+  }
+
   const [mechanic] = await db.query(
     "SELECT * FROM Mechanics WHERE UserID = ?",
     [mechanicId]
@@ -44,7 +94,8 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
   await createNotification(
     mechanicId,
     "New Job Assignment",
-    `You have been assigned to service request #${requestId}.`
+    `You have been assigned to service request #${requestId}.`,
+    "ASSIGNMENT"
   );
 };
 
@@ -82,6 +133,25 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
   const validStatuses = ["Pending", "Approved", "Rejected", "InProgress", "Completed"];
   if (!validStatuses.includes(status)) {
     const error = new Error("Invalid status");
+    error.status = 400;
+    throw error;
+  }
+
+  // Issue 6: Enforce valid status transitions
+  const currentStatus = request[0].Status;
+  
+  if (currentStatus === status) {
+    return; // Ignore if status is not changing
+  }
+
+  const allowedTransitions = {
+    'Pending': ['Approved', 'Rejected'],
+    'Approved': ['InProgress', 'Completed', 'Rejected'],
+    'InProgress': ['Completed']
+  };
+  const allowed = allowedTransitions[currentStatus];
+  if (allowed && !allowed.includes(status)) {
+    const error = new Error(`Cannot transition from '${currentStatus}' to '${status}'. Allowed: ${allowed.join(', ')}`);
     error.status = 400;
     throw error;
   }
@@ -129,10 +199,91 @@ export const updateAssignmentStatus = async (assignmentId, status, userId) => {
     throw error;
   }
 
-  await db.query(
-    "UPDATE MechanicAssignments SET Status = ? WHERE AssignmentID = ?",
-    [status, assignmentId]
+  const requestId = assignment[0].RequestID;
+
+  let updateAssignmentQuery = "UPDATE MechanicAssignments SET Status = ? WHERE AssignmentID = ?";
+  if (status === 'Completed') {
+    updateAssignmentQuery = "UPDATE MechanicAssignments SET Status = ?, CompletionDate = CURRENT_TIMESTAMP WHERE AssignmentID = ?";
+  }
+  await db.query(updateAssignmentQuery, [status, assignmentId]);
+
+  // Sync the status upward to ServiceRequests so the customer and manager see it
+  await db.query("UPDATE ServiceRequests SET Status = ? WHERE RequestID = ?", [status, requestId]);
+
+  // Send notifications to the Customer
+  const [vehicle] = await db.query(
+    "SELECT v.CustomerID FROM ServiceRequests sr JOIN Vehicles v ON sr.VehicleID = v.VehicleID WHERE sr.RequestID = ?",
+    [requestId]
   );
+
+  if (vehicle.length > 0) {
+    const customerId = vehicle[0].CustomerID;
+    if (status === 'InProgress') {
+      await createNotification(
+        customerId,
+        "Repair Started",
+        "Your vehicle is now being worked on by the assigned mechanic.",
+        "REPAIR_STARTED"
+      );
+    } else if (status === 'Completed') {
+      await createNotification(
+        customerId,
+        "Service Ready",
+        "Your vehicle service has been completed and is ready for pickup!",
+        "CAR_READY"
+      );
+    }
+  }
+};
+
+export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicId) => {
+  const connection = await db.getConnection();
+  await connection.beginTransaction();
+
+  try {
+    const [assignment] = await connection.query(
+      "SELECT RequestID FROM MechanicAssignments WHERE AssignmentID = ? AND MechanicID = ?",
+      [assignmentId, mechanicId]
+    );
+
+    if (assignment.length === 0) {
+      const error = new Error("Assignment not found or unauthorized");
+      error.status = 404;
+      throw error;
+    }
+
+    const requestId = assignment[0].RequestID;
+
+    for (const item of itemsUsed) {
+      const { itemId, quantity } = item;
+      
+      const [inventory] = await connection.query(
+        "SELECT Quantity FROM Inventory WHERE ItemID = ? FOR UPDATE",
+        [itemId]
+      );
+
+      if (inventory.length === 0 || inventory[0].Quantity < quantity) {
+        throw new Error(`Insufficient stock for item ID ${itemId}`);
+      }
+
+      await connection.query(
+        "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?",
+        [quantity, itemId]
+      );
+
+      await connection.query(
+        "INSERT INTO ServiceItems (RequestID, ItemID, QuantityUsed) VALUES (?, ?, ?)",
+        [requestId, itemId, quantity]
+      );
+    }
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
 
 export const completeServiceRequest = async (requestId, itemsUsed = []) => {
@@ -204,7 +355,8 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
       await createNotification(
         vehicle[0].CustomerID,
         "Service Ready",
-        "Your vehicle service has been completed and is ready for pickup!"
+        "Your vehicle service has been completed and is ready for pickup!",
+        "CAR_READY"
       );
     }
   } catch (error) {
@@ -217,13 +369,53 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
 export const fetchCustomerRequests = async (customerId) => {
   const [rows] = await db.query(
-    "SELECT sr.* FROM ServiceRequests sr JOIN Vehicles v ON sr.VehicleID = v.VehicleID WHERE v.CustomerID = ?",
+    `SELECT 
+        sr.*,
+        g.Name as GarageName,
+        p.PaymentStatus,
+        p.PaymentMethod,
+        p.Amount as TotalPaid,
+        p.TransactionRef,
+        (SELECT COALESCE(SUM(gs.Price), 0) 
+         FROM GarageServices gs 
+         WHERE gs.GarageID = sr.GarageID 
+         AND FIND_IN_SET(gs.ServiceName, REPLACE(sr.ServiceType, ', ', ','))) as BaseServicePrice,
+        (SELECT COALESCE(SUM(si.QuantityUsed * i.UnitPrice), 0) 
+         FROM ServiceItems si 
+         JOIN Inventory i ON si.ItemID = i.ItemID 
+         WHERE si.RequestID = sr.RequestID) as PartsCost,
+        (SELECT COUNT(*) FROM Reviews r 
+         WHERE r.RequestID = sr.RequestID) as HasReviewed
+     FROM ServiceRequests sr
+     JOIN Vehicles v ON sr.VehicleID = v.VehicleID
+     LEFT JOIN Garages g ON sr.GarageID = g.GarageID
+     LEFT JOIN Payments p ON sr.RequestID = p.RequestID
+     WHERE v.CustomerID = ? AND sr.CustomerHidden = 0
+     ORDER BY sr.RequestDate DESC`,
     [customerId]
   );
   return rows;
 };
 
-export const fetchGarageRequests = async (garageId, status, admin) => {
+export const hideCustomerRequest = async (requestId, customerId) => {
+  // Verify the request belongs to this customer
+  const [rows] = await db.query(
+    `SELECT sr.RequestID FROM ServiceRequests sr 
+     JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
+     WHERE sr.RequestID = ? AND v.CustomerID = ?`,
+    [requestId, customerId]
+  );
+  if (rows.length === 0) {
+    const error = new Error("Request not found or unauthorized");
+    error.status = 404;
+    throw error;
+  }
+  await db.query("UPDATE ServiceRequests SET CustomerHidden = 1 WHERE RequestID = ?", [requestId]);
+};
+
+export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 10, search = '', date = '' }, admin) => {
+  const offset = (page - 1) * limit;
+
   // Tenant Isolation
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
@@ -237,16 +429,57 @@ export const fetchGarageRequests = async (garageId, status, admin) => {
     }
   }
 
-  let query = "SELECT * FROM ServiceRequests WHERE GarageID = ?";
+  let baseQuery = `
+    FROM ServiceRequests sr
+    LEFT JOIN (
+      SELECT RequestID, MAX(MechanicID) as MechanicID 
+      FROM MechanicAssignments 
+      GROUP BY RequestID
+    ) ma ON sr.RequestID = ma.RequestID
+    LEFT JOIN Users u ON ma.MechanicID = u.UserID
+    LEFT JOIN Payments p ON sr.RequestID = p.RequestID
+    WHERE sr.GarageID = ?
+  `;
+  
   const params = [garageId];
 
-  if (status) {
-    query += " AND Status = ?";
+  if (status && status !== 'All') {
+    baseQuery += " AND sr.Status = ?";
     params.push(status);
   }
 
-  const [rows] = await db.query(query, params);
-  return rows;
+  if (search) {
+    baseQuery += " AND (sr.RequestID = ? OR sr.ServiceType LIKE ?)";
+    params.push(search, `%${search}%`);
+  }
+
+  if (date) {
+    baseQuery += " AND DATE(sr.BookingDate) = ?";
+    params.push(date);
+  }
+
+  // Count query
+  const [countResult] = await db.query(`SELECT COUNT(*) as total ${baseQuery}`, params);
+  const total = countResult[0].total;
+
+  // Data query
+  let dataQuery = `
+    SELECT sr.*, u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
+           p.PaymentStatus, p.PaymentMethod, p.Amount as PaymentAmount, p.TransactionRef
+    ${baseQuery}
+    ORDER BY sr.IsEmergency DESC, sr.RequestDate DESC
+    LIMIT ? OFFSET ?
+  `;
+  
+  const queryParams = [...params, parseInt(limit), parseInt(offset)];
+  const [rows] = await db.query(dataQuery, queryParams);
+
+  return {
+    data: rows,
+    total,
+    page: parseInt(page),
+    totalPages: Math.ceil(total / limit)
+  };
 };
 
 export const fetchRequestById = async (requestId) => {
@@ -257,4 +490,85 @@ export const fetchRequestById = async (requestId) => {
     throw error;
   }
   return rows[0];
+};
+
+export const fetchMechanicAssignments = async (mechanicId, status) => {
+  let query = `
+    SELECT 
+      ma.AssignmentID, ma.AssignedDate, ma.CompletionDate, ma.Status as AssignmentStatus,
+      sr.RequestID, sr.ServiceType, sr.Description, sr.Status as RequestStatus, sr.IsEmergency, sr.GarageID,
+      v.PlateNumber, v.Model, v.Type
+    FROM MechanicAssignments ma
+    JOIN ServiceRequests sr ON ma.RequestID = sr.RequestID
+    LEFT JOIN Vehicles v ON sr.VehicleID = v.VehicleID
+    WHERE ma.MechanicID = ?
+  `;
+  const params = [mechanicId];
+
+  if (status) {
+    query += " AND ma.Status = ?";
+    params.push(status);
+  }
+
+  query += " ORDER BY ma.AssignedDate DESC";
+
+  const [rows] = await db.query(query, params);
+  return rows;
+};
+
+export const fetchRequestItems = async (requestId) => {
+  const [rows] = await db.query(
+    `SELECT si.ItemID, SUM(si.QuantityUsed) AS QuantityUsed, i.ItemName, i.UnitPrice AS SellingPrice
+     FROM ServiceItems si
+     JOIN Inventory i ON si.ItemID = i.ItemID
+     WHERE si.RequestID = ?
+     GROUP BY si.ItemID, i.ItemName, i.UnitPrice`,
+    [requestId]
+  );
+  return rows;
+};
+
+export const fetchGarageAvailability = async (garageId, date) => {
+  // Baseline Capacity 
+  // We'll set a default Garage Daily Limit of 32 Labor Hours (e.g. 4 mechanics * 8 hrs)
+  // To make it dynamic, we could count the active Mechanics for this garage.
+  const [mechanicsCount] = await db.query(
+    "SELECT COUNT(*) as count FROM Mechanics WHERE GarageID = ?",
+    [garageId]
+  );
+  const activeMechanics = mechanicsCount[0].count || 1; // Default to 1 if none found
+  const DAILY_LABOR_HOURS_LIMIT = activeMechanics * 8.0;
+
+  // 1. Get the total EstimatedDuration of all active bookings for this date and garage
+  const [activeBookings] = await db.query(
+    `SELECT SUM(EstimatedDuration) as totalHours 
+     FROM ServiceRequests 
+     WHERE GarageID = ? AND BookingDate = ? AND Status NOT IN ('Completed', 'Rejected')`,
+    [garageId, date]
+  );
+
+  const bookedHours = parseFloat(activeBookings[0]?.totalHours || 0);
+  const isDayFull = bookedHours >= DAILY_LABOR_HOURS_LIMIT;
+
+  // 2. To prevent intake congestion, we count how many current bookings share the same DropOffTime
+  const [dropOffCounts] = await db.query(
+    `SELECT DropOffTime, COUNT(*) as count 
+     FROM ServiceRequests 
+     WHERE GarageID = ? AND BookingDate = ? AND Status NOT IN ('Completed', 'Rejected') 
+     GROUP BY DropOffTime`,
+    [garageId, date]
+  );
+
+  const congestedTimes = dropOffCounts
+     .filter(row => row.count >= 2) // Limit: Max 2 cars can drop off at the exact same hour
+     .map(row => row.DropOffTime);
+
+  return {
+    date,
+    isFullyBooked: isDayFull,
+    bookedHours,
+    capacity: DAILY_LABOR_HOURS_LIMIT,
+    mechanicsCount: activeMechanics,
+    congestedTimes
+  };
 };

@@ -26,7 +26,7 @@ export const getGarageManagerStats = async (garageId) => {
   );
 
   const [lowStockItems] = await db.query(
-    "SELECT ItemName, Quantity FROM Inventory WHERE GarageID = ? AND Quantity < 5",
+    "SELECT ItemName, Quantity FROM Inventory WHERE GarageID = ? AND Quantity < 10",
     [garageId]
   );
 

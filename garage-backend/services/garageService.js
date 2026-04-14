@@ -3,10 +3,12 @@ import db from "../config/db.js";
 export const getAllGarages = async (location) => {
   let query = `
     SELECT g.*, 
-           COUNT(r.ReviewID) as TotalReviews, 
-           IFNULL(AVG(r.Rating), 0) as AverageRating
+           COUNT(DISTINCT r.ReviewID) as TotalReviews, 
+           IFNULL(AVG(r.Rating), 0) as AverageRating,
+           MIN(gs.Price) as MinPrice
     FROM Garages g
     LEFT JOIN Reviews r ON g.GarageID = r.GarageID
+    LEFT JOIN GarageServices gs ON g.GarageID = gs.GarageID
   `;
   const params = [];
 
@@ -18,14 +20,31 @@ export const getAllGarages = async (location) => {
   query += " GROUP BY g.GarageID";
 
   const [rows] = await db.query(query, params);
+
+  // Fetch services for each garage
+  for (const garage of rows) {
+    const [services] = await db.query(
+      "SELECT ServiceName, Price FROM GarageServices WHERE GarageID = ? ORDER BY ServiceName",
+      [garage.GarageID]
+    );
+    garage.Services = services;
+  }
+
   return rows;
 };
 
-export const addGarage = async (name, location, contact) => {
+import { createChapaSubaccount } from "./paymentService.js";
+
+export const addGarage = async (name, location, contact, bankCode, bankAccountNumber, bankAccountName) => {
+  let subaccountId = null;
+  if (bankCode && bankAccountNumber && bankAccountName) {
+    subaccountId = await createChapaSubaccount(name, bankAccountName, bankCode, bankAccountNumber);
+  }
+
   const [result] = await db.query(
-    `INSERT INTO Garages (Name, Location, ContactNumber)
-     VALUES (?, ?, ?)`,
-    [name, location, contact]
+    `INSERT INTO Garages (Name, Location, ContactNumber, BankCode, BankAccountNumber, BankAccountName, ChapaSubaccountID)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [name, location, contact, bankCode, bankAccountNumber, bankAccountName, subaccountId]
   );
   return result.insertId;
 };
@@ -57,6 +76,21 @@ export const modifyGarage = async (id, updateData, user) => {
   const updates = [];
   const values = [];
 
+  // Check if bank details are being updated
+  if (updateData.bankCode || updateData.bankAccountNumber || updateData.bankAccountName) {
+    // We need all three to create a subaccount
+    const existingGarage = await fetchGarageById(id);
+    const bCode = updateData.bankCode || existingGarage.BankCode;
+    const bAcc = updateData.bankAccountNumber || existingGarage.BankAccountNumber;
+    const bName = updateData.bankAccountName || existingGarage.BankAccountName;
+    const gName = updateData.name || existingGarage.Name;
+
+    if (bCode && bAcc && bName) {
+      const newSubaccountId = await createChapaSubaccount(gName, bName, bCode, bAcc);
+      updateData.ChapaSubaccountID = newSubaccountId;
+    }
+  }
+
   for (const [key, value] of Object.entries(updateData)) {
     if (value !== undefined) {
       // Mapping fields based on the input payload
@@ -64,7 +98,11 @@ export const modifyGarage = async (id, updateData, user) => {
         name: 'Name',
         location: 'Location',
         contact: 'ContactNumber',
-        status: 'Status'
+        status: 'Status',
+        bankCode: 'BankCode',
+        bankAccountNumber: 'BankAccountNumber',
+        bankAccountName: 'BankAccountName',
+        ChapaSubaccountID: 'ChapaSubaccountID'
       };
       
       if(fieldMap[key]) {

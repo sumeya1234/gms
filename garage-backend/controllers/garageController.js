@@ -10,8 +10,8 @@ export const getGarages = asyncHandler(async (req, res) => {
 });
 
 export const createGarage = asyncHandler(async (req, res) => {
-  const { name, location, contact, managerId } = req.body;
-  const garageId = await addGarage(name, location, contact);
+  const { name, location, contact, managerId, bankCode, bankAccountNumber, bankAccountName } = req.body;
+  const garageId = await addGarage(name, location, contact, bankCode, bankAccountNumber, bankAccountName);
   
   if (managerId && req.user) {
     await assignUserToGarage(managerId, garageId, req.user);

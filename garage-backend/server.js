@@ -3,17 +3,15 @@ import app from "./app.js";
 
 const PORT = process.env.PORT || 5000;
 
-// 2. Add handlers for unhandled errors
+// 2. Add handlers for unhandled errors (log but don't crash the server)
 process.on("unhandledRejection", (err) => {
-  console.error("UNHANDLED REJECTION! Shutting down...");
-  console.error(err.name, err.message, err.stack);
-  process.exit(1);
+  console.error("UNHANDLED REJECTION (non-fatal):");
+  console.error(err?.name, err?.message, err?.stack);
 });
 
 process.on("uncaughtException", (err) => {
-  console.error("UNCAUGHT EXCEPTION! Shutting down...");
-  console.error(err.name, err.message, err.stack);
-  process.exit(1);
+  console.error("UNCAUGHT EXCEPTION (non-fatal):");
+  console.error(err?.name, err?.message, err?.stack);
 });
 
 const server = app.listen(PORT, () => {

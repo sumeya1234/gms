@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export const createReview = async (rating, comment, customerId, garageId) => {
+export const createReview = async (rating, comment, customerId, garageId, requestId = null) => {
   const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
   
   if (garage.length === 0) {
@@ -23,10 +23,22 @@ export const createReview = async (rating, comment, customerId, garageId) => {
     throw error;
   }
 
+  // If requestId provided, check it hasn't already been reviewed
+  if (requestId) {
+    const [existing] = await db.query(
+      "SELECT 1 FROM Reviews WHERE RequestID = ?", [requestId]
+    );
+    if (existing.length > 0) {
+      const error = new Error("This service request has already been reviewed");
+      error.status = 400;
+      throw error;
+    }
+  }
+
   await db.query(
-    `INSERT INTO Reviews (Rating, Comment, CustomerID, GarageID)
-     VALUES (?, ?, ?, ?)`,
-    [rating, comment, customerId, garageId]
+    `INSERT INTO Reviews (Rating, Comment, CustomerID, GarageID, RequestID)
+     VALUES (?, ?, ?, ?, ?)`,
+    [rating, comment, customerId, garageId, requestId]
   );
 };
 

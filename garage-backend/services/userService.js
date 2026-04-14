@@ -13,14 +13,18 @@ export const getUserProfile = async (userId) => {
   
   const user = rows[0];
 
-  // If GarageManager, fetch their assigned GarageID
+  // If GarageManager, fetch their assigned GarageID and GarageName
   if (user.Role === "GarageManager") {
     const [managerRows] = await db.query(
-      "SELECT GarageID FROM GarageManagers WHERE UserID = ?",
+      `SELECT gm.GarageID, g.Name AS GarageName 
+       FROM GarageManagers gm 
+       LEFT JOIN Garages g ON gm.GarageID = g.GarageID 
+       WHERE gm.UserID = ?`,
       [userId]
     );
     if (managerRows.length > 0) {
       user.GarageID = managerRows[0].GarageID;
+      user.GarageName = managerRows[0].GarageName;
     }
   }
 
@@ -96,8 +100,15 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
   // 1. SuperAdmin Rule: Only assign GarageManagers
   if (assignerRole === "SuperAdmin") {
     // Check if garage exists
-    const [garage] = await db.query("SELECT GarageID FROM Garages WHERE GarageID = ?", [targetGarageId]);
+    const [garage] = await db.query("SELECT GarageID, ManagerID FROM Garages WHERE GarageID = ?", [targetGarageId]);
     if (garage.length === 0) throw new Error("Garage not found");
+
+    // Prevent overwriting an existing manager
+    if (garage[0].ManagerID && Number(garage[0].ManagerID) !== Number(userId)) {
+      const error = new Error("This garage already has a manager assigned. Please unassign the current manager first.");
+      error.status = 400;
+      throw error;
+    }
 
     // Assign Manager logic
     await db.query("DELETE FROM GarageManagers WHERE UserID = ? OR GarageID = ?", [userId, targetGarageId]);
@@ -146,6 +157,19 @@ export const getAllUsers = async () => {
   return rows;
 };
 
+export const getAllManagers = async () => {
+  const [rows] = await db.query(`
+    SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status, u.CreatedAt,
+           g.GarageID, g.Name AS GarageName
+    FROM Users u
+    LEFT JOIN GarageManagers gm ON u.UserID = gm.UserID
+    LEFT JOIN Garages g ON gm.GarageID = g.GarageID
+    WHERE u.Role = 'GarageManager'
+    ORDER BY u.CreatedAt DESC
+  `);
+  return rows;
+};
+
 export const getMechanicsByGarage = async (garageId) => {
   const [rows] = await db.query(
     `SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status 
@@ -154,6 +178,27 @@ export const getMechanicsByGarage = async (garageId) => {
      WHERE m.GarageID = ? AND u.Status != 'Archived'`,
     [garageId]
   );
+
+  // Fetch skills for all mechanics in one query
+  if (rows.length > 0) {
+    const mechanicIds = rows.map(r => r.UserID);
+    const [skills] = await db.query(
+      `SELECT MechanicID, SkillName FROM MechanicSkills WHERE MechanicID IN (?)`,
+      [mechanicIds]
+    );
+    
+    // Group skills by mechanic
+    const skillMap = {};
+    skills.forEach(s => {
+      if (!skillMap[s.MechanicID]) skillMap[s.MechanicID] = [];
+      skillMap[s.MechanicID].push(s.SkillName);
+    });
+    
+    rows.forEach(r => {
+      r.Skills = skillMap[r.UserID] || [];
+    });
+  }
+
   return rows;
 };
 
@@ -178,3 +223,35 @@ export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user
   // Update status in Users table
   await db.query("UPDATE Users SET Status = ? WHERE UserID = ?", [newStatus, mechanicId]);
 };
+
+export const getMechanicSkills = async (mechanicId) => {
+  const [rows] = await db.query(
+    "SELECT SkillName FROM MechanicSkills WHERE MechanicID = ? ORDER BY SkillName",
+    [mechanicId]
+  );
+  return rows.map(r => r.SkillName);
+};
+
+export const setMechanicSkills = async (garageId, mechanicId, skills, user) => {
+  // Verify mechanic belongs to this garage
+  const [mechanic] = await db.query("SELECT * FROM Mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
+  if (!mechanic.length) {
+    const error = new Error("Mechanic not found in this garage");
+    error.status = 404;
+    throw error;
+  }
+
+  // Replace all skills: delete existing, insert new
+  await db.query("DELETE FROM MechanicSkills WHERE MechanicID = ?", [mechanicId]);
+  
+  if (skills && skills.length > 0) {
+    const values = skills.map(skill => [mechanicId, skill.trim()]);
+    await db.query(
+      "INSERT INTO MechanicSkills (MechanicID, SkillName) VALUES ?",
+      [values]
+    );
+  }
+
+  return skills;
+};
+

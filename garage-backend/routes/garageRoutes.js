@@ -1,5 +1,6 @@
 import express from "express";
 import { getGarages, createGarage, getGarage, updateGarageDetails, archiveGarage, getStats } from "../controllers/garageController.js";
+import { getAvailability } from "../controllers/serviceController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import validate from "../middleware/validate.js";
@@ -9,6 +10,7 @@ const router = express.Router();
 
 router.get("/", protect, getGarages);
 router.get("/:id", protect, validate(validateGarageId, "params"), getGarage);
+router.get("/:id/availability", protect, validate(validateGarageId, "params"), getAvailability);
 router.get("/:id/stats", protect, authorize("GarageManager", "SuperAdmin"), validate(validateGarageId, "params"), getStats);
 router.post("/", protect, authorize("SuperAdmin"), validate(validateGarage), createGarage);
 router.put("/:id", protect, authorize("SuperAdmin", "GarageManager"), validate(validateGarageId, "params"), validate(validateGarageUpdate, "body"), updateGarageDetails);

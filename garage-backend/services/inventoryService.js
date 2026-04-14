@@ -22,11 +22,36 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, garageI
     throw error;
   }
 
-  await db.query(
-    `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, GarageID)
-     VALUES (?, ?, ?, ?)`,
-    [itemName, quantity, unitPrice, garageId]
+  // Case-insensitive check for existing inventory item
+  const [existingItems] = await db.query(
+    "SELECT ItemID, ItemName, Quantity FROM Inventory WHERE GarageID = ? AND LOWER(ItemName) = LOWER(?)",
+    [garageId, itemName]
   );
+
+  if (existingItems.length > 0) {
+    const existing = existingItems[0];
+    
+    // Choose the best casing (if existing is all lowercase and new is CamelCase, prefer the new name)
+    let bestName = existing.ItemName;
+    const existingHasCaps = /[A-Z]/.test(existing.ItemName);
+    const newHasCaps = /[A-Z]/.test(itemName);
+    if (newHasCaps && !existingHasCaps) {
+      bestName = itemName;
+    }
+
+    // Merge: retain best casing, add quantity, update unit price
+    await db.query(
+      "UPDATE Inventory SET Quantity = Quantity + ?, UnitPrice = ?, ItemName = ? WHERE ItemID = ?",
+      [quantity, unitPrice, bestName, existing.ItemID]
+    );
+  } else {
+    // Insert new logic
+    await db.query(
+      `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, GarageID)
+       VALUES (?, ?, ?, ?)`,
+      [itemName, quantity, unitPrice, garageId]
+    );
+  }
 };
 
 export const fetchInventory = async (garageId) => {

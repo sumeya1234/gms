@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export const createNotification = async (userId, title, message, type) => {
+export const createNotification = async (userId, title, message, type = 'GENERAL') => {
   // 1. Insert into DB (In-App)
   try {
     await db.query(
@@ -35,6 +35,20 @@ export const markAsRead = async (notificationId, userId) => {
   await db.query(
     "UPDATE Notifications SET IsRead = TRUE WHERE NotificationID = ? AND UserID = ?",
     [notificationId, userId]
+  );
+};
+
+export const deleteNotification = async (notificationId, userId) => {
+  await db.query(
+    "DELETE FROM Notifications WHERE NotificationID = ? AND UserID = ?",
+    [notificationId, userId]
+  );
+};
+
+export const deleteAllNotifications = async (userId) => {
+  await db.query(
+    "DELETE FROM Notifications WHERE UserID = ?",
+    [userId]
   );
 };
 

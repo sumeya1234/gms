@@ -7,7 +7,9 @@ export const validateServiceRequest = Joi.object({
   vehicleId: idSchema.required(),
   garageId: idSchema.required(),
   description: Joi.string().optional().allow(""),
-  isEmergency: Joi.boolean().optional()
+  isEmergency: Joi.boolean().optional(),
+  bookingDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).optional().allow(null, ""),
+  dropOffTime: Joi.string().pattern(/^\d{2}:\d{2}(:\d{2})?$/).optional().allow(null, "")
 });
 
 export const validateAssignMechanic = Joi.object({
@@ -43,4 +45,11 @@ export const validateRequestId = Joi.object({
 
 export const validateGarageId = Joi.object({
   garageId: idSchema.required()
+});
+
+export const validateDocumentItems = Joi.object({
+  itemsUsed: Joi.array().items(Joi.object({
+    itemId: idSchema.required(),
+    quantity: Joi.number().integer().positive().required()
+  })).min(1).required()
 });

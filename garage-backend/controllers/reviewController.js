@@ -2,8 +2,8 @@ import { createReview, fetchGarageReviews, fetchCustomerReviews, removeReview } 
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const addReview = asyncHandler(async (req, res) => {
-  const { rating, comment, garageId } = req.body;
-  await createReview(rating, comment, req.user.id, garageId);
+  const { rating, comment, garageId, requestId } = req.body;
+  await createReview(rating, comment, req.user.id, garageId, requestId || null);
   res.json({ message: "Review submitted" });
 });
 

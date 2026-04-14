@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export const addComplaint = async (customerId, garageId, description) => {
+export const addComplaint = async (customerId, garageId, description, isEscalated = false) => {
   const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
   
   if (garage.length === 0) {
@@ -24,9 +24,9 @@ export const addComplaint = async (customerId, garageId, description) => {
   }
 
   await db.query(
-    `INSERT INTO Complaints (CustomerID, GarageID, Description)
-     VALUES (?, ?, ?)`,
-    [customerId, garageId, description]
+    `INSERT INTO Complaints (CustomerID, GarageID, Description, IsEscalated)
+     VALUES (?, ?, ?, ?)`,
+    [customerId, garageId, description, isEscalated ? 1 : 0]
   );
 };
 
@@ -57,8 +57,46 @@ export const fetchGarageComplaints = async (garageId) => {
     `SELECT c.*, u.FullName as CustomerName, u.Email as CustomerEmail 
      FROM Complaints c 
      JOIN Users u ON c.CustomerID = u.UserID 
-     WHERE c.GarageID = ? ORDER BY c.CreatedAt DESC`,
+     WHERE c.GarageID = ? AND c.IsEscalated = 0 ORDER BY c.CreatedAt DESC`,
     [garageId]
+  );
+  return rows;
+};
+
+export const fetchAllComplaints = async () => {
+  const [rows] = await db.query(
+    `SELECT c.*, u.FullName as CustomerName, u.Email as CustomerEmail, g.Name as GarageName
+     FROM Complaints c
+     JOIN Users u ON c.CustomerID = u.UserID
+     LEFT JOIN Garages g ON c.GarageID = g.GarageID
+     ORDER BY c.CreatedAt DESC`
+  );
+  return rows;
+};
+
+export const addComplaintMessage = async (complaintId, senderId, message) => {
+  // Verify complaint exists
+  const [complaint] = await db.query("SELECT 1 FROM Complaints WHERE ComplaintID = ?", [complaintId]);
+  if (complaint.length === 0) {
+    const error = new Error("Complaint not found");
+    error.status = 404;
+    throw error;
+  }
+
+  await db.query(
+    "INSERT INTO ComplaintMessages (ComplaintID, SenderID, Message) VALUES (?, ?, ?)",
+    [complaintId, senderId, message]
+  );
+};
+
+export const fetchComplaintMessages = async (complaintId) => {
+  const [rows] = await db.query(
+    `SELECT cm.*, u.FullName as SenderName, u.Role as SenderRole 
+     FROM ComplaintMessages cm
+     JOIN Users u ON cm.SenderID = u.UserID
+     WHERE cm.ComplaintID = ? 
+     ORDER BY cm.CreatedAt ASC`,
+    [complaintId]
   );
   return rows;
 };
