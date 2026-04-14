@@ -21,8 +21,8 @@ export default function Login() {
       const { token, role } = response.data;
       
       // Super Admin specifically needed
-      if (role !== 'SuperAdmin' && role !== 'GarageManager') {
-        throw new Error('Access denied: You do not have admin privileges');
+      if (role !== 'SuperAdmin') {
+        throw new Error('Access denied: You must be a Super Admin to access this portal');
       }
 
       localStorage.setItem('token', token);

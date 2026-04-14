@@ -4,7 +4,9 @@ import { Layout } from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Garages from './pages/Garages';
 import Users from './pages/Users';
+import Managers from './pages/Managers';
 import Login from './pages/Login';
+import Complaints from './pages/Complaints';
 
 function App() {
   const location = useLocation();
@@ -20,6 +22,8 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="garages" element={<Garages />} />
         <Route path="users" element={<Users />} />
+        <Route path="managers" element={<Managers />} />
+        <Route path="complaints" element={<Complaints />} />
       </Route>
     </Routes>
   );

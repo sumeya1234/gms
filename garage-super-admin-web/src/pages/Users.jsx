@@ -3,32 +3,24 @@ import { api } from '../lib/api';
 import { UsersIcon, Search, UserCircle, Mail, Phone, Shield, AlertCircle } from 'lucide-react';
 
 const ROLE_CONFIG = {
-  SuperAdmin:    { bg: '#f5f3ff', color: '#7c3aed', label: 'Super Admin' },
-  GarageManager: { bg: '#fffbeb', color: '#d97706', label: 'Garage Manager' },
-  Mechanic:      { bg: '#eff6ff', color: '#2563eb', label: 'Mechanic' },
-  Customer:      { bg: '#f0fdf4', color: '#16a34a', label: 'Customer' },
+  SuperAdmin: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-200/50', label: 'Super Admin' },
+  GarageManager: { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200/50', label: 'Garage Manager' },
+  Mechanic: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200/50', label: 'Mechanic' },
+  Customer: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200/50', label: 'Customer' },
 };
 
 const RoleBadge = ({ role }) => {
-  const cfg = ROLE_CONFIG[role] || { bg: 'var(--bg-surface)', color: 'var(--text-muted)', label: role };
+  const cfg = ROLE_CONFIG[role] || { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', label: role };
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 4,
-      padding: '0.25rem 0.625rem', borderRadius: 20,
-      background: cfg.bg, color: cfg.color,
-      fontSize: '0.75rem', fontWeight: 600
-    }}>
-      <Shield size={11} /> {cfg.label}
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
+      <Shield size={12} /> {cfg.label}
     </span>
   );
 };
 
 const StatusDot = ({ status }) => (
-  <span style={{
-    display: 'inline-flex', alignItems: 'center', gap: 6,
-    fontSize: 'var(--font-sizes-sm)', color: status === 'Active' ? '#16a34a' : 'var(--text-muted)'
-  }}>
-    <span style={{ width: 8, height: 8, borderRadius: '50%', background: status === 'Active' ? '#22c55e' : '#94a3b8', display: 'inline-block' }} />
+  <span className={`inline-flex items-center gap-2 text-sm font-medium ${status === 'Active' ? 'text-emerald-600' : 'text-slate-500'}`}>
+    <span className={`w-2 h-2 rounded-full ${status === 'Active' ? 'bg-emerald-500' : 'bg-slate-400'}`} />
     {status || 'Active'}
   </span>
 );
@@ -65,18 +57,18 @@ export default function Users() {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: 'var(--font-sizes-2xl)', fontWeight: 700 }}>Users</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--font-sizes-sm)', marginTop: 2 }}>
+        <h1 className="text-2xl font-bold text-slate-900">Users</h1>
+        <p className="text-slate-500 text-sm mt-1">
           {loading ? 'Loading...' : `${users.length} total users registered`}
         </p>
       </div>
 
       {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '1rem', display: 'flex', gap: 8, alignItems: 'center', color: '#dc2626', fontSize: 'var(--font-sizes-sm)' }}>
-          <AlertCircle size={16} /> {error}
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3 items-center text-red-600 text-sm font-semibold">
+          <AlertCircle size={18} /> {error}
         </div>
       )}
 
@@ -89,7 +81,7 @@ export default function Users() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or email..."
-            className="w-full pl-11 pr-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm text-sm"
+            className="w-full pl-11 pr-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm text-sm font-medium"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -98,9 +90,9 @@ export default function Users() {
               key={r}
               id={`filter-${r}`}
               onClick={() => setRoleFilter(r)}
-              className={`px-5 py-2.5 rounded-full border text-sm font-medium transition-all shadow-sm ${
+              className={`px-5 py-2.5 rounded-full border text-sm font-bold transition-all shadow-sm ${
                 roleFilter === r 
-                  ? 'bg-blue-600 border-blue-600 text-white shadow-md' 
+                  ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/20' 
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400'
               }`}
             >
@@ -112,81 +104,76 @@ export default function Users() {
 
       {/* User Table */}
       {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div className="flex flex-col gap-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} style={{ background: 'white', borderRadius: 10, padding: '1rem 1.25rem', border: '1px solid var(--border-light)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--bg-surface)', flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ background: 'var(--bg-surface)', borderRadius: 4, height: 14, width: '35%', marginBottom: 8 }} />
-                <div style={{ background: 'var(--bg-surface)', borderRadius: 4, height: 12, width: '50%' }} />
+            <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200 flex gap-4 items-center animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="bg-slate-100 rounded-md h-3.5 w-1/3 mb-2" />
+                <div className="bg-slate-100 rounded-md h-3 w-1/4" />
               </div>
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 20, height: 24, width: 80 }} />
+              <div className="bg-slate-100 rounded-full h-6 w-20" />
             </div>
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-          <UsersIcon size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-          <p>{search ? 'No users match your search.' : 'No users found.'}</p>
+        <div className="text-center p-12 text-slate-500 bg-white rounded-2xl border border-slate-200 border-dashed">
+          <UsersIcon size={48} className="mx-auto mb-4 opacity-30 text-slate-400" />
+          <p className="text-lg font-medium">{search ? 'No users match your search.' : 'No users found.'}</p>
         </div>
       ) : (
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-light)' }}>
-                {['User', 'Email', 'Phone', 'Role', 'Status', 'Joined'].map(h => (
-                  <th key={h} style={{ padding: '0.875rem 1rem', textAlign: 'left', fontSize: 'var(--font-sizes-sm)', fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((u, idx) => {
-                const initials = (u.FullName || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-                const roleCfg = ROLE_CONFIG[u.Role] || { bg: 'var(--bg-surface)', color: 'var(--text-muted)' };
-                return (
-                  <tr
-                    key={u.UserID}
-                    style={{ borderBottom: idx < filtered.length - 1 ? '1px solid var(--border-light)' : 'none', transition: 'background 0.15s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
-                  >
-                    <td style={{ padding: '0.875rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{
-                          width: 36, height: 36, borderRadius: '50%',
-                          background: roleCfg.bg, color: roleCfg.color,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontWeight: 700, fontSize: '0.75rem', flexShrink: 0
-                        }}>
-                          {initials}
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  {['User', 'Email', 'Phone', 'Role', 'Status', 'Joined'].map(h => (
+                    <th key={h} className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filtered.map((u) => {
+                  const initials = (u.FullName || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  const roleCfg = ROLE_CONFIG[u.Role] || { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200' };
+                  return (
+                    <tr
+                      key={u.UserID}
+                      className="hover:bg-slate-50 transition-colors group"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 border ${roleCfg.bg} ${roleCfg.text} ${roleCfg.border}`}>
+                            {initials}
+                          </div>
+                          <span className="font-bold text-slate-900">{u.FullName || '—'}</span>
                         </div>
-                        <span style={{ fontWeight: 600, fontSize: 'var(--font-sizes-sm)' }}>{u.FullName || '—'}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem', fontSize: 'var(--font-sizes-sm)', color: 'var(--text-muted)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Mail size={13} /> {u.Email}
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem', fontSize: 'var(--font-sizes-sm)', color: 'var(--text-muted)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Phone size={13} /> {u.PhoneNumber || '—'}
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem' }}>
-                      <RoleBadge role={u.Role} />
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem' }}>
-                      <StatusDot status={u.Status} />
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem', fontSize: 'var(--font-sizes-sm)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                      {u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString() : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
+                        <div className="flex items-center gap-2">
+                          <Mail size={16} className="text-slate-400" /> {u.Email}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
+                        <div className="flex items-center gap-2">
+                          <Phone size={16} className="text-slate-400" /> {u.PhoneNumber || '—'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <RoleBadge role={u.Role} />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <StatusDot status={u.Status} />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium">
+                        {u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString() : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

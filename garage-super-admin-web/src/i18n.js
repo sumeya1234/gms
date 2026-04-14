@@ -2,41 +2,159 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 const resources = {
-  en: {
-    translation: {
-      login: "Login",
-      dashboard: "Dashboard",
-      garages: "Garages",
-      users: "Users"
-    }
+  en: { 
+    translation: { 
+      superAdmin: 'Super Admin Portal',
+      dashboard: 'Dashboard',
+      garages: 'Garages',
+      users: 'Users',
+      managers: 'Managers',
+      platforms: 'Platform Settings',
+      reports: 'Reports',
+      logout: 'Logout',
+      settings: 'Settings',
+
+      // Dashboard
+      welcomeBack: 'Welcome back',
+      overviewOf: "Here's an overview of the",
+      platformToday: 'Platform today.',
+      activeOnConfig: 'Active on config',
+      registered: 'Registered',
+      requests: 'Requests',
+      revenue: 'Revenue',
+      inProgress: 'In-progress',
+      completed: 'Completed',
+      quickActions: 'Quick Actions',
+      addNewGarage: 'Add New Garage',
+      viewAllUsers: 'View All Users',
+      systemHealth: 'System Health & Metrics',
+      liveOverview: 'Live overview of your infrastructure',
+      today: 'Today',
+      weekly: 'Weekly',
+      allSystemsOperational: 'All Systems Operational',
+      platformStable: 'Platform is currently stable with normal request volumes.',
+
+      // Garages
+      manageGarages: 'Manage Garages',
+      onboardGarages: 'Onboard and manage garage partners.',
+      searchGarage: 'Search garage name...',
+      contact: 'Contact',
+      manager: 'Manager',
+      status: 'Status',
+      actions: 'Actions',
+      noGarages: 'No garages matched your search.',
+      addGarageToStart: 'Add a new garage to get started.',
+      garageName: 'Garage Name',
+      location: 'Location',
+      phone: 'Phone',
+      cancel: 'Cancel',
+      saveChanges: 'Save Changes',
+      createGarage: 'Create Garage'
+    } 
   },
-  am: {
-    translation: {
-      login: "ግቡ",
-      dashboard: "ዳሽቦርድ",
-      garages: "ጋራዦች",
-      users: "ተጠቃሚዎች"
-    }
+  am: { 
+    translation: { 
+      superAdmin: 'ሱፐር አድሚን ፖርታል',
+      dashboard: 'ዳሽቦርድ',
+      garages: 'ጋራጆች',
+      users: 'ተጠቃሚዎች',
+      managers: 'አስተዳዳሪዎች',
+      platforms: 'የፕላትፎርም ቅንብሮች',
+      reports: 'ሪፖርቶች',
+      logout: 'ውጣ',
+      settings: 'ቅንብሮች',
+
+      welcomeBack: 'እንኳን በደህና ተመለሱ',
+      overviewOf: "የ",
+      platformToday: 'ፕላትፎርም የዛሬ አጠቃላይ እይታ።',
+      activeOnConfig: 'በስርዓት ላይ ንቁ',
+      registered: 'ተመዝግበዋል',
+      requests: 'ጥያቄዎች',
+      revenue: 'ገቢ',
+      inProgress: 'በሂደት ላይ',
+      completed: 'ተጠናቋል',
+      quickActions: 'ፈጣን ተግባራት',
+      addNewGarage: 'አዲስ ጋራጅ ጨምር',
+      viewAllUsers: 'ሁሉንም ተጠቃሚዎች እይ',
+      systemHealth: 'የስርዓት ጤና እና መለኪያዎች',
+      liveOverview: 'የመሠረተ ልማትዎ የቀጥታ እይታ',
+      today: 'ዛሬ',
+      weekly: 'ሳምንታዊ',
+      allSystemsOperational: 'ሁሉም ስርዓቶች እየሰሩ ነው',
+      platformStable: 'የመሣሪያ ስርዓቱ በአሁኑ ጊዜ በመደበኛ የጥያቄ ጥራዞች የተረጋጋ ነው።',
+
+      manageGarages: 'ጋራጆችን አስተዳድር',
+      onboardGarages: 'አዳዲስ ጋራጆችን ይመዝግቡ እና ያስተዳድሩ።',
+      searchGarage: 'የጋራጅ ስም ይፈልጉ...',
+      contact: 'አድራሻ',
+      manager: 'አስተዳዳሪ',
+      status: 'ሁኔታ',
+      actions: 'ተግባራት',
+      noGarages: 'ከእርስዎ ፍለጋ ጋር የሚዛመድ ጋራጅ የለም።',
+      addGarageToStart: 'ለመጀመር አዲስ ጋራጅ ያክሉ።',
+      garageName: 'የጋራጅ ስም',
+      location: 'ቦታ',
+      phone: 'ስልክ',
+      cancel: 'ሰርዝ',
+      saveChanges: 'ለውጦችን አስቀምጥ',
+      createGarage: 'ጋራጅ ፍጠር'
+    } 
   },
-  om: {
-    translation: {
-      login: "Seeni",
-      dashboard: "Daashboordii",
-      garages: "Garaajota",
-      users: "Fayadamtoota"
-    }
-  }
+  om: { 
+    translation: { 
+      superAdmin: 'Akkasam Bulchiinsa',
+      dashboard: 'Daashboordii',
+      garages: 'Gaaraajota',
+      users: 'Fayyadamtota',
+      managers: 'Hoggantoota',
+      platforms: 'Sajoo Waltajjii',
+      reports: 'Gabaasa',
+      logout: 'Bahi',
+      settings: 'Sajoo',
+
+      welcomeBack: 'Baga nagaan deebitan',
+      overviewOf: "Kuno haala waliigalaa",
+      platformToday: 'Waltajjii har\'aa.',
+      activeOnConfig: 'Toora irra jira',
+      registered: 'Galmaa\'an',
+      requests: 'Gaaffiiwwan',
+      revenue: 'Galii',
+      inProgress: 'Hojjatamaa Jira',
+      completed: 'Xumurameera',
+      quickActions: 'Tarkaanfiiwwan Saffisaa',
+      addNewGarage: 'Gaaraajii Haaraa Dabali',
+      viewAllUsers: 'Fayyadamtota Hunda Ilaali',
+      systemHealth: 'Fayyaa Sirnaa fi Safartuu',
+      liveOverview: 'Haala yeroo ammaa ijaarsa keetii',
+      today: 'Har\'a',
+      weekly: 'Torbeedhaan',
+      allSystemsOperational: 'Sirnoonni Hundi Hojjechaa Jiru',
+      platformStable: 'Waltajjiin yeroo ammaa haala gaariin hojjechaa jira.',
+
+      manageGarages: 'Gaaraajota Bulchi',
+      onboardGarages: 'Gaaraajota haaraa galmeshi fi bulchi.',
+      searchGarage: 'Maqaa gaaraajii barbaadi...',
+      contact: 'Qunnamtii',
+      manager: 'Hogganaa',
+      status: 'Haala',
+      actions: 'Tarkaanfiiwwan',
+      noGarages: 'Gaaraajiin barbaaddan hin argamne.',
+      addGarageToStart: 'Eegaluuf gaaraajii haaraa dabali.',
+      garageName: 'Maqaa Gaaraajii',
+      location: 'Bakka',
+      phone: 'Bilbila',
+      cancel: 'Haqi',
+      saveChanges: 'Jijjiiramoota Olkahi',
+      createGarage: 'Gaaraajii Uumi'
+    } 
+  },
 };
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en', // Default language
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false
-    }
-  });
+i18n.use(initReactI18next).init({
+  resources,
+  lng: 'en', // Default language
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false },
+});
 
 export default i18n;

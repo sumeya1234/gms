@@ -17,14 +17,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Intercept 401s globally to force re-login
+// Intercept 401s globally to force re-login — only on genuine server 401 responses
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only logout on actual 401 from server, NOT on network errors or timeouts
+    if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
-      // Simple reload mechanism if 401 triggers, real app would use context
       window.location.href = '/login'; 
     }
     return Promise.reject(error);
