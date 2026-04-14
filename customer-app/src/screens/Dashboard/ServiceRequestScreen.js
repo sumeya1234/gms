@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { ChevronLeft, Check, Wrench, Flag, CarFront, ChevronDown, Camera, ShieldCheck, AlertCircle } from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, ShieldCheck } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import { useVehicleStore } from '../../store/vehicleStore';
 import { useServiceStore } from '../../store/serviceStore';
@@ -10,20 +11,50 @@ import Skeleton from '../../components/Skeleton';
 
 const SERVICE_CATEGORIES = ['Towing', 'Diagnostics', 'Tires', 'Oil Change', 'Repair', 'Battery', 'Electrical'];
 
+const generateDates = () => {
+    const dates = [];
+    const today = new Date();
+    for(let i=0; i<7; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const dayStr = d.toLocaleDateString('en-US', { weekday: 'short' });
+        dates.push({
+            dateString: `${yyyy}-${mm}-${dd}`,
+            dayStr,
+            dayNum: d.getDate()
+        });
+    }
+    return dates;
+};
+const DATES = generateDates();
+const TIME_SLOTS = [
+  '08:00:00', '09:00:00', '10:00:00', '11:00:00', 
+  '12:00:00', '13:00:00', '14:00:00', '15:00:00', '16:00:00'
+];
+
 export default function ServiceRequestScreen({ navigation, route }) {
   const { t } = useTranslation();
   const garage = route.params?.garage || null;
   const defaultServices = route.params?.defaultServices || [];
 
   const { vehicles, fetchVehicles, isLoading: vehiclesLoading } = useVehicleStore();
-  const { createRequest, isLoading: requestLoading } = useServiceStore();
+  const { createRequest, checkAvailability, isLoading: requestLoading } = useServiceStore();
 
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showVehiclePicker, setShowVehiclePicker] = useState(false);
   const [selectedServices, setSelectedServices] = useState(defaultServices.length > 0 ? defaultServices : ['Repair']);
   const [description, setDescription] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
-  const [isEmergency, setIsEmergency] = useState(false);
+  
+  // Scheduling State
+  const [selectedDate, setSelectedDate] = useState(DATES[0].dateString);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [availability, setAvailability] = useState({});
+  const [isCheckingTime, setIsCheckingTime] = useState(false);
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     fetchVehicles();
@@ -34,6 +65,24 @@ export default function ServiceRequestScreen({ navigation, route }) {
       setSelectedVehicle(vehicles[0]);
     }
   }, [vehicles]);
+
+  useEffect(() => {
+     if(garage?.id && selectedDate) {
+        const fetchAvailability = async () => {
+           setIsCheckingTime(true);
+           const data = await checkAvailability(garage.id, selectedDate);
+           if(data) {
+              setAvailability(data);
+              // if selected time is now congested, clear it
+              if(selectedTime && data.congestedTimes?.includes(selectedTime)) {
+                 setSelectedTime(null);
+              }
+           }
+           setIsCheckingTime(false);
+        };
+        fetchAvailability();
+     }
+  }, [selectedDate, garage?.id]);
 
   const toggleService = (cat) => {
     if (selectedServices.includes(cat)) {
@@ -57,19 +106,25 @@ export default function ServiceRequestScreen({ navigation, route }) {
       Alert.alert(t('Error'), t('Please select at least one service to request.'));
       return;
     }
-
-    // Embed preferred time into description
-    let finalDescription = description.trim();
-    if (preferredTime.trim().length > 0) {
-       finalDescription += `\n[Preferred Drop-off: ${preferredTime}]`;
+    if (!selectedTime) {
+      Alert.alert(t('Error'), t('Please select a drop-off time.'));
+      return;
     }
+    if (availability?.isFullyBooked) {
+      Alert.alert(t('Error'), t('The garage is fully booked on this date.'));
+      return;
+    }
+
+    let finalDescription = description.trim();
 
     const payload = {
       serviceType: selectedServices.join(', '),
       vehicleId: selectedVehicle.VehicleID || selectedVehicle.id,
       garageId: garage.id,
       description: finalDescription,
-      isEmergency
+      isEmergency: false,
+      bookingDate: selectedDate,
+      dropOffTime: selectedTime
     };
 
     const success = await createRequest(payload);
@@ -94,44 +149,6 @@ export default function ServiceRequestScreen({ navigation, route }) {
         <View style={styles.headline}>
           <Text style={styles.title}>{t('How can we help?', 'How can we help?')}</Text>
           <Text style={styles.subtitle}>{t('Send a direct request to', 'Send a direct request to')} {garage ? garage.name : 'Unknown Garage'}</Text>
-        </View>
-
-        {/* Stepper Mock (Visual element matching the HTML) */}
-        <View style={styles.trackerCard}>
-           <View style={styles.trackerHeader}>
-             <Text style={styles.trackerTitle}>{t('Request Pipeline', 'Request Pipeline')}</Text>
-             <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{t('Filling Form', 'Filling Form')}</Text>
-             </View>
-           </View>
-           
-           <View style={styles.stepperWrap}>
-              <View style={styles.stepperLine} />
-              <View style={styles.step}>
-                 <View style={[styles.stepCircle, styles.stepActive]}>
-                    <Check size={16} color={colors.white} />
-                 </View>
-                 <Text style={styles.stepText}>{t('Draft', 'Draft')}</Text>
-              </View>
-              <View style={styles.step}>
-                 <View style={[styles.stepCircle, styles.stepInactive]}>
-                    <ChevronDown size={16} color={colors.textGray} />
-                 </View>
-                 <Text style={styles.stepInactiveText}>{t('Review', 'Review')}</Text>
-              </View>
-              <View style={styles.step}>
-                 <View style={[styles.stepCircle, styles.stepInactive]}>
-                    <Wrench size={16} color={colors.textGray} />
-                 </View>
-                 <Text style={styles.stepInactiveText}>{t('Working', 'Working')}</Text>
-              </View>
-              <View style={styles.step}>
-                 <View style={[styles.stepCircle, styles.stepInactive]}>
-                    <Flag size={16} color={colors.textGray} />
-                 </View>
-                 <Text style={styles.stepInactiveText}>{t('Done', 'Done')}</Text>
-              </View>
-           </View>
         </View>
 
         {/* Form */}
@@ -189,40 +206,84 @@ export default function ServiceRequestScreen({ navigation, route }) {
            ))}
         </ScrollView>
 
-        <TouchableOpacity 
-           style={[styles.emergencyBtn, isEmergency && styles.emergencyBtnActive]} 
-           onPress={() => setIsEmergency(!isEmergency)}
-        >
-           <AlertCircle size={20} color={isEmergency ? colors.white : '#ef4444'} />
-           <Text style={isEmergency ? styles.emergencyTextActive : styles.emergencyText}>
-             {isEmergency ? t('Marked as Emergency') : t('Mark as Emergency')}
-           </Text>
-        </TouchableOpacity>
 
-        <Text style={styles.label}>{t('Problem Description', 'Problem Description')}</Text>
+
+        <Text style={styles.label}>{t('Problem Description (Optional)', 'Problem Description (Optional)')}</Text>
         <TextInput 
           style={styles.textArea} 
           multiline 
-          placeholder={t("Describe the noise or issue in detail...", "Describe the noise or issue in detail...")}
+          placeholder={t("Describe any specific issues or focus areas...", "Describe any specific issues or focus areas...")}
           placeholderTextColor={colors.textGray}
           value={description}
           onChangeText={setDescription}
         />
 
-        <Text style={styles.label}>{t('Preferred Time (Optional)', 'Preferred Time (Optional)')}</Text>
-        <TextInput 
-          style={[styles.input, { marginBottom: 16 }]} 
-          placeholder={t("e.g. Tomorrow morning, 10:00 AM", "e.g. Tomorrow morning, 10:00 AM")}
-          placeholderTextColor={colors.textGray}
-          value={preferredTime}
-          onChangeText={setPreferredTime}
-        />
+        {/* Dynamic Scheduling Engine */}
+        <Text style={[styles.sectionTitle, { marginTop: 16 }]}>{t('Schedule Drop-off', 'Schedule Drop-off')}</Text>
+        <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Date', 'Select Date')}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+           {DATES.map((d, index) => {
+              const isSelected = selectedDate === d.dateString;
+              return (
+                 <TouchableOpacity
+                    key={d.dateString}
+                    style={[
+                       styles.dateBox,
+                       isSelected && styles.dateBoxSelected,
+                       { marginLeft: index === 0 ? 0 : 12 }
+                    ]}
+                    onPress={() => setSelectedDate(d.dateString)}
+                 >
+                    <Text style={[styles.dateDay, isSelected && styles.dateTextSelected]}>{d.dayStr}</Text>
+                    <Text style={[styles.dateNum, isSelected && styles.dateTextSelected]}>{d.dayNum}</Text>
+                 </TouchableOpacity>
+              )
+           })}
+        </ScrollView>
 
-        <View style={{ height: 100 }} />
+        <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Time', 'Select Time')}</Text>
+        {isCheckingTime ? (
+           <ActivityIndicator size="small" color={colors.primaryBlue} style={{ alignSelf: 'flex-start', marginVertical: 16 }} />
+        ) : availability?.isFullyBooked ? (
+           <View style={styles.fullyBookedWrap}>
+              <Text style={styles.fullyBookedText}>{t('Garage is at Max Labor Capacity for this date. Please select another date.')}</Text>
+           </View>
+        ) : (
+           <View style={styles.timeGrid}>
+              {TIME_SLOTS.map(time => {
+                 const isCongested = availability?.congestedTimes?.includes(time);
+                 const isSelected = selectedTime === time;
+                 const displayTime = time.substring(0, 5); // 08:00
+                 
+                 return (
+                    <TouchableOpacity
+                       key={time}
+                       disabled={isCongested}
+                       style={[
+                          styles.timeSlot,
+                          isSelected && styles.timeSlotSelected,
+                          isCongested && styles.timeSlotDisabled
+                       ]}
+                       onPress={() => setSelectedTime(time)}
+                    >
+                       <Text style={[
+                          styles.timeSlotText,
+                          isSelected && styles.timeSlotTextSelected,
+                          isCongested && styles.timeSlotTextDisabled
+                       ]}>
+                          {displayTime}
+                       </Text>
+                    </TouchableOpacity>
+                 );
+              })}
+           </View>
+        )}
+
+        <View style={{ height: 120 }} />
       </ScrollView>
 
       {/* Sticky Bottom Action */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: insets.bottom || 16 }]}>
          <TouchableOpacity 
            style={[styles.submitBtn, (requestLoading || !garage) && { opacity: 0.7 }]} 
            onPress={handleSubmit}
@@ -281,6 +342,20 @@ const styles = StyleSheet.create({
   emergencyBtnActive: { backgroundColor: '#ef4444' },
   emergencyText: { color: '#ef4444', fontWeight: 'bold', fontSize: 14 },
   emergencyTextActive: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
+  dateBox: { width: 60, height: 75, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center' },
+  dateBoxSelected: { borderColor: colors.primaryBlue, backgroundColor: colors.primaryBlue },
+  dateDay: { fontSize: 13, color: colors.textGray, marginBottom: 4, fontWeight: '600', textTransform: 'uppercase' },
+  dateNum: { fontSize: 20, color: colors.textDark, fontWeight: 'bold' },
+  dateTextSelected: { color: colors.white },
+  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  timeSlot: { width: '30%', height: 44, borderRadius: 10, borderWidth: 1, borderColor: colors.border, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.white },
+  timeSlotSelected: { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue },
+  timeSlotDisabled: { backgroundColor: colors.bgGray, borderColor: colors.border, opacity: 0.6 },
+  timeSlotText: { fontSize: 14, color: colors.textDark, fontWeight: '600' },
+  timeSlotTextSelected: { color: colors.white },
+  timeSlotTextDisabled: { color: colors.textGray, textDecorationLine: 'line-through' },
+  fullyBookedWrap: { backgroundColor: '#fef2f2', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#fecaca', marginBottom: 16 },
+  fullyBookedText: { color: '#ef4444', fontSize: 14, fontWeight: '600', textAlign: 'center' },
   bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.border },
   submitBtn: { backgroundColor: colors.primaryBlue, borderRadius: 12, height: 56, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   submitBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },

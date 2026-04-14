@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator, Linking, Platform } from 'react-native';
 import { ChevronLeft, Heart, CheckCircle, MapPin, Star, MessageSquare, CalendarClock, AlertTriangle, Navigation } from 'lucide-react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import { useFeedbackStore } from '../../store/feedbackStore';
 import Skeleton from '../../components/Skeleton';
@@ -9,9 +10,12 @@ import Skeleton from '../../components/Skeleton';
 const { width } = Dimensions.get('window');
 
 export default function GarageDetailScreen({ route, navigation }) {
-  const { garage, intentServices } = route.params;
+  const { garage, intentServices, isEmergency } = route.params;
 
   const { garageReviews, fetchGarageReviews, isLoading } = useFeedbackStore();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef(null);
+  const reviewsSectionY = useRef(0);
 
   useEffect(() => {
     fetchGarageReviews(garage.id || garage.GarageID);
@@ -56,7 +60,7 @@ export default function GarageDetailScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Horizontal Images Scroll */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesScroll}>
            <View style={styles.imageWrapper}>
@@ -106,7 +110,9 @@ export default function GarageDetailScreen({ route, navigation }) {
                <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
                <Star size={16} color={colors.primaryBlue} />
              </View>
-             <Text style={styles.reviewsText}>See all {garage.reviews} reviews</Text>
+             <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: reviewsSectionY.current, animated: true })}>
+               <Text style={styles.reviewsText}>See all {garageReviews.length} reviews</Text>
+             </TouchableOpacity>
            </View>
 
            {selectedServices.length > 1 && (
@@ -115,7 +121,7 @@ export default function GarageDetailScreen({ route, navigation }) {
                 <View style={{ marginLeft: 8 }}>
                    <Text style={[styles.verifiedText, { color: '#16a34a', fontSize: 14 }]}>Bundle Discount Applied!</Text>
                    <Text style={{ fontSize: 12, color: colors.textDark, marginTop: 4 }}>
-                     Estimated Total for {selectedServices.join(', ')} begins at ${Math.floor(garage.startingPrice * selectedServices.length * 0.85)}
+                     Estimated Total for {selectedServices.join(', ')} begins at ETB {Math.floor(garage.startingPrice * selectedServices.length * 0.85)}
                    </Text>
                 </View>
              </View>
@@ -144,7 +150,7 @@ export default function GarageDetailScreen({ route, navigation }) {
                    <Text style={styles.serviceName}>{service}</Text>
                    <Text style={styles.serviceSub}>Expert mechanics</Text>
                  </View>
-                 <Text style={styles.servicePrice}>From ${garage.startingPrice + index * 10}</Text>
+                 <Text style={styles.servicePrice}>From ETB {garage.startingPrice + index * 10}</Text>
                </TouchableOpacity>
              );
            })}
@@ -190,7 +196,7 @@ export default function GarageDetailScreen({ route, navigation }) {
            <View style={styles.divider} />
 
            {/* Live Reviews Section */}
-           <View style={styles.sectionHeader}>
+           <View onLayout={(e) => { reviewsSectionY.current = e.nativeEvent.layout.y; }} style={styles.sectionHeader}>
              <Text style={styles.sectionTitle}>Customer Reviews ({garageReviews.length})</Text>
              <TouchableOpacity onPress={() => navigation.navigate('AddReview', { garage })}>
                 <Text style={styles.viewAll}>Write a Review</Text>
@@ -258,11 +264,11 @@ export default function GarageDetailScreen({ route, navigation }) {
       </ScrollView>
 
       {/* Floating Action Bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: insets.bottom || 16 }]}>
          <TouchableOpacity style={styles.chatBtn}>
             <MessageSquare size={24} color={colors.primaryBlue} />
          </TouchableOpacity>
-         <TouchableOpacity style={styles.requestBtn} onPress={() => navigation.navigate('ServiceRequest', { garage, defaultServices: selectedServices })}>
+         <TouchableOpacity style={styles.requestBtn} onPress={() => navigation.navigate('ServiceRequest', { garage, defaultServices: selectedServices, isEmergency })}>
             <Text style={styles.requestBtnText}>Request Service{selectedServices.length > 0 ? ` (${selectedServices.length})` : ''}</Text>
             <CalendarClock size={20} color={colors.white} />
          </TouchableOpacity>

@@ -5,22 +5,38 @@ import Button from '../../components/Button';
 import { useServiceStore } from '../../store/serviceStore';
 
 export default function ConfirmationScreen({ route, navigation }) {
-  const { vehicleId, vehicle, description, address, preferredDate } = route.params;
-  const { createService, isLoading } = useServiceStore();
+  const { vehicleId, vehicle, description, address, preferredDate, garageId, serviceType, bookingDate, dropOffTime } = route.params;
+  const { createRequest, isLoading } = useServiceStore();
 
   const handleConfirm = async () => {
+    if (!garageId || !serviceType) {
+      Alert.alert(
+        'Missing Details',
+        'Please book a service from the Home tab by selecting a garage first.',
+        [{ text: 'OK', onPress: () => navigation.navigate('Main') }]
+      );
+      return;
+    }
     try {
-      await createService({
+      const success = await createRequest({
         vehicleId,
+        garageId,
+        serviceType,
         description,
-        location: address ? `${address.city}, ${address.region}` : 'Not Specified',
-        preferredDate: preferredDate || new Date().toISOString()
+        bookingDate: bookingDate || preferredDate || null,
+        dropOffTime: dropOffTime || null,
+        isEmergency: false,
       });
-      Alert.alert('Success', 'Service requested successfully!', [
-        { text: 'OK', onPress: () => navigation.navigate('Main') }
-      ]);
+      if (success) {
+        Alert.alert('Success', 'Service requested successfully!', [
+          { text: 'OK', onPress: () => navigation.navigate('Main') }
+        ]);
+      } else {
+        const errorMsg = useServiceStore.getState().error || 'Failed to request service. Please try again.';
+        Alert.alert('Booking Error', errorMsg);
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to request service');
+      Alert.alert('Error', 'Failed to request service. Please try again.');
     }
   };
 

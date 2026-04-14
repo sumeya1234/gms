@@ -29,5 +29,15 @@ export const useServiceStore = create((set, get) => ({
       set({ error: error?.response?.data?.message || 'Failed to submit request', isLoading: false });
       return false;
     }
+  },
+
+  checkAvailability: async (garageId, dateString) => {
+    try {
+      const response = await client.get(`/garages/${garageId}/availability?date=${dateString}`);
+      return response.data;
+    } catch (error) {
+      console.log('Availability Check Error', error?.response?.data || error);
+      return null;
+    }
   }
 }));

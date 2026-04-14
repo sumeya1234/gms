@@ -49,7 +49,7 @@ export default function GarageCard({ item, onPress }) {
         <View style={styles.footerRow}>
           <View>
             <Text style={styles.startsAt}>Starts at</Text>
-            <Text style={styles.price}>${item.startingPrice}</Text>
+            <Text style={styles.price}>ETB {item.startingPrice}</Text>
           </View>
           
           <TouchableOpacity style={styles.bookButton} onPress={onPress}>

@@ -19,6 +19,7 @@ import NotificationScreen from '../screens/Dashboard/NotificationScreen';
 
 import AddReviewScreen from '../screens/Dashboard/AddReviewScreen';
 import AddComplaintScreen from '../screens/Dashboard/AddComplaintScreen';
+import EmergencyScreen from '../screens/Dashboard/EmergencyScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Confirmation" component={ConfirmationScreen} />
             <Stack.Screen name="GarageDetail" component={GarageDetailScreen} />
             <Stack.Screen name="ServiceRequest" component={ServiceRequestScreen} />
+            <Stack.Screen name="Emergency" component={EmergencyScreen} />
             <Stack.Screen name="Notifications" component={NotificationScreen} />
             <Stack.Screen name="AddReview" component={AddReviewScreen} />
             <Stack.Screen name="AddComplaint" component={AddComplaintScreen} />

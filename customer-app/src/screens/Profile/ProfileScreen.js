@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, Platform, StatusBar } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locale/i18n';
 import { useAuthStore } from '../../store/authStore';
@@ -38,8 +38,36 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
-  const avatarUrl = user?.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user?.fullName || "User") + "&background=137fec&color=fff";
-  const fullName = user?.fullName ? user.fullName : "John Doe";
+  const AVATAR_COLORS = ['#137fec', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#3498db', '#e91e63', '#00bcd4', '#ff5722'];
+  const fullName = user?.fullName ? user.fullName : "User";
+  const colorIndex = fullName.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
+  const avatarColor = AVATAR_COLORS[colorIndex];
+  const avatarInitial = fullName.charAt(0).toUpperCase();
+
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [latestNotif, setLatestNotif] = useState(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await require('../../api/client').default.get('/users/notifications');
+        const unread = response.data.filter(n => !n.IsRead);
+        setUnreadCount(unread.length);
+        if (unread.length > 0) {
+          setLatestNotif(unread[0]);
+        }
+      } catch (err) {
+        console.warn('Failed to load notifications', err);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchNotifications();
+    });
+    
+    fetchNotifications();
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,7 +84,9 @@ export default function ProfileScreen({ navigation }) {
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
            <View style={styles.avatarWrap}>
-              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+              <View style={[styles.avatar, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 44 }}>{avatarInitial}</Text>
+              </View>
               <TouchableOpacity style={styles.cameraBtn}>
                  <Camera size={16} color={colors.white} />
               </TouchableOpacity>
@@ -69,20 +99,22 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         {/* Notification Banner */}
-        <View style={styles.banner}>
-           <View style={styles.bannerContent}>
-              <View style={styles.bannerHead}>
-                 <View style={styles.pulseDot} />
-                 <Text style={styles.bannerTitle}>2 NEW UPDATES</Text>
-              </View>
-              <Text style={styles.bannerSub}>Your oil change request has been approved by the garage.</Text>
-              <TouchableOpacity style={styles.bannerLink}>
-                 <Text style={styles.bannerLinkText}>View Details</Text>
-                 <ArrowRight size={14} color={colors.primaryBlue} />
-              </TouchableOpacity>
-           </View>
-           <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=150&q=80" }} style={styles.bannerImg} />
-        </View>
+        {unreadCount > 0 && latestNotif && (
+          <View style={styles.banner}>
+             <View style={styles.bannerContent}>
+                <View style={styles.bannerHead}>
+                   <View style={styles.pulseDot} />
+                   <Text style={styles.bannerTitle}>{unreadCount} NEW UPDATE{unreadCount > 1 ? 'S' : ''}</Text>
+                </View>
+                <Text style={styles.bannerSub} numberOfLines={2}>{latestNotif.Message}</Text>
+                <TouchableOpacity style={styles.bannerLink} onPress={() => navigation.navigate('Notifications')}>
+                   <Text style={styles.bannerLinkText}>View Details</Text>
+                   <ArrowRight size={14} color={colors.primaryBlue} />
+                </TouchableOpacity>
+             </View>
+             <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=150&q=80" }} style={styles.bannerImg} />
+          </View>
+        )}
 
         {/* Account Details Form */}
         <Text style={styles.sectionTitle}>{t('Account Details')}</Text>
@@ -200,7 +232,11 @@ function CarFrontIcon() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgGray },
+  container: { 
+    flex: 1, 
+    backgroundColor: colors.bgGray,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
