@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert, ScrollView } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,9 +47,14 @@ export default function ResetPasswordScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inner}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
+        <ScrollView 
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
         <View style={styles.headerContainer}>
           <Text style={styles.title}>New Password</Text>
           <Text style={styles.subtitle}>Set a secure password for your account.</Text>
@@ -94,7 +99,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
               <Text style={styles.buttonText}>Reset Password</Text>
             )}
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -106,9 +111,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   inner: {
-    flex: 1,
     padding: 24,
-    justifyContent: 'center',
+    paddingTop: Platform.OS === 'android' ? 60 : 40,
+    flexGrow: 1,
   },
   headerContainer: {
     marginBottom: 32,

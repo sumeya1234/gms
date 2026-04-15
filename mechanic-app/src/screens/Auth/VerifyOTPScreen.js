@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -30,9 +30,14 @@ export default function VerifyOTPScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inner}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
+        <ScrollView 
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
           <Text style={styles.backText}>Change Email</Text>
@@ -72,7 +77,7 @@ export default function VerifyOTPScreen({ navigation, route }) {
               {timer > 0 ? `Resend code in ${timer}s` : 'Resend Code'}
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -84,8 +89,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   inner: {
-    flex: 1,
     padding: 24,
+    flexGrow: 1,
   },
   backButton: {
     flexDirection: 'row',

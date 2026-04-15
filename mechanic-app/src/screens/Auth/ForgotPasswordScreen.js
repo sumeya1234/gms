@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert, ScrollView } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,9 +40,14 @@ export default function ForgotPasswordScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inner}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
+        <ScrollView 
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
           <Text style={styles.backText}>Back to Login</Text>
@@ -76,7 +81,7 @@ export default function ForgotPasswordScreen({ navigation }) {
               <Text style={styles.buttonText}>Send Code</Text>
             )}
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -88,8 +93,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   inner: {
-    flex: 1,
     padding: 24,
+    flexGrow: 1,
   },
   backButton: {
     flexDirection: 'row',
