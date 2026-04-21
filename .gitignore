@@ -4,4 +4,4 @@ node_modules
 # garage-backend/scripts
 garage-backend/combined.log
 garage-backend/error.log
-serviceAccountKey.json
+garage-backend/config/serviceAccountKey.json
