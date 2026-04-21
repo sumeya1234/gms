@@ -27,7 +27,8 @@ export const validateMechanicCreation = Joi.object({
   fullName: Joi.string().min(3).required(),
   email: Joi.string().email().required(),
   phone: Joi.string().min(10).max(20).required(),
-  password: Joi.string().min(6).allow('', null).optional()
+  password: Joi.string().min(6).allow('', null).optional(),
+  skills: Joi.array().items(Joi.string()).optional()
 });
 
 export const validateMechanicStatusUpdate = Joi.object({

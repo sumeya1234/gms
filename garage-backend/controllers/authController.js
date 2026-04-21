@@ -1,4 +1,5 @@
 import { registerUser, loginUser, generatePasswordResetOTP, verifyAndResetPassword } from "../services/authService.js";
+import { sendPasswordResetOTP } from "../services/emailService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 // Note: db, bcrypt, and jwt are no longer imported here. Business logic is separated.
@@ -34,9 +35,15 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   
   const otp = await generatePasswordResetOTP(email);
   
-  // In a real application, send this OTP via email here.
-  // For development/testing, we return it in the response.
-  res.json({ message: "OTP generated successfully", otp });
+  const emailSent = await sendPasswordResetOTP(email, otp);
+  
+  if (!emailSent) {
+    const error = new Error("Failed to send OTP email. Please try again.");
+    error.status = 500;
+    throw error;
+  }
+  
+  res.json({ message: "OTP sent to your email successfully" });
 });
 
 export const resetPassword = asyncHandler(async (req, res) => {

@@ -99,9 +99,10 @@ export default function ResetPasswordScreen({ navigation, route }) {
               <Text style={styles.buttonText}>Reset Password</Text>
             )}
           </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </SafeAreaView>
   );
 }
 

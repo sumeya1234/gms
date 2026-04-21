@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, ShieldCheck, Mail, Lock, Wrench } from 'lucide-react';
@@ -113,6 +113,11 @@ export default function Login() {
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
+              </div>
+              <div className="flex justify-end mt-1">
+                <Link to="/forgot-password" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                  Forgot Password?
+                </Link>
               </div>
             </div>
 

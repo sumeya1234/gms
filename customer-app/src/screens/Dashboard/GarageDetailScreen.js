@@ -115,17 +115,7 @@ export default function GarageDetailScreen({ route, navigation }) {
              </TouchableOpacity>
            </View>
 
-           {selectedServices.length > 1 && (
-             <View style={[styles.verifiedBadge, { backgroundColor: 'rgba(34,197,94,0.1)', marginTop: 16, padding: 12 }]}>
-                <CheckCircle size={16} color="#16a34a" />
-                <View style={{ marginLeft: 8 }}>
-                   <Text style={[styles.verifiedText, { color: '#16a34a', fontSize: 14 }]}>Bundle Discount Applied!</Text>
-                   <Text style={{ fontSize: 12, color: colors.textDark, marginTop: 4 }}>
-                     Estimated Total for {selectedServices.join(', ')} begins at ETB {Math.floor(garage.startingPrice * selectedServices.length * 0.85)}
-                   </Text>
-                </View>
-             </View>
-           )}
+
 
            <View style={styles.divider} />
 

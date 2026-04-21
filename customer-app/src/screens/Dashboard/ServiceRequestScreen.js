@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { ChevronLeft, ChevronDown, ShieldCheck } from 'lucide-react-native';
+import { ChevronLeft, Plus, ShieldCheck, Car } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
@@ -157,40 +157,27 @@ export default function ServiceRequestScreen({ navigation, route }) {
         <Text style={styles.label}>{t('Select Vehicle', 'Select Vehicle')}</Text>
         {vehiclesLoading && !selectedVehicle ? (
            <Skeleton width="100%" height={56} borderRadius={12} style={{ marginBottom: 16 }} />
-        ) : (
-           <TouchableOpacity 
-              activeOpacity={0.8}
-              style={styles.inputWrap} 
-              onPress={() => setShowVehiclePicker(!showVehiclePicker)}
-           >
-              <TextInput 
-                style={[styles.input, { color: selectedVehicle ? colors.textDark : colors.textGray }]} 
-                value={selectedVehicle ? `${selectedVehicle.PlateNumber} - ${selectedVehicle.Model}` : t('No vehicles found')} 
-                editable={false} 
-                pointerEvents="none"
-              />
-              <ChevronDown size={20} color={colors.textGray} style={styles.inputIcon} />
+        ) : vehicles.length === 0 ? (
+           <TouchableOpacity onPress={() => navigation.navigate('Vehicles')} style={styles.addVehiclePrompt}>
+              <Plus size={16} color={colors.primaryBlue} />
+              <Text style={styles.addVehiclePromptText}>{t('Add a vehicle first')}</Text>
            </TouchableOpacity>
-        )}
-
-        {showVehiclePicker && vehicles.length > 0 && (
-          <View style={styles.pickerBox}>
-            {vehicles.map(v => (
-              <TouchableOpacity 
-                key={v.VehicleID || v.id} 
-                style={styles.pickerRow}
-                onPress={() => {
-                  setSelectedVehicle(v);
-                  setShowVehiclePicker(false);
-                }}
-              >
-                <Text style={styles.pickerText}>{v.PlateNumber} • {v.Model}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        {showVehiclePicker && vehicles.length === 0 && (
-          <Text style={{color: '#ef4444', marginBottom: 16}}>{t('Please go to the Vehicles tab and add a vehicle first.')}</Text>
+        ) : (
+           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleChipsRow}>
+              {vehicles.map(v => {
+                 const isSelected = selectedVehicle?.VehicleID === v.VehicleID || selectedVehicle?.id === v.id;
+                 return (
+                    <TouchableOpacity 
+                       key={v.VehicleID || v.id} 
+                       onPress={() => setSelectedVehicle(v)}
+                       style={[styles.vehicleChip, isSelected && styles.vehicleChipActive]}
+                    >
+                       <Car size={16} color={isSelected ? colors.white : colors.primaryBlue} />
+                       <Text style={[styles.vehicleChipText, isSelected && styles.vehicleChipTextActive]}>{v.PlateNumber} • {v.Model}</Text>
+                    </TouchableOpacity>
+                 );
+              })}
+           </ScrollView>
         )}
 
         <Text style={styles.label}>{t('Service Type', 'Service Type')} (Select Multiple)</Text>
@@ -360,5 +347,18 @@ const styles = StyleSheet.create({
   submitBtn: { backgroundColor: colors.primaryBlue, borderRadius: 12, height: 56, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   submitBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
   trustWrap: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6 },
-  trustText: { fontSize: 12, color: colors.textGray, fontWeight: '500' }
+  trustText: { fontSize: 12, color: colors.textGray, fontWeight: '500' },
+  vehicleChipsRow: { marginBottom: 16 },
+  vehicleChip: { 
+    flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 12, 
+    borderRadius: 12, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, marginRight: 10
+  },
+  vehicleChipActive: { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue },
+  vehicleChipText: { fontSize: 14, fontWeight: '600', color: colors.textDark },
+  vehicleChipTextActive: { color: colors.white },
+  addVehiclePrompt: { 
+    flexDirection: 'row', alignItems: 'center', gap: 8, padding: 16, backgroundColor: 'rgba(19, 127, 236, 0.05)', 
+    borderRadius: 12, borderWidth: 1, borderColor: colors.primaryBlue, borderStyle: 'dashed', marginBottom: 16
+  },
+  addVehiclePromptText: { color: colors.primaryBlue, fontWeight: 'bold' }
 });

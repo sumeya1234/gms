@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../api/apiClient';
+import { registerForPushNotificationsAsync, sendTokenToBackend } from '../utils/pushNotifications';
 
 export const AuthContext = createContext();
 
@@ -8,6 +9,17 @@ export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handlePushTokenRegistration = async () => {
+    try {
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        await sendTokenToBackend(token);
+      }
+    } catch (err) {
+      console.log('Push registration failed:', err);
+    }
+  };
 
   useEffect(() => {
     const isReady = async () => {
@@ -18,6 +30,7 @@ export const AuthProvider = ({ children }) => {
             const profileRes = await apiClient.get('/api/users/profile');
             setUser(profileRes.data.user);
             setUserToken(token);
+            handlePushTokenRegistration();
           } catch (profileErr) {
             console.log('Failed to fetch profile, invalidating token', profileErr);
             await AsyncStorage.removeItem('userToken');
@@ -52,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         setUser({ role });
       }
 
+      handlePushTokenRegistration();
       return { success: true };
     } catch (error) {
       console.log('Login error:', error.response?.data || error.message);

@@ -12,6 +12,7 @@ export default function HistoryScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('History');
   
   const { requests, isLoading, fetchMyRequests } = useServiceStore();
+  const [historyFilter, setHistoryFilter] = useState('Today');
   const pendingTxRef = useRef(null);
   const [ratings, setRatings] = useState({});
   const [comments, setComments] = useState({});
@@ -25,6 +26,136 @@ export default function HistoryScreen({ navigation }) {
   const [invoiceCatalog, setInvoiceCatalog] = useState([]);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [verifyingPayment, setVerifyingPayment] = useState(null);
+
+  const ServiceCard = ({ item }) => (
+    <TouchableOpacity style={styles.historyCard} activeOpacity={0.7} onPress={() => {
+       if (item.Status === 'Completed') {
+          handleViewInvoice(item);
+       } else if (item.Status !== 'Rejected') {
+          navigation.navigate('TrackService', { job: { 
+             ...item, 
+             status: item.Status, 
+             description: item.Description,
+             vehicleId: { brand: item.Brand, model: item.Model, plateNumber: item.PlateNumber } 
+          } });
+       } else {
+          Alert.alert('Request Rejected', item.RejectionReason || 'This request was rejected by the garage.');
+       }
+    }}>
+       <View style={styles.histHeaderRow}>
+         <View style={{ flex: 1, paddingRight: 8 }}>
+            <Text style={styles.histTitle} numberOfLines={2}>{item.ServiceType}</Text>
+            {item.GarageName && (
+               <Text style={{ fontSize: 13, color: colors.primaryBlue, fontWeight: '500', marginBottom: 2 }}>{item.GarageName}</Text>
+            )}
+            <Text style={styles.histSub}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
+         </View>
+         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+            <View style={{ backgroundColor: getStatusColor(item.Status), paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+               <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' }}>{item.Status}</Text>
+            </View>
+            <TouchableOpacity onPress={() => handleDeleteRequest(item)} style={{ padding: 4 }}>
+               <Trash size={16} color="#ef4444" />
+            </TouchableOpacity>
+         </View>
+       </View>
+       
+       <Text style={styles.histComment}>{item.Description || 'No description provided.'}</Text>
+
+       {item.RejectionReason ? (
+         <View style={styles.managerResponse}>
+            <View style={styles.respHeader}>
+               <Store size={14} color={colors.primaryBlue} />
+               <Text style={styles.respTitle}>Rejection Reason</Text>
+            </View>
+            <Text style={styles.respText}>{item.RejectionReason}</Text>
+         </View>
+       ) : null}
+
+       <View style={[styles.histFooter, { justifyContent: 'flex-end' }]}>
+          {/* No payment yet — show Pay buttons */}
+          {item.Status === 'Completed' && (!item.PaymentStatus || item.PaymentStatus === null) && (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
+                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+              </Text>
+              
+              {paymentLoading === item.RequestID ? (
+                <ActivityIndicator color={colors.primaryBlue} />
+              ) : showPayOptions === item.RequestID ? (
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  <TouchableOpacity 
+                    style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                    onPress={() => handlePayNow(item, 'Chapa')}
+                  >
+                    <CreditCard size={14} color="#fff" />
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                    onPress={() => handlePayNow(item, 'Cash')}
+                  >
+                    <Banknote size={14} color="#fff" />
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                  onPress={() => setShowPayOptions(item.RequestID)}
+                >
+                  <CreditCard size={14} color="#fff" />
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Now</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          {/* Payment is pending — Cash */}
+          {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod === 'Cash' && (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+              </Text>
+              <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Cash - Awaiting Confirmation</Text>
+              </View>
+            </View>
+          )}
+
+          {/* Payment is pending — Online: show Verify button */}
+          {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod !== 'Cash' && (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
+                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+              </Text>
+              {verifyingPayment === item.RequestID ? (
+                <ActivityIndicator color={colors.primaryBlue} />
+              ) : (
+                <TouchableOpacity 
+                  style={{ backgroundColor: '#0d6efd', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
+                  onPress={() => handleVerifyOnline(item)}
+                >
+                  <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>Verify Payment</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          
+          {/* Payment completed */}
+          {item.Status === 'Completed' && item.PaymentStatus === 'Completed' && (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+                Paid: {(Number(item.TotalPaid)).toLocaleString()} ETB
+              </Text>
+              <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>PAID VIA {item.PaymentMethod || 'CHAPA'}</Text>
+              </View>
+            </View>
+          )}
+       </View>
+    </TouchableOpacity>
+  );
 
   const handleViewInvoice = async (item) => {
     setInvoiceItem(item);
@@ -197,8 +328,18 @@ export default function HistoryScreen({ navigation }) {
   };
 
   // Only show completed requests that haven't been reviewed yet
-  const unreviewedRequests = requests.filter(r => r.Status === 'Completed' && !r.HasReviewed).sort((a, b) => new Date(b.RequestDate) - new Date(a.RequestDate));
+  const isToday = (dateString) => {
+    if (!dateString) return false;
+    const d = new Date(dateString);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() &&
+           d.getMonth() === now.getMonth() &&
+           d.getDate() === now.getDate();
+  };
+
   const allRequests = [...requests].sort((a, b) => new Date(b.RequestDate) - new Date(a.RequestDate));
+  const todayRequests = allRequests.filter(r => isToday(r.BookingDate) || (!r.BookingDate && isToday(r.RequestDate)));
+  const olderRequests = allRequests.filter(r => !todayRequests.some(tr => tr.RequestID === r.RequestID));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -327,130 +468,43 @@ export default function HistoryScreen({ navigation }) {
           ) : (
             <View>
               <View style={styles.historyHeader}>
-                 <Text style={styles.sectionTitle}>{t('Recent History', 'Recent History')}</Text>
+                 <View style={styles.filterChipsRow}>
+                    {['Today', 'Previous'].map(f => (
+                       <TouchableOpacity 
+                          key={f} 
+                          onPress={() => setHistoryFilter(f)}
+                          style={[styles.filterChip, historyFilter === f && styles.filterChipActive]}
+                       >
+                          <Text style={[styles.filterChipText, historyFilter === f && styles.filterChipTextActive]}>{f}</Text>
+                       </TouchableOpacity>
+                    ))}
+                 </View>
               </View>
 
               {allRequests.length === 0 ? (
                 <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('You have no service requests yet.', 'You have no service requests yet.')}</Text>
               ) : (
-                allRequests.map(item => (
-                  <TouchableOpacity key={item.RequestID} style={styles.historyCard} activeOpacity={0.7} onPress={() => handleViewInvoice(item)}>
-                     <View style={styles.histHeaderRow}>
-                       <View style={{ flex: 1, paddingRight: 8 }}>
-                          <Text style={styles.histTitle} numberOfLines={2}>{item.ServiceType}</Text>
-                          {item.GarageName && (
-                             <Text style={{ fontSize: 13, color: colors.primaryBlue, fontWeight: '500', marginBottom: 2 }}>{item.GarageName}</Text>
-                          )}
-                          <Text style={styles.histSub}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
-                       </View>
-                       <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
-                          <View style={{ backgroundColor: getStatusColor(item.Status), paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-                             <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' }}>{item.Status}</Text>
-                          </View>
-                          <TouchableOpacity onPress={() => handleDeleteRequest(item)} style={{ padding: 4 }}>
-                             <Trash size={16} color="#ef4444" />
-                          </TouchableOpacity>
-                       </View>
-                     </View>
-                     
-                     <Text style={styles.histComment}>{item.Description || 'No description provided.'}</Text>
+                <View>
+                  {(historyFilter === 'Today') && todayRequests.length > 0 && (
+                    <View style={{ marginBottom: 24 }}>
+                      {todayRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                    </View>
+                  )}
 
-                     {item.RejectionReason ? (
-                       <View style={styles.managerResponse}>
-                          <View style={styles.respHeader}>
-                             <Store size={14} color={colors.primaryBlue} />
-                             <Text style={styles.respTitle}>Rejection Reason</Text>
-                          </View>
-                          <Text style={styles.respText}>{item.RejectionReason}</Text>
-                       </View>
-                     ) : null}
+                  {(historyFilter === 'Previous') && olderRequests.length > 0 && (
+                    <View>
+                      {olderRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                    </View>
+                  )}
 
-                     <View style={[styles.histFooter, { justifyContent: 'space-between' }]}>
-                       <Text style={{ fontSize: 12, color: colors.textGray }}>Vehicle #{item.VehicleID}</Text>
-                       
-                       {/* No payment yet — show Pay buttons */}
-                       {item.Status === 'Completed' && (!item.PaymentStatus || item.PaymentStatus === null) && (
-                         <View style={{ alignItems: 'flex-end' }}>
-                           <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-                             Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-                           </Text>
-                           
-                           {paymentLoading === item.RequestID ? (
-                             <ActivityIndicator color={colors.primaryBlue} />
-                           ) : showPayOptions === item.RequestID ? (
-                             <View style={{ flexDirection: 'row', gap: 6 }}>
-                               <TouchableOpacity 
-                                 style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                                 onPress={() => handlePayNow(item, 'Chapa')}
-                               >
-                                 <CreditCard size={14} color="#fff" />
-                                 <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
-                               </TouchableOpacity>
-                               <TouchableOpacity 
-                                 style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                                 onPress={() => handlePayNow(item, 'Cash')}
-                               >
-                                 <Banknote size={14} color="#fff" />
-                                 <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
-                               </TouchableOpacity>
-                             </View>
-                           ) : (
-                             <TouchableOpacity 
-                               style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                               onPress={() => setShowPayOptions(item.RequestID)}
-                             >
-                               <CreditCard size={14} color="#fff" />
-                               <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Now</Text>
-                             </TouchableOpacity>
-                           )}
-                         </View>
-                       )}
+                  {historyFilter === 'Today' && todayRequests.length === 0 && (
+                    <Text style={styles.emptyFilterText}>{t('No services scheduled for today.')}</Text>
+                  )}
 
-                        {/* Payment is pending — Cash */}
-                        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod === 'Cash' && (
-                          <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-                              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-                            </Text>
-                            <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                              <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Cash - Awaiting Confirmation</Text>
-                            </View>
-                          </View>
-                        )}
-
-                        {/* Payment is pending — Online: show Verify button */}
-                        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod !== 'Cash' && (
-                          <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-                              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-                            </Text>
-                            {verifyingPayment === item.RequestID ? (
-                              <ActivityIndicator color={colors.primaryBlue} />
-                            ) : (
-                              <TouchableOpacity 
-                                style={{ backgroundColor: '#0d6efd', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
-                                onPress={() => handleVerifyOnline(item)}
-                              >
-                                <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>Verify Payment</Text>
-                              </TouchableOpacity>
-                            )}
-                          </View>
-                        )}
-                        
-                        {/* Payment completed */}
-                        {item.Status === 'Completed' && item.PaymentStatus === 'Completed' && (
-                          <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-                              Paid: {(Number(item.TotalPaid)).toLocaleString()} ETB
-                            </Text>
-                            <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                              <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>PAID VIA {item.PaymentMethod || 'CHAPA'}</Text>
-                            </View>
-                          </View>
-                        )}
-                     </View>
-                  </TouchableOpacity>
-                ))
+                  {historyFilter === 'Previous' && olderRequests.length === 0 && (
+                    <Text style={styles.emptyFilterText}>{t('No previous records found.')}</Text>
+                  )}
+                </View>
               )}
 
             </View>
@@ -610,7 +664,7 @@ const styles = StyleSheet.create({
   textArea: { width: '100%', backgroundColor: colors.bgGray, borderRadius: 12, padding: 16, height: 100, textAlignVertical: 'top', fontSize: 14, color: colors.textDark, marginBottom: 16, borderWidth: 1, borderColor: colors.border },
   submitBtn: { flexDirection: 'row', width: '100%', backgroundColor: colors.primaryBlue, borderRadius: 12, height: 50, justifyContent: 'center', alignItems: 'center', gap: 8 },
   submitBtnText: { color: colors.white, fontWeight: 'bold', fontSize: 16 },
-  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  historyHeader: { marginBottom: 12 },
   historyCard: { backgroundColor: colors.white, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
   histHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   histTitle: { fontSize: 16, fontWeight: 'bold', color: colors.textDark },
@@ -629,4 +683,12 @@ const styles = StyleSheet.create({
   modalSubtitle: { fontSize: 14, color: colors.textGray, textAlign: 'center', marginTop: 8, lineHeight: 20 },
   modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
   modalBtnText: { fontSize: 15, fontWeight: 'bold' },
+  sectionDivider: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16, marginTop: 8 },
+  sectionHeaderText: { fontSize: 14, fontWeight: 'bold', color: colors.textGray, textTransform: 'uppercase', letterSpacing: 1 },
+  filterChipsRow: { flexDirection: 'row', gap: 8, marginTop: 12, marginBottom: 4 },
+  filterChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border },
+  filterChipActive: { backgroundColor: colors.primaryBlue, borderColor: colors.primaryBlue },
+  filterChipText: { fontSize: 13, fontWeight: '600', color: colors.textGray },
+  filterChipTextActive: { color: colors.white },
+  emptyFilterText: { textAlign: 'center', color: colors.textGray, marginTop: 40, fontSize: 14, fontStyle: 'italic' },
 });

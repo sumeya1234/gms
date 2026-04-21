@@ -1,4 +1,5 @@
 import db from "../config/db.js";
+import { createNotification } from "./notificationService.js";
 
 export const createServiceRequest = async (serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime) => {
   const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
@@ -55,6 +56,21 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0, bookingDate || null, dropOffTime || null, estimatedDuration]
   );
+
+  // Notify Garage Manager
+  try {
+    const [garageInfo] = await db.query("SELECT ManagerID, GarageName FROM Garages WHERE GarageID = ?", [garageId]);
+    if (garageInfo.length > 0 && garageInfo[0].ManagerID) {
+      await createNotification(
+        garageInfo[0].ManagerID,
+        "New Service Request",
+        `A new ${isEmergency ? "EMERGENCY " : ""}request for ${serviceType} has been received at ${garageInfo[0].GarageName}.`,
+        "NEW_REQUEST"
+      );
+    }
+  } catch (err) {
+    console.error("Failed to notify manager of new request:", err.message);
+  }
 };
 
 export const assignServiceMechanic = async (requestId, mechanicId) => {
@@ -84,6 +100,9 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
     throw error;
   }
 
+  // Delete previous assignments for this request to cleanly re-assign
+  await db.query("DELETE FROM MechanicAssignments WHERE RequestID = ?", [requestId]);
+
   await db.query(
     `INSERT INTO MechanicAssignments (RequestID, MechanicID)
      VALUES (?, ?)`,
@@ -98,8 +117,6 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
     "ASSIGNMENT"
   );
 };
-
-import { createNotification } from "./notificationService.js";
 
 export const updateServiceStatus = async (requestId, status, admin, rejectionReason = "") => {
   const [request] = await db.query("SELECT * FROM ServiceRequests WHERE RequestID = ?", [requestId]);
@@ -258,7 +275,7 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
       const { itemId, quantity } = item;
       
       const [inventory] = await connection.query(
-        "SELECT Quantity FROM Inventory WHERE ItemID = ? FOR UPDATE",
+        "SELECT Quantity, ItemName, GarageID FROM Inventory WHERE ItemID = ? FOR UPDATE",
         [itemId]
       );
 
@@ -266,15 +283,30 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
         throw new Error(`Insufficient stock for item ID ${itemId}`);
       }
 
+      const newQuantity = inventory[0].Quantity - quantity;
+
       await connection.query(
-        "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?",
-        [quantity, itemId]
+        "UPDATE Inventory SET Quantity = ? WHERE ItemID = ?",
+        [newQuantity, itemId]
       );
 
       await connection.query(
         "INSERT INTO ServiceItems (RequestID, ItemID, QuantityUsed) VALUES (?, ?, ?)",
         [requestId, itemId, quantity]
       );
+
+      // Low Stock Alert
+      if (newQuantity < 10) {
+        const [garage] = await connection.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [inventory[0].GarageID]);
+        if (garage.length > 0 && garage[0].ManagerID) {
+          await createNotification(
+            garage[0].ManagerID,
+            "Low Stock Alert",
+            `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`,
+            "LOW_STOCK"
+          );
+        }
+      }
     }
 
     await connection.commit();
@@ -323,7 +355,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
       
       // Check stock availability
       const [inventory] = await connection.query(
-        "SELECT Quantity FROM Inventory WHERE ItemID = ? FOR UPDATE",
+        "SELECT Quantity, ItemName, GarageID FROM Inventory WHERE ItemID = ? FOR UPDATE",
         [itemId]
       );
 
@@ -331,10 +363,12 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
         throw new Error(`Insufficient stock for item ID ${itemId}`);
       }
 
+      const newQuantity = inventory[0].Quantity - quantity;
+
       // Deduct stock
       await connection.query(
-        "UPDATE Inventory SET Quantity = Quantity - ? WHERE ItemID = ?",
-        [quantity, itemId]
+        "UPDATE Inventory SET Quantity = ? WHERE ItemID = ?",
+        [newQuantity, itemId]
       );
 
       // Record in ServiceItems
@@ -342,6 +376,19 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
         "INSERT INTO ServiceItems (RequestID, ItemID, QuantityUsed) VALUES (?, ?, ?)",
         [requestId, itemId, quantity]
       );
+
+      // Low Stock Alert
+      if (newQuantity < 10) {
+        const [garage] = await connection.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [inventory[0].GarageID]);
+        if (garage.length > 0 && garage[0].ManagerID) {
+          await createNotification(
+            garage[0].ManagerID,
+            "Low Stock Alert",
+            `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`,
+            "LOW_STOCK"
+          );
+        }
+      }
     }
 
     // 4. Update status to 'Completed'
@@ -376,6 +423,8 @@ export const fetchCustomerRequests = async (customerId) => {
         p.PaymentMethod,
         p.Amount as TotalPaid,
         p.TransactionRef,
+        u.FullName as AssignedMechanicName,
+        u.PhoneNumber as AssignedMechanicPhone,
         (SELECT COALESCE(SUM(gs.Price), 0) 
          FROM GarageServices gs 
          WHERE gs.GarageID = sr.GarageID 
@@ -390,6 +439,16 @@ export const fetchCustomerRequests = async (customerId) => {
      JOIN Vehicles v ON sr.VehicleID = v.VehicleID
      LEFT JOIN Garages g ON sr.GarageID = g.GarageID
      LEFT JOIN Payments p ON sr.RequestID = p.RequestID
+     LEFT JOIN (
+        SELECT ma1.RequestID, ma1.MechanicID 
+        FROM MechanicAssignments ma1
+        JOIN (
+           SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
+           FROM MechanicAssignments
+           GROUP BY RequestID
+        ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
+     ) ma ON sr.RequestID = ma.RequestID
+     LEFT JOIN Users u ON ma.MechanicID = u.UserID
      WHERE v.CustomerID = ? AND sr.CustomerHidden = 0
      ORDER BY sr.RequestDate DESC`,
     [customerId]
@@ -432,9 +491,13 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
   let baseQuery = `
     FROM ServiceRequests sr
     LEFT JOIN (
-      SELECT RequestID, MAX(MechanicID) as MechanicID 
-      FROM MechanicAssignments 
-      GROUP BY RequestID
+      SELECT ma1.RequestID, ma1.MechanicID 
+      FROM MechanicAssignments ma1
+      JOIN (
+         SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
+         FROM MechanicAssignments
+         GROUP BY RequestID
+      ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
     ) ma ON sr.RequestID = ma.RequestID
     LEFT JOIN Users u ON ma.MechanicID = u.UserID
     LEFT JOIN Payments p ON sr.RequestID = p.RequestID
@@ -454,8 +517,14 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
   }
 
   if (date) {
-    baseQuery += " AND DATE(sr.BookingDate) = ?";
-    params.push(date);
+    if (date === 'today') {
+      baseQuery += " AND DATE(sr.BookingDate) = CURDATE()";
+    } else if (date === 'week') {
+      baseQuery += " AND YEARWEEK(sr.BookingDate, 1) = YEARWEEK(CURDATE(), 1)";
+    } else {
+      baseQuery += " AND DATE(sr.BookingDate) = ?";
+      params.push(date);
+    }
   }
 
   // Count query
@@ -483,7 +552,22 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
 };
 
 export const fetchRequestById = async (requestId) => {
-  const [rows] = await db.query("SELECT * FROM ServiceRequests WHERE RequestID = ?", [requestId]);
+  const [rows] = await db.query(
+    `SELECT sr.*, u.FullName as AssignedMechanicName, u.PhoneNumber as AssignedMechanicPhone 
+     FROM ServiceRequests sr
+     LEFT JOIN (
+        SELECT ma1.RequestID, ma1.MechanicID 
+        FROM MechanicAssignments ma1
+        JOIN (
+           SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
+           FROM MechanicAssignments
+           GROUP BY RequestID
+        ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
+     ) ma ON sr.RequestID = ma.RequestID
+     LEFT JOIN Users u ON ma.MechanicID = u.UserID
+     WHERE sr.RequestID = ?`, 
+    [requestId]
+  );
   if (rows.length === 0) {
     const error = new Error("Service request not found");
     error.status = 404;

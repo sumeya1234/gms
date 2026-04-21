@@ -6,6 +6,7 @@ import Garages from './pages/Garages';
 import Users from './pages/Users';
 import Managers from './pages/Managers';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Complaints from './pages/Complaints';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route 
         path="/" 
         element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}

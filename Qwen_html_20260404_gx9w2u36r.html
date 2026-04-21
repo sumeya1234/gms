@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garage 2.0 - Complete Mobile App</title>
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --accent-blue: #2563eb;
+            --yellow-btn: #fbbf24;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --bg-gray: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 414px;
+            height: 896px;
+            background: var(--white);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: none;
+            background: var(--white);
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .status-bar {
+            height: 44px;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .screen-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 20px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .screen-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .screen-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--yellow-btn);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: var(--text-dark);
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .center-fab {
+            width: 56px;
+            height: 56px;
+            background: var(--yellow-btn);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .center-fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: #eff6ff;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            color: var(--text-gray);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-dark);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Profile Styles */
+        .profile-header {
+            background: var(--primary-blue);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--yellow-btn);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .upload-photo-btn {
+            background: var(--yellow-btn);
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .profile-form {
+            background: white;
+            margin: -30px 20px 20px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .profile-field {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .profile-field:last-child {
+            border-bottom: none;
+        }
+
+        .field-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--text-gray);
+        }
+
+        .field-content {
+            flex: 1;
+        }
+
+        .field-label {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .field-value {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .edit-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-btn:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        /* Confirmation Page Styles */
+        .confirmation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .car-summary {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-gray);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .car-brand {
+            font-size: 12px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        .car-model {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .car-year {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .car-image {
+            width: 100px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-left: auto;
+        }
+
+        .services-section {
+            background: var(--bg-gray);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+        }
+
+        .service-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .add-service-btn {
+            background: var(--yellow-btn);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .details-section {
+            margin-bottom: 25px;
+        }
+
+        .details-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            color: var(--text-gray);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Invoice Styles */
+        .invoice-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .garage-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 5px;
+        }
+
+        .garage-address {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .invoice-number {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .invoice-section {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .invoice-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .invoice-row.total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .price {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Success Screen */
+        .success-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            height: 100%;
+        }
+
+        .success-illustration {
+            width: 200px;
+            height: 200px;
+            background: var(--bg-gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            font-size: 100px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .success-message {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            .app-container {
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Screen 1: Edit Profile -->
+        <div class="screen active" id="screen-profile-edit">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶  🔋</span>
+            </div>
+            <div class="profile-header">
+                <div class="back-btn" onclick="navigateTo('screen-dashboard')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 20px;">Edit Profile</div>
+                <div class="profile-avatar" id="profile-avatar">RJ</div>
+                <button class="upload-photo-btn" onclick="showToast('Upload photo clicked')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload your photo
+                </button>
+            </div>
+            <div class="profile-form">
+                <div class="profile-field">
+                    <div class="field-icon">👤</div>
+                    <div class="field-content">
+                        <div class="field-label">Robin Joy</div>
+                    </div>
+                    <div class="edit-btn" onclick="editField('name')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </div>
+                </div>
+                <div class="profile-field">
+                    <div class="field-icon">📧</div>
+                    <div class="field-content">
+                        <div class="field-label">robin.joyy3@gmail.com</div>
+                    </div>
+                    <div class="edit-btn" onclick="editField('email')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </div>
+                </div>
+                <div class="profile-field">
+                    <div class="field-icon">📱</div>
+                    <div class="field-content">
+                        <div class="field-label">+91 9877345100</div>
+                    </div>
+                    <div class="edit-btn" onclick="editField('phone')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </div>
+                </div>
+                <div class="profile-field">
+                    <div class="field-icon">🔒</div>
+                    <div class="field-content">
+                        <div class="field-label">••••••••••••</div>
+                    </div>
+                    <div class="edit-btn" onclick="editField('password')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" style="margin-top: 20px;" onclick="saveProfile()">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Dashboard -->
+        <div class="screen" id="screen-dashboard">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶  🔋</span>
+            </div>
+            <div class="screen-header">
+                <div class="screen-title">Good Day!</div>
+                <div class="screen-subtitle">Let's start our work</div>
+                <button class="btn btn-secondary" onclick="navigateTo('screen-services')" style="margin-top: 15px; width: auto; padding: 10px 20px; align-self: flex-start;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add New work
+                </button>
+            </div>
+            <div class="content" style="padding-top: 20px;">
+                <div style="background: white; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" placeholder="Search work orders" style="flex: 1; border: none; outline: none; font-size: 15px;">
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 18px; font-weight: bold;">Ongoing Service Jobs</h3>
+                    <span style="color: var(--accent-blue); font-size: 14px; cursor: pointer;">See all →</span>
+                </div>
+
+                <div id="ongoing-jobs">
+                    <!-- Jobs loaded dynamically -->
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="setActiveNav(this)">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span class="nav-label">Home</span>
+                </div>
+                <div class="nav-item" onclick="setActiveNav(this)">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span class="nav-label">Completed</span>
+                </div>
+                <button class="center-fab" onclick="navigateTo('screen-services')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="nav-item" onclick="setActiveNav(this)">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="nav-label">Notifications</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('screen-profile-edit')">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="nav-label">Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Services Selection -->
+        <div class="screen" id="screen-services">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶  🔋</span>
+            </div>
+            <div class="screen-header">
+                <div class="screen-title">Select Services</div>
+                <div class="screen-subtitle">Choose services for this job</div>
+            </div>
+            <div class="content">
+                <div id="services-list">
+                    <!-- Services loaded dynamically -->
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="navigateTo('screen-dashboard')">Cancel</button>
+                    <button class="btn btn-primary" onclick="navigateTo('screen-customer')">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Customer Details -->
+        <div class="screen" id="screen-customer">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 </span>
+            </div>
+            <div class="screen-header">
+                <div class="screen-title">Customer Details</div>
+                <div class="screen-subtitle">Enter customer and vehicle information</div>
+            </div>
+            <div class="content">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="customer-name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="customer-email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-input" id="customer-phone" placeholder="Mobile Number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">VIN</label>
+                    <input type="text" class="form-input" id="vehicle-vin" placeholder="VIN">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">License Plate Number</label>
+                    <input type="text" class="form-input" id="vehicle-plate" placeholder="License Plate Number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Vehicle Year</label>
+                    <input type="text" class="form-input" id="vehicle-year" placeholder="Vehicle Year">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Mileage</label>
+                    <input type="text" class="form-input" id="vehicle-mileage" placeholder="Current Mileage">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="navigateTo('screen-services')">Back</button>
+                    <button class="btn btn-primary" onclick="navigateTo('screen-confirmation')">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Confirmation Page -->
+        <div class="screen" id="screen-confirmation">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 </span>
+            </div>
+            <div class="screen-header">
+                <div class="screen-title">Confirmation Page</div>
+            </div>
+            <div class="content">
+                <div class="confirmation-card">
+                    <div class="car-summary">
+                        <div>
+                            <div class="car-brand">SUZUKI</div>
+                            <div class="car-model">WagonR</div>
+                            <div class="car-year">(2015 Model)</div>
+                        </div>
+                        <div class="car-image">🚗</div>
+                    </div>
+
+                    <div class="services-section">
+                        <div class="section-label">Services</div>
+                        <div id="confirmation-services">
+                            <div class="service-item">Wheel Alignment & Balancing</div>
+                            <div class="service-item">Car Wash</div>
+                        </div>
+                        <button class="add-service-btn" onclick="showToast('Add more services')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                            Add More Services
+                        </button>
+                    </div>
+
+                    <div class="details-section">
+                        <div class="details-title">Customer Details</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Name</span>
+                            <span class="detail-value" id="confirm-name">Nikhil Mohan</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value" id="confirm-email">Nikhilmohan773@gmail.com</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Mobile Number</span>
+                            <span class="detail-value" id="confirm-phone">9497102152</span>
+                        </div>
+                    </div>
+
+                    <div class="details-section">
+                        <div class="details-title">Vehicle Details</div>
+                        <div class="detail-row">
+                            <span class="detail-label">VIN</span>
+                            <span class="detail-value">4A32B2FFXCE006208</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">License Plate Number</span>
+                            <span class="detail-value">KL02N2871</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Vehicle Year</span>
+                            <span class="detail-value">2015</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Current Mileage</span>
+                            <span class="detail-value">18.5</span>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="navigateTo('screen-customer')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            Edit
+                        </button>
+                        <button class="btn btn-secondary" onclick="showCompletionModal()">
+                            Submit
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Invoice Summary -->
+        <div class="screen" id="screen-invoice">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 </span>
+            </div>
+            <div class="invoice-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="back-btn" onclick="navigateTo('screen-dashboard')" style="position: static; background: var(--yellow-btn);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </div>
+                    <div class="invoice-title">Invoice Summary</div>
+                </div>
+                <div class="garage-name">Concept Garage</div>
+                <div class="garage-address">Kakkanad, Kochi - 682022</div>
+                <div class="invoice-number">INV-2023-001</div>
+            </div>
+            <div class="content" style="padding: 0;">
+                <div class="invoice-section">
+                    <div class="invoice-section-title">Customer Details</div>
+                    <div class="invoice-row">
+                        <span>Name</span>
+                        <span class="price">Nikhil Mohan</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Email</span>
+                        <span class="price" style="font-size: 13px;">Nikhilmohan773@gmail.com</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Mobile Number</span>
+                        <span class="price">9497102152</span>
+                    </div>
+                </div>
+
+                <div class="invoice-section">
+                    <div class="invoice-section-title">Vehicle Details</div>
+                    <div class="invoice-row">
+                        <span>VIN</span>
+                        <span class="price" style="font-size: 13px;">4A32B2FFXCE006208</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>License Plate Number</span>
+                        <span class="price">KL02N2871</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Vehicle Year</span>
+                        <span class="price">2015</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Current Mileage</span>
+                        <span class="price">18.5</span>
+                    </div>
+                </div>
+
+                <div class="invoice-section">
+                    <div class="invoice-section-title">Services</div>
+                    <div class="invoice-item">
+                        <span class="invoice-item-name">Car Wash</span>
+                        <span class="price">$300</span>
+                    </div>
+                    <div class="invoice-item">
+                        <span class="invoice-item-name">Wheel Alignment and Balancing</span>
+                        <span class="price">$350</span>
+                    </div>
+                </div>
+
+                <div class="invoice-section">
+                    <div class="invoice-row">
+                        <span>Subtotal</span>
+                        <span class="price">$650</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Discount - 10%</span>
+                        <span class="price" style="color: var(--success);">-$65</span>
+                    </div>
+                    <div class="invoice-row">
+                        <span>Tax - 18%</span>
+                        <span class="price">$105.71</span>
+                    </div>
+                    <div class="invoice-row total">
+                        <span>Total</span>
+                        <span class="price">$1016.71</span>
+                    </div>
+                </div>
+
+                <div style="padding: 20px;">
+                    <button class="btn btn-secondary" onclick="showToast('Invoice downloaded')">
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 7: Success Screen -->
+        <div class="screen" id="screen-success">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📡 🔋</span>
+            </div>
+            <div class="success-screen">
+                <div class="success-illustration">
+                    <div style="font-size: 120px;">👨‍</div>
+                </div>
+                <div class="success-title">Let's make it quick!</div>
+                <div class="success-message">Services confirmed! You can edit services or details later if needed.</div>
+                <button class="btn btn-secondary" onclick="navigateTo('screen-dashboard')" style="max-width: 300px;">
+                    Done
+                </button>
+            </div>
+        </div>
+
+        <!-- Job Completion Modal -->
+        <div class="modal-overlay" id="completion-modal">
+            <div class="modal-content">
+                <div class="modal-icon">🔧</div>
+                <div class="modal-title">Confirm Job Completion?</div>
+                <div class="modal-text">This action will notify the customers</div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="confirmJobCompletion()">Yes, Confirm</button>
+                    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            selectedServices: [],
+            customerDetails: {},
+            currentJob: null,
+            jobs: [
+                {
+                    id: 1,
+                    plate: 'KL-02-N2871',
+                    model: 'Wagon R',
+                    manufacturer: 'Maruti Suzuki',
+                    services: ['Oil Change', 'Brake Inspection'],
+                    status: 'ongoing',
+                    timeRemaining: '4hr 23min 30Sec',
+                    customer: 'Nikhil Mohan',
+                    phone: '+91 9497102152'
+                }
+            ]
+        };
+
+        const services = [
+            { id: 1, name: 'Tyres and Wheel Care', price: 500, icon: '🛞' },
+            { id: 2, name: 'Wheel Alignment & Balancing', price: 400, icon: '⚙️' },
+            { id: 3, name: 'Engine Oil', price: 150, icon: '🛢️' },
+            { id: 4, name: 'Car Wash', price: 500, icon: '🚗' },
+            { id: 5, name: 'AC Service', price: 600, icon: '❄️' },
+            { id: 6, name: 'Battery Check', price: 200, icon: '🔋' }
+        ];
+
+        // Navigation
+        function navigateTo(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'screen-dashboard') {
+                loadDashboard();
+            } else if (screenId === 'screen-services') {
+                loadServices();
+            }
+        }
+
+        function setActiveNav(element) {
+            element.parentElement.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function loadServices() {
+            const container = document.getElementById('services-list');
+            container.innerHTML = services.map(service => `
+                <div class="service-item" onclick="toggleService(${service.id})" id="service-${service.id}">
+                    <div class="service-info">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-details">
+                            <h4>${service.name}</h4>
+                            <p>Professional service</p>
+                        </div>
+                    </div>
+                    <div class="service-price">$${service.price}</div>
+                    <div class="service-checkbox"></div>
+                </div>
+            `).join('');
+        }
+
+        function toggleService(id) {
+            const element = document.getElementById(`service-${id}`);
+            element.classList.toggle('selected');
+            const service = services.find(s => s.id === id);
+            const index = state.selectedServices.findIndex(s => s.id === id);
+            if (index > -1) {
+                state.selectedServices.splice(index, 1);
+            } else {
+                state.selectedServices.push(service);
+            }
+        }
+
+        function loadDashboard() {
+            const container = document.getElementById('ongoing-jobs');
+            container.innerHTML = state.jobs.map(job => `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-logo">${job.manufacturer ? job.manufacturer.substring(0, 2).toUpperCase() : 'SU'}</div>
+                        <div>
+                            <div class="card-title">${job.plate}</div>
+                            <div class="card-subtitle">${job.model}</div>
+                        </div>
+                    </div>
+                    <div class="card-services">${job.services.join(', ')}</div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline" onclick="showToast('View details')">View Details</button>
+                        <button class="btn btn-secondary" onclick="showCompletionModal()">Complete Job</button>
+                    </div>
+                    <div style="display: inline-flex; align-items: center; gap: 5px; background: var(--text-dark); color: var(--success); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${job.timeRemaining}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showCompletionModal() {
+            document.getElementById('completion-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        function confirmJobCompletion() {
+            closeModal();
+            showToast('Job completed successfully!');
+            setTimeout(() => {
+                navigateTo('screen-dashboard');
+            }, 1000);
+        }
+
+        function editField(field) {
+            showToast(`Edit ${field}`);
+        }
+
+        function saveProfile() {
+            showToast('Profile saved successfully!');
+        }
+
+        // Add CSS for service items
+        const style = document.createElement('style');
+        style.textContent = `
+            .service-item {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 16px;
+                background: white;
+                border-radius: 12px;
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.3s;
+                border: 2px solid #e5e7eb;
+            }
+            .service-item:hover {
+                transform: translateX(5px);
+                border-color: var(--accent-blue);
+            }
+            .service-item.selected {
+                border-color: var(--success);
+                background: #f0fdf4;
+            }
+            .service-icon {
+                width: 50px;
+                height: 50px;
+                background: var(--bg-gray);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+            }
+            .service-details h4 {
+                font-size: 15px;
+                margin-bottom: 3px;
+            }
+            .service-details p {
+                font-size: 13px;
+                color: var(--text-gray);
+            }
+            .service-price {
+                font-weight: bold;
+                font-size: 16px;
+                color: var(--accent-blue);
+                margin-left: auto;
+            }
+            .service-checkbox {
+                width: 24px;
+                height: 24px;
+                border: 2px solid #e5e7eb;
+                border-radius: 6px;
+                margin-left: 10px;
+            }
+            .service-item.selected .service-checkbox {
+                background: var(--success);
+                border-color: var(--success);
+            }
+            .card {
+                background: white;
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            .card-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+            .card-logo {
+                width: 40px;
+                height: 40px;
+                background: var(--bg-gray);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            .card-title {
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .card-subtitle {
+                font-size: 13px;
+                color: var(--text-gray);
+            }
+            .card-services {
+                background: #eff6ff;
+                color: var(--accent-blue);
+                padding: 8px 12px;
+                border-radius: 8px;
+                font-size: 13px;
+                margin: 10px 0;
+            }
+            .card-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 12px;
+            }
+            .card-actions .btn {
+                flex: 1;
+                padding: 10px;
+                font-size: 13px;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

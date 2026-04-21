@@ -76,7 +76,8 @@ export default function VerifyOTPScreen({ navigation, route }) {
             <Text style={[styles.resendText, timer > 0 && styles.resendDisabled]}>
               {timer > 0 ? `Resend code in ${timer}s` : 'Resend Code'}
             </Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

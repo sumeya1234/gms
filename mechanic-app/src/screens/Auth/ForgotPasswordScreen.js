@@ -81,10 +81,11 @@ export default function ForgotPasswordScreen({ navigation }) {
               <Text style={styles.buttonText}>Send Code</Text>
             )}
           </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </SafeAreaView>
+);
 }
 
 const styles = StyleSheet.create({

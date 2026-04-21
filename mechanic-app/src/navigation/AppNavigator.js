@@ -9,6 +9,7 @@ import ForgotPasswordScreen from '../screens/Auth/ForgotPasswordScreen';
 import VerifyOTPScreen from '../screens/Auth/VerifyOTPScreen';
 import ResetPasswordScreen from '../screens/Auth/ResetPasswordScreen';
 import DashboardScreen from '../screens/Dashboard/DashboardScreen';
+import NotificationScreen from '../screens/Dashboard/NotificationScreen';
 import TaskDetailScreen from '../screens/Tasks/TaskDetailScreen';
 import HistoryScreen from '../screens/History/HistoryScreen';
 import ProfileScreen from '../screens/Profile/ProfileScreen';
@@ -151,6 +152,7 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="Tabs" component={TabNavigator} />
             <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
+            <Stack.Screen name="Notifications" component={NotificationScreen} />
           </>
         )}
       </Stack.Navigator>

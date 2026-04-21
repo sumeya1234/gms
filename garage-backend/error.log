@@ -182,3 +182,148 @@
 {"level":"error","message":"403 - Garage Managers can only assign mechanics to their own garage - /api/users/garage/2/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-04-06 18:33:02"}
 {"level":"error","message":"500 - Data truncated for column 'Status' at row 1 - /api/users/garage/2/mechanics/17/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-06 20:56:25"}
 {"level":"error","message":"500 - Data truncated for column 'Status' at row 1 - /api/users/garage/2/mechanics/17/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-06 22:04:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-08 17:32:36"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-08 17:33:02"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:34:50"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:35:31"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:35:32"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:36:00"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:36:08"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-08 17:36:34"}
+{"level":"error","message":"500 - Table 'gms.garageservices' doesn't exist - /api/catalog/1 - GET - ::1","timestamp":"2026-04-08 18:30:34"}
+{"level":"error","message":"500 - Table 'gms.garageservices' doesn't exist - /api/catalog/1 - GET - ::1","timestamp":"2026-04-08 18:30:34"}
+{"level":"error","message":"500 - Table 'gms.garageservices' doesn't exist - /api/catalog/1 - GET - ::1","timestamp":"2026-04-08 18:31:23"}
+{"level":"error","message":"500 - Table 'gms.garageservices' doesn't exist - /api/catalog/1 - GET - ::1","timestamp":"2026-04-08 18:31:23"}
+{"level":"error","message":"500 - Data truncated for column 'Status' at row 1 - /api/users/garage/1/mechanics/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-08 19:07:16"}
+{"level":"error","message":"500 -  - /api/services/assignments/2/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-04-08 22:11:11"}
+{"level":"error","message":"500 -  - /api/services/assignments/2/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-04-08 22:11:19"}
+{"level":"error","message":"500 -  - /api/services/assignments/2/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-04-08 22:11:21"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-09 12:20:25"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:02:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:02:28"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:05:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:05:27"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:07:28"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:07:55"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:08:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:08:17"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 14:11:01"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/users/20/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-09 15:32:19"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/users/20/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-09 15:32:26"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/users/21/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-09 15:56:34"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/users/21/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-09 15:56:44"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/21/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-09 15:57:12"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:12"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:22"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:27"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:30"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:41"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:46"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:52:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:53:00"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:53:03"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-09 16:53:11"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/25/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-10 17:33:39"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-10 18:32:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-10 18:33:00"}
+{"level":"error","message":"500 - Unknown column 'i.SellingPrice' in 'field list' - /api/services/7/items - GET - ::ffff:127.0.0.1","timestamp":"2026-04-10 18:52:40"}
+{"level":"error","message":"500 - Unknown column 'i.SellingPrice' in 'field list' - /api/services/7/items - GET - ::ffff:127.0.0.1","timestamp":"2026-04-10 18:52:57"}
+{"level":"error","message":"500 - Unknown column 'i.SellingPrice' in 'field list' - /api/services/11/items - GET - ::ffff:127.0.0.1","timestamp":"2026-04-10 18:53:11"}
+{"level":"error","message":"500 - Unknown column 'i.SellingPrice' in 'field list' - /api/services/7/items - GET - ::ffff:127.0.0.1","timestamp":"2026-04-11 08:06:18"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:50:46"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:50:59"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:51:01"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:51:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:51:07"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:54:52"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:55:04"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:55:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 08:55:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-11 09:10:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-11 09:11:03"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-11 09:25:36"}
+{"level":"error","message":"500 - Cannot complete service without payment - /api/services/assignments/9/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-04-11 09:46:00"}
+{"level":"error","message":"500 - Cannot complete service without payment - /api/services/assignments/10/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-04-11 10:05:58"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 12:27:05"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 12:50:11"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 12:51:36"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-11 12:51:57"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:09:37"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:09:37"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:21:15"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:21:16"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:26:53"}
+{"level":"error","message":"500 - Could not fetch banks from payment gateway. - /api/payments/banks - GET - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:26:54"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/6 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:28:19"}
+{"level":"error","message":"500 - Duplicate entry '0918273645' for key 'PhoneNumber' - /api/users/garage/6/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:29:51"}
+{"level":"error","message":"500 - Duplicate entry '0918273645' for key 'PhoneNumber' - /api/users/garage/6/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:31:16"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::1","timestamp":"2026-04-12 10:36:36"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::1","timestamp":"2026-04-12 10:38:38"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/6 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-12 10:44:45"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 10:57:01"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:00:42"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:00:43"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:01:13"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:01:52"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:04:30"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:12:16"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:13:13"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 11:16:34"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-04-12 15:09:43"}
+{"level":"error","message":"404 - No pending online payment found for this request. - /api/payments/confirm-online/23 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-12 16:00:07"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::ffff:127.0.0.1","timestamp":"2026-04-12 16:09:06"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::ffff:127.0.0.1","timestamp":"2026-04-12 16:09:14"}
+{"level":"error","message":"403 - You can only file a complaint against a garage after a completed service - /api/complaints - POST - ::ffff:192.168.78.156","timestamp":"2026-04-12 17:39:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::1","timestamp":"2026-04-13 14:58:47"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 14:59:39"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 15:00:30"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 15:04:47"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 15:05:55"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 15:11:05"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'pending' request. The request must be Approved first. - /api/services/assign - POST - ::1","timestamp":"2026-04-13 15:11:56"}
+{"level":"error","message":"403 - You can only file a complaint against a garage after a completed service - /api/complaints - POST - ::ffff:192.168.78.156","timestamp":"2026-04-13 15:24:12"}
+{"level":"error","message":"403 - You can only file a complaint against a garage after a completed service - /api/complaints - POST - ::ffff:192.168.78.156","timestamp":"2026-04-13 17:26:46"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.64","timestamp":"2026-04-14 10:23:34"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-14 10:47:47"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-14 10:48:07"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-14 10:48:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-14 10:49:15"}
+{"level":"error","message":"400 - Cannot transition from 'Pending' to 'Pending'. Allowed: Approved, Rejected - /api/services/35/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-14 11:16:19"}
+{"level":"error","message":"400 - Cannot transition from 'Pending' to 'Pending'. Allowed: Approved, Rejected - /api/services/35/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-14 11:24:15"}
+{"level":"error","message":"400 - Cannot transition from 'Pending' to 'Pending'. Allowed: Approved, Rejected - /api/services/35/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-14 13:40:42"}
+{"level":"error","message":"400 - Cannot transition from 'Pending' to 'Pending'. Allowed: Approved, Rejected - /api/services/35/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-14 14:07:53"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-04-14 16:28:36"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-04-14 17:58:19"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-15 07:44:14"}
+{"level":"error","message":"SMTP Connection Error: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials ffacd0b85a97d-43ead35662csm2889803f8f.14 - gsmtp","timestamp":"2026-04-15 11:05:40"}
+{"level":"error","message":"Failed to send email: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials ffacd0b85a97d-43ead3e89ddsm2802167f8f.30 - gsmtp","timestamp":"2026-04-15 11:05:41"}
+{"level":"error","message":"SMTP Connection Error: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials ffacd0b85a97d-43ead3e040fsm3445404f8f.28 - gsmtp","timestamp":"2026-04-15 11:09:35"}
+{"level":"error","message":"Failed to send email: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 5b1f17b1804b1-488ee038752sm112980495e9.9 - gsmtp","timestamp":"2026-04-15 11:09:36"}
+{"level":"error","message":"Failed to send email: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 5b1f17b1804b1-488ede1513csm123519845e9.2 - gsmtp","timestamp":"2026-04-15 11:23:49"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-17 16:51:02"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-17 16:51:04"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-17 16:51:09"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-17 16:51:33"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-17 17:20:37"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:13:56"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:14:20"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:14:21"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:14:22"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:14:23"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:14:23"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::1","timestamp":"2026-04-19 14:27:46"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:28:20"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::1","timestamp":"2026-04-19 14:28:43"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:29:31"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:29:32"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:29:57"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:29:58"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::1","timestamp":"2026-04-19 14:30:37"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:30:59"}
+{"level":"error","message":"500 - Mechanic cannot have more than 5 active jobs - /api/services/assign - POST - ::1","timestamp":"2026-04-19 14:32:43"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:33:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:33:40"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:35:46"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:35:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:12"}

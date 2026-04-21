@@ -242,22 +242,54 @@ export default function Bookings() {
               className="pl-10 input-field w-full"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Booking Date:</label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="input-field"
-            />
-            {(searchId || filterDate) && (
-              <button 
-                onClick={() => { setSearchId(''); setFilterDate(''); }}
-                className="text-xs text-red-500 hover:underline font-semibold"
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 md:mt-0">
+            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60 shadow-inner">
+              <button
+                onClick={() => setFilterDate('')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                  filterDate === '' ? 'bg-white text-slate-800 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                }`}
               >
-                Clear
+                All Dates
               </button>
-            )}
+              <button
+                onClick={() => setFilterDate('today')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                  filterDate === 'today' ? 'bg-white text-blue-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                }`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setFilterDate('week')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                  filterDate === 'week' ? 'bg-white text-indigo-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                }`}
+              >
+                This Week
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+              <div className="relative">
+                <input
+                  type="date"
+                  value={filterDate && filterDate.includes('-') ? filterDate : ''}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="input-field py-1.5 text-sm h-[32px] md:w-[150px] cursor-pointer"
+                  title="Specific exact date"
+                />
+              </div>
+              
+              {(searchId || filterDate) && (
+                <button 
+                  onClick={() => { setSearchId(''); setFilterDate(''); }}
+                  className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-semibold transition-colors border border-red-100/50 whitespace-nowrap"
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -287,6 +319,7 @@ export default function Bookings() {
                   <th className="p-4 font-semibold">ID</th>
                   <th className="p-4 font-semibold">{t('serviceType')}</th>
                   <th className="p-4 font-semibold">{t('vehicle')}</th>
+                  <th className="p-4 font-semibold">Schedule</th>
                   <th className="p-4 font-semibold">{t('mechanic')}</th>
                   <th className="p-4 font-semibold">{t('status')}</th>
                   <th className="p-4 font-semibold">Payment</th>
@@ -310,6 +343,16 @@ export default function Bookings() {
                     </td>
                     <td className="p-4 text-gray-600">
                       Vehicle #{req.VehicleID}
+                    </td>
+                    <td className="p-4">
+                      {req.BookingDate ? (
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-gray-800">{new Date(req.BookingDate).toLocaleDateString()}</span>
+                          <span className="text-xs text-gray-500">{req.DropOffTime || 'Any Time'}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">Unscheduled</span>
+                      )}
                     </td>
                     <td className="p-4">
                       {req.AssignedMechanicName ? (

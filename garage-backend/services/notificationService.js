@@ -1,4 +1,8 @@
 import db from "../config/db.js";
+import { messaging } from "../config/firebase.js";
+import { Expo } from 'expo-server-sdk';
+
+const expo = new Expo();
 
 export const createNotification = async (userId, title, message, type = 'GENERAL') => {
   // 1. Insert into DB (In-App)
@@ -12,10 +16,75 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
     const [tokens] = await db.query("SELECT Token FROM PushTokens WHERE UserID = ?", [userId]);
 
     if (tokens.length > 0) {
-      // 3. Send (Mocked) Push Notifications
+      const expoTokens = [];
+      const fcmTokens = [];
+
       tokens.forEach(t => {
-        console.log(`[MOCK PUSH]: To Token ${t.Token} - ${title}: ${message} (Type: ${type})`);
+        if (Expo.isExpoPushToken(t.Token)) {
+          expoTokens.push(t.Token);
+        } else {
+          fcmTokens.push(t.Token);
+        }
       });
+
+      // --- Handle Expo Notifications ---
+      if (expoTokens.length > 0) {
+        let messages = [];
+        for (let pushToken of expoTokens) {
+          messages.push({
+            to: pushToken,
+            sound: 'default',
+            title: title,
+            body: message,
+            data: { type },
+          });
+        }
+        
+        try {
+          let chunks = expo.chunkPushNotifications(messages);
+          for (let chunk of chunks) {
+            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            // In a production app, you might want to save tickets and check them later
+            console.log(`Expo push sent to ${userId}:`, ticketChunk);
+          }
+        } catch (expoError) {
+          console.error("Expo Push Error:", expoError.message);
+        }
+      }
+
+      // --- Handle FCM Notifications ---
+      if (fcmTokens.length > 0 && messaging) {
+        const payload = {
+          tokens: fcmTokens,
+          notification: { title, body: message },
+          data: { type },
+        };
+
+        try {
+          const response = await messaging.sendEachForMulticast(payload);
+          console.log(`FCM sent ${response.successCount} messages to ${userId}.`);
+          
+          if (response.failureCount > 0) {
+            const cleanupTokens = [];
+            response.responses.forEach((resp, idx) => {
+              if (!resp.success) {
+                const errorCode = resp.error?.code;
+                if (errorCode === 'messaging/invalid-registration-token' || errorCode === 'messaging/registration-token-not-registered') {
+                  cleanupTokens.push(fcmTokens[idx]);
+                }
+              }
+            });
+
+            if (cleanupTokens.length > 0) {
+              await db.query("DELETE FROM PushTokens WHERE Token IN (?)", [cleanupTokens]);
+            }
+          }
+        } catch (fcmError) {
+          console.error("FCM Delivery Error:", fcmError.message);
+        }
+      } else if (fcmTokens.length > 0 && !messaging) {
+        console.warn("FCM tokens found but messaging not initialized. Skipping FCM.");
+      }
     }
   } catch (error) {
     console.error("Failed to create notification:", error);

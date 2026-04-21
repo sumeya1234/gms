@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import apiClient from '../../api/apiClient';
 import { useTranslation } from 'react-i18next';
+import { Bell, AlertTriangle } from 'lucide-react-native';
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -11,11 +12,18 @@ export default function DashboardScreen({ navigation }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const filteredTasks = tasks.filter(t => {
-    if (activeFilter === 'All') return true;
-    return t.AssignmentStatus === activeFilter;
-  });
+  const filteredTasks = tasks
+    .filter(t => {
+      if (activeFilter === 'All') return true;
+      return t.AssignmentStatus === activeFilter;
+    })
+    // Sort: emergency first, then by assigned date desc
+    .sort((a, b) => {
+      if (b.IsEmergency !== a.IsEmergency) return (b.IsEmergency ? 1 : 0) - (a.IsEmergency ? 1 : 0);
+      return new Date(b.AssignedDate) - new Date(a.AssignedDate);
+    });
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -29,25 +37,45 @@ export default function DashboardScreen({ navigation }) {
     }
   };
 
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await apiClient.get('/api/users/notifications');
+      const unread = response.data.filter(n => !n.IsRead).length;
+      setUnreadCount(unread);
+    } catch (error) {
+      console.log('Error fetching notification count', error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchTasks();
+      fetchNotificationCount();
     });
     return unsubscribe;
   }, [navigation]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity 
-      style={styles.taskCard}
+      style={[styles.taskCard, item.IsEmergency && styles.taskCardEmergency]}
       onPress={() => navigation.navigate('TaskDetail', { task: item })}
     >
+      {item.IsEmergency && (
+        <View style={styles.emergencyBanner}>
+          <AlertTriangle size={14} color="#fff" />
+          <Text style={styles.emergencyBannerText}>⚡ EMERGENCY — Handle Immediately</Text>
+        </View>
+      )}
       <View style={styles.taskHeader}>
-        <Text style={styles.vehicleName}>{item.Model ? `${item.Model} (${item.PlateNumber})` : `Request #${item.RequestID}`}</Text>
+        <Text style={[styles.vehicleName, item.IsEmergency && { color: '#ff4444' }]}>
+          {item.Model ? `${item.Model} (${item.PlateNumber})` : `Request #${item.RequestID}`}
+        </Text>
         <View style={[styles.statusBadge, item.AssignmentStatus === 'InProgress' ? styles.statusInProgress : {}]}>
           <Text style={styles.statusText}>{item.AssignmentStatus}</Text>
         </View>
       </View>
-      <Text style={styles.taskDesc}>{item.Description || item.ServiceType}</Text>
+      <Text style={styles.taskDesc}>{item.ServiceType}</Text>
+      {item.Description ? <Text style={styles.taskDesc} numberOfLines={1}>{item.Description}</Text> : null}
       <Text style={styles.taskDate}>{t('Assigned')}: {new Date(item.AssignedDate).toLocaleDateString()}</Text>
     </TouchableOpacity>
   );
@@ -59,6 +87,17 @@ export default function DashboardScreen({ navigation }) {
           <Text style={styles.userName}>{user?.fullName || 'Mechanic'}</Text>
           <Text style={styles.greeting}>{t('Good Morning')}</Text>
         </View>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Notifications')}
+          style={styles.notificationBtn}
+        >
+          <Bell size={24} color={colors.textMain} />
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.statsContainer}>
@@ -72,6 +111,14 @@ export default function DashboardScreen({ navigation }) {
           </Text>
           <Text style={styles.statLabel}>{t('In Progress')}</Text>
         </View>
+        {tasks.some(t => t.IsEmergency) && (
+          <View style={[styles.statBox, styles.statBoxEmergency]}>
+            <Text style={[styles.statValue, { color: '#ff4444' }]}>
+              {tasks.filter(t => t.IsEmergency).length}
+            </Text>
+            <Text style={[styles.statLabel, { color: '#ff4444' }]}>🚨 Emergency</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.listContainer}>
@@ -142,6 +189,32 @@ const styles = StyleSheet.create({
   logoutText: {
     color: colors.error,
     fontWeight: '600',
+  },
+  notificationBtn: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: colors.error || '#ef4444',
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.background,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -217,6 +290,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    overflow: 'hidden',
+  },
+  taskCardEmergency: {
+    borderColor: '#ff4444',
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(255, 68, 68, 0.04)',
+  },
+  emergencyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ff4444',
+    marginHorizontal: -16,
+    marginTop: -16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 12,
+  },
+  emergencyBannerText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  statBoxEmergency: {
+    borderColor: '#ff4444',
+    borderWidth: 1.5,
+    backgroundColor: 'rgba(255, 68, 68, 0.05)',
   },
   taskHeader: {
     flexDirection: 'row',

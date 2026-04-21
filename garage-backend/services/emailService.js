@@ -4,30 +4,37 @@ import logger from '../utils/logger.js';
 let transporter;
 
 async function initTransporter() {
-  if (transporter) return transporter;
+    if (transporter) return transporter;
 
-  // Use test ethereal account by default for development
-  let testAccount = await nodemailer.createTestAccount();
+    // Configuration for your real Gmail account
+    transporter = nodemailer.createTransport({
+  service: 'gmail', // This shortcut handles host/port/secure for you
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  tls: {
+    // This allows the connection even if the local SSL certificate isn't perfect
+    rejectUnauthorized: false 
+  }
+});
+    // Verify connection immediately
+    try {
+      await transporter.verify();
+      logger.info("SMTP Transporter is ready to send emails");
+    } catch (err) {
+      logger.error(`SMTP Connection Error: ${err.message}`);
+    }
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.ethereal.email",
-    port: process.env.SMTP_PORT || 587,
-    secure: process.env.SMTP_SECURE === 'true' || false,
-    auth: {
-      user: process.env.SMTP_USER || testAccount.user,
-      pass: process.env.SMTP_PASS || testAccount.pass,
-    },
-  });
-
-  return transporter;
-}
+    return transporter;
+  }
 
 export const sendTemporaryPasswordEmail = async (email, name, password) => {
   try {
     const mailer = await initTransporter();
 
     const info = await mailer.sendMail({
-      from: '"Garage Management System" <no-reply@gms.com>',
+      from: `"Garage Management System" <${process.env.SMTP_USER}>`,
       to: email,
       subject: "Your Mechanic Account Details",
       text: `Hello ${name},\n\nA mechanic account has been created for you.\nYour temporary password is: ${password}\n\nPlease log in and update your password immediately.\n\nBest regards,\nGMS Team`,
@@ -46,21 +53,46 @@ export const sendTemporaryPasswordEmail = async (email, name, password) => {
       `,
     });
 
-    logger.info(`Message sent: ${info.messageId}`);
+    logger.info(`Email successfully sent to ${email}. Message ID: ${info.messageId}`);
     
-    // For ethereal test accounts, print the preview URL automatically!
-    if (!process.env.SMTP_HOST) {
-        logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-        console.log("-----------------------------------------");
-        console.log(`[EMAIL PREVIEW URL]: ${nodemailer.getTestMessageUrl(info)}`);
-        console.log("-----------------------------------------");
-    }
-
     return true;
   } catch (error) {
-    logger.error(`Failed to send email: ${error.message}`);
-    // We shouldn't crash the mechanic creation just because an email failed during dev
-    console.error("Email simulation failed:", error);
+    logger.error(`Failed to send email to ${email}: ${error.message}`);
+    console.error("Email sending failed:", error);
+    return false;
+  }
+};
+
+export const sendPasswordResetOTP = async (email, otp) => {
+  try {
+    const mailer = await initTransporter();
+
+    const info = await mailer.sendMail({
+      from: `"Garage Management System" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Password Reset Request - GMS",
+      text: `Hello,\n\nYou have requested to reset your password. Your 6-digit verification code is: ${otp}\n\nThis code is valid for 15 minutes.\nIf you did not request a password reset, please ignore this email.\n\nBest regards,\nGMS Team`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+          <h2 style="color: #1890ff;">Password Reset Request</h2>
+          <p>Hello,</p>
+          <p>You have recently requested to reset your password for your Garage Management System account.</p>
+          <p>Your verification code is:</p>
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; color: #1890ff;">
+            ${otp}
+          </div>
+          <p>This code is valid for <strong>15 minutes</strong>. If you did not request this, please ignore this email and your password will remain unchanged.</p>
+          <br/>
+          <p>Best regards,<br/>GMS Team</p>
+        </div>
+      `,
+    });
+
+    logger.info(`Password reset OTP email sent to ${email}. Message ID: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    logger.error(`Failed to send password reset email to ${email}: ${error.message}`);
+    console.error("Password reset email sending failed:", error);
     return false;
   }
 };

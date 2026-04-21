@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import { useAuthStore } from './stores/authStore';
 
 import Bookings from './pages/Bookings';
@@ -35,6 +36,9 @@ function App() {
       {/* Public Route */}
       <Route path="/login" element={
         isAuthenticated ? <Navigate to="/" replace /> : <Login />
+      } />
+      <Route path="/forgot-password" element={
+        isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />
       } />
 
       {/* Protected Routes */}

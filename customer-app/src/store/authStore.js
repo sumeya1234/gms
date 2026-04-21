@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiClient from '../api/client';
+import { registerForPushNotificationsAsync, sendTokenToBackend } from '../utils/pushNotifications';
 
 const extractErrorMessage = (error, defaultMsg) => {
   if (!error?.response?.data) return defaultMsg;
@@ -10,6 +11,17 @@ const extractErrorMessage = (error, defaultMsg) => {
     return data.errors.map(err => err.replace(/"/g, '')).join('\n');
   }
   return (data.error || data.message || defaultMsg).replace(/"/g, '');
+};
+
+const registerPush = async () => {
+  try {
+    const token = await registerForPushNotificationsAsync();
+    if (token) {
+      await sendTokenToBackend(token);
+    }
+  } catch (err) {
+    console.log('Customer push registration failed', err);
+  }
 };
 
 export const useAuthStore = create((set) => ({
@@ -28,6 +40,7 @@ export const useAuthStore = create((set) => ({
         apiClient.defaults.headers.Authorization = `Bearer ${userToken}`;
         const response = await apiClient.get('/users/profile');
         set({ user: response.data.user, token: userToken, isRestoring: false });
+        registerPush();
       } else {
         set({ isRestoring: false });
       }
@@ -48,6 +61,7 @@ export const useAuthStore = create((set) => ({
       const profileRes = await apiClient.get('/users/profile');
       
       set({ user: profileRes.data.user, token, isSignout: false, isLoading: false });
+      registerPush();
     } catch (error) {
       set({ 
         isLoading: false, 

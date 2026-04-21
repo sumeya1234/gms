@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, CheckCircle2, Clock, Wrench } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle2, Clock, Wrench, Phone } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 
 export default function TrackServiceScreen({ navigation, route }) {
@@ -24,7 +24,7 @@ export default function TrackServiceScreen({ navigation, route }) {
   }
 
   // Determine active step based on status
-  const statuses = ['pending', 'approved', 'in-progress', 'completed'];
+  const statuses = ['pending', 'approved', 'inprogress', 'completed'];
   const currentStatusIndex = statuses.indexOf(job.status?.toLowerCase() || 'pending');
 
   const steps = [
@@ -91,17 +91,22 @@ export default function TrackServiceScreen({ navigation, route }) {
           })}
         </View>
 
-        {/* Mechanic Info Mockup */}
-        {currentStatusIndex >= 2 && (
+        {/* Mechanic Info */}
+        {currentStatusIndex >= 1 && job.AssignedMechanicName && (
           <View style={styles.mechanicCard}>
             <Text style={styles.mechanicLabel}>{t('Assigned Mechanic')}</Text>
             <View style={styles.mechanicRow}>
               <View style={styles.mechanicAvatar}>
-                <Text style={styles.avatarText}>M</Text>
+                <Text style={styles.avatarText}>{job.AssignedMechanicName.charAt(0).toUpperCase()}</Text>
               </View>
-              <View>
-                <Text style={styles.mechanicName}>{t('Abebe Kebede')}</Text>
-                <Text style={styles.mechanicGarage}>{t('Central Garage Branch')}</Text>
+              <View style={styles.mechanicInfo}>
+                <Text style={styles.mechanicName}>{job.AssignedMechanicName}</Text>
+                {job.AssignedMechanicPhone && (
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${job.AssignedMechanicPhone}`)} style={styles.phoneAction}>
+                    <Phone size={14} color={colors.accentBlue} />
+                    <Text style={styles.mechanicPhone}>{job.AssignedMechanicPhone}</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>
@@ -161,6 +166,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', marginRight: 12,
   },
   avatarText: { fontSize: 18, fontFamily: 'Inter-Bold', color: colors.textDark },
+  mechanicInfo: { flex: 1 },
   mechanicName: { fontSize: 16, fontFamily: 'Inter-SemiBold', color: colors.textDark },
-  mechanicGarage: { fontSize: 12, color: colors.textGray, marginTop: 2 },
+  phoneAction: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
+  mechanicPhone: { fontSize: 13, color: colors.accentBlue, fontFamily: 'Inter-SemiBold' },
 });

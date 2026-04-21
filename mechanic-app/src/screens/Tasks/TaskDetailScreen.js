@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Act
 import { colors } from '../../theme/colors';
 import apiClient from '../../api/apiClient';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle } from 'lucide-react-native';
 
 export default function TaskDetailScreen({ route, navigation }) {
   const { task } = route.params;
@@ -121,7 +122,13 @@ export default function TaskDetailScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
-          <Text style={styles.vehicleTitle}>{task.Model ? `${task.Model} (${task.PlateNumber})` : `Request #${task.RequestID}`}</Text>
+          {task.IsEmergency && (
+            <View style={styles.emergencyBanner}>
+              <AlertTriangle size={16} color="#fff" />
+              <Text style={styles.emergencyBannerText}>⚡ EMERGENCY — Handle This Job Immediately</Text>
+            </View>
+          )}
+          <Text style={[styles.vehicleTitle, task.IsEmergency && { color: '#ff4444' }]}>{task.Model ? `${task.Model} (${task.PlateNumber})` : `Request #${task.RequestID}`}</Text>
           <View style={[styles.statusBadge, status === 'InProgress' ? styles.statusInProgress : {}]}>
             <Text style={styles.statusText}>{status}</Text>
           </View>
@@ -230,7 +237,6 @@ export default function TaskDetailScreen({ route, navigation }) {
                   renderItem={({item}) => (
                     <TouchableOpacity style={styles.invItemRow} onPress={() => setSelectedItem(item)}>
                       <Text style={styles.invItemName}>{item.ItemName}</Text>
-                      <Text style={styles.invItemStock}>Stock: {item.Quantity}</Text>
                     </TouchableOpacity>
                   )}
                   ListEmptyComponent={<Text style={{padding: 20}}>No inventory available.</Text>}
@@ -239,7 +245,6 @@ export default function TaskDetailScreen({ route, navigation }) {
             ) : (
               <View style={{paddingVertical: 20}}>
                 <Text style={styles.descText}>Item: <Text style={{fontWeight:'bold'}}>{selectedItem.ItemName}</Text></Text>
-                <Text style={styles.descText}>Available: {selectedItem.Quantity}</Text>
                 <Text style={[styles.sectionLabel, {marginTop: 20}]}>{t('Quantity')}</Text>
                 <TextInput 
                   style={styles.qtyInput}
@@ -281,7 +286,25 @@ const styles = StyleSheet.create({
   backText: { color: colors.primary, fontSize: 16, fontWeight: 'bold' },
   headerTitle: { color: colors.textMain, fontSize: 18, fontWeight: 'bold' },
   scrollContent: { padding: 20 },
-  card: { backgroundColor: colors.surface, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: colors.border },
+  card: { backgroundColor: colors.surface, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  emergencyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#ff4444',
+    marginHorizontal: -20,
+    marginTop: -20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 16,
+  },
+  emergencyBannerText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    flex: 1,
+  },
   vehicleTitle: { color: colors.textMain, fontSize: 24, fontWeight: 'bold', marginBottom: 12 },
   statusBadge: { alignSelf: 'flex-start', backgroundColor: colors.surfaceLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   statusInProgress: { backgroundColor: 'rgba(0, 229, 255, 0.1)', borderColor: colors.primary, borderWidth: 1 },

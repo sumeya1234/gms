@@ -43,6 +43,9 @@ export default function Mechanics() {
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [regSkills, setRegSkills] = useState([]);
+  const [regCustomSkill, setRegCustomSkill] = useState('');
+  const [regStep, setRegStep] = useState(1);
 
   const fetchMechanics = useCallback(async () => {
     if (!user?.GarageID) return;
@@ -74,10 +77,13 @@ export default function Mechanics() {
     setFormLoading(true);
     
     try {
-      await api.post(`/users/garage/${user.GarageID}/mechanics`, formData);
+      await api.post(`/users/garage/${user.GarageID}/mechanics`, { ...formData, skills: regSkills });
       
       // Reset form and close modal
       setFormData({ fullName: '', email: '', phone: '' });
+      setRegSkills([]);
+      setRegCustomSkill('');
+      setRegStep(1);
       setIsAddModalOpen(false);
       
       // Refresh list
@@ -298,103 +304,106 @@ export default function Mechanics() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <UserPlus size={20} className="text-[var(--color-primary)]" />
-                Register New Mechanic
-              </h2>
-              <button 
-                onClick={() => setIsAddModalOpen(false)} 
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <UserPlus size={20} className="text-[var(--color-primary)]" />
+                  Register New Mechanic
+                </h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 1 ? 'bg-[var(--color-primary)] text-white' : 'bg-green-100 text-green-700'}`}>1 Info</span>
+                  <span className="text-gray-300 text-xs">›</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 2 ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-400'}`}>2 Skills</span>
+                </div>
+              </div>
+              <button
+                onClick={() => { setIsAddModalOpen(false); setRegSkills([]); setRegStep(1); }}
                 className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-            
-            <form onSubmit={handleAddMechanic} className="p-6" autoComplete="off">
-              {formError && (
-                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                  {formError}
-                </div>
-              )}
-            
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    placeholder="John Doe"
-                    className="input-field w-full"
-                    required
-                    minLength={3}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="mechanic@garage.com"
-                    className="input-field w-full"
-                    autoComplete="off"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+251 911 234 567"
-                    className="input-field w-full"
-                    required
-                    minLength={10}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Temporary Password</label>
-                  <p className="text-sm text-gray-500 mt-1 italic">
-                    A secure temporary password will be automatically generated and emailed to the mechanic. They will be directed to change it upon first login.
-                  </p>
-                </div>
-              </div>
 
-              <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-gray-100">
-                <button 
-                  type="button" 
-                  onClick={() => setIsAddModalOpen(false)}
-                  disabled={formLoading}
-                  className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={formLoading}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                >
-                  {formLoading ? (
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  ) : (
-                    <Check size={16} />
-                  )}
-                  Create Account
-                </button>
-              </div>
-            </form>
+            {/* Step 1 — Basic Info */}
+            {regStep === 1 && (
+              <form onSubmit={e => { e.preventDefault(); setFormError(''); setRegStep(2); }} className="p-6" autoComplete="off">
+                {formError && (
+                  <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
+                )}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="John Doe" className="input-field w-full" required minLength={3} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="mechanic@garage.com" className="input-field w-full" autoComplete="off" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+251 911 234 567" className="input-field w-full" required minLength={10} />
+                  </div>
+                  <p className="text-xs text-gray-400 italic">A temporary password will be auto-generated and emailed to the mechanic.</p>
+                </div>
+                <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-100">
+                  <button type="button" onClick={() => { setIsAddModalOpen(false); setRegStep(1); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
+                  <button type="submit" className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                    Next: Add Skills <span>›</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Step 2 — Skills */}
+            {regStep === 2 && (
+              <form onSubmit={handleAddMechanic} className="p-6">
+                {formError && (
+                  <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
+                )}
+                <p className="text-sm text-gray-500 mb-3">Select the skills this mechanic specializes in <span className="text-gray-400">(optional)</span>:</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {PREDEFINED_SKILLS.map(skill => {
+                    const isSel = regSkills.includes(skill);
+                    return (
+                      <button key={skill} type="button"
+                        onClick={() => setRegSkills(prev => isSel ? prev.filter(s => s !== skill) : [...prev, skill])}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                          isSel ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                        }`}>
+                        {isSel && <span className="mr-1">✓</span>}{skill}
+                      </button>
+                    );
+                  })}
+                </div>
+                {regSkills.filter(s => !PREDEFINED_SKILLS.includes(s)).map(skill => (
+                  <span key={skill} className="inline-flex items-center gap-1 px-2.5 py-1 mb-2 mr-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                    {skill}<button type="button" onClick={() => setRegSkills(prev => prev.filter(s => s !== skill))} className="ml-0.5 text-purple-400 hover:text-purple-700"><X size={10} /></button>
+                  </span>
+                ))}
+                <div className="flex gap-2 mt-2">
+                  <input type="text" value={regCustomSkill} onChange={e => setRegCustomSkill(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const t = regCustomSkill.trim(); if (t && !regSkills.includes(t)) setRegSkills(prev => [...prev, t]); setRegCustomSkill(''); }}}
+                    placeholder="Add custom skill..." className="input-field flex-1 text-sm" />
+                  <button type="button" disabled={!regCustomSkill.trim()}
+                    onClick={() => { const t = regCustomSkill.trim(); if (t && !regSkills.includes(t)) setRegSkills(prev => [...prev, t]); setRegCustomSkill(''); }}
+                    className="px-3 py-2 text-sm font-semibold text-[var(--color-primary)] bg-blue-50 hover:bg-blue-100 disabled:opacity-40 rounded-lg transition-colors">Add</button>
+                </div>
+                <div className="flex gap-3 justify-between mt-6 pt-4 border-t border-gray-100">
+                  <button type="button" onClick={() => setRegStep(1)} className="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">← Back</button>
+                  <div className="flex gap-2">
+                    <button type="submit" disabled={formLoading} className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                      {formLoading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Check size={16} />}
+                      Create Account
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
+
       {/* Status Confirmation Modal */}
       {isStatusModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

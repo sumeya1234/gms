@@ -212,11 +212,16 @@ export default function Inventory() {
                       {item.ItemName}
                     </td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-xs tracking-wide ${
-                        item.Quantity > 10 ? 'bg-green-100 text-green-700' : 
-                        item.Quantity > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                      <span className={`px-2.5 py-1 rounded inline-flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider ${
+                        item.Quantity >= 10 ? 'bg-green-100 text-green-700' : 
+                        item.Quantity > 0 ? 'bg-orange-100 text-orange-700 border border-orange-200' : 'bg-red-100 text-red-700'
                       }`}>
-                        {item.Quantity} in stock
+                        <div className={`w-1.5 h-1.5 rounded-full ${
+                          item.Quantity >= 10 ? 'bg-green-500' : 
+                          item.Quantity > 0 ? 'bg-orange-500' : 'bg-red-500'
+                        }`} />
+                        {item.Quantity >= 10 ? `${item.Quantity} ${t('inStock')}` : 
+                         item.Quantity > 0 ? `${item.Quantity} - LOW STOCK` : 'OUT OF STOCK'}
                       </span>
                     </td>
                     <td className="p-4 text-right text-[var(--color-text-main)] font-semibold">
