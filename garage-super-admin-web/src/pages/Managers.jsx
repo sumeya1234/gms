@@ -10,15 +10,14 @@ export default function Managers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
-  
+
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
 
   // Form states
-  const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', password: '' });
+  const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', role: 'GarageManager' });
   const [selectedGarageId, setSelectedGarageId] = useState('');
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
@@ -57,11 +56,11 @@ export default function Managers() {
       const payload = {
         ...formData,
         email: formData.email.trim(),
-        password: formData.password.trim(),
       };
-      await api.post('/users/admin/managers', payload);
+      const endpoint = formData.role === 'GarageOwner' ? '/users/admin/owners' : '/users/admin/managers';
+      await api.post(endpoint, payload);
       setIsAddModalOpen(false);
-      setFormData({ fullName: '', email: '', phone: '', password: '' });
+      setFormData({ fullName: '', email: '', phone: '', role: 'GarageManager' });
       fetchManagers();
     } catch (err) {
       setFormError(err.response?.data?.error || 'Failed to create manager.');
@@ -73,7 +72,7 @@ export default function Managers() {
   const handleAssignGarage = async (e) => {
     e.preventDefault();
     if (!selectedGarageId || !selectedManager) return;
-    
+
     setFormError('');
     setFormLoading(true);
     try {
@@ -89,7 +88,7 @@ export default function Managers() {
     }
   };
 
-  const filtered = managers.filter(m => 
+  const filtered = managers.filter(m =>
     m.FullName?.toLowerCase().includes(search.toLowerCase()) ||
     m.Email?.toLowerCase().includes(search.toLowerCase()) ||
     m.GarageName?.toLowerCase().includes(search.toLowerCase())
@@ -99,16 +98,16 @@ export default function Managers() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Garage Managers</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Managers & Owners</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {loading ? 'Loading...' : `${managers.length} managers on the platform`}
+            {loading ? 'Loading...' : `${managers.length} accounts on the platform`}
           </p>
         </div>
-        <button 
+        <button
           onClick={() => setIsAddModalOpen(true)}
           className="flex items-center gap-2 bg-[#1890ff] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all hover:bg-blue-600"
         >
-          <Plus size={18} /> Add Manager
+          <Plus size={18} /> Add Account
         </button>
       </div>
 
@@ -131,9 +130,9 @@ export default function Managers() {
 
       {/* Managers Table */}
       {loading ? (
-         <div className="flex justify-center items-center h-32">
-           <span className="w-8 h-8 border-4 border-[#1890ff] border-t-transparent rounded-full animate-spin"></span>
-         </div>
+        <div className="flex justify-center items-center h-32">
+          <span className="w-8 h-8 border-4 border-[#1890ff] border-t-transparent rounded-full animate-spin"></span>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
           <Briefcase size={48} className="mx-auto mb-4 text-gray-200" />
@@ -146,7 +145,7 @@ export default function Managers() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-500">
-                  <th className="p-4 font-semibold whitespace-nowrap">Manager Profile</th>
+                  <th className="p-4 font-semibold whitespace-nowrap">Profile</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Contact</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Assigned Garage</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Joined Date</th>
@@ -165,15 +164,15 @@ export default function Managers() {
                           </div>
                           <div>
                             <div className="font-bold text-gray-900">{m.FullName || '—'}</div>
-                            <div className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full inline-block mt-1">
-                              Manager
+                            <div className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${m.Role === 'GarageOwner' ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-700'}`}>
+                              {m.Role === 'GarageOwner' ? 'Owner' : 'Manager'}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="p-4 text-gray-500">
                         <div className="flex items-center gap-2 mb-1">
-                          <Mail size={14} className="text-gray-400" /> 
+                          <Mail size={14} className="text-gray-400" />
                           <span className="truncate max-w-[150px]">{m.Email}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -194,7 +193,7 @@ export default function Managers() {
                         {m.CreatedAt ? new Date(m.CreatedAt).toLocaleDateString() : '—'}
                       </td>
                       <td className="p-4 text-right">
-                        <button 
+                        <button
                           onClick={() => {
                             setSelectedManager(m);
                             setSelectedGarageId(m.GarageID || '');
@@ -219,26 +218,36 @@ export default function Managers() {
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Add New Manager</h2>
+              <h2 className="text-xl font-bold text-gray-900">Add New Account</h2>
               <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleAddManager} className="p-6">
               {formError && (
                 <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-200 font-medium flex gap-2 items-center mb-5">
                   <AlertCircle size={16} /> {formError}
                 </div>
               )}
-              
+
               <div className="space-y-4">
+                <div className="flex gap-4 mb-2">
+                  <label className="flex-1 cursor-pointer">
+                    <input type="radio" name="role" value="GarageManager" checked={formData.role === 'GarageManager'} onChange={e => setFormData({ ...formData, role: e.target.value })} className="peer sr-only" />
+                    <div className="p-3 border-2 border-gray-200 rounded-xl text-center peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 transition-all font-bold text-sm text-gray-500">Manager</div>
+                  </label>
+                  <label className="flex-1 cursor-pointer">
+                    <input type="radio" name="role" value="GarageOwner" checked={formData.role === 'GarageOwner'} onChange={e => setFormData({ ...formData, role: e.target.value })} className="peer sr-only" />
+                    <div className="p-3 border-2 border-gray-200 rounded-xl text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 transition-all font-bold text-sm text-gray-500">Owner</div>
+                  </label>
+                </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
                   <input
                     required
                     value={formData.fullName}
-                    onChange={e => setFormData({...formData, fullName: e.target.value})}
+                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="e.g. Abebe Kebede"
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-4 focus:ring-blue-500/10 focus:border-[#1890ff] transition-all text-sm"
                   />
@@ -249,7 +258,7 @@ export default function Managers() {
                     required
                     type="email"
                     value={formData.email}
-                    onChange={e => setFormData({...formData, email: e.target.value})}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
                     placeholder="manager@example.com"
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-4 focus:ring-blue-500/10 focus:border-[#1890ff] transition-all text-sm"
                   />
@@ -259,40 +268,20 @@ export default function Managers() {
                   <input
                     required
                     value={formData.phone}
-                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+251 911 234 567"
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-4 focus:ring-blue-500/10 focus:border-[#1890ff] transition-all text-sm"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Temporary Password</label>
-                  <div className="relative">
-                    <input
-                      required
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={e => setFormData({...formData, password: e.target.value})}
-                      placeholder="Minimum 6 characters"
-                      className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-4 focus:ring-blue-500/10 focus:border-[#1890ff] transition-all text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                </div>
               </div>
-              
+
               <div className="mt-8">
                 <button
                   type="submit"
                   disabled={formLoading}
                   className="w-full py-3 rounded-xl bg-[#1890ff] text-white font-bold hover:bg-blue-600 transition-colors disabled:opacity-70"
                 >
-                  {formLoading ? 'Creating Manager...' : 'Create Manager'}
+                  {formLoading ? 'Creating...' : `Create ${formData.role === 'GarageOwner' ? 'Owner' : 'Manager'}`}
                 </button>
               </div>
             </form>
@@ -306,14 +295,14 @@ export default function Managers() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">Assign Garage</h2>
-              <button 
-                onClick={() => { setIsAssignModalOpen(false); setSelectedManager(null); setSelectedGarageId(''); }} 
+              <button
+                onClick={() => { setIsAssignModalOpen(false); setSelectedManager(null); setSelectedGarageId(''); }}
                 className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleAssignGarage} className="p-6">
               <p className="text-sm text-gray-600 mb-6">
                 Map <strong className="text-gray-900">{selectedManager.FullName}</strong> to manage operations at a specific garage system below.
@@ -324,7 +313,7 @@ export default function Managers() {
                   <AlertCircle size={16} /> {formError}
                 </div>
               )}
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">Select Garage</label>
                 <select
@@ -339,7 +328,7 @@ export default function Managers() {
                   ))}
                 </select>
               </div>
-              
+
               <div className="mt-8 flex gap-3">
                 <button
                   type="button"

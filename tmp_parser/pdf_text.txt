@@ -1,0 +1,2172 @@
+                                                                                                                                May 2025 
+                                                                                                                                          Jimma, Ethiopia 
+ 
+Partial fulfillment of the requirement of the Degree of Bachelor of Science in Computer Science 
+Submitted to Faculty of Computing and Informatics, Jimma Institute of Technology, Jimma University, in 
+A Final Year Project
+ 
+ 
+2. Mr. Mizanu                                            
+Advisor’s name 1. Mrs. Tsedenya                                       
+ 
+ 
+5.   Tsion Argaw .....................................................................................................RU1610/14 
+4.   Yusra Reshid ..................................................................................................... RU0048/14 
+3.   Hailemichel Eshetu ......................................................................................... RU1090/14 
+2.   Changkuoth Top .............................................................................................. RU0348/14 
+1.   Abdurahman Seid ............................................................................................ RU0234/14 
+Name                                                                                            ID 
+የጥናት ጎጆ | StudyNest
+ 
+ 
+FINAL YEAR PROJECT - II (FYPr4212) 
+Department of Computer Science 
+COMPUTING AND INFORMATICS 
+JIMMA INSTITUTE OF TECHNOLOGY FACULTY OF 
+JIMMA UNIVERSITY 
+ 
+----------------Page (0) Break----------------
+i 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+detail and constructive criticism have been immensely helpful in improving its overall quality 
+provided their time and expertise for reviewing and proofreading the proposal. Their attention to 
+Additionally,  we  would  like  to  acknowledge  the  contributions  of  all  the  individuals  who  have 
+input and discussions have helped in the content and structure our project. 
+would also like to thank our colleagues and friends for their support and  encouragement. Their 
+mentorship, and their commitment to excellence has been a driving force behind our success. We 
+the content but has also enhanced the project's robustness. We are truly fortunate to have had their 
+Their dedication to providing constructive suggestions and thoughtful insights has not only refined 
+significantly contributed to the project's overall quality. 
+of  our  project.  Mr.  Mizanu's  depth  of  knowledge  and  Mrs.  Tsedenya’s  perspectives  have 
+expertise and insightful feedback have played a pivotal role in ensuring the coherence and accuracy 
+invaluable  guidance  and  support  throughout  the  entire  duration  of  this  project.  Their  extensive 
+We extend sincere appreciation to Mrs. Tsedenya and Mr. Mizanu, our esteemed advisors, for their 
+quality of this documentation. 
+during this project. Their input and assistan ce have been instrumental in ensuring the clarity and 
+We  would  like  to  acknowledge  the  individuals  who  have  provided  their  guidance  and  support 
+Acknowledgment 
+----------------Page (1) Break----------------
+ 
+1.10.3.    Development Tools ............................................................................................................ 15 
+1.10.2    Systems Analysis and Design .............................................................................................. 13 
+1.10.1    Fact-Finding Techniques ..................................................................................................... 13 
+1.10.      Methodology ............................................................................................................................ 11 
+1.9 Target beneficiaries of the system ................................................................................................... 10 
+1.8 Significance of the project ................................................................................................................. 9 
+1.7 Scope of the Project ........................................................................................................................... 9 
+1.6.5.    Economic Feasibility .............................................................................................................. 6 
+1.6.5.    Schedule Feasibility ................................................................................................................ 6 
+1.6.4.    Behavioral Feasibility ............................................................................................................. 6 
+1.6.3.    Economic Feasibility .............................................................................................................. 6 
+1.6.2.    Technical Feasibility ............................................................................................................... 5 
+1.6.1 Operational Feasibility ............................................................................................................... 5 
+1.6 Feasibility Analysis ........................................................................................................................... 5 
+1.5.2 Specific Objectives ..................................................................................................................... 4 
+1.5.1 General Objective ....................................................................................................................... 4 
+1.5 Objectives of the Project ................................................................................................................... 4 
+1.4 Statement of the problem .................................................................................................................. 3 
+1.3 Motivation ......................................................................................................................................... 3 
+1.2 Background of the Project ................................................................................................................. 3 
+1.1.2 Mission of the Organization ....................................................................................................... 2 
+1.1.1 Vision of the Organization ......................................................................................................... 2 
+1.1 Background Information of the Organization .................................................................................... 2 
+Chapter One: Introduction ........................................................................................................................... 1 
+List of Figures ............................................................................................................................................. 5 
+List of Tables .............................................................................................................................................. iv 
+Acknowledgment ......................................................................................................................................... ii 
+Table of Contents 
+----------------Page (2) Break----------------
+ 
+3.5.4.    Global software control ........................................................................................................ 39 
+3.5.3.    Access control and security .................................................................................................. 39 
+3.5.2.    Persistent modeling ............................................................................................................... 38 
+3.5.2.    Component diagram ............................................................................................................. 37 
+3.5.1.    Subsystem decomposition..................................................................................................... 34 
+3.5 Architecture design ......................................................................................................................... 33 
+3.4 Deployment Diagram ...................................................................................................................... 33 
+3.3 Design Goals ................................................................................................................................... 32 
+3.2 Purpose of the system ...................................................................................................................... 31 
+3.1 Introduction ..................................................................................................................................... 31 
+Chapter Three: System Design .................................................................................................................. 31 
+2.5.5 Class diagram ........................................................................................................................... 30 
+2.5.4 Activity diagram ....................................................................................................................... 26 
+2.5.3 State chart diagram ................................................................................................................... 26 
+2.5.2 Sequence diagram .................................................................................................................... 22 
+2.5.1 Use case model diagrams ......................................................................................................... 20 
+2.5 System Analysis .............................................................................................................................. 20 
+2.4.2 Non-Functional Requirements ................................................................................................. 19 
+2.4.1 Functional Requirements .......................................................................................................... 18 
+2.4 Requirements of the Proposed System ............................................................................................ 18 
+2.3.1 Overview .................................................................................................................................. 18 
+2.3 Proposed System ............................................................................................................................. 18 
+2.2 Business Rules ................................................................................................................................. 17 
+2.1 Current System ................................................................................................................................ 17 
+Chapter Two: Requirement Analysis and Specification ............................................................................ 17 
+1.12 Team composition ......................................................................................................................... 16 
+1.11.      Limitation of the project ........................................................................................................... 15 
+----------------Page (3) Break----------------
+ 
+ 
+ 
+ 
+ 
+ 
+5.5 Appendix ......................................................................................................................................... 61 
+5.4 References ....................................................................................................................................... 61 
+5.3 Summary ......................................................................................................................................... 60 
+5.2 Recommendation ............................................................................................................................ 59 
+5.1 Conclusion ....................................................................................................................................... 59 
+Chapter Five Conclusion and Recommendation ........................................................................................ 59 
+4.7.4.    Core Workflows ................................................................................................................... 57 
+4.7.3 Navigation & UI Overview ...................................................................................................... 56 
+4.7.2 System Requirements ............................................................................................................... 56 
+4.7.1 Introduction .............................................................................................................................. 55 
+4.7 User manual preparation ................................................................................................................. 55 
+4.6 System Testing ................................................................................................................................ 54 
+4.5 Integration Testing .......................................................................................................................... 54 
+4.4.4 Test Procedures ........................................................................................................................ 53 
+4.4.3 Testing Objectives .................................................................................................................... 53 
+4.4.1 Unit Testing .............................................................................................................................. 51 
+4.4 Application Testing ......................................................................................................................... 51 
+4.3 Sample User Interfaces .................................................................................................................... 48 
+4.2 Overview of the Programming Language Used .............................................................................. 46 
+4.1 Introduction ..................................................................................................................................... 46 
+Chapter Four: Implementation and Testing ............................................................................................... 46 
+3.7 Database Design .............................................................................................................................. 42 
+3.6. User Interface Design ..................................................................................................................... 40 
+3.5.5.    Boundary conditions ............................................................................................................. 40 
+----------------Page (4) Break----------------
+ 
+Table 15: Test result .................................................................................................................................................... 52 
+Table 14: Notification Table ....................................................................................................................................... 45 
+Table 13: Wishlist Table ............................................................................................................................................. 45 
+Table 12: Reservation Without Book .......................................................................................................................... 44 
+Table 11: Reservation with Book ................................................................................................................................ 44 
+Table 10: Book Table .................................................................................................................................................. 44 
+Table 9: Seat Table ...................................................................................................................................................... 43 
+Table 8: User Role Table............................................................................................................................................. 43 
+Table 7: Role Table ..................................................................................................................................................... 43 
+Table 6: Staff table ...................................................................................................................................................... 43 
+Table 5: Student table.................................................................................................................................................. 43 
+Table 4: User table ...................................................................................................................................................... 42 
+Table 3: Use case table ................................................................................................................................................ 22 
+Table 2: Team composition ......................................................................................................................................... 16 
+Table 1: Development Tool ......................................................................................................................................... 15 
+List of Tables 
+----------------Page (5) Break----------------
+ 
+Figure 21: Jest test ........................................................................................................................................................ 53 
+Figure 20: Backend test (Mocha test) .......................................................................................................................... 52 
+Figure 19: Library staff dashboard 3 ............................................................................................................................ 50 
+Figure 18: Library staff dashboard 2 ............................................................................................................................ 50 
+Figure 17: Admin panel (Dashboard) ........................................................................................................................... 49 
+Figure 16: Library staff dashboard 1 ............................................................................................................................ 49 
+Figure 15: ER diagram ................................................................................................................................................. 45 
+Figure 14: persistent data management ........................................................................................................................ 39 
+Figure 13: Component diagram ................................................................................................................................... 38 
+Figure 12: Subsystem decomposition diagram ............................................................................................................ 36 
+Figure 11: The architecture design ............................................................................................................................... 34 
+Figure 10: deployment diagram ................................................................................................................................... 33 
+Figure 9: Class diagram ............................................................................................................................................... 30 
+Figure 8: Activity diagram for student (reserved Seat without Book) ......................................................................... 29 
+Figure 7: Activity diagram for student (reserved Seat Book) ...................................................................................... 28 
+Figure 6: Activity diagram for login ............................................................................................................................ 27 
+Figure 5: State Chart for Login .................................................................................................................................... 26 
+Figure 4: Sequence diagram for student reserved seat with Book ............................................................................... 25 
+Figure 3: Sequence diagram for student2 (student reserved seat without Book) ......................................................... 24 
+Figure 2: Sequence diagram for login .......................................................................................................................... 23 
+Figure 1: Use case diagram .......................................................................................................................................... 21 
+List of Figures 
+----------------Page (6) Break----------------
+ 
+1 | P a g e 
+more efficient resource utilization, and overall student well-being 
+the app transforms libraries into modern academic hubs, contributing to better  time management, 
+with education. B y prioritizing the needs of students and integrating innovative digital solutions, 
+The StudyNest Library Application represents a significant step forward in bridging technology 
+supportive. 
+students   and   libraries,   ensuring   these   essential   spaces   remain   organized,   accessible,   and 
+success.  More  than  just  a  tool  for  convenience,  the  app  strengthens  the  connection  between 
+empower  students  with  tools  that  simplify  their  library  experience  and  enhance  their  academic 
+time and library resources effectively. By tackling these common challenges, StudyNest seeks to 
+This project is inspired by my personal experiences as a student facing difficul   ties in managing 
+updates on resources and library events—all through an intuitive mobile platform. 
+and resources, making it easier to check seat availability, reserve spaces in advance, and receive 
+study productivity tools. Through these features, the app enables students to maximize their time 
+mind,  the  app  offers  features  like  smart  seat  booking,  real-time  notifications,  and  personalized 
+digital-first solution that redefines the student-library interaction. Designed with students' needs in 
+The  StudyNest  Library  Application  aims  to  address  these  challenges  by  providing  a  seamless, 
+resources, and finding available seats, especially during peak times. 
+students like myself, these inefficiencies create ba  rriers to managing study schedules, accessing 
+tracking, and notifications, which can hinder students' ability to use these spaces effectively. For 
+specific needs of students. Many libraries rely on manual processes for seat management, resource 
+academic  growth.  Despite  their  importance,  traditional  library  systems  often  fail  to  address  the 
+Libraries play a vital role in student life, offering essential spaces for learning, collaboration, and 
+Chapter One: Introduction 
+----------------Page (7) Break----------------
+ 
+2 | P a g e 
+more efficient and organized library experience. 
+administrative tasks and providing real-time insights into library operations, ultimately fostering a 
+resources.   Additionally,   the   organization   strives   to   support   library   staff   by   streamlining 
+maximize their academic po tential, improve their study habits, and optimize their use of library 
+on  user  needs,  the  organization  is  committed  to  creating  an  environment  where  students  can 
+data and intelligent systems. By automating manual processes and offering tailored services based 
+improve seat utilization, minimize time wastage, and enhance resource tracking through real-time 
+and  automated  solution  to  library  management.  The  StudyNest  Library  Application  aims  to 
+The mission of the organization is to empower students and library staff by providing an innovative 
+ 
+1.1.2 Mission of the Organization 
+to position libraries as modern hubs of learning, collaboration, and resource optimization. 
+environment that supports students' academic success. Through this  vision, the organization aims 
+tools.  By  leveraging  technology,  the  organization  aspires  to  foster  a  productive,  user-centered 
+that provides seamless access to library resources, real-time seat availability, and integrated study 
+The vision of the organization is to revolutionize library services by creating a digital ecosystem 
+ 
+1.1.1 Vision of the Organization 
+organization seeks to enhance the accessibility, efficiency, and functionality of library services. 
+user  experience.  By  introducing  automation,  real-time updates,  and  user-friendly  interfaces,  the 
+StudyNest Library Application, a solution designed to str eamline library operations and improve 
+The organization recognizes these challenges and aims to address them through the creation of the 
+is a growing demand for a more efficient, technology-driven approach to library management. 
+needs of today's users. With increasing numbers of students and advancements in technology, there 
+However, traditional library systems, which still rely on manual processes, often fail to meet the 
+to  academic  success,  providing  students  and  faculty  with  critical  resources  and  study  spaces. 
+libraries operate by integrating technology into their systems. Libraries have always been central 
+The organization behind the StudyNest Library Application is dedicated to transforming the way 
+ 
+Background Information of the Organization 
+1.1 
+----------------Page (8) Break----------------
+ 
+3 | P a g e 
+peak usage times, resulting in wasted time and frustration. 
+o 
+Students frequently face difficulties identifying available seating, especially during 
+1.   Seat Availability Challenges 
+ 
+productivity, access to resources, and overall academic experience. 
+practices, do not meet the evolving needs of modern students. These limitations impact students' 
+academic  success.  Traditional  library  operations,  relying  on  manual  systems  and  outdated 
+Students  often  encounter  significant  challenges  in  effectively  utilizing  libraries  to  support  their 
+Statement of the problem 
+1.4 
+overall academic experience. 
+application goes beyond traditional library management to empower students and improve their 
+foster   peer   support,   creating   a   more   efficient   and   engaging   academic   environment.   The 
+features  aim  to  improve  seat  availability,  streamline  resource  access,  enhance  productivity,  and 
+book rental service, study tracking tools, and a chat community for collaborative  learning. These 
+for  Students  in  university.  It  provides  a  real-time  seat  reservation  system,  an  integrated  digital 
+systems and offer more than just a traditional solution.  It is also developed to create safe space 
+The StudyNest  Library Application was developed to address inefficiencies in traditional library 
+Motivation 
+1.3 
+academic success and fostering a more collaborative, modern library experience. 
+empowers  students  to  efficiently  manage  their  time  and  resources,  ultimately  enhancing  their 
+academic  progress,  and  a  community  chat  for  peer  support  and  collaboration.  This  solution 
+Beyond seat management, the app integrates a digital book rental system, study tools to monitor 
+updates on seat and book availability, and tracks study sessions for improved productivity. 
+managing  study  schedules  and  resources,  this  app  streamlines  seat  booking,  provides  real-time 
+wasted  time,  especially  during  peak  periods  like  exams.  Inspired  by  personal  challenges  in 
+collaboration.  Many  libraries  still  rely  on  outdated  manual  processes,  causing  frustration  and 
+offering   a   digital   solution   for   seat   management,   book   rentals,   study   tracking,   and   peer 
+The  StudyNest  Library  Application  addresses  the  inefficiencies  of  traditional  library  systems, 
+ 
+Background of the Project 
+1.2 
+----------------Page (9) Break----------------
+ 
+4 | P a g e 
+   Implement  a  remote  seat  availability  checker  to  help  students  plan  library  visits  more 
+and cancellation, ensuring ease of access and smooth interaction with the system. 
+   Design a user-friendly mobile and web-based interface to facilitate manual seat ID input 
+1.5.2 Specific Objectives 
+time data analytics. 
+utilization  by  integrating study  tracking,  user  classification,  book  rental  monitoring,  and  real- 
+The To develop an efficient, automated seat management system that enhances library resource 
+1.5.1 General Objective 
+ 
+Objectives of the Project 
+1.5 
+ 
+periods, reducing the overall efficiency of space usage. 
+o 
+Library  seats  often  remain  unnecessarily  occupied  during  long  breaks  or  idle 
+5.   Inefficient Space Utilization 
+automated notifications about the availability of resources. 
+o 
+Students are unable to track borrowed items, create digital wish  lists, or receive 
+leading to inefficiencies, delays, and errors. 
+o 
+Libraries  still  rely on  manual  systems  for  managing books  and  other  resources, 
+4.   Manual Resource Management 
+study practices, resulting in reduced productivity. 
+o 
+There are no personalized insights or reminders to help students maintain consistent 
+academic goals. 
+o 
+Students  lack  tools  to  track  their  study habits,  manage  time  effectively,  and  set 
+3.   Ineffective Study Support 
+help students plan and optimize their library visits. 
+o 
+The absence of centralized notifications leads to missed opportunities, which could 
+operating hours, resource availability, and library closures. 
+o 
+Libraries  struggle  to  provide  real-time  updates  on  critical  information,  such  as 
+2.   Lack of Timely Updates 
+further complicates the seating process. 
+o 
+The lack of detailed seat information, such as location, availability, and amenities, 
+----------------Page (10) Break----------------
+ 
+5 | P a g e 
+The  system  will  be  developed  using  React  Native  for  the  frontend,  ensuring  a  consistent  and 
+ 
+1.6.2. Technical Feasibility 
+daily routines of students and library staff, ensuring high operational feasibility. 
+library processes and improving accessibility, the app is expected to integrate seamlessly  into the 
+reminders, and access to digital resources, all tailored to meet the needs of its users. By simplifying 
+library operations. The app will provide functionalities such as book search, reservation, due date 
+users  by  offering  accessible,  student-centric  features  that  enhance  productivity  and  streamline 
+The proposed application is designed to address existing challenges faced by students and library 
+ 
+1.6.1 Operational Feasibility 
+ 
+Feasibility Analysis 
+1.6 
+   Community Hub serves as a department-based communication space 
+malfunctioning equipment directly through the app 
+   Support  Service  enables  users  to  report  issues  such  as  damaged  chairs,  desks,  or 
+improvement and strategic planning by administrators. 
+   Provide  advanced  analytics  tools  to  generate  actionable  insights  for  continuous  system 
+handling, ensuring efficient use of physical and digital assets. 
+   Utilize tracking data for optimizing resource allocation such as seating, staffing, and book 
+encouraging healthier and more productive study habits. 
+   Integrate customizable countdown timers for managing personal study and break intervals, 
+   Announcements for scheduled changes, upcoming events, and general library updates. 
+holiday) ensuring users are promptly informed. 
+   Status features Notifications about unexpected closures, status of the library (e.g. closed for 
+hours, fostering better time management and academic discipline. 
+   Incorporate  a  study  session  tracker  that  allows  students  to  log  and  review  their  study 
+activity, and book rentals, enabling informed operational decisions. 
+   Develop  an  admin  dashboard  to  provide  real-time  insights  into  seat  occupancy,  user 
+services and allocate library resources more efficiently. 
+   Classify  users  by  usage  type  (e.g.,  regular,  short-term,  research-focused)  to  tailor 
+effectively, minimizing unnecessary travel and congestion. 
+----------------Page (11) Break----------------
+ 
+6 | P a g e 
+1.6.5. Economic Feasibility 
+approach ensures that the project is completed within the allocated time frame. 
+will  be  established  to  monitor  progress  and  ensure  that  the  project  stays  on  track.  This  phased 
+implementation of additional features. A detailed project timeli ne with milestones and deadlines 
+functionalities. Subsequent phases will involve iterative testing, user feedback collection, and the 
+Phase  1  will  focus  on  requirement  analysis,  system  design,  and  the  development  of  core 
+The  project  will  be  executed  in  well-defined  phases  to  ensure  timely  development  and  testing. 
+ 
+1.6.5. Schedule Feasibility 
+received and adopted by its intended audience. 
+By  addressing  real  pain  points  and  providing  practical  solutions,  the  app  is  likely  to  be  well- 
+of use, while features like personalized reminders and notifications will enhance user engagement. 
+tracking, and access to resources. The user-friendly interface and intuitive design will ensure ease 
+library staff, due to its focus on resolvi ng common challenges such as book availability, due date 
+The app is expected to gain widespread acceptance among  its target users, primarily students and 
+ 
+1.6.4. Behavioral Feasibility 
+financially feasible. 
+operations and enhanced student productivity outweigh the initial investment, making the project 
+project  remains  economically  viable.  Additionally,  the  long-term  benefits  of  improved  library 
+version  control.  Hosting  costs  for  Mongo  DB  are  scalable  and  cost-effective,  ensuring  that  the 
+that are sufficient for initial development and testing, while GitHub provides free repositories for 
+tools, hosting services, and occasional maintenance. React Native and Mongo DB offer free tiers 
+The development costs for the project are minimal, as the primary expenses are limited to software 
+ 
+1.6.3. Economic Feasibility 
+scalable, cross- platform applications, confirming the technical feasibility of the project. 
+integrity.  These  technologies  are  well-documented,  widely  supported,  and  suitable  for  building 
+used  for  version  control,  enabling  efficient  collaboration  among  developers  and  ensuring  code 
+cloud  storage,  making  it  ideal  for  handling  dynamic  data  and  user  interactions. GitHub  will  be 
+be  powered  by Mongo  DB,  which  provides  real-time  database  capabilities,  authentication,  and 
+responsive user experience across multiple platforms (iOS, Android, and web). The backend will 
+----------------Page (12) Break----------------
+ 
+7 | P a g e 
+ 
+Backend Tools: 0–25,000 Birr 
+Tools like vscode and Android Studio for app creation. 
+ 
+Development Tools: 0 –12,500 Birr 
+2. Software 
+For hosting backend, database, and storage via servers or cloud platforms. 
+ 
+Server Hardware: 25,000–62,500 Birr 
+For testing across iOS/Android devices, using either existing or new equipment. 
+ 
+Mobile Devices and Testing: 0–60,000 Birr 
+1. Hardware 
+1.6.5.2 Cost of the Project 
+sources) and cost savings must exceed the total cost of development and operations. 
+For  the  app  to  be  economically  viable,  its  cumulative  revenue  (from  subscriptions  and  other 
+ 
+o 
+Recurring Costs: Cloud hosting, database management, and maintenance. 
+o 
+Initial Development Costs: Hardware, software tools, and app store publishing fees. 
+2.   Costs: 
+seat availability. 
+o 
+User Satisfaction: Enhanced user experience through intuitive design and real-time 
+adoption and usage. 
+o 
+Scalability:  Designed  to  accommodate  multiple  institutions,  ensuring  broader 
+ 
+In-app advertisements. 
+ 
+Partnerships with publishers or institutions for promotion and integration. 
+ 
+Subscription fees from users. 
+o 
+Revenue Opportunities: 
+rentals, reducing manual workload. 
+o 
+Operational Efficiency: Automates library operations like seat booking and book 
+1.   Benefits: 
+This project offers several tangible and intangible benefits that justify its costs: 
+1.6.5.1 Cost-Benefit Analysis 
+a sound financial investment. 
+Economic feasibility assesses whether the benefits of the project outweigh its costs, ensuring it is 
+----------------Page (13) Break----------------
+ 
+8 | P a g e 
+ 
+Cloud Hosting & Storage: 2,500–12,500 Birr 
+Monthly Costs: 
+Total Recurring Costs: 
+Total  One-Time  Costs:  56,125  Birr  –  184,875  Birr 
+ 
+App Store Fees: 24,875 Birr (initial publishing fees). 
+ 
+Learning Resources: 6,250–25,000 Birr (books, online courses). 
+ 
+Development Tools: 0–12,500 Birr (software like Xcode, Android Studio). 
+ 
+Hardware: 0–60,000 Birr (testing devices) and 25,000–62,500 Birr (server setup). 
+One-Time Costs 
+1.6.6 Cost Breakdown 
+Publishing fees for iOS and Android. 
+ 
+App    Store    Fees:     24,875    Birr 
+For a website or landing page hosting. 
+ 
+Domain & Hosting: 2,500–12,500 Birr/year 
+5. Miscellaneous 
+Services like Mongo DB Test Lab for cross-platform compatibility. 
+ 
+Testing Tools: 6,250–12,500 Birr/month 
+4. Testing 
+For APIs enabling notifications, seat booking, etc. 
+ 
+API Documentation: 0–12,500 Birr 
+Books or online courses for app development. 
+ 
+Learning    Materials:    6,250–25,000    Birr 
+3. Resources 
+UI/UX design tools (e.g., Figma, Adobe XD). 
+ 
+Design     Software:     0–6,250     Birr/month 
+For app hosting and scalable storage. 
+ 
+Cloud Hosting: 2,500–12,500 Birr/month 
+For storing user data (MySQL, MongoDB, Mongo DB, etc.). 
+ 
+Database Software: 0–12,500 Birr/month 
+Frameworks like Node.js for server-side logic and database integration. 
+----------------Page (14) Break----------------
+ 
+9 | P a g e 
+accessibility. 
+finding   and   renting   books,   eliminating   manual   tracking   and   improving   resource 
+Features like book rental systems and real-time availability updates simplify the process of 
+2.   Enhancing Student-Resource Interaction 
+ 
+enhanced academic performance. 
+seat  reservations,  personalized  study  tracking,  and  motivational  feedback,  leading  to 
+The application enables students to manage their study time effectively through real -time 
+1.   Improving Academic Productivity 
+Key Contributions: 
+and student-centered. 
+proposes a digital solution to modernize library  systems, making them more efficient , accessible, 
+and  utilizing  library  resources,  significantly  improving  their  academic  experience.  This  study 
+The  StudyNest  Library  Application  addresses  critical  challenges  faced  by  students  in  accessing 
+ 
+Significance of the project 
+1.8 
+and support academic success 
+availability. This student -centered solution aims to simplify library usage, enhance productivity, 
+along with real-time announcements to keep students informed about library events and resource 
+Additionally, the app offers study tracking tools to monitor study sessions and academic progress, 
+includes  a  streamlined  book  rental  system  for  efficient  borrowing  and  returning  of  books. 
+such as seat management, enabling students to check and reserve library seats in real-time. It also 
+student interactions with library resources. The application focuses on providing essential features 
+The StudyNest Library Application is designed as a mobile and web  -based platform to improve 
+ 
+Scope of the Project 
+1.7 
+ 
+Miscellaneous (Domain/Hosting): 2,500–12,500 Birr/year 
+Annual Costs: 
+ 
+Total Monthly Cost: 8,750–37,500 Birr/month 
+ 
+Testing Tools: 6,250–12,500 Birr 
+ 
+Database Management: 0–12,500 Birr 
+----------------Page (15) Break----------------
+ 
+10 | P a g e 
+ 
+Streamlines  library  management  by  automating  book  rentals,  seat  tracking,  and  usage 
+Library Staff 
+availability, and a collaborative community hub. 
+ 
+Undergraduate and Graduate Students: Gain access to real-time seat reservations, book 
+Students 
+in the academic ecosystem 
+The StudyNest Library Application is designed to benefit a wide range of users and stakeholders 
+ 
+Target beneficiaries of the system 
+1.9 
+institutions. 
+feature   enhances   usability   and   engagement,   particularly   in   multilingual   academic 
+backgrounds, ensuring they can access library resources in their preferred language. This 
+By offering a multi-language interface, the app caters to students from diverse linguistic 
+7.   Supporting a Multilingual Academic Community 
+ 
+backgrounds, can benefit from the app, fostering a more inclusive academic environment. 
+support  ensure  that  students,  including  those  with  disabilities  and  diverse  linguistic 
+Accessibility features such as dark mode, screen reader compatibility, and multi-language 
+6.   Promoting Inclusivity and Accessibility 
+and academic success. 
+other educational institutions to adopt digital solutions that improve student experiences 
+By showcasing how technology enhances library services, this study provides a model for 
+5.   Contributing to Digital Transformation in Education 
+ 
+ensuring fair allocation and reducing unnecessary seat occupancy. 
+Real-time  seat  tracking  and  break  time  management  improve  library  space  utilization, 
+4.   Optimizing Library Space Utilization 
+ 
+particularly for challenging subjects. 
+share  study  tips,  seek   academic  help,  and  build  a  collaborative  support  network, 
+The  department-based  community  hub  facilitates  peer  interaction,  allowing  students  to 
+3.   Fostering Collaborative Learning 
+----------------Page (16) Break----------------
+ 
+11 | P a g e 
+includes: 
+Once  requirements  are  gathered,  design  and  prototyping  are  carried  out  for  each  module.  This 
+3. Design and Prototyping at the Module Level 
+requires input on how students reserve seats, check seat status, and manage seat preferences. 
+needs  and  challenges  of  each  module.  For  example,  the  Seat  Availability  Management  module 
+with stakeholders, including students, library staff, and IT professionals, to understand the unique 
+Each module is analyzed independently to gather its specific requirements. This involves engaging 
+2. Requirement Gathering at the Module Level 
+materials. 
+   Book Rental System: Manages book availability, reservations, and wish lists for library 
+performance analytics. 
+   Study  Tracking  System:  Tracks  student  productivity,  including  session  logs  and 
+use. 
+   Break Time Management: Tracks study sessions and enforces break durations for fair seat 
+   Announcements System: Manages notifications and updates about the library’s operations. 
+preferences. 
+   Seat   Availability   Management:   Handles   seat   reservations,   availability   checks,   and 
+of the StudyNest Library Application, these modules include: 
+serves a specific function that collectively contributes to the overall system. In the context 
+   The first step is to identify and define the core modules within the application. Each module 
+1. Module Identification 
+methodology consists of the following key steps: 
+greater  flexibility  and   allows  for   easier   adaptation  during  the  development  process.  The 
+breaking the project into smaller, manageable components or "modules." This approach ensures 
+Our methodology for developing the StudyNest Library Application adopts a modular approach, 
+ 
+Methodology 
+1.10. 
+ 
+Modernizes library systems and improves student satisfaction 
+Educational Institutions 
+analytics 
+----------------Page (17) Break----------------
+ 
+12 | P a g e 
+habits. 
+This  includes  gathering  data  on  how  the  Break  Time  Management  system  is  impacting  study 
+Feedback from students, faculty, and library staff is collected to identify areas of improvement. 
+The performance and impact of the StudyNest Library Applic  ation are continuously monitored. 
+7. Project Evolution 
+(e.g., performance improvements and new features). 
+individual  module  level  (e.g.,  updating  the  Announcements  System)  and  the  system-wide  level 
+ongoing  support,  fix  bugs,  and  update  the  system  as  needed.  Maintenance  occurs  at  both  the 
+ensuring  all  backend  processes  are  functional.  A  maintenance  plan  is  established  to  provide 
+Deployment involves setting up the app on the cloud, ensuring that it is accessible to users, and 
+Once  the  system  is  fully  integrated  and  tested,  it  is  deployed  to  a  reliable  hosting  platform. 
+6. Deployment and Maintenance 
+check out books and reserve seats without issues. 
+System integrates properly with the Seat Availability Management system, allowing students to 
+performed to ensure smooth data flow between modules, such as ensuring that the Book Renta    l 
+integration  phase  ensures  that  the  modules  work  together  seamlessly.  Integration  testing  is 
+After individual modules are developed and tested, they are integrated into a cohesive system. The 
+5. Integration and Interoperability 
+   Performance testing to ensure scalability and responsiveness. 
+   User acceptance testing (UAT) to verify that the module meets the user requirements. 
+   Unit testing to validate functionality. 
+operates correctly, focusing on: 
+system or the performance tracking analytics. Each module undergoes rigorous testing to ensure it 
+focused  efforts  on  specific  functionalities,  such  as  implementing  the  real-time  seat  reservation 
+Development  and  testing  are  performed  on  a  module-by-module  basis.  This  allows  for  more 
+4. Development and Testing at the Module Level 
+   Creating mockups and prototypes to visualize how each module will function. 
+   Establishing the database structure and API specifications. 
+interaction. 
+   Designing  the  user  interfaces  (UI)  and  user  experience  (UX)  for  easy  navigation  and 
+   Defining the architecture of each module. 
+----------------Page (18) Break----------------
+ 
+13 | P a g e 
+architecture, databases, user interfaces (UI), and defining the system’s backend structure. 
+ 
+Systems  Design:  Based  on  the  analysis,  the  design  phase  will  focus  on  creating  the 
+management, announcements, study tracking, and book rental systems. 
+workflows, user interactions, and system functionalities for each module, such as the seat 
+outlining  the  functional  requirements  of  the  syst em.  This  will  include  mapping  out 
+ 
+Systems Analysis: Involves understanding the problem, identifying the needs of users, and 
+The StudyNest Library Application will go through the following steps: 
+1.10.2 Systems Analysis and Design 
+standards and regulations and can support future developments effectively. 
+analyzed  to  understand  current  processes.  This  helps  ensure  the new system  aligns  with  library 
+Existing library documentation, such as policies, operational guidelines, and usage reports, will be 
+Document Analysis 
+with the library’s resources, and what improvements can be made through the new system. 
+in existing workflows and interactions. This can provide valuable insights into how users interact 
+Observation of current library operations will allow the development team to identify  pain points 
+Practical Observation 
+management, book rentals, and study tracking. 
+understand  expectations  for  the  system,  including  specific  requirements  for  features  like  seat 
+conducted  to  gather  qualitative  data  on  user needs  and  challenges.  These  interviews  will  help 
+Interviews  with  key  stakeholders,  such  as  students,  library  staff,  and  faculty  members,  will  be 
+Interview 
+for the StudyNest Library Application: 
+for system design and develop ment. The following techniques will be used to gather information 
+Fact-finding is a critical aspect of system development, as it helps gather the necessary information 
+ 
+1.10.1 Fact-Finding Techniques 
+on real-world usage and stakeholder input 
+needs. New features or improvements a re planned and added in future versions of the app, based 
+This feedback is used to enhance and evolve the application, ensuring it remains responsive to user 
+   User engagement with the Book Rental System and seat reservation features. 
+   The effectiveness of the Study Tracking System in motivating students. 
+----------------Page (19) Break----------------
+ 
+14 | P a g e 
+features to meet the needs of students and library staff. 
+This ensures all components of the system work together seamlessly, with user-friendly 
+----------------Page (20) Break----------------
+ 
+15 | P a g e 
+tracking may not be included in the initial release. 
+for a specific set of library services, and features beyond seat reservations, book rentals, and study 
+devices or unsupported operating systems. Additionally, the app is focused on providing solutions 
+The application is designed for mobile devices, which may limit access for students using older 
+tracking,  book  rental  updates,  and  timely  announcements  require  an  active  internet  connection. 
+While StudyNest offers some offline functionality, full features such as real-time seat availability 
+ 
+Limitation of the project 
+1.11. 
+Table 1: Development Tool 
+APIs for backend integration. 
+                           Testing Tools                Postman                           Used  to  test  and  debug  RESTful 
+coding. 
+                           Version Control            GitHub                            For version control and collaborative 
+debugging the code. 
+                           Code Editors                 Visual Studio Code         Lightweight editors for writing and 
+Excel 
+Microsoft                        planning. 
+Word,                              database    structures,    and    project 
+                           Documentation              Microsoft                        For   documenting   project   reports, 
+Mozilla Firefox               or debugging APIs. 
+                           Browsers                       Google           Chrome,   Used for testing web-based features 
+Design 
+                           User             Interface    Figma                              For designing app UI prototypes 
+study data. 
+availability,    announcements,    and 
+Development                                                         database      for      managing      seat 
+                           Backend                        Node.js,                           Backend     server     and     real -time 
+for Android and iOS platforms. 
+                           Mobile Development    Android Studio                Tools for building the mobile  app 
+Tools                                                                                              development and testing. 
+Software           Platform                        windows                          Operating        system        for       app 
+war e 
+category            Activities                       Tools/programs/Hard      Description 
+ 
+1.10.3. Development Tools 
+----------------Page (21) Break----------------
+ 
+16 | P a g e 
+Table  2: Team composition  
+Date:                           May 6, 2025  
+                                      5.      Tsion  Argaw                  RU1610/14                 Tsionargaw143@gmail.com  
+4.      Abdurahman  Seid           RU0234/14                 abduseid8@yahoo.com  
+3.      Changkuoth  Top            RU0348/14                 gchangkuothtop@gmail.com  
+2.      Yusra  Reshid                   RU0048/14                 Yusramuhaba8@gmail.com  
+Prepared By:        1.      Hailemichel  Eshetu         RU1090/14                 eshetuhailemichael06@gmail.com  
+ 
+No. 
+S       Full Name                      Id No                          Email/Mobile  
+                                   የጥናት ጎጆ | StudyNest  
+ 
+1.12 Team composition 
+----------------Page (22) Break----------------
+ 
+17 | P a g e 
+will have tailored functionalities to suit their needs. 
+ 
+Role-Based Access: Different user roles, such as students, library staff, and administrators, 
+efficient utilization. 
+ 
+Seat Management: Users can reserve and release library seats through the app, ensuring 
+to access the platform. 
+ 
+User Verification: All users must undergo a secure registration and verification process 
+and fair operations: 
+The StudyNest Library Application will adhere to the following business rules to ensure efficient 
+ 
+Business Rules 
+2.2 
+academic environment. 
+transformation  will  ensure  transparen cy,  accessibility,  and  convenience,  fostering  a  better 
+features  like   real-time   notifications,  seat   reservations,  and  personalized  study   tools.  This 
+remain  integral  to  library  operations,  the  proposed  system  will  enhance  these  processes  with 
+friendly  digital  platform  tailored  to  student  needs.  While  traditional  face-to-face  interactions 
+The StudyNest Library Application aims to address these gaps by providing a centralized, user   - 
+engaging and productive environment for students. 
+users. While existing systems might meet basic ope  rational needs, they fall short of creating an 
+Libraries often struggle with space utilization, leading to inefficiencies and dissatisfaction among 
+collaborative  features  that  modern  students  require  to  optimize  their  academic  performance. 
+Furthermore,   current   systems   fail   to   provide   real-time   updates,   study   tracking   tools,   or 
+accessibility, making it harder for students to manage their academic needs efficiently. 
+about library events or closures. The lack of a centralized digital platform limits transparency and 
+difficulties in finding available seats, delays in accessing books, and ineffective communication 
+outdated,  primarily  reliant  on  manual  processes.  Students  face  significant  challenges,  such  as 
+The  current  system  for  managing  student -library  interactions  at  educational  institutions  is 
+ 
+Current System 
+2.1 
+Chapter Two: Requirement Analysis and Specification 
+----------------Page (23) Break----------------
+ 
+18 | P a g e 
+o 
+Feature: Students can reserve, release, and check seat availability. 
+2.   Seat Reservation and Management 
+o 
+Priority: High 
+o 
+Feature: Users can register and log in with secure credentials. 
+1.   User Registration and Authentication 
+The system is designed to meet the following functional requirements: 
+ 
+2.4.1 Functional Requirements 
+Requirements of the Proposed System 
+2.4 
+productivity. 
+shortcomings   of   current   systems,   StudyNest   will   enhance   library   operations   and   student 
+cohesive  system  that  ensures  transparency,  efficiency,  and  user  satisfaction.  By  addressing  the 
+The platform will cater to students, library staff, and administrators, integrating their roles into a 
+support and collaboration. 
+resource  access,  and  study  tracking.  The  app  will  also  include  a  community  hub  to  foster  peer 
+resources.  By  providing  a  digital-first  approach,  the  system  will  streamline  seat  reservations, 
+The StudyNest Library Application is designed to revolutionize how students interact with library 
+ 
+2.3.1 Overview 
+Proposed System 
+2.3 
+student-library interaction and supports academic success. 
+These business rules aim to create a secure, efficient, and user-centric environment that enhances 
+occupied during breaks, optimizing space usage. 
+ 
+Break Time Allocation:  A  countdown system  ensures that seats  are not  unnecessarily 
+closures, or new resources. 
+ 
+Announcement  Management:  Administrators  can  post  updates  about  library  events, 
+to improve productivity. 
+ 
+Study Session Monitoring: Users can log and track their study sessions, receiving insights 
+dates, and rental statuses. 
+ 
+Resource Tracking: The system will provide real-time updates on book availability, due 
+----------------Page (24) Break----------------
+ 
+19 | P a g e 
+4.   Reliability: High uptime and robust error handling to ensure consistent availability. 
+3.   User Interface: A clean, intuitive design for seamless navigation. 
+2.   Accessibility: Available on multiple platforms, including mobile and web. 
+1.   Performance: The system will ensure quick data retrieval, minimizing delays. 
+ 
+2.4.2 Non-Functional Requirements 
+ 
+UR-06: Department-based community chat for collaboration. 
+ 
+UR-05: Study session tracking with analytics. 
+Medium Priority: 
+ 
+UR-04: Administrator access for managing announcements and resources. 
+ 
+UR-03: Comprehensive book rental management system. 
+ 
+UR-02: Real-time seat reservation and release functionality. 
+ 
+UR-01: Secure user registration and authentication. 
+High Priority: 
+User Requirements 
+o 
+Priority: Medium 
+o 
+Feature: A department-based chat system for peer collaboration. 
+6.   Community Hub 
+o 
+Priority: Medium 
+o 
+Feature: Administrators can post updates visible to all users. 
+5.   Announcements 
+o 
+Priority: Medium 
+o 
+Feature: Users can log study sessions and receive productivity analytics. 
+4.   Study Session Tracking 
+o 
+Priority: High 
+o 
+Feature: Users can search for, borrow, and return books through the app. 
+3.   Book Rental Management 
+o 
+Priority: High 
+----------------Page (25) Break----------------
+ 
+20 | P a g e 
+borrowing, book return 
+cases  that  define  these  interactions.  Key  use  cases  may  include  student  registration,  book 
+overview of how the student, library staff, and admin interact with the system and the various use 
+highlighting  the  system's  functionalities  from  an  external  perspective.  It  provides  a  high-level 
+A Use Case Diagram visually represents the interactions between actors (users) and the system, 
+ 
+2.5.1 Use case model diagrams 
+processes, ensuring alignment with the requirements. 
+serves as a foundational tool for understanding and communicating the intricacies of the system's 
+diagrams to comprehensively depict the system's structure, behavior, and interactions. This model 
+information in a clear and organized manner. The analysis model for our system employs various 
+and  interactions.  Analysis  models  are  instrumental  in  capturing  and  communicating  complex 
+including analysts, designers, and end -users, to comprehend the system's structure, functionality, 
+visual  or  mathematical  representation  of  different  aspects  of  the system,  allowing  stakeholders, 
+to understand, describe, and document the requirements and behavior of a system. It serves as a 
+An analysis model is a conceptual representation used in the early stages of software development 
+System Analysis 
+2.5 
+6.   Scalability: The system will accommodate growing user bases and additional features. 
+protect data. 
+5.   Security:  Comprehensive  measures,  including  encryption  and  user  authentication,  to 
+----------------Page (26) Break----------------
+ 
+21 | P a g e 
+Catalog). 
+UC-5          Add to  Wishlist       Allows students  to add  books to  their Wishlist  (extends  Search 
+UC-4          Search Catalog        Enables  students to  search for books in the library catalog. 
+UC-3          Logout                    Allows students and  library staff  to log out of the system. 
+UC-2          Login                      Allows students and  library staff  to log in to the system. 
+UC-1          Register                   Allows students  to create an account in the system. 
+UCID         UC Name                UC Description 
+ 
+Figure 1: Use case diagram 
+ 
+----------------Page (27) Break----------------
+ 
+22 | P a g e 
+between objects or entities 
+components  of a system  over  time. It emphasizes the   chronological  order  of messages exchanged 
+A Sequence   Diagram  is  a  dynamic  modeling  tool  that  shows  the interactions  between  different 
+ 
+2.5.2  Sequence  diagram  
+Table  3: Use  case table 
+community  (system  component).  
+UC-24        Community  Hub     Facilitates  interactions  and shared  activities  within  the 
+UC-23        Support                    Provides  library  staff  with  tools  to resolve user issues. 
+Management  
+UC-22        Student                     Allows  library staff  to manage  student a ccounts and  access.  
+Management  
+UC-21        Library  Staff           Enables  library  staff  to manage  staff  accounts  and permissions.  
+Reports                   activities. 
+UC-20        Community             Allows library staff to generate reports related to community 
+UC-19        Manage  Seat           Enables  library  staff  to oversee study seat allocations. 
+UC-18        Add New Book       Allows  library staff  to add new books to the catalog. 
+UC-17        Handle  Reports        Enables  library staff  to generate  or manage  system  reports.  
+Status 
+UC-16        Update  Book           Allows  library staff  to modify  book availabi lity  or  condition.  
+and Promos  
+Announcements       announcements. 
+UC-15        Post                         Enables  library  staff  to share updates, promotions, or 
+Return 
+UC-14        Process  Book          Allows  library  staff  to handle book returns and update inventory. 
+Checkout  
+UC-13        Process  Book          Enables  library  staff  to manage  book borrowing  transactions.  
+UC-12        Remove  Seat           Allows  students  to release reserved study seats. 
+Notification  
+UC-11        Receive                   Sends  notifications  to students (e.g., due dates, announcements). 
+UC-10        Study  Method          Provides  students  with  study  techniques  or resources.  
+Progress 
+UC-9          View Study             Allows students  to track their academic progress. 
+Profile 
+UC-8          View/Update           Enables  students  to view or modify their personal information. 
+UC-7          Return Book           Allows students  to return borrowed books. 
+UC-6          Borrow Book          Allows students  to borrow  books from  the library. 
+----------------Page (28) Break----------------
+ 
+23 | P a g e 
+Figure 2: Sequence diagram for login 
+ 
+ 
+ 
+----------------Page (29) Break----------------
+ 
+24 | P a g e 
+Figure 3: Sequence diagram for student2 (student reserved seat without Book) 
+ 
+ 
+ 
+----------------Page (30) Break----------------
+ 
+25 | P a g e 
+Figure 4: Sequence diagram for student reserved seat with Book 
+ 
+----------------Page (31) Break----------------
+ 
+26 | P a g e 
+enhances our understanding of the chronological order of events, aiding in the analysis and design 
+the  dynamic  behavior  of  processes  such  as  user  registration,  login   .  the  Activity  Diagram 
+components interact over time. In the context of our project, the Activity Diagram helps to capture 
+of  representing  the  flow  of  tasks  and  actions,  providing  a  step-by-step  view  of  how  different 
+by illustrating the sequence of activities or actions within a process. It serves as an excellent means 
+The Activity Diagram is a behavioral modeling tool that visualizes the dynamic aspects of a system 
+2.5.4 Activity diagram 
+Figure 5: State Chart for Login 
+ 
+ 
+ 
+ 
+ 
+ 
+or triggers, offering a clear understanding of the system's behavior under different conditions. 
+in. It helps to visualize how these entities transition from one state to another in response to events 
+Diagram will represent the different states that entities, such as user accounts or requests, can exist 
+system can undergo and the transitions between these states. Within our system, the State Chart 
+A State Chart Diagram is a behavioral modeling tool that illustrates the various states an object or 
+ 
+2.5.3 State chart diagram 
+----------------Page (32) Break----------------
+ 
+27 | P a g e 
+Figure 6: Activity diagram for login 
+ 
+ 
+ 
+ 
+of the system's functionality. 
+----------------Page (33) Break----------------
+ 
+28 | P a g e 
+Figure 7: Activity diagram for student (reserved Seat Book) 
+ 
+----------------Page (34) Break----------------
+ 
+29 | P a g e 
+Figure 8: Activity diagram for student (reserved Seat without Book) 
+ 
+----------------Page (35) Break----------------
+ 
+30 | P a g e 
+Figure 9: Class diagram 
+ 
+classes, attributes, and relationships between them 
+A Class Diagram is a static modeling tool that depicts the structure of a system by illustrating the 
+ 
+2.5.5 Class diagram 
+----------------Page (36) Break----------------
+ 
+31 | P a g e 
+specifications, guiding the development team in the coding and implementation phases 
+    Facilitating   Development :   The   system   design   provides   a   clear   roadmap   and 
+safeguarding user data, transactions, and the overall integrity of the system. 
+    Addressing   Security :   Implementin g   robust   security   measures   is   paramount   to 
+contributes to an overall positive user experience, fostering engagement and satisfaction. 
+    Enhancing  User  Experience:  Prioritizing  usability  and  crafting  an  intuitive  interface 
+seamlessly grow to accommodate increased user demand and evolving functionalities. 
+    Ensuring  Scalability:  Designing  with  scalability  in  mind  ensures  the  platform  can 
+structure. 
+modules,  and  their  interactions,  forms  the  foundation  for  a  coherent  and  organized 
+    Defining  Architecture:  Establishing  the  system's  architecture,  including  components, 
+the analysis model into a detailed and practical system design. 
+    Translating Requirements: The primary objective is to convert the insights gained from 
+Key Objectives: 
+also anticipates future scalability and aligns with the overarching business goals. 
+crafting a well-structured and efficient system that not only meets the specified requirements but 
+transitioning  from  conceptual  understanding  to  a  concrete  blueprint.  This  phase  is  dedicated  to 
+The  system  design  phase  marks  a  critical  step  in  the  development  of  the  proposed  system, 
+ 
+Purpose of the system 
+3.2 
+foundation for the development and implementation of the system we propose. 
+functional  and  non-functional  requirements  identified  earlier. The  system  design  phase  lays  the 
+architecture, components, interfaces, and data structures of the system, ensuring that it meets the 
+gathered during the analysis phase are transformed into a detailed design. It involves creating the 
+System design is a crucial phase in the so  ftware development life cycle where the requirements 
+ 
+Introduction 
+3.1 
+Chapter Three: System Design 
+----------------Page (37) Break----------------
+ 
+32 | P a g e 
+recommendations, enhancing engagement and satisfaction. 
+track their study sessions, manage their book rentals, and receive tailored  notifications or 
+    Personalization:  Incorporate  features  that  allow  students  to  create  personalized  profiles, 
+library ecosystem that enhances the overall experience for users. 
+inventory, and announcements into the application, fostering a collaborative and cohesive 
+    Library Integration: Seamlessly integrate library resources such as seat management, book 
+between students and library staff. 
+real-time updates for seat  availability, accurate book listings, and smooth communication 
+    Efficient Data Flow: Establish efficient data flow mechanisms within the system to ensure 
+trustworthy environment for all users. 
+including personal information, study logs, and book rental history, fostering a secure and 
+    Security  and  Privacy:  Prioritize  robust  security  measures  to  safeguard  studen t  data, 
+of new features or functionalities. 
+accommodating a growing student population, expanded library inventory, and the addition 
+    Scalability:  Design  the  system  to  scale  effortlessly  as  the  number  of  users  increases, 
+resources and features. 
+ensures  a  positive  and  efficient  user  experience,  enabling  seamless  access  to  library 
+accommodate  students  and  library  staff  with  varying  levels  of  technical  expertise.  This 
+    User-Friendly   Interface:   Develop   an   intuitive   and   easy  -to-navigate   interface   to 
+ 
+contributing to the creation of a robust and user-centric platform: 
+The design  of the  StudyNest  Library Application  is  guided by several  overarching  goals,  each 
+ 
+Design Goals 
+3.3 
+----------------Page (38) Break----------------
+ 
+33 | P a g e 
+efficiency, scalability, and functionality. 
+architectural design for our system involves structuring and organizing its components to achieve 
+provides  an  overview  of  the  entities  that  collaborate  to  achieve  the  system's  goals.       The 
+components, defining their relationships, and specifying their functionality. This top-level design 
+Architectural  Design  for  the  proposed  system  involves  structuring  and  organizing  the  system's 
+ 
+Architecture design 
+3.5 
+ 
+Figure 10: deployment diagram 
+ 
+ 
+Deployment Diagram 
+3.4 
+----------------Page (39) Break----------------
+ 
+34 | P a g e 
+o 
+Handles book details (e.g., title, author, category, availability). 
+catalog. 
+o 
+Manages the process of  adding,  updating, and  removing books  from the  library 
+ 
+Responsibility: 
+2. Book Management Subsystem 
+ 
+o 
+Profile management (e.g., updating personal information, password reset). 
+o 
+Role-based access control (e.g., Student, Library Staff, Admin). 
+o 
+User registration and login. 
+ 
+Key Features: 
+o 
+Manages roles (e.g., Student, Library Staff, Admin) and permissions. 
+o 
+Handles user registration, authentication, and profile management. 
+ 
+Responsibility: 
+1. User Management Subsystem 
+3.5.1. Subsystem decomposition 
+Figure 11: The architecture design 
+ 
+ 
+----------------Page (40) Break----------------
+ 
+35 | P a g e 
+ 
+Key Features: 
+updates. 
+o 
+Sends  notifications  to  users  about  reservations,  deadlines,  and  other  important 
+ 
+Responsibility: 
+5. Notification Subsystem 
+ 
+ 
+ 
+o 
+Send notifications for overdue reservations or upcoming deadlines. 
+o 
+Track reservation deadlines and submission dates. 
+o 
+Reserve books and seats. 
+ 
+Key Features: 
+notifications. 
+o 
+Handles  the  process  of  reserving  books  and  seats,  including  deadlines  and 
+o 
+Manages book and seat reservations. 
+ 
+Responsibility: 
+4. Reservation Management Subsystem 
+ 
+o 
+Handle seat reservations with or without book reservations. 
+o 
+Track seat availability and status (e.g., available, occupied). 
+o 
+Reserve seats for students. 
+ 
+Key Features: 
+o 
+Ensures seats are assigned based on availability and user preferences. 
+o 
+Manages the allocation and reservation of library seats. 
+ 
+Responsibility: 
+3. Seat Management Subsystem 
+ 
+o 
+Track book availability and status (e.g., available, reserved, borrowed). 
+o 
+Search and filter books by title, author, or category. 
+o 
+Add, update, and remove books. 
+ 
+Key Features: 
+----------------Page (41) Break----------------
+ 
+36 | P a g e 
+Figure 12: Subsystem decomposition diagram 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+o 
+Notify users when a book on their Wishlist becomes available 
+o 
+Add or remove books from a Wishlist. 
+ 
+Key Features: 
+o 
+Allows users to create and manage Wishlist’s for books they are interested in. 
+ 
+Responsibility: 
+6. Wishlist Management Subsystem 
+ 
+o 
+Notify users about new books or available seats. 
+o 
+Send reminders for overdue books or upcoming deadlines. 
+o 
+Notify users about reservation confirmations. 
+----------------Page (42) Break----------------
+ 
+37 | P a g e 
+ 
+Displays notifications for reservations, deadlines, and updates.# 
+o 
+Notification Interface: 
+ 
+Enables users to add or remove books from their wishlists. 
+o 
+Wishlist Interface: 
+ 
+Allows students to reserve library seats. 
+o 
+Seat Reservation Interface: 
+ 
+Enables users to search for books by title, author, or category. 
+o 
+Book Search Interface: 
+ 
+Allows users to register, log in, and manage their profiles. 
+o 
+Registration and Login Interface: 
+ 
+Key Components: 
+o 
+Includes various components for user interactions. 
+ 
+Responsibility: 
+2. User Interface Components 
+ 
+and managing Wishlist’s. 
+o 
+Handles user interactions such as logging in, searching for books, reserving seats, 
+o 
+Provides a user-friendly interface for students, library staff, and admins. 
+ 
+Key Features: 
+system. 
+o 
+Represents the primary interface accessible to users for interacting with the library 
+ 
+Responsibility: 
+1. Web Application Component 
+ 
+3.5.2. Component diagram 
+----------------Page (43) Break----------------
+ 
+38 | P a g e 
+database management component handles persistent data storage, retrieval, and updates 
+Ensures that data is securely stored and retrieved, maintaining data integrity and availability. The 
+ 
+3.5.2. Persistent modeling 
+ 
+Figure 13: Component diagram 
+ 
+ 
+ 
+ 
+----------------Page (44) Break----------------
+ 
+39 | P a g e 
+and efficient system operation. 
+Coordinates the flow of control and data between subsystems, ensuring seamless communication 
+ 
+3.5.4. Global software control 
+measures, such as encryption of sensitive data and protection against common security threats. 
+authorized users can access specific parts of the Application or website. It also handles security 
+The access control component manages user authentication and authorization, ensuring that only 
+ 
+3.5.3. Access control and security 
+Figure 14: persistent data management 
+ 
+ 
+ 
+ 
+ 
+----------------Page (45) Break----------------
+ 
+40 | P a g e 
+o                                                                                                                                                   
+Secure Authentication: Includes password validation and CAPTCHA for security.
+o                                                                                                            
+Input Fields: For user details (e.g., name, email, password).
+                            
+Components:
+o                                                                                                           
+Facilitate user onboarding and secure access to the system.
+                    
+Purpose:
+3. Registration and Login Forms 
+ 
+o 
+Reserve Button: Allows students to reserve a book. 
+o 
+Book Details: Include title, author, category, and availability status. 
+o 
+Book Images: Display cover images of books. 
+                            
+Components:
+o                                                                                                                      
+Display detailed information about books available in the library.
+                    
+Purpose:
+2. Book Listing Page 
+ 
+Wishlist, Notifications). 
+o 
+Navigation  Menu:  Provides  quick  access  to  key  sections  (e.g.,  Books,  Seats, 
+o 
+Search Bar: Allows users to search for books by title, author, or category. 
+o 
+Featured Books Carousel: Displays popular or newly added books. 
+                            
+Components:
+featured categories, and quick access to essential functions. 
+o 
+Serve  as  the  entry  point,  providing  users  with  a  snapshot  of  available  books, 
+                    
+Purpose:
+1. Homepage 
+ 
+3.6. User Interface Design 
+as system scalability, response time, and user load. 
+Defines the limitations and constraints under which the system operates, considering factors such 
+ 
+3.5.5. Boundary conditions 
+----------------Page (46) Break----------------
+ 
+41 | P a g e 
+                            
+Components:
+o                                                                                                                                                    
+Provide library staff with tools for managing book inventory and seat reservations.
+                    
+Purpose:
+6. Library Staff Dashboard 
+ 
+
+notifications when books become available.
+ 
+Allows  students  to  add  or remove  books  from  their  wishlist  and  receive 
+o                                   
+Wishlist Section:
+                                                                                                                      
+Allows students to reserve library seats and view seat availability.
+o                                                 
+Seat Reservation Section:
+                                                                                                                          
+Allows students to reserve books and view their reservation history.
+o                                                   
+Book Reservation Section:
+                            
+Components:
+o                                                                                                                           
+Provide students with tools for efficient book and seat management.
+                    
+Purpose:
+5. Student Dashboard 
+ 
+                                                                                                           
+Allows the admin to monitor and manage seat reservations.
+o                                                   
+Seat Management Section:
+
+or remove books.
+ 
+Displays a list of all books in the library, enabling the admin to add, update, 
+o                                                     
+Book Management Section:
+
+registration status, and activity history.
+ 
+Allows the admin to view and manage user profiles, including user details, 
+o                                                    
+User Management Section:
+                            
+Components:
+ 
+and book activities.
+o 
+Provide tools and insights for system management, monitoring, and overseeing user 
+                    
+Purpose:
+4. Admin Dashboard 
+----------------Page (47) Break----------------
+ 
+42 | P a g e 
+Phone_Number Varchar (20)      Varchar (20)                                - 
+Image_URL                                Varchar (20)                                - 
+Year_Of_Study                           Int                                                - 
+Department                                 Varchar (20)                                - 
+User_ID                                      Varchar (20)                                Foreign Key (User) 
+Student_ID                                  Varchar (20)                                Primary Key 
+Attribute                                      Data Type                                  Relationship 
+ 
+Table 4: User table 
+Registration_Date                       Varchar (20)                                - 
+Password_Hash                           Varchar (20)                                - 
+Email                                           Varchar (20)                                Unique 
+Last_Name                                  Varchar (20)                                - 
+First_Name                                 Varchar (20)                                - 
+User_ID                                      Varchar (20)                                Primary Key 
+Attribute                                    Data Type                                  Relationship 
+ 
+User Table 
+database, including the table structure and relationships. 
+retrieval  of  data to  support  the platform's  functionality.  Below  is  a  detailed  specification  of  the 
+Database  design  is  a  critical  aspect  of  the  car  rental  and  sales  system,  shaping  the  storage  and 
+ 
+3.7 Database Design 
+ 
+                                                                                                        
+Allows staff to inspect and update the condition of books
+o                                      
+Inspection Section:
+                                                                                                  
+Allows staff to monitor and manage seat reservations.
+o                                                   
+Seat Management Section:
+                                                                                                                              
+Allows staff to add, update, or remove books from the library catalog.
+o                                                     
+Book Management Section:
+----------------Page (48) Break----------------
+ 
+43 | P a g e 
+Table 9: Seat Table 
+"STUDENT_CHOICE") 
+Seat_Type                            Enum ("RANDOM_BOOK_BASED",    - 
+Status                                   Enum ("available", "occupied")                - 
+Number                                Int                                                              Unique 
+Seat_ID                                Varchar (20)                                              Primary Key 
+Attribute                               Data Type                                                 Relationship 
+ 
+Table 8: User Role Table 
+Role_ID                                      Varchar (20)                                Foreign Key (Role) 
+User_ID                                      Varchar (20)                                Foreign Key (User) 
+UserRole_ID                               Varchar (20)                                Primary Key 
+Attribute                                      Data Type                                  Relationship 
+ 
+Table 7: Role Table 
+"LIBRARY_STAFF") 
+Name                                           Enum ("STUDENT", "ADMIN",      - 
+Role_ID                                      Varchar (20)                                       Primary Key 
+Attribute                                      Data Type                                         Relationship 
+ 
+Table 6: Staff table 
+Phone_Number                           Varchar (20)                                - 
+Image_URL                                Varchar (20)                                - 
+User_ID                                      Varchar (20)                                Foreign Key (User) 
+Staff_ID                                      Varchar (20)                                Primary Key 
+Attribute                        Data Type                                  Relationship 
+ 
+Table 5: Student table 
+----------------Page (49) Break----------------
+ 
+44 | P a g e 
+Table 12: Reservation Without Book 
+Submitted_At                                                                                       - 
+Reserved_At                                                                                         - 
+Student_ID                                                                                           Foreign Key (Student) 
+Seat_ID                                                                                                Foreign Key (Seat), Unique 
+Reservation_ID                                                                                    Primary Key 
+Attribute                                    Data Type                                  Relationship 
+ 
+Table 11: Reservation with Book 
+Submitted_At                              Datetime                                      - 
+Reserved_At                                Datetime                                      - 
+Student_ID                                  Varchar (20)                                Foreign Key (Student) 
+Foreign Key (Seat), Unique 
+Seat_ID                                       Varchar (20) 
+Book_ID                                      Varchar (20)                                Foreign Key (Book), Unique 
+Reservation_ID                           Varchar (20)                                Primary Key 
+Attribute                                                  Data Type                       Relationship 
+ 
+Table 10: Book Table 
+"occupied") 
+Status                                          Enum ("available",                     
+Category_ID                               Varchar (20)                                Foreign Key (Category) 
+Number                                       Int                                                Unique 
+Book_ID                                     Varchar (20)                                Primary Key 
+Attribute                        Data Type                                  Relationship 
+----------------Page (50) Break----------------
+ 
+45 | P a g e 
+Figure 15: ER diagram 
+ 
+Table 14: Notification Table 
+User_ID                                       Varchar (20)                              Foreign Key (User) 
+Message                                       Text                                           
+Notification_ID                            Varchar (20)                              Primary Key 
+Attribute                                       Data Type                                 Relationship 
+ 
+Table 13: Wishlist Table 
+Book_ID                                     Varchar (20)                                Foreign Key (Book) 
+Student_ID                                  Varchar (20)                                Foreign Key (Student) 
+Wishlist_ID                                 Varchar (20)                                Primary Key 
+Attribute                                      Data Type                                  Relationship 
+----------------Page (51) Break----------------
+ 
+46 | P a g e 
+   path: A core Node.js module for handling and transforming file and directory paths. 
+reset links, and notifications. 
+   nodemailer:  Used  to  send  automated  emails  such  as  registration  confirmations,  password 
+backend to communicate across different domains. 
+   cors:  Middleware  that  handles Cross-Origin  Resource  Sharing,  allowing  the  frontend  and 
+authentication and session tracking. 
+before  storage.cookie-parser:  Parses  cookies  in  incoming  requests,  enabling  cookie-based 
+   bcrypt:  A  password  hashing  library  that  ensures  user  passwords  are  securely  encrypted 
+secure authentication and session management. 
+   JsonWebToken  (jwt):  Used  for  creating  and  verifying  JSON  Web  Tokens  to  implement 
+schemas and interact with the database in a structured way 
+   Mongoose:  An  Object  Data  Modeling  (ODM)  library  for  MongoDB,  used  to  define    
+Backend Packages and Utilities Used: 
+endpoints. 
+Express.js:  A  flexible  web  framework  used  for  handling  routing,  middleware,  and  API 
+applications. 
+Node.js: Provides a JavaScript runtime environment for building high-performance server-side 
+Core Technologies and Libraries 
+combination for building fast, scalable server-side applications using JavaScript. 
+The  backend  of  this  project  is  developed  using  Node.js  and  Express.js  offering  a  powerful 
+Backend (API): 
+Overview of the Programming Language Used 
+4.2 
+strategies employed to ensure efficiency and reliability. 
+management,  book  rental,  study  tracking,  and  community  hub.  We  also  explore  the  testing 
+involved   in   building   the   web   dashboard   and   mobile   app,   integrating   modules   like   seat 
+Application. Following the proposed solution outlined in  earlier chapters, it details the processes 
+This  chapter  delves  into  the  implementation  and  testing  phase  of  our  StudyNest  Library 
+Introduction 
+4.1 
+Chapter Four: Implementation and Testing 
+----------------Page (52) Break----------------
+ 
+47 | P a g e 
+personalization in the app. 
+gallery   or   take   new   photos   using   the   camera.   It   enhances   interactivity   and   user 
+   expo-image-picker:  A  module  that  enables  users  to  select  images  from  their  device’s 
+more without needing native code. 
+testing,  and  deployment.  It  offers  access  to  device  APIs  like  camera,  media  library,  and 
+   Expo:  A  framework  and  platform  built  around  React  Native  that  simplifies  development, 
+and React. It provides a seamless user experience across both Android and iOS platforms. 
+   React  Native: Allows for the development of native mobile applications using JavaScript 
+ 
+Key Technologies and Libraries Used: 
+ 
+Android and iOS platforms, ensuring consistency and efficiency in development. 
+cross-platform mobile apps using JavaScript and React. This enables a shared codebase for both 
+The  mobile  application  is  developed  using React  Native,  a  powerful  framework  for  building 
+ 
+Mobile App (Android and iOS): 
+   readability, maintainability, and catching potential errors early in development. 
+   TypeScript: A superset of JavaScript that adds optional static typing, improving code 
+our application's UI. 
+   Tailwind CSS: A utility-first CSS framework that provides a low-level approach to styling 
+styles based on Google's Material Design guidelines. 
+   Material-UI:  A  UI  library  built  on  top  of  React  that  provides  pre-built  components  and 
+allowing the dashboard to interact with your backend services. 
+   Axios: A library used for making HTTP requests from the frontend to your backend API, 
+reusable components and manage their state effectively. 
+   React: A popular JavaScript library for building user interfaces (UI). It allows you to create 
+Frontend (Dashboard): 
+notifications, report generation) via a modular setup (module.exports = (agenda) => {...}). 
+   Agenda:  A  job  scheduling  library  used  for  managing  background  tasks  (e.g.,  email 
+   const upload = multer(); is used to initialize and configure the file upload middleware. 
+files (such as images) through the API. 
+   multer:  Middleware  used  for  handling  multipart/form-data,  making  it  possible  to  upload 
+----------------Page (53) Break----------------
+ 
+48 | P a g e 
+implementations. 
+Below  are  sample  screenshots  and  code  snippets  demonstrating  key  UI  pages  and  module 
+Sample User Interfaces 
+4.3 
+providing a smooth and persistent user experience. 
+Data  such  as  authentication  tokens  or  preferences  is  securely  stored  using  AsyncStorage, 
+ 
+text based on the user’s preferred language. 
+Multilingual support is implemented via react-i18next, ensuring the app can adapt its interface 
+ 
+user profile customization or document submission. 
+Image selection and upload  are made possible through the ImagePicker module, facilitating 
+ 
+quality and user experience. 
+The  app  supports  form  handling  with  validation  using  Formik  and  Yup,  improving  input 
+ 
+App Features and Design: 
+ 
+app, enabling localization and accessibility for diverse user groups. 
+   react-i18next: An internationalization framework used to support multiple languages in the 
+to define and enforce form input rules. 
+   Yup: A schema builder for value parsing and validation, used in combination with Formik 
+declarative way. 
+   Formik:  A  library  for  managing  form  state,  validation,  and  submission  in  a  clean  and 
+tokens, preferences) persistently on the device. 
+   AsyncStorage:  A  local  key-value  storage  system  used  for  storing  user  data  (e.g.,  login 
+----------------Page (54) Break----------------
+ 
+49 | P a g e 
+Figure 17: Admin panel (Dashboard) 
+ 
+ 
+Figure 16: Library staff dashboard 1 
+ 
+ 
+----------------Page (55) Break----------------
+ 
+50 | P a g e 
+Figure 19: Library staff dashboard 3 
+ 
+ 
+ 
+Figure 18: Library staff dashboard 2 
+ 
+ 
+----------------Page (56) Break----------------
+ 
+51 | P a g e 
+guidelines. sample of test are below for password field: 
+Dashboard.  We  Ensued  that  UI  components  are  aligned  properly   and  adhere  to  design 
+user  interactions  and  navigation  between  different  screens/pages  within  the  mobile app  and 
+We  Verified  that  the  user  interface  elements  are  displayed  correctly  and  are  responsive  to 
+UI Component Testing: 
+Test Cases: 
+evaluate the behavior of different components in the React Native mobile app codebase. 
+   React Native Mobile App : The Jest + RTL test package facilitated writing test cases to 
+ensures each component behaves as expected under different scenarios. 
+that  assess  the  functionality  of  individual  components  within  the React  dashboard.  This 
+   React Dashboard:  Jest and React Testing Library (RTL) were used to prepare test cases 
+verify the server's response to various requests. 
+backend code. Additionally, different API routes were tested usin  g tools like Postman to 
+that  validate  the  behavior  of  individual  functions,  classes,  and  modules  within  the 
+   Backend  (API): The  Mocha  testing  framework  was  utilized  to  create  various  test  cases 
+ 
+application. Here's a breakdown of the testing strategies used: 
+Unit  testing  was  employed  to  ensure  the  functionality  of  individual  components  within  the 
+ 
+   Notification system 
+   Back-end API interaction 
+   Data storage and retrieval functionalities 
+   User interface components (UI) 
+ 
+4.4.1.2 Scope of Unit Testing: 
+ 
+approach 
+into  larger  integration  or  system  tests.  Below  is  a  detailed  breakdown  of  our  unit  -testing 
+behaves correctly in isolation. This early -stage testing catches logic errors before they propagate 
+The goal of unit testing is to verify that each individual component of   the StudyNest application 
+ 
+4.4.1 Unit Testing 
+Application Testing 
+4.4 
+----------------Page (57) Break----------------
+ 
+52 | P a g e 
+Figure 20: Backend test (Mocha test) 
+ 
+ 
+Automated Testing Operation using Mocha for Database interfacing: 
+Table 15: Test result 
+Does it give hint?                                                                              Y                  
+Does the field support lower- and upper-case differences?              Y                  
+Does the field have maximum amount of input characters?                          N     
+input trial? 
+Does the  field  give  warning  for the  user  if it reaches maximum   Y                  
+Does the field show warning for incorrect user input?                     Y                  
+Are default  value provided  in field, where appropriate?                                N     
+Is the object encrypted?                                                                     Y                  
+Is the object enabled?                                                                        Y                  
+Test Cases for Password filed                                                        Yeas    No    Remark  
+----------------Page (58) Break----------------
+ 
+53 | P a g e 
+    Define test scenarios based on functional requirements.
+    Set up test environment: clone repo, install dependencies, configure environment variables.
+4.4.4 Test Procedures 
+    Ensure compatibility between web and mobile platforms.
+    Confirm usability and accessibility across devices and screen sizes.
+    Validate security measures: authentication, authorization, and data protection.
+    Assess performance under normal and peak loads.
+    Ensure real-time updates and notifications propagate reliably.
+    Verify core workflows (Authentication and Authorization, Notification) function correctly.
+4.4.3 Testing Objectives 
+ 
+Documentation: Provide living examples of expected behavior for future developers. 
+ 
+Regression Guarding: Quickly catch regressions when refactoring existing code. 
+behave predictably. 
+ 
+Robustness:  Verify  error-handling  paths  (e.g.  invalid  form  data,  network  failures) 
+known inputs. 
+ 
+Correctness: Ensure each function, class, and module returns the expected output given 
+ 
+4.4.1.1 Objectives 
+Figure 21: Jest test 
+ 
+ 
+----------------Page (59) Break----------------
+ 
+54 | P a g e 
+and notifications, under simulated real-world scenarios. 
+System testing evaluates the complete application workflow: login, seat booking, book rental, study logging, chat, 
+System Testing 
+4.6 
+ 
+ 
+ 
+integration,  Postman  is  used  to  validate  routes  like  login,  seat  status  updates,  and  book  transactions. 
+reservation,   study   tracking,   and   book   management—work   seamlessly   together.   For   backend   API 
+Integration  testing  in   StudyNest  ensures  that  different  modules —such  as  user  authentication,  seat 
+Integration Testing 
+4.5 
+Mobile UI                                    RN Testing Library 
+Backend Routes                          Mocha + SuperTest 
+Component                                  Framework 
+ 
+Coverage targets: 
+    Re-run tests after fixes to ensure stability (regression testing).
+    Execute test cases, record results, and log defects.
+    Prepare test data and seed databases.
+----------------Page (60) Break----------------
+ 
+55 | P a g e 
+our web dashboard and mobile app.
+audiences—students, library staff, and administrators—and explains how to install, navigate, and use both 
+Welcome  to  the  StudyNest  Library  Application  User  Manual.  This  guide  is  intended  for  three 
+4.8.1 Introduction 
+ 
+User manual preparation 
+4.8 
+ 
+ 
+timely alerts before their reservation ends. 
+Verify the notifications are triggered correctly based on the seat reservation expiration time and ensure users receive 
+Notification system testing 
+4.7 
+----------------Page (61) Break----------------
+ 
+56 | P a g e 
+     Navbar: 
+     Header: Global search, notifications bell, user avatar. 
+4.8.3.1 Student Portal 
+ 
+4.8.3 Navigation & UI Overview 
+o    One time ―Super-Admin‖  account is provisioned at system launch. No self-registration. 
+     Administrators 
+2.   Staff receive an invite link to set their password and enroll in MFA. 
+1.   Staff accounts are created by an Administrator. 
+     Library Staff 
+setup. 
+4.   Once approved by an administrator or staff, you’ll get an Activation email—complete MFA 
+3.   Receive verification link by email; verify to set status to Pending Approval. 
+2.   Enter institutional email and create a password. 
+1.   On the public site, click Register. 
+     Students 
+4.8.2.2 Account Registration & Activation 
+2.   In browser, navigate to https://admin.studynest.edu. 
+1.   Connect to campus network (Wi-Fi or VPN). 
+     Staff & Admin Dashboard (Private) 
+1.  Mobile: Download ―StudyNest‖ from Google Play or the App Store. 
+     Student Portal (Public) 
+4.8.2.1 Installation & Access 
+o    Internet connectivity for full functionality 
+o    ≥ 50 MB free storage 
+o    Android 8.0+ or iOS 13+ 
+     Mobile App 
+o    Screen resolution ≥ 1280 × 720 
+o    Supported browsers: Chrome v90+, Firefox v85+, Safari v14+ 
+     Web Dashboard 
+4.8.2 System Requirements 
+sessions, participate in department chats, and manage your account securely. 
+By following this manual, you’ll learn how to reserve seats, borrow and return books, track study 
+----------------Page (62) Break----------------
+ 
+57 | P a g e 
+     Admins/Staff 
+2.   View dashboards under Analytics. 
+1.   Open Study, click Start Session; click End Session when done. 
+     Students 
+4.7.4.3 Study Tracking 
+2.   Update status (lost, damaged) where applicable. 
+1.   Confirm check-out/check-in under Book Inventory. 
+     Staff 
+1.  Search in Books, click Borrow or Return. 
+     Students 
+4.7.4.2 Book Rental 
+2.   Manually release or reassign seats if needed. 
+1.   Under Seat Oversight, view all active reservations. 
+     Staff 
+4.   To release, click My Reservations → Release. 
+3.   View live availability, select a seat, click Reserve. 
+2.   Observe the floor from ceiling point of view then press continue 
+1.   Navigate to Seats. 
+     Students 
+4.7.4.1 Seat Management 
+ 
+4.7.4. Core Workflows 
+     Top-bar: Quick-links to Create Staff, Approve Students, System Settings 
+o    Library Staff | Student Management | Community Reports | Reports | Support 
+     Sidebar: 
+     Accessible only on campus network or VPN. 
+4.7.3.2 Admin Pannel 
+Request 
+     Notification | Seat Oversight | Book Inventory | Announcements | Reports | Support | Book 
+     Sidebar: 
+     Accessible only on campus network or VPN. 
+4.8.3.2 Staff Dashboard 
+o    Wishlist | Books | Seat | Hub | Notification 
+----------------Page (63) Break----------------
+ 
+58 | P a g e 
+virtual users showed <200ms p95 response times for critical endpoints. 
+2.   Post messages, @mention colleagues, attach files (staff only). 
+1.   Go to Chat, select your department channel. 
+     Students & Staff 
+4.7.4.4 Community Hub 
+o    Access aggregate usage reports. 
+----------------Page (64) Break----------------
+ 
+59 | P a g e 
+usage times, booking history, and integration with academic calendars for better time planning. 
+ii. Feature Expansion: Incorporate advanced features such as seat occupancy analytics, heatmaps for high- 
+ID systems and academic portals will strengthen adoption and streamline user authentication. 
+i. Institutional Integration: Partnering with universities and schools for seamless integration with student 
+recommendations are proposed to ensure its long-term effectiveness, scalability, and user satisfaction: 
+Based  on  the  development  process  and  insights  gained  throughout  the  StudyNest  project,  the  following 
+5.2    Recommendation 
+significantly improve the learning experience in Ethiopian institutions and beyond. 
+access,  providing  occupancy  insights,  and  streamlining administrative  processes,  StudyNest  stands  to 
+academic  environments  by enhancing the  way students  interact with library spaces.  By simplifying seat 
+In conclusion, StudyNest is  not just a  digital tool—it’s a comprehensive solution aimed at transforming 
+making by library staff. 
+ability to manage seat allocation effectively while collecting valuable real  -time data to support decision - 
+extensively for functionality, responsiveness, and reliability. The testing phase confirmed the system’s 
+Angular  for  the  frontend  and  integrated  with  a  robust  backend  system,  the  applicatio n  was  tested 
+Chapter Four documented the implementation and testing phases of the StudyNest application. Built with 
+reflect the simplicity and accessibility of the application, prioritizing usability for student users. 
+the  interactions  and  data  flow  between  system  components.  The  user  interface  was  also  prototyped  to 
+were employed to define the roles of various actors, while class and sequence diagrams helped structure 
+In Chapter Three, we transitioned into system design using object -oriented principles. Use case diagrams 
+reservation and tracking system. 
+envision the improved user and administrator experience, laying the groundwork for a more efficient seat 
+defined a set of functional and non -functional requirements. System modeling techniques were applied to 
+points that affect both users and administrators. By analyzing existing workflows and documentation, we 
+Chapter Two explored the cu rrent operational procedures in libraries, identifying inefficiencies and pain 
+development approaches chosen to guide the project’s trajectory. 
+students,  library  staff,  and  institutional  administrators.  It  also  detailed  the  research  methods  and  system 
+tracking,  describing  the  objectives  of  automating  the  process,  and  identifying  the  key  stakeholders— 
+Chapter  One  introduced  the  StudyNest  Library  Application  by  outlining  the  challenges  of  manual  seat 
+library seat management in Ethiopian academic institutions. 
+This  project  has  taken  a  thoughtful  and  practical  approach  to  solving  the  prevalent  issue  of  inefficient 
+ 
+5.1    Conclusion 
+Chapter Five Conclusion and Recommendation 
+----------------Page (65) Break----------------
+ 
+60 | P a g e 
+During  the  development  lifecycle,  the  team  emphasized  structured  system  design,  including  modular 
+misuse. 
+Administrative  access  can  be  restricted  to  institutional  networks,  protecting  sensitive  data  and  limiting 
+can  utilize  the  web  dashboard.  This  setup  ensures  a  secure  and  structured  flow  of  information. 
+authorized by the system admin —who is the sole entity with privileges to add or manage staff access   — 
+The  platform  also  includes  features specifically  designed  for library  staff and  administrators.  Only  staff 
+department-based chat rooms, enabling students to share resources and seek peer guidance. 
+The  mobile  app  fosters  self-discipline  and  productivity  while  also  encouraging  collaboration  through 
+reserve study spots, receive real-time updates on library capacity, and access personalized study analytics. 
+processes  like  seat  reservations,  study  time  tracking,  and  academic  content  sharing.  Students  can  easily 
+By  moving  beyond  traditional  paper -based  or  i nefficient  library  systems,   StudyNest  digitizes  key 
+community-driven academic support. 
+and  library staff—addresses  the  critical need for efficient library interaction, digital study planning, and 
+system—comprising a student -focused mobile app and a secure web  -based dashboard for administrators 
+in Ethiopia engage with academic resources, optimize study time, and connect with peers. This integrated 
+The StudyNest platform represents an innovative solution designed to transform how university students 
+ 
+5.3  Summary 
+more organized and tech-enabled educational environment. 
+for  academic  institutions,  promoting  efficiency,  enhancing  student  experiences,  and  contributing  to  a 
+By implementing these recommendations, StudyNest can become a scalable and impactful digital solution 
+refine system goals. 
+efficiency,  seat  utilization,  and  administrative  workload  reduction,  and  conduct  periodic  assessments  to 
+viii. Impact Evaluation: Develop key performance indicators (KPIs) to measure the app’s effect on study 
+long-term maintenance, server costs, and future updates. 
+vii.  Sustainability  Planning:  Explore  monetization  options  or  institutional  licensing  models  to  support 
+sessions to raise awareness about the app's benefits and encourage early adoption. 
+vi. Promotion and  Awareness: Conduct promotional campaigns,  student ambassador programs,  or demo 
+and support multiple branches or campuses under a single system. 
+v. Scalability  Considerations:  Design  the  backend  to  handle  concurrent  users  from  multiple  institutions 
+improve usability and functionality based on real-world user experiences. 
+iv.  Feedback  and  Iteration:  Implement  feedback  collection  mechanisms  within  the  app  to  continuously 
+smooth onboarding and reduce resistance to change. 
+iii. Training and Support : Offer orientation sessions for librarians and user guides for students to ensure 
+----------------Page (66) Break----------------
+ 
+61 | P a g e 
+const Seat = require("../model/seatModel"); 
+const User = require("../model/userModel"); 
+const Book = require("../model/bookModel"); 
+const BookRequest = require("../model/bookRequest"); 
+const asyncHandler = require("express-async-handler"); 
+const mongoose = require("mongoose"); 
+5.5 Appendix 
+ 
+10.3991/ijet.v15i02.11541 [PMC free article] [CrossRef] [Google Scholar] 
+International  Journal  of  Emerging  Technologies  in  Learning  (iJET),  2020.  15(2):  p.  68     –82.  doi: 
+[8].  Zhou  Y.,  and  Wang  C.,  Design  and  Implementation  of  a  Smart  Library  Seat  Management  System, 
+and Opportunities, Library Philosophy and Practice (e-journal), 2021. 5672. [Google Scholar] 
+[7]. Odu N.E., and Aghadiuno P., Digital Transformation in Academic Libraries in Nigeria: Challenges 
+Information Behaviour Research, 2002. 3: p. 1–15. [Google Scholar] 
+[6]. Bates M.J., Toward an Integrated Model of Information Seeking and Searching, The New Review of 
+Institutions (IFLA), 2018. Available at: https://www.ifla.org/publications/node/11905 [Google Scholar] 
+[5].  IFLA,  Global  Vision  Report  Summary,  International  Federation  of  Library  Associations  and 
+Multidisciplinary Engineering Science and Technology (JMEST), 2014. 1(5): p. 72–78. [Google Scholar] 
+[4]. Adebayo O., Abdulwahab O., and Okorie F., An Online Library Seat Reservation System, Journal of 
+Chinese Librarianship: An International Electronic Journal, 2011. 31. [Google Scholar] 
+[3].  Rehman  S.U.,  and  Shafique  F.,  Use  of  Academic  Libraries:  A  Survey  of  the  Students  of  Pakistan, 
+[Google Scholar] 
+Prospects,  Library  Review,  2010.  59(3):  p.  180 –191.  doi:  10.1108/00242531011031112  [CrossRef] 
+[2].  Tripathi  M.,  and  Jeevan  V.K.J.,  Library  Automation  and  Networking  in  India:  Problems  and 
+in Punjab, International Journal of Library and Information Studies, 2016. 6(3): p. 1–12. [Google Scholar] 
+[1]. Kaur A., and Mahajan P., Automation and Networking of Libraries: A Study of Government Colleges 
+5.4  References 
+seeking to modernize academic support systems and foster student success in a digital era. 
+serves as a potential model for higher education institutions across Ethiopia and other developing regions 
+optimization, and student well-being. With its scalable architecture and focus on accessibility,  StudyNest 
+The impact of  StudyNest  goes beyond digital efficiency; it promotes academic  accountability,  resource 
+administrators. 
+a   seamless   and   practical   experience   for   all   stakeholders—from   students   and   staff   to   system 
+architecture, component diagrams, secure deployment practices, and intuitive user interfaces. This ensures 
+----------------Page (67) Break----------------
+ 
+62 | P a g e 
+ 
+  } 
+    }); 
+      message: "You already have a pending request for this book.", 
+      status: "failed", 
+    return res.status(400).json({ 
+  if (existingRequest) { 
+ 
+  }); 
+    status: "pending", 
+    book: bookId, 
+    student: studentId, 
+  const existingRequest = await BookRequest.findOne({ 
+  // Check if the student already has a pending request for this book 
+ 
+  } 
+    return res.status(404).json({ status: "failed", message: "Book not found" }); 
+  if (!book) { 
+  const book = await Book.findById(bookId); 
+  // Check if the book exists 
+ 
+  } 
+    return res.status(400).json({ status: "failed", message: "Invalid book ID format" }); 
+  if (!mongoose.Types.ObjectId.isValid(bookId)) { 
+  // Validate the book ID format 
+ 
+  const studentId = res.locals.id; 
+  const { bookId, addToWishlist } = req.body; // Accept `addToWishlist` from the request 
+const requestBook = asyncHandler(async (req, res) => { 
+// ✅ Request a Book (Students Only) 
+const Notification = require("../model/Notification");  
+ 
+const { Expo } = require('expo-server-sdk'); 
+const NotifcactionForseat = require("../model/notifactionForSeat"); 
+const Wishlist = require("../model/wishlistModel"); 
+----------------Page (68) Break----------------
+ 
+63 | P a g e 
+      // Prompt the student to decide whether to join the wishlist 
+    } else { 
+      }); 
+        message: "Book is currently unavailable. You chose not to join the wishlist.", 
+        status: "unavailable", 
+      return res.status(200).json({ 
+      // Student does not want to join the wishlist 
+    } else if (addToWishlist === false) { 
+      }); 
+        message: "Book is currently unavailable. You have been added to the wishlist.", 
+        status: "waiting", 
+      return res.status(200).json({ 
+ 
+      } 
+        await Wishlist.create({ student: studentId, book: bookId }); 
+      if (!existingWishlist) { 
+      const existingWishlist = await Wishlist.findOne({ student: studentId, book: bookId }); 
+      // Add the student to the wishlist if they explicitly requested 
+    if (addToWishlist === true) { 
+    // Book is unavailable 
+  } else { 
+    }); 
+      data: request, 
+      message: "Book request submitted successfully. Awaiting approval.", 
+      status: "success", 
+    return res.status(200).json({ 
+ 
+    }); 
+      takenAt: null, // No book has been taken yet 
+      status: "pending", // Initial status is always "pending" 
+      book: bookId, 
+      student: studentId, 
+    const request = await BookRequest.create({ 
+    // Create a pending request for the book 
+  if (book.availableCopies > 0) { 
+----------------Page (69) Break----------------
+ 
+64 | P a g e 
+  } 
+    return res.status(404).json({ status: "failed", message: "Book request not found" }); 
+  if (!request) { 
+  const request = await BookRequest.findById(requestId).populate("book"); 
+  // Fetch the request and populate the associated book 
+ 
+  } 
+    return res.status(403).json({ status: "failed", message: "Only library staff can approve requests" }); 
+  if (!staff || staff.role !== "library-staff") { 
+  const staff = await User.findById(staffId); 
+  // Check if the user is authorized (library-staff) 
+ 
+  } 
+    return res.status(400).json({ status: "failed", message: "Invalid request ID format" }); 
+  if (!mongoose.Types.ObjectId.isValid(requestId)) { 
+  // Validate request ID 
+ 
+  const staffId = res.locals.id; // Extract staff ID from the token 
+  const { requestId } = req.params; 
+const approveBookRequest = asyncHandler(async (req, res) => { 
+ 
+ 
+// ✅ Approve Book Request (Library Staff) 
+ 
+ 
+ 
+// ✅ Approve Book Request (Library Staff) 
+ 
+}); 
+  } 
+    } 
+      }); 
+        message: "Book is currently unavailable. Would you like to be added to the wishlist?", 
+        status: "unavailable", 
+      return res.status(200).json({ 
+----------------Page (70) Break----------------
+ 
+65 | P a g e 
+  availableSeat.reservedBy = request.student; // Link to the student 
+  availableSeat.isAvailable = false; 
+  // Assign the seat to the student 
+ 
+  } 
+    return res.status(400).json({ status: "failed", message: "No book-related seats available" }); 
+  if (!availableSeat) { 
+  const availableSeat = await Seat.findOne({ type: "book", isAvailable: true }).sort({ seatNumber: 1 }); 
+  // Find an available seat of type "book" 
+ 
+  } 
+    return res.status(500).json({ status: "failed", message: "Failed to update book availability" }); 
+  if (!updatedBook) { 
+ 
+  ); 
+    { new: true } 
+    { $inc: { availableCopies: -1 } }, // Decrement available copies 
+    book._id, 
+  const updatedBook = await Book.findByIdAndUpdate( 
+  // Decrement available copies 
+ 
+  } 
+    return res.status(400).json({ status: "failed", message: "No copies available" }); 
+  if (book.availableCopies <= 0) { 
+  // Ensure the book has available copies before approving 
+ 
+  const book = request.book; 
+ 
+  } 
+    }); 
+      message: `This request has already been processed. Current status: ${request.status}`, 
+      status: "failed", 
+    return res.status(400).json({ 
+  if (request.status !== "pending") { 
+ 
+----------------Page (71) Break----------------
+ 
+66 | P a g e 
+    } 
+      }); 
+        type: 'return_reminder' 
+soon.`, 
+        message:  `REMINDER:  Please  return  "${book.name}"  from  seat  ${availableSeat.seatNumber} 
+        seat: availableSeat.seatNumber, 
+        book: book._id, 
+        user: request.student, 
+      await NotifcactionForseat.create({ 
+    if (currentRequest?.status === 'taken') { 
+    const currentRequest = await BookRequest.findById(requestId); 
+  setTimeout(async () => { 
+   
+  }); 
+    deadline: returnDeadline 
+    type: 'seat_assigned', 
+return by ${returnDeadline.toLocaleTimeString()}.`, 
+    message: `Your book "${book.name}" has been assigned to seat ${availableSeat.seatNumber}. Please 
+    seat: availableSeat.seatNumber, 
+    book: book._id, 
+    user: request.student, 
+  await NotifcactionForseat.create({ 
+  // Create a notification for the student 
+ 
+  await request.save(); 
+  request.returnDeadline = returnDeadline; // Set the deadline 
+  request.seat = availableSeat.seatNumber; 
+  request.takenAt = new Date(); 
+  request.takenBy = staffId; 
+  request.status = "taken"; 
+  // Update the request status to 'taken' and assign the seat 
+  const returnDeadline = new Date(Date.now() + 2 * 60 * 1000);  
+ 
+  await availableSeat.save(); 
+  availableSeat.reservedAt = new Date(); 
+----------------Page (72) Break----------------
+ 
+67 | P a g e 
+ 
+}); 
+  }); 
+    returnDeadline 
+    request, 
+${returnDeadline.toLocaleTimeString()}`, 
+    message:         `Book         marked         as         taken         successfully.         Please         return         by 
+    status: "success", 
+  res.status(200).json({ 
+ 
+  }, 2 * 60 * 1000); 
+    } 
+      }); 
+        type: 'return_overdue' 
+${availableSeat.seatNumber}`, 
+        message:    `Student    ${request.student.name}    has    overdue    book    "${book.name}"    at    seat 
+        seat: availableSeat.seatNumber, // Ensure this is a valid seat number 
+        book: book._id, // Ensure this is a valid book ID 
+        user: staffId, // Ensure this is a valid user ID 
+      await NotifcactionForseat.create({ 
+      // Also notify staff 
+       
+      }); 
+        type: 'return_overdue' 
+immediately!`, 
+        message:   `OVERDUE:   Please   return   "${book.name}"   from   seat   ${availableSeat.seatNumber} 
+        seat: availableSeat.seatNumber, 
+        book: book._id, 
+        user: request.student, 
+      await NotifcactionForseat.create({ 
+    if (currentRequest?.status === 'taken') { 
+    const currentRequest = await BookRequest.findById(requestId); 
+  setTimeout(async () => { 
+ 
+  }, 1 * 60 * 1000); 
+----------------Page (73) Break----------------

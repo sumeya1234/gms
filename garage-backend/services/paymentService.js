@@ -64,10 +64,10 @@ export const createPayment = async (requestId, amount, method) => {
      JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
      JOIN Users u ON v.CustomerID = u.UserID 
      LEFT JOIN Garages g ON sr.GarageID = g.GarageID
-     WHERE sr.RequestID = ?`, 
+     WHERE sr.RequestID = ?`,
     [requestId]
   );
-  
+
   if (service.length === 0) {
     const error = new Error("Service request not found");
     error.status = 404;
@@ -114,7 +114,7 @@ export const createPayment = async (requestId, amount, method) => {
     // Sanitize phone number (strip spaces, +251, etc.)
     let sanitizedPhone = user.PhoneNumber ? user.PhoneNumber.replace(/\D/g, '') : '';
     if (sanitizedPhone.startsWith('251')) sanitizedPhone = '0' + sanitizedPhone.slice(3);
-    
+
     // Only include phone_number if it strictly matches 10 digits starting with 09 or 07
     const isValidTestPhone = /^(09|07)\d{8}$/.test(sanitizedPhone);
 
@@ -137,7 +137,7 @@ export const createPayment = async (requestId, amount, method) => {
     // Split payment: route funds to garage subaccount with 3% platform commission.
     // Skip test-mode placeholder IDs (they start with "test-sub-")
     if (user.ChapaSubaccountID && !user.ChapaSubaccountID.startsWith('test-sub-')) {
-      payload.subaccounts = { 
+      payload.subaccounts = {
         id: user.ChapaSubaccountID,
         split_type: "percentage",
         split_value: 0.03
@@ -177,6 +177,17 @@ export const createPayment = async (requestId, amount, method) => {
   return { checkout_url: redirectUrl, tx_ref };
 };
 
+const finalizeRequestPayment = async (requestId, amountPaid) => {
+  const [request] = await db.query("SELECT DepositAmount, IsDepositPaid FROM ServiceRequests WHERE RequestID = ?", [requestId]);
+  if (request.length > 0) {
+    const { DepositAmount, IsDepositPaid } = request[0];
+    if (DepositAmount > 0 && !IsDepositPaid) {
+      // If payment is primarily for deposit
+      await db.query("UPDATE ServiceRequests SET IsDepositPaid = TRUE WHERE RequestID = ?", [requestId]);
+    }
+  }
+};
+
 export const verifyChapaPayment = async (tx_ref) => {
   try {
     const response = await axios.get(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
@@ -191,6 +202,12 @@ export const verifyChapaPayment = async (tx_ref) => {
         "UPDATE Payments SET PaymentStatus = 'Completed', PaymentDate = NOW() WHERE TransactionRef = ?",
         [tx_ref]
       );
+
+      // Fetch RequestID to finalize deposit logic
+      const [[pmt]] = await db.query("SELECT RequestID, Amount FROM Payments WHERE TransactionRef = ?", [tx_ref]);
+      if (pmt) {
+        await finalizeRequestPayment(pmt.RequestID, pmt.Amount);
+      }
 
       // Notify the garage manager that payment was received
       try {
@@ -227,26 +244,26 @@ export const verifyChapaPayment = async (tx_ref) => {
 };
 
 export const cancelChapaPayment = async (tx_ref) => {
-    try {
-      const response = await axios.put(`https://api.chapa.co/v1/transaction/cancel/${tx_ref}`, {}, {
-        headers: {
-          'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
-        }
-      });
-  
-      if (response.data.status === 'success') {
-        return { success: true, message: "Transaction cancelled successfully" };
+  try {
+    const response = await axios.put(`https://api.chapa.co/v1/transaction/cancel/${tx_ref}`, {}, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
       }
-      return { success: false, message: "Could not cancel transaction" };
-    } catch (error) {
-      console.error("Cancel Error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Failed to cancel transaction");
+    });
+
+    if (response.data.status === 'success') {
+      return { success: true, message: "Transaction cancelled successfully" };
     }
-  };
-  
+    return { success: false, message: "Could not cancel transaction" };
+  } catch (error) {
+    console.error("Cancel Error:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Failed to cancel transaction");
+  }
+};
+
 export const handleWebhook = async (reqBody) => {
   const { trx_ref, status } = reqBody;
-  
+
   if (status === 'success') {
     // Idempotency: skip if already marked Completed
     const [existing] = await db.query("SELECT PaymentStatus FROM Payments WHERE TransactionRef = ?", [trx_ref]);
@@ -289,6 +306,8 @@ export const confirmCashPayment = async (requestId, managerId) => {
     "UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash'",
     [requestId]
   );
+
+  await finalizeRequestPayment(requestId, payment[0].Amount);
 
   // Notify the customer
   try {
@@ -344,6 +363,7 @@ export const confirmOnlinePayment = async (requestId, managerId) => {
     });
     if (response.data.status === 'success' && response.data.data.status === 'success') {
       await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ?", [requestId]);
+      await finalizeRequestPayment(requestId, payment[0].Amount);
       return { message: "Payment verified with Chapa and confirmed." };
     }
   } catch (e) {
@@ -352,6 +372,7 @@ export const confirmOnlinePayment = async (requestId, managerId) => {
 
   // Manual confirm if Chapa verify fails (test mode)
   await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ?", [requestId]);
+  await finalizeRequestPayment(requestId, payment[0].Amount);
 
   // Notify customer
   try {

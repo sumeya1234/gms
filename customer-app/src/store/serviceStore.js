@@ -20,14 +20,14 @@ export const useServiceStore = create((set, get) => ({
   createRequest: async (requestData) => {
     set({ isLoading: true, error: null });
     try {
-      await client.post('/services', requestData);
+      const response = await client.post('/services', requestData);
       // Refresh requests silently
       await get().fetchMyRequests();
-      return true;
+      return response.data;
     } catch (error) {
       console.log('Create Request Error', error?.response?.data || error);
       set({ error: error?.response?.data?.message || 'Failed to submit request', isLoading: false });
-      return false;
+      return null;
     }
   },
 

@@ -21,14 +21,23 @@ export default function GarageDetailScreen({ route, navigation }) {
     fetchGarageReviews(garage.id || garage.GarageID);
   }, []);
 
+  const rawHours = garage.workingHours || garage.WorkingHours;
+  const workingHours = typeof rawHours === 'string'
+    ? JSON.parse(rawHours)
+    : (rawHours || {
+      monday_friday: '08:00 AM - 06:00 PM',
+      saturday: '09:00 AM - 02:00 PM',
+      sunday: 'Closed'
+    });
+
   // Inherit filtered services from Home, but let user modify them directly on the Garage page!
   const [selectedServices, setSelectedServices] = useState(intentServices || []);
 
   const toggleService = (service) => {
     if (selectedServices.includes(service)) {
-       setSelectedServices(selectedServices.filter(s => s !== service));
+      setSelectedServices(selectedServices.filter(s => s !== service));
     } else {
-       setSelectedServices([...selectedServices, service]);
+      setSelectedServices([...selectedServices, service]);
     }
   };
 
@@ -36,7 +45,7 @@ export default function GarageDetailScreen({ route, navigation }) {
     const lat = garage.location.latitude;
     const lng = garage.location.longitude;
     const label = encodeURIComponent(garage.name);
-    
+
     // Fallback coordinates if garage.location is malformed or missing
     if (!lat || !lng) return;
 
@@ -44,7 +53,7 @@ export default function GarageDetailScreen({ route, navigation }) {
       ios: `maps:0,0?q=${label}@${lat},${lng}`,
       android: `geo:0,0?q=${lat},${lng}(${label})`
     });
-    
+
     if (url) Linking.openURL(url);
   };
 
@@ -63,205 +72,205 @@ export default function GarageDetailScreen({ route, navigation }) {
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Horizontal Images Scroll */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesScroll}>
-           <View style={styles.imageWrapper}>
-               <Image source={{ uri: garage.imageUrl }} style={styles.garageImage} />
-           </View>
-           <View style={styles.imageWrapper}>
-               <Image source={{ uri: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
-           </View>
-           <View style={styles.imageWrapper}>
-               <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
-           </View>
+          <View style={styles.imageWrapper}>
+            <Image source={{ uri: garage.imageUrl }} style={styles.garageImage} />
+          </View>
+          <View style={styles.imageWrapper}>
+            <Image source={{ uri: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
+          </View>
+          <View style={styles.imageWrapper}>
+            <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
+          </View>
         </ScrollView>
 
         <View style={styles.content}>
-           {/* Title & Info */}
-           <View style={styles.titleRow}>
-             <View style={{ flex: 1 }}>
-               <Text style={styles.garageName}>{garage.name}</Text>
-               <View style={styles.verifiedRow}>
-                 {garage.isVerified && (
-                   <View style={styles.verifiedBadge}>
-                     <CheckCircle size={12} color={colors.primaryBlue} />
-                     <Text style={styles.verifiedText}>Verified Business</Text>
-                   </View>
-                 )}
-                 <Text style={styles.estText}>• Est. 2015</Text>
-               </View>
-             </View>
-             <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{garage.availability}</Text>
-             </View>
-           </View>
+          {/* Title & Info */}
+          <View style={styles.titleRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.garageName}>{garage.name}</Text>
+              <View style={styles.verifiedRow}>
+                {garage.isVerified && (
+                  <View style={styles.verifiedBadge}>
+                    <CheckCircle size={12} color={colors.primaryBlue} />
+                    <Text style={styles.verifiedText}>Verified Business</Text>
+                  </View>
+                )}
+                <Text style={styles.estText}>• Est. 2015</Text>
+              </View>
+            </View>
+            <View style={styles.statusBadge}>
+              <Text style={styles.statusText}>{garage.availability}</Text>
+            </View>
+          </View>
 
-           <View style={styles.locationRow}>
-             <MapPin size={16} color={colors.textGray} />
-             <Text style={styles.locationText}>{garage.distance} miles away • {garage.location.latitude}, {garage.location.longitude}</Text>
-           </View>
+          <View style={styles.locationRow}>
+            <MapPin size={16} color={colors.textGray} />
+            <Text style={styles.locationText}>{garage.distance} miles away • {garage.location.latitude}, {garage.location.longitude}</Text>
+          </View>
 
-           <View style={styles.ratingRow}>
-             <View style={styles.ratingBadge}>
-                <Text style={styles.ratingBadgeText}>{garage.rating}</Text>
-             </View>
-             <View style={styles.starsRow}>
-               <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
-               <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
-               <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
-               <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
-               <Star size={16} color={colors.primaryBlue} />
-             </View>
-             <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: reviewsSectionY.current, animated: true })}>
-               <Text style={styles.reviewsText}>See all {garageReviews.length} reviews</Text>
-             </TouchableOpacity>
-           </View>
+          <View style={styles.ratingRow}>
+            <View style={styles.ratingBadge}>
+              <Text style={styles.ratingBadgeText}>{garage.rating}</Text>
+            </View>
+            <View style={styles.starsRow}>
+              <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
+              <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
+              <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
+              <Star size={16} color={colors.primaryBlue} fill={colors.primaryBlue} />
+              <Star size={16} color={colors.primaryBlue} />
+            </View>
+            <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: reviewsSectionY.current, animated: true })}>
+              <Text style={styles.reviewsText}>See all {garageReviews.length} reviews</Text>
+            </TouchableOpacity>
+          </View>
 
 
 
-           <View style={styles.divider} />
+          <View style={styles.divider} />
 
-           {/* Popular Services Mock */}
-           <View style={styles.sectionHeader}>
-             <Text style={styles.sectionTitle}>Tap to add to request</Text>
-           </View>
+          {/* Popular Services Mock */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Tap to add to request</Text>
+          </View>
 
-           {garage.services.map((service, index) => {
-             const isSelected = selectedServices.includes(service);
-             return (
-               <TouchableOpacity 
-                 key={index} 
-                 style={[styles.serviceItem, isSelected && { borderColor: colors.primaryBlue, backgroundColor: 'rgba(19, 127, 236, 0.03)' }]}
-                 onPress={() => toggleService(service)}
-                 activeOpacity={0.8}
-               >
-                 <View style={[styles.serviceIconWrap, isSelected && { backgroundColor: colors.primaryBlue }]}>
-                   <CheckCircle size={20} color={isSelected ? colors.white : colors.primaryBlue} />
-                 </View>
-                 <View style={{ flex: 1 }}>
-                   <Text style={styles.serviceName}>{service}</Text>
-                   <Text style={styles.serviceSub}>Expert mechanics</Text>
-                 </View>
-                 <Text style={styles.servicePrice}>From ETB {garage.startingPrice + index * 10}</Text>
-               </TouchableOpacity>
-             );
-           })}
-
-           <View style={styles.divider} />
-
-           {/* Schedule & Map Two-Column representation (Stacking on mobile) */}
-           <Text style={styles.sectionTitle}>Working Hours</Text>
-           <View style={styles.hoursRow}>
-              <Text style={styles.dayText}>Monday - Friday</Text>
-              <Text style={styles.hoursText}>08:00 AM - 06:00 PM</Text>
-           </View>
-           <View style={styles.hoursRow}>
-              <Text style={styles.dayText}>Saturday</Text>
-              <Text style={styles.hoursText}>09:00 AM - 02:00 PM</Text>
-           </View>
-           <View style={styles.hoursRow}>
-              <Text style={styles.dayText}>Sunday</Text>
-              <Text style={styles.closedText}>Closed</Text>
-           </View>
-
-           <View style={[styles.sectionHeader, { marginTop: 16 }]}>
-             <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Location</Text>
-             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }} onPress={openDirections}>
-                <Navigation size={16} color={colors.primaryBlue} />
-                <Text style={styles.viewAll}>Get Directions</Text>
-             </TouchableOpacity>
-           </View>
-           <View style={styles.mapWrap}>
-             <MapView
-                style={styles.map}
-                initialRegion={{
-                  latitude: garage.location.latitude,
-                  longitude: garage.location.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
+          {garage.services.map((service, index) => {
+            const isSelected = selectedServices.includes(service);
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[styles.serviceItem, isSelected && { borderColor: colors.primaryBlue, backgroundColor: 'rgba(19, 127, 236, 0.03)' }]}
+                onPress={() => toggleService(service)}
+                activeOpacity={0.8}
               >
-                <Marker coordinate={garage.location} />
-             </MapView>
-           </View>
+                <View style={[styles.serviceIconWrap, isSelected && { backgroundColor: colors.primaryBlue }]}>
+                  <CheckCircle size={20} color={isSelected ? colors.white : colors.primaryBlue} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.serviceName}>{service}</Text>
+                  <Text style={styles.serviceSub}>Expert mechanics</Text>
+                </View>
+                <Text style={styles.servicePrice}>From ETB {garage.startingPrice + index * 10}</Text>
+              </TouchableOpacity>
+            );
+          })}
 
-           <View style={styles.divider} />
+          <View style={styles.divider} />
 
-           {/* Live Reviews Section */}
-           <View onLayout={(e) => { reviewsSectionY.current = e.nativeEvent.layout.y; }} style={styles.sectionHeader}>
-             <Text style={styles.sectionTitle}>Customer Reviews ({garageReviews.length})</Text>
-             <TouchableOpacity onPress={() => navigation.navigate('AddReview', { garage })}>
-                <Text style={styles.viewAll}>Write a Review</Text>
-             </TouchableOpacity>
-           </View>
+          {/* Schedule & Map Two-Column representation (Stacking on mobile) */}
+          <Text style={styles.sectionTitle}>Working Hours</Text>
+          <View style={styles.hoursRow}>
+            <Text style={styles.dayText}>Monday - Friday</Text>
+            <Text style={workingHours.monday_friday?.toLowerCase() === 'closed' ? styles.closedText : styles.hoursText}>{workingHours.monday_friday || 'Closed'}</Text>
+          </View>
+          <View style={styles.hoursRow}>
+            <Text style={styles.dayText}>Saturday</Text>
+            <Text style={workingHours.saturday?.toLowerCase() === 'closed' ? styles.closedText : styles.hoursText}>{workingHours.saturday || 'Closed'}</Text>
+          </View>
+          <View style={styles.hoursRow}>
+            <Text style={styles.dayText}>Sunday</Text>
+            <Text style={workingHours.sunday?.toLowerCase() === 'closed' ? styles.closedText : styles.hoursText}>{workingHours.sunday || 'Closed'}</Text>
+          </View>
 
-           {isLoading ? (
-              <View style={{ gap: 12, marginBottom: 16 }}>
-                 <View style={styles.reviewCard}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12}}>
-                       <Skeleton width={36} height={36} borderRadius={18} />
-                       <View style={{ gap: 4 }}>
-                          <Skeleton width={100} height={14} />
-                          <Skeleton width={60} height={12} />
-                       </View>
-                    </View>
-                    <Skeleton width="100%" height={12} style={{ marginTop: 4 }} />
-                    <Skeleton width="80%" height={12} style={{ marginTop: 6 }} />
-                 </View>
-                 <View style={styles.reviewCard}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12}}>
-                       <Skeleton width={36} height={36} borderRadius={18} />
-                       <View style={{ gap: 4 }}>
-                          <Skeleton width={120} height={14} />
-                          <Skeleton width={60} height={12} />
-                       </View>
-                    </View>
-                 </View>
+          <View style={[styles.sectionHeader, { marginTop: 16 }]}>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Location</Text>
+            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }} onPress={openDirections}>
+              <Navigation size={16} color={colors.primaryBlue} />
+              <Text style={styles.viewAll}>Get Directions</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.mapWrap}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: garage.location.latitude,
+                longitude: garage.location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker coordinate={garage.location} />
+            </MapView>
+          </View>
+
+          <View style={styles.divider} />
+
+          {/* Live Reviews Section */}
+          <View onLayout={(e) => { reviewsSectionY.current = e.nativeEvent.layout.y; }} style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Customer Reviews ({garageReviews.length})</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AddReview', { garage })}>
+              <Text style={styles.viewAll}>Write a Review</Text>
+            </TouchableOpacity>
+          </View>
+
+          {isLoading ? (
+            <View style={{ gap: 12, marginBottom: 16 }}>
+              <View style={styles.reviewCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 }}>
+                  <Skeleton width={36} height={36} borderRadius={18} />
+                  <View style={{ gap: 4 }}>
+                    <Skeleton width={100} height={14} />
+                    <Skeleton width={60} height={12} />
+                  </View>
+                </View>
+                <Skeleton width="100%" height={12} style={{ marginTop: 4 }} />
+                <Skeleton width="80%" height={12} style={{ marginTop: 6 }} />
               </View>
-           ) : garageReviews.length === 0 ? (
-              <Text style={{color: colors.textGray, marginBottom: 16}}>No reviews yet. Be the first to leave one!</Text>
-           ) : (
-              <View style={{ gap: 12, marginBottom: 16 }}>
-                 {garageReviews.map((rev, idx) => (
-                    <View key={rev.ReviewID || idx} style={styles.reviewCard}>
-                       <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12}}>
-                          <View style={styles.avatarPlaceholder}>
-                             <Text style={{color: colors.white, fontWeight: 'bold'}}>{rev.Customer?.firstName?.[0] || 'U'}</Text>
-                          </View>
-                          <View>
-                             <Text style={{fontWeight: 'bold', color: colors.textDark, fontSize: 14}}>
-                               {rev.Customer?.firstName || 'User'} {rev.Customer?.lastName || ''}
-                             </Text>
-                             <View style={{flexDirection: 'row', marginTop: 2}}>
-                               {[...Array(5)].map((_, i) => (
-                                 <Star key={i} size={12} color={i < rev.Rating ? "#eab308" : colors.border} fill={i < rev.Rating ? "#eab308" : "transparent"} />
-                               ))}
-                             </View>
-                          </View>
-                       </View>
-                       {rev.Comment ? (
-                         <Text style={{color: colors.textDark, fontSize: 13, lineHeight: 20}}>{rev.Comment}</Text>
-                       ) : null}
-                    </View>
-                 ))}
+              <View style={styles.reviewCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 }}>
+                  <Skeleton width={36} height={36} borderRadius={18} />
+                  <View style={{ gap: 4 }}>
+                    <Skeleton width={120} height={14} />
+                    <Skeleton width={60} height={12} />
+                  </View>
+                </View>
               </View>
-           )}
+            </View>
+          ) : garageReviews.length === 0 ? (
+            <Text style={{ color: colors.textGray, marginBottom: 16 }}>No reviews yet. Be the first to leave one!</Text>
+          ) : (
+            <View style={{ gap: 12, marginBottom: 16 }}>
+              {garageReviews.map((rev, idx) => (
+                <View key={rev.ReviewID || idx} style={styles.reviewCard}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 }}>
+                    <View style={styles.avatarPlaceholder}>
+                      <Text style={{ color: colors.white, fontWeight: 'bold' }}>{rev.Customer?.firstName?.[0] || 'U'}</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontWeight: 'bold', color: colors.textDark, fontSize: 14 }}>
+                        {rev.Customer?.firstName || 'User'} {rev.Customer?.lastName || ''}
+                      </Text>
+                      <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} color={i < rev.Rating ? "#eab308" : colors.border} fill={i < rev.Rating ? "#eab308" : "transparent"} />
+                        ))}
+                      </View>
+                    </View>
+                  </View>
+                  {rev.Comment ? (
+                    <Text style={{ color: colors.textDark, fontSize: 13, lineHeight: 20 }}>{rev.Comment}</Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          )}
 
-           <TouchableOpacity style={styles.complaintBtn} onPress={() => navigation.navigate('AddComplaint', { garage })}>
-              <AlertTriangle size={18} color="#ef4444" />
-              <Text style={styles.complaintText}>Report an Issue (Private)</Text>
-           </TouchableOpacity>
+          <TouchableOpacity style={styles.complaintBtn} onPress={() => navigation.navigate('AddComplaint', { garage })}>
+            <AlertTriangle size={18} color="#ef4444" />
+            <Text style={styles.complaintText}>Report an Issue (Private)</Text>
+          </TouchableOpacity>
 
         </View>
       </ScrollView>
 
       {/* Floating Action Bar */}
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom || 16 }]}>
-         <TouchableOpacity style={styles.chatBtn}>
-            <MessageSquare size={24} color={colors.primaryBlue} />
-         </TouchableOpacity>
-         <TouchableOpacity style={styles.requestBtn} onPress={() => navigation.navigate('ServiceRequest', { garage, defaultServices: selectedServices, isEmergency })}>
-            <Text style={styles.requestBtnText}>Request Service{selectedServices.length > 0 ? ` (${selectedServices.length})` : ''}</Text>
-            <CalendarClock size={20} color={colors.white} />
-         </TouchableOpacity>
+        <TouchableOpacity style={styles.chatBtn}>
+          <MessageSquare size={24} color={colors.primaryBlue} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.requestBtn} onPress={() => navigation.navigate('ServiceRequest', { garage, defaultServices: selectedServices, isEmergency })}>
+          <Text style={styles.requestBtnText}>Request Service{selectedServices.length > 0 ? ` (${selectedServices.length})` : ''}</Text>
+          <CalendarClock size={20} color={colors.white} />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -279,7 +288,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border
   },
   iconButton: {
-    width: 40, height: 40, borderRadius: 20, 
+    width: 40, height: 40, borderRadius: 20,
     justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgGray
   },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: colors.textDark },

@@ -5,8 +5,9 @@ import { api } from '../lib/api';
 import {
   Building2, Users, Activity, DollarSign,
   TrendingUp, ArrowRight, Plus, AlertCircle, TrendingDown,
-  Sparkles
+  Sparkles, BarChart2, Wrench
 } from 'lucide-react';
+import { RevenueChart, RequestsChart, GarageRevenueChart, ServiceTypeChart } from '../components/AnalyticsCharts';
 
 // eslint-disable-next-line no-unused-vars
 const StatCard = ({ icon: Icon, label, value, colorClass, iconBgClass, sub, trend }) => (
@@ -22,7 +23,7 @@ const StatCard = ({ icon: Icon, label, value, colorClass, iconBgClass, sub, tren
         </span>
       )}
     </div>
-    
+
     <div>
       <p className="text-3xl font-black text-slate-800 tracking-tight">{value}</p>
       <p className="text-sm font-semibold text-slate-500 mt-1">{label}</p>
@@ -34,22 +35,27 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState({ revenueStats: [], requestStats: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const res = await api.get('/users/admin/dashboard');
-        setStats(res.data);
+        const [statsRes, analyticsRes] = await Promise.all([
+          api.get('/users/admin/dashboard'),
+          api.get('/users/admin/analytics')
+        ]);
+        setStats(statsRes.data);
+        setAnalytics(analyticsRes.data);
       } catch (err) {
-        setError('Failed to load dashboard stats. Please check your connection.');
+        setError('Failed to load dashboard data. Please check your connection.');
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchDashboardStats();
+    fetchDashboardData();
   }, []);
 
   if (loading) return (
@@ -127,11 +133,11 @@ export default function Dashboard() {
 
       {/* Main Content Modules */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Quick Actions */}
         <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <h3 className="text-lg font-bold text-slate-900 mb-4">{t('quickActions')}</h3>
-          
+
           <div className="space-y-3 flex-1 flex flex-col justify-center">
             <button
               id="quick-action-add-garage"
@@ -163,23 +169,52 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* System Health */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-            <h3 className="text-lg font-bold text-slate-900">{t('systemHealth')}</h3>
-            <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
-              <button className="px-3 py-1.5 bg-white text-slate-900 rounded text-xs font-bold shadow-sm">{t('today')}</button>
-              <button className="px-3 py-1.5 text-slate-500 hover:text-slate-900 rounded text-xs font-bold transition-colors">{t('weekly')}</button>
+        {/* Analytics Charts - Row 1 */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <DollarSign size={20} className="text-emerald-500" />
+                Revenue Trends
+              </h3>
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">Last 6 Months</span>
             </div>
+            <RevenueChart data={analytics.revenueStats} />
           </div>
-          
-          <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50 border border-slate-100 rounded-xl">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 relative">
-              <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-30" />
-              <Activity size={32} strokeWidth={2} />
+        </div>
+
+        {/* Top Garages */}
+        <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Building2 size={20} className="text-blue-500" />
+              Top Garages
+            </h3>
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">By Revenue</span>
+          </div>
+          <GarageRevenueChart data={analytics.garageRevenue} />
+        </div>
+
+        {/* Booking Volume & Service Types */}
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <BarChart2 size={18} className="text-blue-500" />
+                Booking Volume
+              </h3>
             </div>
-            <h4 className="font-bold text-xl text-slate-900 tracking-tight">{t('allSystemsOperational')}</h4>
-            <p className="font-medium text-sm text-slate-500 mt-1">{t('platformStable')}</p>
+            <RequestsChart data={analytics.requestStats} />
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Wrench size={18} className="text-violet-500" />
+                Service Types
+              </h3>
+            </div>
+            <ServiceTypeChart data={analytics.serviceTypes} />
           </div>
         </div>
 

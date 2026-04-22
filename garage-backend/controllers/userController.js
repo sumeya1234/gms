@@ -1,7 +1,7 @@
-import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage, getAllUsers, getAllManagers, getMechanicsByGarage, changeMechanicStatus, getMechanicSkills, setMechanicSkills } from "../services/userService.js";
+import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage, getAllUsers, getAllManagers, getMechanicsByGarage, changeMechanicStatus, getMechanicSkills, setMechanicSkills, assignOwnerToGarage } from "../services/userService.js";
 import { registerUser } from "../services/authService.js";
 import { fetchMyNotifications, savePushToken, markAsRead, deleteNotification, deleteAllNotifications } from "../services/notificationService.js";
-import { getSuperAdminStats } from "../services/dashboardService.js";
+import { getSuperAdminStats, getSuperAdminAnalytics } from "../services/dashboardService.js";
 import { sendTemporaryPasswordEmail } from "../services/emailService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import crypto from "crypto";
@@ -78,6 +78,11 @@ export const getAdminDashboard = asyncHandler(async (req, res) => {
   res.json(stats);
 });
 
+export const getAdminAnalytics = asyncHandler(async (req, res) => {
+  const analytics = await getSuperAdminAnalytics();
+  res.json(analytics);
+});
+
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await getAllUsers();
   res.json(users);
@@ -89,7 +94,8 @@ export const getManagers = asyncHandler(async (req, res) => {
 });
 
 export const createManager = asyncHandler(async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone } = req.body;
+  const password = crypto.randomBytes(4).toString('hex'); // 8 characters
 
   const result = await registerUser({
     fullName,
@@ -99,7 +105,26 @@ export const createManager = asyncHandler(async (req, res) => {
     role: "GarageManager"
   });
 
+  await sendTemporaryPasswordEmail(email, fullName, password);
+
   res.status(201).json({ message: "Manager created successfully", userId: result.userId });
+});
+
+export const createOwner = asyncHandler(async (req, res) => {
+  const { fullName, email, phone } = req.body;
+  const password = crypto.randomBytes(4).toString('hex'); // 8 characters
+
+  const result = await registerUser({
+    fullName,
+    email,
+    phone,
+    password,
+    role: "GarageOwner"
+  });
+
+  await sendTemporaryPasswordEmail(email, fullName, password);
+
+  res.status(201).json({ message: "Garage Owner created successfully", userId: result.userId });
 });
 
 export const getGarageMechanics = asyncHandler(async (req, res) => {
@@ -146,7 +171,7 @@ export const createMechanic = asyncHandler(async (req, res) => {
 export const updateMechanicStatus = asyncHandler(async (req, res) => {
   const { garageId, mechanicId } = req.params;
   const { status } = req.body;
-  
+
   await changeMechanicStatus(garageId, mechanicId, status, req.user);
   res.json({ message: `Mechanic status updated to ${status}` });
 });
@@ -162,4 +187,11 @@ export const updateMechanicSkillsHandler = asyncHandler(async (req, res) => {
   const { skills } = req.body;
   await setMechanicSkills(garageId, mechanicId, skills, req.user);
   res.json({ message: "Skills updated successfully" });
+});
+
+export const assignOwnerToGarageHandler = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  const { ownerId } = req.body; // null to unassign
+  await assignOwnerToGarage(garageId, ownerId ?? null);
+  res.json({ message: ownerId ? "Owner assigned successfully" : "Owner unassigned successfully" });
 });

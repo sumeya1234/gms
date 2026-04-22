@@ -7,13 +7,13 @@ import { Filter, Edit2, UserPlus, X, Check, Eye, Wrench, DollarSign, AlertCircle
 export default function Bookings() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  
+
   const [requests, setRequests] = useState([]);
   const [mechanics, setMechanics] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Modals state
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -21,25 +21,26 @@ export default function Bookings() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [requestItems, setRequestItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
-  
+
   // Status Update State
   const [newStatus, setNewStatus] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
-  
+
   // Assign State
   const [selectedMechanic, setSelectedMechanic] = useState('');
-  
+  const [estimatedPrice, setEstimatedPrice] = useState('');
+
   // Filters
   const [filter, setFilter] = useState('All');
   const [searchId, setSearchId] = useState('');
   const [filterDate, setFilterDate] = useState('');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const limit = 10;
-  
+
   // Custom Confirm Modal
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, text: '', onConfirm: null, isAlert: false });
 
@@ -98,20 +99,32 @@ export default function Bookings() {
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
     try {
-      if (newStatus === 'Rejected' && !rejectionReason.trim()) {
-        setConfirmModal({ isOpen: true, text: "Please provide a rejection reason.", isAlert: true });
-        return;
+      const extras = {};
+      if (newStatus === 'Approved' && selectedRequest.IsEmergency) {
+        if (!estimatedPrice) {
+          setConfirmModal({ isOpen: true, text: "Please provide an estimated price for emergency.", isAlert: true });
+          return;
+        }
+        if (!selectedMechanic) {
+          setConfirmModal({ isOpen: true, text: "Please assign a mechanic for emergency.", isAlert: true });
+          return;
+        }
+        extras.estimatedPrice = Number(estimatedPrice);
+        extras.mechanicId = Number(selectedMechanic);
       }
 
       await api.put(`/services/${selectedRequest.RequestID}/status`, {
         status: newStatus,
-        rejectionReason: newStatus === 'Rejected' ? rejectionReason : undefined
+        rejectionReason: newStatus === 'Rejected' ? rejectionReason : undefined,
+        ...extras
       });
-      
+
       setStatusModalOpen(false);
       setSelectedRequest(null);
       setNewStatus('');
       setRejectionReason('');
+      setEstimatedPrice('');
+      setSelectedMechanic('');
       fetchRequests();
     } catch (err) {
       const apiError = err.response?.data?.error || err.response?.data?.errors?.join(', ') || err.response?.data?.message || err.message || 'Failed to update status';
@@ -130,7 +143,7 @@ export default function Bookings() {
         requestId: selectedRequest.RequestID,
         mechanicId: selectedMechanic
       });
-      
+
       setAssignModalOpen(false);
       setSelectedRequest(null);
       setSelectedMechanic('');
@@ -209,18 +222,17 @@ export default function Bookings() {
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-3xl font-bold text-[var(--color-primary)]">{t('bookings')} {t('serviceManagement')?.split(' ')[1] || 'Management'}</h1>
-          
+
           {/* Status Filters */}
           <div className="flex gap-2 p-1 bg-white rounded-lg shadow-sm border border-[var(--color-border)] overflow-x-auto max-w-full">
             {['All', 'Pending', 'Approved', 'InProgress', 'Completed', 'Rejected'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                  filter === status 
+                className={`px-4 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${filter === status
                     ? 'bg-[var(--color-primary)] text-white shadow'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {status === 'All' ? t('allStatuses') : status}
               </button>
@@ -246,25 +258,22 @@ export default function Bookings() {
             <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60 shadow-inner">
               <button
                 onClick={() => setFilterDate('')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                  filterDate === '' ? 'bg-white text-slate-800 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === '' ? 'bg-white text-slate-800 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                  }`}
               >
                 All Dates
               </button>
               <button
                 onClick={() => setFilterDate('today')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                  filterDate === 'today' ? 'bg-white text-blue-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === 'today' ? 'bg-white text-blue-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                  }`}
               >
                 Today
               </button>
               <button
                 onClick={() => setFilterDate('week')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                  filterDate === 'week' ? 'bg-white text-indigo-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === 'week' ? 'bg-white text-indigo-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                  }`}
               >
                 This Week
               </button>
@@ -280,9 +289,9 @@ export default function Bookings() {
                   title="Specific exact date"
                 />
               </div>
-              
+
               {(searchId || filterDate) && (
-                <button 
+                <button
                   onClick={() => { setSearchId(''); setFilterDate(''); }}
                   className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-semibold transition-colors border border-red-100/50 whitespace-nowrap"
                 >
@@ -379,14 +388,14 @@ export default function Bookings() {
                     </td>
                     <td className="p-4 border-l border-gray-100">
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => handleViewDetails(req)}
                           className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded text-xs font-semibold transition-colors"
                         >
                           <Eye size={12} /> Details
                         </button>
 
-                        <button 
+                        <button
                           onClick={() => {
                             setSelectedRequest(req);
                             setNewStatus('');
@@ -396,9 +405,9 @@ export default function Bookings() {
                         >
                           <Edit2 size={12} /> Status
                         </button>
-                        
+
                         {req.Status?.toLowerCase() !== 'completed' && req.Status?.toLowerCase() !== 'rejected' && req.Status?.toLowerCase() !== 'pending' && (
-                          <button 
+                          <button
                             onClick={() => {
                               setSelectedRequest(req);
                               setAssignModalOpen(true);
@@ -409,13 +418,13 @@ export default function Bookings() {
                           </button>
                         )}
                         {req.Status?.toLowerCase() === 'pending' && (
-                          <button 
+                          <button
                             onClick={e => {
                               e.stopPropagation();
-                              setConfirmModal({ 
-                                isOpen: true, 
-                                text: 'You cannot manually assign a mechanic while the request is still pending. Please click the "Status" button to review and approve the request first.', 
-                                isAlert: true 
+                              setConfirmModal({
+                                isOpen: true,
+                                text: 'You cannot manually assign a mechanic while the request is still pending. Please click the "Status" button to review and approve the request first.',
+                                isAlert: true
                               });
                             }}
                             className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-500 hover:bg-rose-100 rounded text-xs font-semibold border border-rose-100 transition-colors"
@@ -425,7 +434,7 @@ export default function Bookings() {
                         )}
 
                         {req.PaymentMethod === 'Cash' && req.PaymentStatus === 'Pending' && (
-                          <button 
+                          <button
                             onClick={() => handleConfirmCash(req.RequestID)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded text-xs font-semibold transition-colors border border-amber-200"
                           >
@@ -434,7 +443,7 @@ export default function Bookings() {
                         )}
 
                         {req.PaymentMethod === 'Chapa' && req.PaymentStatus === 'Pending' && (
-                          <button 
+                          <button
                             onClick={() => handleConfirmOnline(req.RequestID)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded text-xs font-semibold transition-colors border border-indigo-200"
                           >
@@ -493,11 +502,10 @@ export default function Bookings() {
                   <button
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
-                      currentPage === i + 1
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${currentPage === i + 1
                         ? 'z-10 bg-[var(--color-primary)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]'
                         : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {i + 1}
                   </button>
@@ -526,14 +534,14 @@ export default function Bookings() {
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleUpdateStatus} className="p-6">
               <div className="mb-6">
                 <p className="text-sm text-gray-500 mb-4">
                   Request <strong className="text-gray-800">#{selectedRequest.RequestID}</strong> - {selectedRequest.ServiceType}
                 </p>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">New Status</label>
-                <select 
+                <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
                   className="input-field"
@@ -565,7 +573,7 @@ export default function Bookings() {
               {newStatus === 'Rejected' && (
                 <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Rejection Reason</label>
-                  <textarea 
+                  <textarea
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                     placeholder="Please explain why this booking is rejected..."
@@ -575,15 +583,59 @@ export default function Bookings() {
                 </div>
               )}
 
+              {newStatus === 'Approved' && selectedRequest.IsEmergency && (
+                <div className="mt-4 space-y-4 animate-in slide-in-from-top-2 duration-300 border-t pt-4">
+                  <div className="p-3 bg-red-50 rounded-lg border border-red-100 flex gap-3 mb-2">
+                    <AlertCircle className="text-red-600 shrink-0" size={18} />
+                    <div>
+                      <p className="text-xs font-bold text-red-800 uppercase tracking-wider">Emergency Offer Required</p>
+                      <p className="text-[10px] text-red-600">The customer will receive this offer and must accept it before you start.</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Estimated Price (ETB)</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm font-bold">ETB</span>
+                      </div>
+                      <input
+                        type="number"
+                        value={estimatedPrice}
+                        onChange={(e) => setEstimatedPrice(e.target.value)}
+                        placeholder="0.00"
+                        className="pl-12 input-field"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Assign Mechanic</label>
+                    <select
+                      value={selectedMechanic}
+                      onChange={(e) => setSelectedMechanic(e.target.value)}
+                      className="input-field"
+                      required
+                    >
+                      <option value="" disabled>Select a mechanic</option>
+                      {mechanics.filter(m => m.Status === 'Active').map(m => (
+                        <option key={m.UserID} value={m.UserID}>{m.FullName}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 justify-end mt-8">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setStatusModalOpen(false)}
                   className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors shadow-sm flex items-center gap-2"
                 >
@@ -619,8 +671,8 @@ export default function Bookings() {
             matchedServices,
             matchLabel: requestedServices.length === 0 ? 'none'
               : matchRatio === 1 ? 'full'
-              : matchCount > 0 ? 'partial'
-              : 'none'
+                : matchCount > 0 ? 'partial'
+                  : 'none'
           };
         });
 
@@ -638,148 +690,146 @@ export default function Bookings() {
         const bestMatchCount = scoredMechanics.length > 0 ? scoredMechanics[0].matchCount : 0;
 
         return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900">Assign Mechanic</h2>
-              <button onClick={() => setAssignModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleAssignMechanic} className="p-6">
-              <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-2">
-                  Request <strong className="text-gray-800">#{selectedRequest.RequestID}</strong> - {selectedRequest.ServiceType}
-                  {selectedRequest.IsEmergency ? <span className="ml-2 px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold uppercase">Emergency</span> : null}
-                </p>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
+                <h2 className="text-xl font-bold text-gray-900">Assign Mechanic</h2>
+                <button onClick={() => setAssignModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
 
-                {/* Skills required summary */}
-                {requestedServices.length > 0 && (
-                  <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-                    <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1.5">Skills Needed for This Service</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {requestedServices.map((svc, idx) => (
-                        <span key={idx} className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full">{selectedRequest.ServiceType.split(',').map(s => s.trim())[idx]}</span>
-                      ))}
+              <form onSubmit={handleAssignMechanic} className="p-6">
+                <div className="mb-6">
+                  <p className="text-sm text-gray-500 mb-2">
+                    Request <strong className="text-gray-800">#{selectedRequest.RequestID}</strong> - {selectedRequest.ServiceType}
+                    {selectedRequest.IsEmergency ? <span className="ml-2 px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold uppercase">Emergency</span> : null}
+                  </p>
+
+                  {/* Skills required summary */}
+                  {requestedServices.length > 0 && (
+                    <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                      <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1.5">Skills Needed for This Service</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {requestedServices.map((svc, idx) => (
+                          <span key={idx} className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full">{selectedRequest.ServiceType.split(',').map(s => s.trim())[idx]}</span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Mechanic <span className="font-normal text-gray-400">(ranked by skill match)</span></label>
-                
-                {mechanics.length === 0 ? (
-                  <div className="p-4 bg-yellow-50 text-yellow-700 text-sm rounded border border-yellow-200">
-                    No mechanics available in your garage. Please head to the "Mechanics" page to add one!
-                  </div>
-                ) : (
-                  <div className="max-h-72 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-2">
-                    {scoredMechanics.map((m, idx) => {
-                      const isSelected = String(selectedMechanic) === String(m.UserID);
-                      const mechSkills = (m.Skills || []);
-                      const matchBadge = m.matchLabel === 'full'
-                        ? { text: `★ Best Match (${m.matchCount}/${requestedServices.length})`, cls: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' }
-                        : m.matchLabel === 'partial'
-                        ? { text: `◐ Partial (${m.matchCount}/${requestedServices.length})`, cls: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200' }
-                        : { text: 'No Match', cls: 'bg-gray-100 text-gray-500' };
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Select Mechanic <span className="font-normal text-gray-400">(ranked by skill match)</span></label>
 
-                      // Determine row highlight
-                      let rowHighlight = '';
-                      if (isSelected) {
-                        rowHighlight = 'border-[var(--color-primary)] bg-blue-50/50 ring-1 ring-[var(--color-primary)]';
-                      } else if (m.matchLabel === 'full') {
-                        rowHighlight = 'border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50';
-                      } else if (m.matchLabel === 'partial') {
-                        rowHighlight = 'border-amber-100 bg-amber-50/20 hover:bg-amber-50/40';
-                      } else {
-                        rowHighlight = 'border-transparent hover:bg-gray-50';
-                      }
+                  {mechanics.length === 0 ? (
+                    <div className="p-4 bg-yellow-50 text-yellow-700 text-sm rounded border border-yellow-200">
+                      No mechanics available in your garage. Please head to the "Mechanics" page to add one!
+                    </div>
+                  ) : (
+                    <div className="max-h-72 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-2">
+                      {scoredMechanics.map((m, idx) => {
+                        const isSelected = String(selectedMechanic) === String(m.UserID);
+                        const mechSkills = (m.Skills || []);
+                        const matchBadge = m.matchLabel === 'full'
+                          ? { text: `★ Best Match (${m.matchCount}/${requestedServices.length})`, cls: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' }
+                          : m.matchLabel === 'partial'
+                            ? { text: `◐ Partial (${m.matchCount}/${requestedServices.length})`, cls: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200' }
+                            : { text: 'No Match', cls: 'bg-gray-100 text-gray-500' };
 
-                      // Add a separator before "no match" group
-                      const showSeparator = idx > 0 && m.matchCount === 0 && scoredMechanics[idx - 1].matchCount > 0;
+                        // Determine row highlight
+                        let rowHighlight = '';
+                        if (isSelected) {
+                          rowHighlight = 'border-[var(--color-primary)] bg-blue-50/50 ring-1 ring-[var(--color-primary)]';
+                        } else if (m.matchLabel === 'full') {
+                          rowHighlight = 'border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50';
+                        } else if (m.matchLabel === 'partial') {
+                          rowHighlight = 'border-amber-100 bg-amber-50/20 hover:bg-amber-50/40';
+                        } else {
+                          rowHighlight = 'border-transparent hover:bg-gray-50';
+                        }
 
-                      return (
-                        <React.Fragment key={m.UserID}>
-                          {showSeparator && (
-                            <div className="flex items-center gap-2 py-1 px-1">
-                              <div className="flex-1 h-px bg-gray-200"></div>
-                              <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Other Mechanics</span>
-                              <div className="flex-1 h-px bg-gray-200"></div>
-                            </div>
-                          )}
-                          <label
-                            className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all border ${rowHighlight}`}
-                          >
-                            <input
-                              type="radio"
-                              name="mechanic"
-                              value={m.UserID}
-                              checked={isSelected}
-                              onChange={(e) => setSelectedMechanic(e.target.value)}
-                              className="mt-1 accent-[var(--color-primary)]"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-sm text-gray-900">{m.FullName}</span>
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
-                                  m.Status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                }`}>{m.Status}</span>
-                                {requestedServices.length > 0 && (
-                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${matchBadge.cls}`}>{matchBadge.text}</span>
+                        // Add a separator before "no match" group
+                        const showSeparator = idx > 0 && m.matchCount === 0 && scoredMechanics[idx - 1].matchCount > 0;
+
+                        return (
+                          <React.Fragment key={m.UserID}>
+                            {showSeparator && (
+                              <div className="flex items-center gap-2 py-1 px-1">
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Other Mechanics</span>
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                              </div>
+                            )}
+                            <label
+                              className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all border ${rowHighlight}`}
+                            >
+                              <input
+                                type="radio"
+                                name="mechanic"
+                                value={m.UserID}
+                                checked={isSelected}
+                                onChange={(e) => setSelectedMechanic(e.target.value)}
+                                className="mt-1 accent-[var(--color-primary)]"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-semibold text-sm text-gray-900">{m.FullName}</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${m.Status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                    }`}>{m.Status}</span>
+                                  {requestedServices.length > 0 && (
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${matchBadge.cls}`}>{matchBadge.text}</span>
+                                  )}
+                                </div>
+                                {mechSkills.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1 mt-1.5">
+                                    {mechSkills.map(skill => {
+                                      const isMatch = m.matchedServices.some(svc => {
+                                        const s = skill.toLowerCase();
+                                        return s === svc || s.includes(svc) || svc.includes(s);
+                                      });
+                                      return (
+                                        <span
+                                          key={skill}
+                                          className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${isMatch
+                                              ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
+                                              : 'bg-gray-100 text-gray-500'
+                                            }`}
+                                        >
+                                          {isMatch ? '✓ ' : ''}{skill}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <p className="text-[10px] text-gray-400 mt-1 italic">No skills assigned</p>
                                 )}
                               </div>
-                              {mechSkills.length > 0 ? (
-                                <div className="flex flex-wrap gap-1 mt-1.5">
-                                  {mechSkills.map(skill => {
-                                    const isMatch = m.matchedServices.some(svc => {
-                                      const s = skill.toLowerCase();
-                                      return s === svc || s.includes(svc) || svc.includes(s);
-                                    });
-                                    return (
-                                      <span
-                                        key={skill}
-                                        className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${
-                                          isMatch
-                                            ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
-                                            : 'bg-gray-100 text-gray-500'
-                                        }`}
-                                      >
-                                        {isMatch ? '✓ ' : ''}{skill}
-                                      </span>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                <p className="text-[10px] text-gray-400 mt-1 italic">No skills assigned</p>
-                              )}
-                            </div>
-                          </label>
-                        </React.Fragment>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                            </label>
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
-              <div className="flex gap-3 justify-end mt-8">
-                <button 
-                  type="button" 
-                  onClick={() => setAssignModalOpen(false)}
-                  className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  disabled={mechanics.length === 0}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-300 rounded-lg transition-colors shadow-sm flex items-center gap-2"
-                >
-                  <UserPlus size={16} /> Assign
-                </button>
-              </div>
-            </form>
+                <div className="flex gap-3 justify-end mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setAssignModalOpen(false)}
+                    className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={mechanics.length === 0}
+                    className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-gray-300 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                  >
+                    <UserPlus size={16} /> Assign
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
         );
       })()}
 
@@ -793,7 +843,7 @@ export default function Bookings() {
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
                 <h3 className="font-bold text-lg text-slate-800 mb-1">#{selectedRequest.RequestID} - {selectedRequest.ServiceType}</h3>
@@ -916,7 +966,7 @@ export default function Bookings() {
             </div>
 
             <div className="p-5 border-t border-gray-100 bg-gray-50/50 flex justify-end">
-              <button 
+              <button
                 onClick={() => setDetailsModalOpen(false)}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors shadow-sm"
               >
@@ -931,32 +981,32 @@ export default function Bookings() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-5">
-               <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 border ${confirmModal.isAlert ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                  {confirmModal.isAlert ? <AlertCircle size={24} /> : <Check size={24} />}
-               </div>
-               <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
-                 {confirmModal.isAlert ? 'Approval Required' : 'Confirm Action'}
-               </h3>
-               <p className="text-center text-gray-600 text-sm">{confirmModal.text}</p>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 border ${confirmModal.isAlert ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                {confirmModal.isAlert ? <AlertCircle size={24} /> : <Check size={24} />}
+              </div>
+              <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
+                {confirmModal.isAlert ? 'Approval Required' : 'Confirm Action'}
+              </h3>
+              <p className="text-center text-gray-600 text-sm">{confirmModal.text}</p>
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
-               {!confirmModal.isAlert && (
-                 <button 
-                   onClick={() => setConfirmModal({ isOpen: false, text: '', onConfirm: null, isAlert: false })}
-                   className="flex-1 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                 >
-                   Cancel
-                 </button>
-               )}
-               <button 
-                 onClick={() => {
-                   if (confirmModal.onConfirm) confirmModal.onConfirm();
-                   else setConfirmModal({ isOpen: false, text: '', onConfirm: null, isAlert: false });
-                 }}
-                 className={`flex-1 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors cursor-pointer ${confirmModal.isAlert ? 'bg-amber-500 hover:bg-amber-600' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]'}`}
-               >
-                 {confirmModal.isAlert ? 'Understood' : 'Yes, Confirm'}
-               </button>
+              {!confirmModal.isAlert && (
+                <button
+                  onClick={() => setConfirmModal({ isOpen: false, text: '', onConfirm: null, isAlert: false })}
+                  className="flex-1 px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  if (confirmModal.onConfirm) confirmModal.onConfirm();
+                  else setConfirmModal({ isOpen: false, text: '', onConfirm: null, isAlert: false });
+                }}
+                className={`flex-1 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors cursor-pointer ${confirmModal.isAlert ? 'bg-amber-500 hover:bg-amber-600' : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]'}`}
+              >
+                {confirmModal.isAlert ? 'Understood' : 'Yes, Confirm'}
+              </button>
             </div>
           </div>
         </div>

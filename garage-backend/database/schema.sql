@@ -48,7 +48,8 @@ CREATE TABLE Garages (
     Location VARCHAR(255),
     ContactNumber VARCHAR(20),
     Status ENUM('Active','Inactive'),
-    ManagerID INT UNIQUE
+    ManagerID INT UNIQUE,
+    WorkingHours JSON
 );
 
 CREATE TABLE GarageManagers (

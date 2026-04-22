@@ -10,7 +10,7 @@ export const getUserProfile = async (userId) => {
     error.status = 404;
     throw error;
   }
-  
+
   const user = rows[0];
 
   // If GarageManager, fetch their assigned GarageID and GarageName
@@ -25,6 +25,18 @@ export const getUserProfile = async (userId) => {
     if (managerRows.length > 0) {
       user.GarageID = managerRows[0].GarageID;
       user.GarageName = managerRows[0].GarageName;
+    }
+  }
+
+  // If GarageOwner, fetch the garage they own via Garages.OwnerID
+  if (user.Role === "GarageOwner") {
+    const [ownerRows] = await db.query(
+      `SELECT GarageID, Name AS GarageName FROM Garages WHERE OwnerID = ? LIMIT 1`,
+      [userId]
+    );
+    if (ownerRows.length > 0) {
+      user.GarageID = ownerRows[0].GarageID;
+      user.GarageName = ownerRows[0].GarageName;
     }
   }
 
@@ -82,7 +94,7 @@ export const updateRole = async (userId, newRole) => {
   await db.query("DELETE FROM SuperAdmins WHERE UserID = ?", [userId]);
   // Note: GarageManagers deletion might affect Garage assignment, usually handled in assignUserToGarage
   // But for a clean role change, we should be careful.
-  
+
   if (newRole === "Customer") {
     await db.query("INSERT IGNORE INTO Customers (UserID) VALUES (?)", [userId]);
   } else if (newRole === "SuperAdmin") {
@@ -115,14 +127,14 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
     await db.query("INSERT INTO GarageManagers (UserID, GarageID) VALUES (?, ?)", [userId, targetGarageId]);
     await db.query("UPDATE Garages SET ManagerID = ? WHERE GarageID = ?", [userId, targetGarageId]);
     await db.query("UPDATE Users SET Role = 'GarageManager' WHERE UserID = ?", [userId]);
-  } 
-  
+  }
+
   // 2. GarageManager Rule: Only assign Mechanics to OWN garage
   else if (assignerRole === "GarageManager") {
     // Fetch assigner's garage
     const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [assignerId]);
     if (!managerRecord.length) throw new Error("Assigner is not linked to a garage");
-    
+
     const assignerGarageId = managerRecord[0].GarageID;
 
     // A manager can only assign mechanics, and only to their OWN garage
@@ -136,8 +148,8 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
     await db.query("DELETE FROM Mechanics WHERE UserID = ?", [userId]);
     await db.query("INSERT INTO Mechanics (UserID, GarageID) VALUES (?, ?)", [userId, assignerGarageId]);
     await db.query("UPDATE Users SET Role = 'Mechanic' WHERE UserID = ?", [userId]);
-  } 
-  
+  }
+
   else {
     const error = new Error("Unauthorized to assign users to garages");
     error.status = 403;
@@ -159,12 +171,14 @@ export const getAllUsers = async () => {
 
 export const getAllManagers = async () => {
   const [rows] = await db.query(`
-    SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status, u.CreatedAt,
-           g.GarageID, g.Name AS GarageName
+    SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status, u.CreatedAt, u.Role,
+           COALESCE(g_mgr.GarageID, g_own.GarageID) AS GarageID,
+           COALESCE(g_mgr.Name, g_own.Name) AS GarageName
     FROM Users u
     LEFT JOIN GarageManagers gm ON u.UserID = gm.UserID
-    LEFT JOIN Garages g ON gm.GarageID = g.GarageID
-    WHERE u.Role = 'GarageManager'
+    LEFT JOIN Garages g_mgr ON gm.GarageID = g_mgr.GarageID
+    LEFT JOIN Garages g_own ON u.UserID = g_own.OwnerID
+    WHERE u.Role IN ('GarageManager', 'GarageOwner')
     ORDER BY u.CreatedAt DESC
   `);
   return rows;
@@ -186,14 +200,14 @@ export const getMechanicsByGarage = async (garageId) => {
       `SELECT MechanicID, SkillName FROM MechanicSkills WHERE MechanicID IN (?)`,
       [mechanicIds]
     );
-    
+
     // Group skills by mechanic
     const skillMap = {};
     skills.forEach(s => {
       if (!skillMap[s.MechanicID]) skillMap[s.MechanicID] = [];
       skillMap[s.MechanicID].push(s.SkillName);
     });
-    
+
     rows.forEach(r => {
       r.Skills = skillMap[r.UserID] || [];
     });
@@ -203,6 +217,11 @@ export const getMechanicsByGarage = async (garageId) => {
 };
 
 export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user) => {
+  if (user.role === "GarageOwner") {
+    const error = new Error("Garage Owners have read-only access and cannot modify mechanic status");
+    error.status = 403;
+    throw error;
+  }
   if (user.role === "GarageManager") {
     const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
     if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(garageId)) {
@@ -243,7 +262,7 @@ export const setMechanicSkills = async (garageId, mechanicId, skills, user) => {
 
   // Replace all skills: delete existing, insert new
   await db.query("DELETE FROM MechanicSkills WHERE MechanicID = ?", [mechanicId]);
-  
+
   if (skills && skills.length > 0) {
     const values = skills.map(skill => [mechanicId, skill.trim()]);
     await db.query(
@@ -255,3 +274,34 @@ export const setMechanicSkills = async (garageId, mechanicId, skills, user) => {
   return skills;
 };
 
+export const assignOwnerToGarage = async (garageId, userId) => {
+  // Verify garage exists
+  const [garage] = await db.query("SELECT GarageID FROM Garages WHERE GarageID = ?", [garageId]);
+  if (garage.length === 0) {
+    const error = new Error("Garage not found");
+    error.status = 404;
+    throw error;
+  }
+
+  if (userId === null) {
+    // Unassign owner
+    await db.query("UPDATE Garages SET OwnerID = NULL WHERE GarageID = ?", [garageId]);
+    return;
+  }
+
+  // Verify user exists
+  const [user] = await db.query("SELECT UserID, Role FROM Users WHERE UserID = ?", [userId]);
+  if (user.length === 0) {
+    const error = new Error("User not found");
+    error.status = 404;
+    throw error;
+  }
+
+  // Update their role to GarageOwner (if not already a SuperAdmin or Manager)
+  if (!['SuperAdmin', 'GarageManager'].includes(user[0].Role)) {
+    await db.query("UPDATE Users SET Role = 'GarageOwner' WHERE UserID = ?", [userId]);
+  }
+
+  // Set OwnerID on the garage
+  await db.query("UPDATE Garages SET OwnerID = ? WHERE GarageID = ?", [userId, garageId]);
+};

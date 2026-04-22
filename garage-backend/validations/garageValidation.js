@@ -7,7 +7,8 @@ export const validateGarage = Joi.object({
   managerId: Joi.number().integer().positive().allow(null).optional(),
   bankCode: Joi.string().required(),
   bankAccountNumber: Joi.string().required(),
-  bankAccountName: Joi.string().required()
+  bankAccountName: Joi.string().required(),
+  preserviceDepositPercentage: Joi.number().valid(0, 5, 10, 15).optional()
 });
 
 const idSchema = Joi.alternatives().try(Joi.number().integer().positive(), Joi.string().uuid());
@@ -20,7 +21,9 @@ export const validateGarageUpdate = Joi.object({
   managerId: Joi.number().integer().positive().allow(null).optional(),
   bankCode: Joi.string().optional(),
   bankAccountNumber: Joi.string().optional(),
-  bankAccountName: Joi.string().optional()
+  bankAccountName: Joi.string().optional(),
+  workingHours: Joi.alternatives().try(Joi.string(), Joi.object()).optional(),
+  preserviceDepositPercentage: Joi.number().valid(0, 5, 10, 15).optional()
 }).min(1);
 
 export const validateGarageId = Joi.object({

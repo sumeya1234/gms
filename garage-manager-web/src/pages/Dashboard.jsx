@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 export default function Dashboard() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  
+
   const [requests, setRequests] = useState([]);
   const [garageStats, setGarageStats] = useState({ activeJobs: 0, totalRevenue: 0, lowStockItems: [] });
   const [loading, setLoading] = useState(true);
@@ -16,14 +16,14 @@ export default function Dashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     if (!user?.GarageID) return;
-    
+
     try {
       setLoading(true);
       const [reqsResponse, statsResponse] = await Promise.all([
         api.get(`/services/garage/${user.GarageID}`),
         api.get(`/garages/${user.GarageID}/stats`)
       ]);
-      
+
       setRequests(reqsResponse.data.data);
       setGarageStats(statsResponse.data);
       setError('');
@@ -52,6 +52,20 @@ export default function Dashboard() {
           {t('dashboard') || 'Garage Dashboard'}
         </h1>
       </div>
+
+      {/* No garage linked notice for Owners */}
+      {user?.role === 'GarageOwner' && !user?.GarageID && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-start gap-4">
+          <span className="text-3xl">👁</span>
+          <div>
+            <h3 className="font-bold text-amber-800 text-base">No Garage Linked Yet</h3>
+            <p className="text-amber-700 text-sm mt-1">
+              You are logged in as a <strong>Garage Owner</strong>, but no garage has been assigned to your account yet.
+              Please ask your system administrator to link your account to a garage.
+            </p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 flex items-center gap-2">
@@ -85,16 +99,16 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-gray-900">{t('recentBookings')}</h2>
             <Link to="/bookings" className="text-sm font-semibold text-[var(--color-primary)] hover:underline">{t('viewAll')}</Link>
           </div>
-          
+
           {loading ? (
-             <div className="flex-1 flex justify-center items-center h-32">
-               <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
-             </div>
+            <div className="flex-1 flex justify-center items-center h-32">
+              <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+            </div>
           ) : requests.length === 0 ? (
-             <div className="flex-1 flex flex-col justify-center items-center text-gray-400 p-4">
-               <Calendar size={48} className="mb-2 opacity-20" />
-               <p>{t('noRecentBookings')}</p>
-             </div>
+            <div className="flex-1 flex flex-col justify-center items-center text-gray-400 p-4">
+              <Calendar size={48} className="mb-2 opacity-20" />
+              <p>{t('noRecentBookings')}</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -119,13 +133,12 @@ export default function Dashboard() {
                         )}
                       </td>
                       <td className="p-3">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          req.Status === 'Completed' ? 'bg-green-100 text-green-700' :
-                          req.Status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                          req.Status === 'InProgress' ? 'bg-blue-100 text-blue-700' :
-                          req.Status === 'Approved' ? 'bg-indigo-100 text-indigo-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${req.Status === 'Completed' ? 'bg-green-100 text-green-700' :
+                            req.Status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                              req.Status === 'InProgress' ? 'bg-blue-100 text-blue-700' :
+                                req.Status === 'Approved' ? 'bg-indigo-100 text-indigo-700' :
+                                  'bg-red-100 text-red-700'
+                          }`}>
                           {req.Status}
                         </span>
                       </td>
@@ -149,17 +162,17 @@ export default function Dashboard() {
 
           <div className="flex-1">
             {loading ? (
-               <div className="flex justify-center items-center h-32">
-                 <span className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></span>
-               </div>
+              <div className="flex justify-center items-center h-32">
+                <span className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></span>
+              </div>
             ) : !garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? (
-               <div className="flex flex-col items-center justify-center text-center h-full text-green-600 py-10 opacity-70">
-                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                   <Wrench size={32} />
-                 </div>
-                 <p className="font-semibold text-sm">{t('inventoryHealthy')}</p>
-                 <p className="text-xs text-gray-500 mt-1">{t('noMinimumStockLimits')}</p>
-               </div>
+              <div className="flex flex-col items-center justify-center text-center h-full text-green-600 py-10 opacity-70">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                  <Wrench size={32} />
+                </div>
+                <p className="font-semibold text-sm">{t('inventoryHealthy')}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('noMinimumStockLimits')}</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {garageStats.lowStockItems.map((item, idx) => (

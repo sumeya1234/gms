@@ -6,7 +6,7 @@ import { User, Lock, Building, Check, AlertCircle, Edit2, Eye, EyeOff } from 'lu
 export default function Settings() {
   const { user, fetchProfile } = useAuthStore();
   const [activeTab, setActiveTab] = useState('profile');
-  
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
 
@@ -31,7 +31,13 @@ export default function Settings() {
   const [garageData, setGarageData] = useState({
     name: '',
     location: '',
-    contact: ''
+    contact: '',
+    workingHours: {
+      monday_friday: '08:00 AM - 06:00 PM',
+      saturday: '09:00 AM - 02:00 PM',
+      sunday: 'Closed'
+    },
+    preserviceDepositPercentage: 0
   });
   const [isEditingGarage, setIsEditingGarage] = useState(false);
 
@@ -44,7 +50,15 @@ export default function Settings() {
           setGarageData({
             name: res.data.Name || '',
             location: res.data.Location || '',
-            contact: res.data.ContactNumber || ''
+            contact: res.data.ContactNumber || '',
+            workingHours: typeof res.data.WorkingHours === 'string'
+              ? JSON.parse(res.data.WorkingHours)
+              : (res.data.WorkingHours || {
+                monday_friday: '08:00 AM - 06:00 PM',
+                saturday: '09:00 AM - 02:00 PM',
+                sunday: 'Closed'
+              }),
+            preserviceDepositPercentage: res.data.PreserviceDepositPercentage || 0
           });
         } catch (err) {
           console.error(err);
@@ -58,7 +72,7 @@ export default function Settings() {
     e.preventDefault();
     setLoading(true);
     setMessage({ text: '', type: '' });
-    
+
     try {
       await api.put('/users/profile', profileData);
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
@@ -76,7 +90,7 @@ export default function Settings() {
     e.preventDefault();
     setLoading(true);
     setMessage({ text: '', type: '' });
-    
+
     if (securityData.newPassword !== securityData.confirmPassword) {
       setMessage({ text: 'New passwords do not match!', type: 'error' });
       setLoading(false);
@@ -104,12 +118,14 @@ export default function Settings() {
 
     setLoading(true);
     setMessage({ text: '', type: '' });
-    
+
     try {
       await api.put(`/garages/${user.GarageID}`, {
         name: garageData.name,
         location: garageData.location,
-        contact: garageData.contact
+        contact: garageData.contact,
+        workingHours: JSON.stringify(garageData.workingHours),
+        preserviceDepositPercentage: Number(garageData.preserviceDepositPercentage)
       });
       setMessage({ text: 'Garage details updated successfully!', type: 'success' });
       setIsEditingGarage(false);
@@ -129,37 +145,34 @@ export default function Settings() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] overflow-hidden flex flex-col md:flex-row">
-        
+
         {/* Sidebar Tabs */}
         <div className="w-full md:w-64 bg-gray-50/50 p-4 border-b md:border-b-0 md:border-r border-[var(--color-border)]">
           <nav className="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0">
             <button
               onClick={() => { setActiveTab('profile'); setMessage({ text: '', type: '' }); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'profile' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-sm' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'profile'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               <User size={18} /> Personal Profile
             </button>
             <button
               onClick={() => { setActiveTab('security'); setMessage({ text: '', type: '' }); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'security' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-sm' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'security'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               <Lock size={18} /> Security & Password
             </button>
             <button
               onClick={() => { setActiveTab('garage'); setMessage({ text: '', type: '' }); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'garage' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-sm' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === 'garage'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               <Building size={18} /> Garage Details
             </button>
@@ -169,9 +182,8 @@ export default function Settings() {
         {/* Tab Content */}
         <div className="p-6 sm:p-8 flex-1">
           {message.text && (
-            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-            }`}>
+            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
+              }`}>
               {message.type === 'success' ? <Check size={20} /> : <AlertCircle size={20} />}
               <span className="text-sm font-medium">{message.text}</span>
             </div>
@@ -183,7 +195,7 @@ export default function Settings() {
               <div className="flex justify-between items-center mb-6 border-b pb-2">
                 <h2 className="text-xl font-bold text-gray-900">Personal Information</h2>
                 {!isEditingProfile && (
-                  <button 
+                  <button
                     onClick={() => setIsEditingProfile(true)}
                     className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] bg-blue-50 py-1.5 px-3 rounded-md transition-colors"
                   >
@@ -234,8 +246,8 @@ export default function Settings() {
                     <button type="submit" disabled={loading} className="btn-primary w-full sm:w-auto px-6">
                       {loading ? 'Saving...' : 'Save Profile Changes'}
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => {
                         setIsEditingProfile(false);
                         setProfileData({ fullName: user?.fullName || '', phone: user?.phone || '' });
@@ -332,7 +344,7 @@ export default function Settings() {
               <div className="flex justify-between items-center mb-6 border-b pb-2">
                 <h2 className="text-xl font-bold text-gray-900">Garage Public Profile</h2>
                 {!isEditingGarage && (
-                  <button 
+                  <button
                     onClick={() => setIsEditingGarage(true)}
                     className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] bg-blue-50 py-1.5 px-3 rounded-md transition-colors"
                   >
@@ -378,13 +390,50 @@ export default function Settings() {
                   />
                 </div>
 
+                <div className="pt-2 border-t mt-4 border-gray-100">
+                  <h3 className="text-md font-bold text-gray-900 mb-3">Working Hours</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Monday - Friday</label>
+                      <input type="text" value={garageData.workingHours?.monday_friday || ''} onChange={(e) => setGarageData({ ...garageData, workingHours: { ...garageData.workingHours, monday_friday: e.target.value } })} className={`input-field w-full ${!isEditingGarage ? 'bg-gray-50 cursor-not-allowed' : ''}`} disabled={!isEditingGarage} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Saturday</label>
+                      <input type="text" value={garageData.workingHours?.saturday || ''} onChange={(e) => setGarageData({ ...garageData, workingHours: { ...garageData.workingHours, saturday: e.target.value } })} className={`input-field w-full ${!isEditingGarage ? 'bg-gray-50 cursor-not-allowed' : ''}`} disabled={!isEditingGarage} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Sunday</label>
+                      <input type="text" value={garageData.workingHours?.sunday || ''} onChange={(e) => setGarageData({ ...garageData, workingHours: { ...garageData.workingHours, sunday: e.target.value } })} className={`input-field w-full ${!isEditingGarage ? 'bg-gray-50 cursor-not-allowed' : ''}`} disabled={!isEditingGarage} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t mt-4 border-gray-100">
+                  <h3 className="text-md font-bold text-gray-900 mb-1">Preservice Deposit</h3>
+                  <p className="text-xs text-gray-500 mb-3">Require customers to pay a percentage upfront before service starts.</p>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Deposit Percentage</label>
+                    <select
+                      value={garageData.preserviceDepositPercentage}
+                      onChange={(e) => setGarageData({ ...garageData, preserviceDepositPercentage: e.target.value })}
+                      disabled={!isEditingGarage}
+                      className={`input-field w-full ${!isEditingGarage ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    >
+                      <option value="0">0% (No Deposit)</option>
+                      <option value="5">5% Deposit</option>
+                      <option value="10">10% Deposit</option>
+                      <option value="15">15% Deposit</option>
+                    </select>
+                  </div>
+                </div>
+
                 {isEditingGarage && (
                   <div className="pt-4 flex gap-3">
                     <button type="submit" disabled={loading} className="btn-primary w-full sm:w-auto px-6">
                       {loading ? 'Saving...' : 'Save Changes'}
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => {
                         setIsEditingGarage(false);
                       }}

@@ -327,3 +327,31 @@
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:35:51"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:11"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:12"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:26:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:27:28"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:28:12"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:28:26"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:29:12"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:29:34"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:35:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:36:33"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:37:33"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:37:45"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:39:36"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:45:30"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:45:45"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:46:46"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 17:48:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 18:11:41"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 18:36:02"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 18:54:02"}
+{"level":"error","message":"500 - Connection lost: The server closed the connection. - /api/users/admin/managers - GET - ::1","timestamp":"2026-04-21 21:02:14"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:25:47"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:26:28"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/39/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:34:38"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/2 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:35:46"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/2 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:37:03"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:40:30"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:41:06"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`gms`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/6 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-21 21:42:09"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-21 22:09:23"}

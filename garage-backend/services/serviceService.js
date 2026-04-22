@@ -26,7 +26,7 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
     if (typeStr.includes('electrical')) duration += 2.0;
     if (typeStr.includes('repair')) duration += 3.0; // General repair
     if (typeStr.includes('towing')) duration += 2.0;
-    return duration > 0 ? duration : 1.0; 
+    return duration > 0 ? duration : 1.0;
   };
   const estimatedDuration = calculateDuration(serviceType);
 
@@ -51,11 +51,29 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
     }
   }
 
-  await db.query(
-    `INSERT INTO ServiceRequests (ServiceType, VehicleID, GarageID, Description, IsEmergency, BookingDate, DropOffTime, EstimatedDuration)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0, bookingDate || null, dropOffTime || null, estimatedDuration]
+  // Calculate Deposit if applicable
+  let depositAmount = 0;
+  const [garageSettings] = await db.query("SELECT PreserviceDepositPercentage FROM Garages WHERE GarageID = ?", [garageId]);
+  const depositPercent = garageSettings[0]?.PreserviceDepositPercentage || 0;
+
+  if (depositPercent > 0) {
+    // Try to get service price(s)
+    const serviceList = (serviceType || '').split(',').map(s => s.trim());
+    const [prices] = await db.query(
+      "SELECT SUM(Price) as total FROM GarageServices WHERE GarageID = ? AND ServiceName IN (?)",
+      [garageId, serviceList]
+    );
+    const totalPrice = prices[0]?.total || 0;
+    depositAmount = (totalPrice * depositPercent) / 100;
+  }
+
+  const [result] = await db.query(
+    `INSERT INTO ServiceRequests (ServiceType, VehicleID, GarageID, Description, IsEmergency, BookingDate, DropOffTime, EstimatedDuration, DepositAmount)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0, bookingDate || null, dropOffTime || null, estimatedDuration, depositAmount]
   );
+
+  return result.insertId;
 
   // Notify Garage Manager
   try {
@@ -118,9 +136,9 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
   );
 };
 
-export const updateServiceStatus = async (requestId, status, admin, rejectionReason = "") => {
+export const updateServiceStatus = async (requestId, status, admin, rejectionReason = "", extras = {}) => {
   const [request] = await db.query("SELECT * FROM ServiceRequests WHERE RequestID = ?", [requestId]);
-  
+
   if (request.length === 0) {
     const error = new Error("Service request not found");
     error.status = 404;
@@ -135,6 +153,12 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
   }
 
   // Tenant Isolation
+  if (admin.role === "GarageOwner") {
+    const error = new Error("Garage Owners have read-only access and cannot update service status");
+    error.status = 403;
+    throw error;
+  }
+
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
       "SELECT 1 FROM GarageManagers WHERE UserID = ? AND GarageID = ?",
@@ -156,7 +180,7 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
 
   // Issue 6: Enforce valid status transitions
   const currentStatus = request[0].Status;
-  
+
   if (currentStatus === status) {
     return; // Ignore if status is not changing
   }
@@ -173,10 +197,35 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     throw error;
   }
 
+  // Preservice Deposit Check
+  if (status === 'InProgress' && request[0].DepositAmount > 0 && !request[0].IsDepositPaid) {
+    const error = new Error("Cannot start service: Preservice deposit has not been paid yet.");
+    error.status = 400;
+    throw error;
+  }
+
   await db.query(
     `UPDATE ServiceRequests SET Status = ?, RejectionReason = ? WHERE RequestID = ?`,
     [status, rejectionReason, requestId]
   );
+
+  // Emergency Offer logic
+  if (status === 'Approved' && request[0].IsEmergency) {
+    const { estimatedPrice, mechanicId } = extras;
+    if (estimatedPrice && mechanicId) {
+      // Calculate deposit based on estimated price
+      const [garageSettings] = await db.query("SELECT PreserviceDepositPercentage FROM Garages WHERE GarageID = ?", [request[0].GarageID]);
+      const depositPercent = garageSettings[0]?.PreserviceDepositPercentage || 0;
+      const depositAmount = (Number(estimatedPrice) * depositPercent) / 100;
+
+      await db.query(
+        "UPDATE ServiceRequests SET EstimatedPrice = ?, EmergencyStatus = 'OfferSent', DepositAmount = ? WHERE RequestID = ?",
+        [estimatedPrice, depositAmount, requestId]
+      );
+      // Assign mechanic directly
+      await assignServiceMechanic(requestId, mechanicId);
+    }
+  }
 
   // 5. Notify Customer
   const [vehicle] = await db.query("SELECT CustomerID FROM Vehicles WHERE VehicleID = ?", [request[0].VehicleID]);
@@ -273,7 +322,7 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
 
     for (const item of itemsUsed) {
       const { itemId, quantity } = item;
-      
+
       const [inventory] = await connection.query(
         "SELECT Quantity, ItemName, GarageID FROM Inventory WHERE ItemID = ? FOR UPDATE",
         [itemId]
@@ -352,7 +401,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
     // 3. Handle stock depletion
     for (const item of itemsUsed) {
       const { itemId, quantity } = item;
-      
+
       // Check stock availability
       const [inventory] = await connection.query(
         "SELECT Quantity, ItemName, GarageID FROM Inventory WHERE ItemID = ? FOR UPDATE",
@@ -393,7 +442,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
     // 4. Update status to 'Completed'
     await connection.query("UPDATE ServiceRequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
-    
+
     await connection.commit();
 
     // 5. Notify Customer
@@ -472,6 +521,74 @@ export const hideCustomerRequest = async (requestId, customerId) => {
   await db.query("UPDATE ServiceRequests SET CustomerHidden = 1 WHERE RequestID = ?", [requestId]);
 };
 
+export const respondToEmergencyOffer = async (requestId, accept, customerId) => {
+  const [request] = await db.query(
+    "SELECT sr.* FROM ServiceRequests sr JOIN Vehicles v ON sr.VehicleID = v.VehicleID WHERE sr.RequestID = ? AND v.CustomerID = ?",
+    [requestId, customerId]
+  );
+
+  if (request.length === 0) {
+    const error = new Error("Emergency request not found or unauthorized");
+    error.status = 404;
+    throw error;
+  }
+
+  if (request[0].EmergencyStatus !== 'OfferSent') {
+    const error = new Error("No pending offer for this request");
+    error.status = 400;
+    throw error;
+  }
+
+  if (accept) {
+    await db.query(
+      "UPDATE ServiceRequests SET EmergencyStatus = 'Accepted', Status = 'InProgress' WHERE RequestID = ?",
+      [requestId]
+    );
+
+    // Notify Manager
+    const [garage] = await db.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [request[0].GarageID]);
+    if (garage.length > 0 && garage[0].ManagerID) {
+      await createNotification(
+        garage[0].ManagerID,
+        "Emergency Offer Accepted",
+        `Customer accepted the offer for request #${requestId}. Work can begin.`,
+        "OFFER_ACCEPTED"
+      );
+    }
+  } else {
+    await db.query(
+      "UPDATE ServiceRequests SET EmergencyStatus = 'Rejected', Status = 'Rejected' WHERE RequestID = ?",
+      [requestId]
+    );
+
+    // Notify Manager
+    const [garage] = await db.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [request[0].GarageID]);
+    if (garage.length > 0 && garage[0].ManagerID) {
+      await createNotification(
+        garage[0].ManagerID,
+        "Emergency Offer Rejected",
+        `Customer rejected the offer for request #${requestId}.`,
+        "OFFER_REJECTED"
+      );
+    }
+
+    // Return nearby garages as suggestions
+    const [nearbyGarages] = await db.query(`
+      SELECT g.*, 
+             IFNULL(AVG(r.Rating), 0) as AverageRating
+      FROM Garages g
+      LEFT JOIN Reviews r ON g.GarageID = r.GarageID
+      WHERE g.GarageID != ? AND g.Status = 'Active'
+      GROUP BY g.GarageID
+      LIMIT 3
+    `, [request[0].GarageID]);
+
+    return { message: "Offer rejected", suggestions: nearbyGarages };
+  }
+
+  return { message: accept ? "Offer accepted" : "Offer rejected" };
+};
+
 export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 10, search = '', date = '' }, admin) => {
   const offset = (page - 1) * limit;
 
@@ -483,6 +600,16 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
     );
     if (manager.length === 0) {
       const error = new Error("Unauthorized: You do not manage this garage");
+      error.status = 403;
+      throw error;
+    }
+  } else if (admin.role === "GarageOwner") {
+    const [ownerRow] = await db.query(
+      "SELECT 1 FROM Garages WHERE GarageID = ? AND OwnerID = ?",
+      [garageId, admin.id]
+    );
+    if (ownerRow.length === 0) {
+      const error = new Error("Unauthorized: You do not own this garage");
       error.status = 403;
       throw error;
     }
@@ -503,7 +630,7 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
     LEFT JOIN Payments p ON sr.RequestID = p.RequestID
     WHERE sr.GarageID = ?
   `;
-  
+
   const params = [garageId];
 
   if (status && status !== 'All') {
@@ -539,7 +666,7 @@ export const fetchGarageRequests = async (garageId, { status, page = 1, limit = 
     ORDER BY sr.IsEmergency DESC, sr.RequestDate DESC
     LIMIT ? OFFSET ?
   `;
-  
+
   const queryParams = [...params, parseInt(limit), parseInt(offset)];
   const [rows] = await db.query(dataQuery, queryParams);
 
@@ -565,7 +692,7 @@ export const fetchRequestById = async (requestId) => {
         ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
      ) ma ON sr.RequestID = ma.RequestID
      LEFT JOIN Users u ON ma.MechanicID = u.UserID
-     WHERE sr.RequestID = ?`, 
+     WHERE sr.RequestID = ?`,
     [requestId]
   );
   if (rows.length === 0) {
@@ -644,8 +771,8 @@ export const fetchGarageAvailability = async (garageId, date) => {
   );
 
   const congestedTimes = dropOffCounts
-     .filter(row => row.count >= 2) // Limit: Max 2 cars can drop off at the exact same hour
-     .map(row => row.DropOffTime);
+    .filter(row => row.count >= 2) // Limit: Max 2 cars can drop off at the exact same hour
+    .map(row => row.DropOffTime);
 
   return {
     date,

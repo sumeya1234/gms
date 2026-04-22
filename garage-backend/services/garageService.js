@@ -16,7 +16,7 @@ export const getAllGarages = async (location) => {
     query += " WHERE g.Location LIKE ?";
     params.push(`%${location}%`);
   }
-  
+
   query += " GROUP BY g.GarageID";
 
   const [rows] = await db.query(query, params);
@@ -35,16 +35,16 @@ export const getAllGarages = async (location) => {
 
 import { createChapaSubaccount } from "./paymentService.js";
 
-export const addGarage = async (name, location, contact, bankCode, bankAccountNumber, bankAccountName) => {
+export const addGarage = async (name, location, contact, bankCode, bankAccountNumber, bankAccountName, preserviceDepositPercentage = 0) => {
   let subaccountId = null;
   if (bankCode && bankAccountNumber && bankAccountName) {
     subaccountId = await createChapaSubaccount(name, bankAccountName, bankCode, bankAccountNumber);
   }
 
   const [result] = await db.query(
-    `INSERT INTO Garages (Name, Location, ContactNumber, BankCode, BankAccountNumber, BankAccountName, ChapaSubaccountID)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [name, location, contact, bankCode, bankAccountNumber, bankAccountName, subaccountId]
+    `INSERT INTO Garages (Name, Location, ContactNumber, BankCode, BankAccountNumber, BankAccountName, ChapaSubaccountID, PreserviceDepositPercentage)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [name, location, contact, bankCode, bankAccountNumber, bankAccountName, subaccountId, preserviceDepositPercentage]
   );
   return result.insertId;
 };
@@ -102,10 +102,12 @@ export const modifyGarage = async (id, updateData, user) => {
         bankCode: 'BankCode',
         bankAccountNumber: 'BankAccountNumber',
         bankAccountName: 'BankAccountName',
-        ChapaSubaccountID: 'ChapaSubaccountID'
+        ChapaSubaccountID: 'ChapaSubaccountID',
+        workingHours: 'WorkingHours',
+        preserviceDepositPercentage: 'PreserviceDepositPercentage'
       };
-      
-      if(fieldMap[key]) {
+
+      if (fieldMap[key]) {
         updates.push(`${fieldMap[key]} = ?`);
         values.push(value);
       }
@@ -125,6 +127,6 @@ export const modifyGarage = async (id, updateData, user) => {
 export const removeGarage = async (id) => {
   // Check if garage exists
   await fetchGarageById(id);
-  
+
   await db.query("DELETE FROM Garages WHERE GarageID = ?", [id]);
 };

@@ -31,6 +31,13 @@ export const validateMechanicCreation = Joi.object({
   skills: Joi.array().items(Joi.string()).optional()
 });
 
+export const validateUserCreation = Joi.object({
+  fullName: Joi.string().min(3).required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().min(10).max(20).required(),
+  role: Joi.string().valid('GarageManager', 'GarageOwner').required()
+});
+
 export const validateMechanicStatusUpdate = Joi.object({
   status: Joi.string().valid('Active', 'Suspended', 'Archived').required()
 });

@@ -1,0 +1,2604 @@
+
+
+JIMMA INSTITUTE OF TECHNOLOGY 
+
+FACULTY OF COMPUTING AND INFORMATICS 
+
+SOFTWARE ENGINEERING - PROGRAM
+
+FINAL YEAR PROJECT-II (FYPr 4212) 
+
+
+
+“Garage Management System”
+
+GROUP MEMBERS 						ID NO
+
+Entisar Kasim						            RU0761/14
+
+Husna Kheyru						            RU0232/14
+
+Mubarek Teyb							RT10041/15
+
+Sumeya Muhammed						RU0093/14
+
+Sumeya Muhidin                                                            	RU0109/14
+
+
+
+Advisors’ Name		        	                                      Signature
+
+Mr. Latera Tesfaye                                                                _____________
+
+Mr. Yonas Gido                                                                     _____________
+
+A Final Year Project Document
+
+Submitted to Faculty of Computing and Informatics, Jimma Institute of Technology, Jimma University, in Partial fulfillment of the requirement of the Degree of Bachelor of Science in Software Engineering.
+
+Jimma, Ethiopia
+
+ 								                   April, 2026
+
+Acknowledgment
+
+We would like to express our sincere gratitude to all individuals who contributed to the successful completion of this Final Year Project entitled “Garage Management System.”
+
+First and foremost, we extend our heartfelt appreciation to our advisors, Mr. Latera Tesfaye and Mr. Yonas Gido, for their invaluable guidance, constructive feedback, and continuous encouragement throughout the development of this project. Their academic supervision and professional insights played a crucial role in shaping the direction, quality, and successful completion of this work.
+
+Our sincere thanks go to mechanics, and customers who shared their experiences and practical insights, which helped us better understand real-world challenges in garage operations and guided the development of a practical and user-centered solution.
+
+We would also like to acknowledge the dedication, cooperation, and teamwork of all group members. The successful completion of this project would not have been possible without mutual support, effective collaboration, and shared commitment.
+
+Finally, we extend our deepest gratitude to our families and friends for their continuous encouragement, patience, and moral support throughout the course of this project.
+
+
+
+Table of content
+
+Acknowledgment	II
+
+Abstract	IX
+
+Chapter One	1
+
+Introduction and Background	1
+
+1.1. Introduction	1
+
+1.1.1. Overview of the topic	1
+
+1.1.2. Description of the project	1
+
+1.1.3. Solution to be explored	2
+
+1.1.4. Importance of the project	2
+
+1.2. Background information of the organization	3
+
+1.2.1. Vision of the organization	3
+
+1.2.2. Mission of the organization	3
+
+1.2.3. Organizational structure	4
+
+1.3. Background of the project	4
+
+1.4. Methodolgy	5
+
+1.4.1 Fact-Finding techniques	5
+
+1.4.2 System development methodologies	6
+
+1.4.3 Tools used	6
+
+1.5. Statement of the problem	7
+
+1.6. Objectives of the study	8
+
+1.6.1. General objective	8
+
+1.6.2. Specific objectives	8
+
+1.7. Feasibility analysis	9
+
+1.7.1. Operational feasibility	9
+
+1.7.2. Technical feasibility	9
+
+1.7.3. Behavioral/Political feasibility	10
+
+1.7.4. Market feasibility	10
+
+1.7.5. Schedule feasibility	10
+
+1.7.6. Economic feasibility	12
+
+1.8. Scope of the project	12
+
+1.9. Significance of the project	13
+
+1.10. Target beneficiaries of the system	14
+
+1.11. Limitation of the project	14
+
+1.12. Risks, assumptions, and constraints	14
+
+1.13. Team Composition	16
+
+Chapter Two	17
+
+Requirement Analysis and Specification	17
+
+2.1. Existing system	17
+
+2.1.1. Description of the existing system	17
+
+2.1.2. Problems of the existing system	17
+
+2.1.3. Players in the existing system	18
+
+2.1.4. Bottlenecks Using the PIECES Framework	18
+
+2.2. Business rules for proposed system	18
+
+2.3. Proposed system	20
+
+2.3.1. Proposed system description	20
+
+2.3.2 Key components of the system	20
+
+2.3.3. System scope and alignment	21
+
+2.4. Requirements of the proposed system	21
+
+2.4.1. Functional requirements	21
+
+2.4.2. Non-functional requirements	22
+
+2.5. System analysis	24
+
+2.5.1. System requirement specifications (SRS)	24
+
+Chapter Three	41
+
+System Design	41
+
+3.1. Introduction	41
+
+3.2. Purpose of the System	41
+
+3.3. Design Goals	42
+
+3.4. Architectural Design	43
+
+3.4.1. Subsystem Decomposition	46
+
+3.4.2. Component diagram	47
+
+3.4.3. Deployment diagram	48
+
+3.4.4. Persistent modeling	49
+
+3.4.5. Access control and security	51
+
+3.5. User interface design	53
+
+3.6. Database design	56
+
+3.6.1 User and role modeling	56
+
+3.6.2 Core operational entities	57
+
+3.6.3 Normalization and integrity	58
+
+3.6.4 Indexing strategy	58
+
+3.6.5 Security and access control	59
+
+3.6.6 Backup, recovery, and scalability	59
+
+3.7. Summary	59
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+List of figures
+
+Figure 1  Use case diagram	25
+
+Figure 2 . Registration Sequence Diagram	34
+
+Figure 3 . Login Sequence Diagram 	34
+
+Figure 4 . Book Service Sequence Diagram	35
+
+Figure 5 . Approve Booking & Assign Mechanic Sequence Diagram	35
+
+Figure 6 . Payment & Invoice Generation Sequence Diagram	36
+
+Figure 7 . Activity diagram for login	Error! Bookmark not defined.
+
+Figure 8 . Activity diagram for registration	Error! Bookmark not defined.
+
+Figure 9 . Activity diagram for booking service	37
+
+Figure 10 . Activity diagram for managing service request	37
+
+Figure 11 . Activity diagram for updating job status	37
+
+Figure 12 . Activity diagram for making payment	37
+
+Figure 13 . Class diagram for garage management system	38
+
+Figure 14 . State chart diagram payment	39
+
+Figure 15 . State chart diagram for job progress	39
+
+Figure 16 . State chart diagram for service booking	39
+
+Figure 17 . User interface prototype	40
+
+Figure 18 . Software architecture diagram	45
+
+Figure 19 . Component diagram	48
+
+Figure 20 . Deployment diagram	49
+
+Figure 21 . Login page	54
+
+Figure 22 . Registration page	54
+
+Figure 23 . Garage details page	55
+
+Figure 24 . Customer dashboard	55
+
+Figure 25 . Entity relationship diagram 	58
+
+
+
+
+
+
+
+
+
+
+
+
+
+List of tables
+
+Table 1 . Hardware and Software Tools	7
+
+Table 2 . Project management plan and task breakdown	12
+
+Table 3 . Team composition	16
+
+Table 4  Security Login	26
+
+Table 5 . Registration	27
+
+Table 6 . Book Garage Service	27
+
+Table 7 . Booking Approval	28
+
+Table 8 . Assign Mechanic to Job	28
+
+Table 9 . Update Service Status	29
+
+Table 10 . Customer Service History	29
+
+Table 11 . Manage Garage Profile	30
+
+Table 12 . Reset Password	30
+
+Table 13 . Payment Processing	31
+
+Table 14 . User Management	31
+
+Table 15 . Admin Analytics	32
+
+Table 16 . Manage Inventory Use Case	32
+
+Table 17 . Submit Review Use Case	33
+
+Table 18 . Security features and user role access control	52
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Acronym
+
+Full Form
+
+API
+
+Application Programming Interface
+
+ETB
+
+Ethiopian Birr
+
+FYPr
+
+Final Year Project-1
+
+GMS
+
+Garage Management System
+
+GPS
+
+Global Positioning System
+
+MFA
+
+Multi-Factor Authentication
+
+PIECES
+
+Performance, Information, Economy, Control, Efficiency, Service
+
+RBAC
+
+Role-Based Access Control
+
+REST
+
+Representational State Transfer
+
+SRS
+
+System Requirement Specifications
+
+UI
+
+User Interface
+
+UX
+
+User Experience
+
+3NF
+
+Third Normal Form
+
+Abberivation
+
+Abstract
+
+Vehicle repair and maintenance services are essential for ensuring safe and reliable transportation. However, many garages still rely on manual and traditional management methods, which limit efficiency and service transparency. With the increasing use of mobile and web technologies, there is a strong need for digital solutions that can improve communication, service quality, and operational efficiency in garage management.
+
+Customers often face difficulties in finding reliable garages, accessing clear service information, experiencing long waiting times, and tracking repair progress. Garage administrators struggle with poor task coordination, manual record keeping, inventory management issues, and inefficient payment handling. Mechanics typically rely on informal communication, which increases delays and errors. These challenges reduce service quality, efficiency, and customer trust.
+
+This project proposes a garage management system developed using modern web and mobile technologies. The customer and mechanic mobile applications are built using React Native, while the administrator web dashboard is developed with ReactJS. A MySQL database is used for secure and structured data storage. The system integrates Chapa as a digital payment gateway to support secure cashless transactions. The platform includes role-based access control and real-time updates, allowing customers to track services, administrators to manage operations, and mechanics to update job status efficiently.
+
+The proposed garage management system replaces manual processes with a unified digital platform. It improves communication, enhances operational efficiency, and increases transparency among customers, administrators, and mechanics. By integrating mobile applications, web technologies, and digital payments, the system provides better service delivery and an improved user experience for all stakeholders.
+
+
+
+
+
+Chapter One
+
+Introduction and Background
+
+1.1. Introduction
+
+1.1.1. Overview of the topic
+
+The automotive service sector plays a crucial role in supporting transportation systems and enabling economic productivity. However, in many regions, particularly in developing countries, vehicle repair and maintenance services remain largely unstructured, unreliable, and predominantly manual. Customers frequently struggle to locate credible garages, mechanics face communication challenges, and admins rely on outdated processes that hinder efficiency. These issues contribute to long waiting times, inconsistent pricing, poor service documentation, and a general lack of transparency and accountability within the sector. As the demand for professional vehicle repair continues to rise, the traditional system characterized by informal networks and limited technological integration fails to meet the expectations of modern consumers. This project addresses the pressing need to digitalize garage operations by introducing an integrated technological solution that improves communication, operational coordination, and service quality in the automotive repair ecosystem.
+
+1.1.2. Description of the project
+
+This project, titled garage management system aims to design and develop an innovative system that streamlines the entire workflow of vehicle repair services. The proposed system consists of multiple coordinated modules: a customer-facing android application, a web-based garage management dashboard, a mechanic mobile application, and an administrative portal for super admins. Through these interconnected components, the platform facilitates service booking, real-time repair tracking, task assignment, inventory management, and secure digital payments using Chapa. Additional features such as emergency request handling with live location sharing, customer reviews and ratings, multilingual support, and a real-time notification system enhance the user experience and bring greater transparency to the sector. By integrating these functionalities into a single platform, the project aims to modernize service delivery and ensure smooth communication among all stakeholders: customers, mechanics, admins, and super administrators.
+
+1.1.3. Solution to be explored
+
+The project proposes a technologically advanced solution that combines mobile computing, web technologies, geolocation services, and digital financial systems to address inefficiencies in traditional garage service operations. At its core, the system enables real-time communication that allows garages to receive and respond to customer service requests promptly, assign mechanics efficiently, and update repair statuses dynamically.
+
+The customer application includes a GPS-enabled garage discovery feature that displays nearby repair centers along with their available services, pricing information, and customer ratings. The mechanic interface streamlines workflow by allowing mechanics to submit diagnostic results, update repair progress, and confirm job completion in real time. In addition, integrated inventory management tools help garages maintain accurate spare-part records and generate automated alerts when stock levels are low.
+
+The system also integrates a digital payment solution using the Chapa payment. After a service is completed and approved by the admin, customers can securely make payments through Chapa. The system verifies the payment status, ensures transaction integrity, and automatically generates a digital receipt before marking the service as completed. To enhance accountability and regulation, an administrative portal enables supervisory Super to monitor garage performance, manage garage accounts, and address customer complaints.
+
+By integrating all these components into a single platform, the proposed system provides a centralized, secure, and real-time solution that transforms traditional garage services into a more organized, transparent, and efficient digital experience.
+
+1.1.4. Importance of the project
+
+This project is important because it changes the way vehicle repairs are handled, moving away from old, manual ways of doing things that often cause confusion and delays. For people who own cars, this project is a huge help because it removes the stress of trying to find a trustworthy mechanic, especially during a breakdown, by using GPS to show nearby garages and giving clear prices upfront. It acts as a real safety net since drivers can share their exact location when they are stuck on the road, making sure help arrives quickly through an emergency assistance feature.
+
+For the garage owners and workers, the system is a game-changer because it handles the messy paperwork, tracks spare parts automatically, and helps organize who is working on what. This prevents mistakes like losing records or running out of parts, and it allows mechanics to stay focused on the actual repairs. It also makes technology easier to use for everyone so anyone can benefit from it regardless of their technical skills.
+
+Furthermore, the project is essential because it provides a centralized digital platform to manage and monitor garage operations. The system enables garages to register and operate within the platform, while administrators oversee approvals, monitor performance, and handle customer complaints fairly.
+
+By bringing customers, mechanics, and administrators into a single digital space, the project promotes accountability through real-time service updates, transparent records, and customer reviews. Ultimately, this project is important because it builds trust and reliability between garages and customers, making the vehicle repair process smoother, safer, and more professional for the entire community.
+
+1.2. Background information of the organization
+
+1.2.1. Vision of the organization
+
+The organization envisions a future where vehicle repair services are accessible, efficient, and transparent for all customers. By leveraging digital technologies, the organization aims to modernize garage operations, enhance customer satisfaction, and create a seamless connection between customers, admins, mechanics, and super admin. The vision emphasizes inclusivity, ensuring that both urban and rural communities can benefit from structured, technology-driven automotive services.
+
+1.2.2. Mission of the organization
+
+The mission of the organization is to utilize technology-driven solutions to bridge the gaps in traditional garage service operations. By integrating mobile applications, web dashboards, real-time tracking, and digital payments, the organization seeks to provide a comprehensive platform that improves operational efficiency, enhances communication between stakeholders, and ensures transparency in service delivery. The organization is committed to fostering collaboration among admins, mechanics, customers, and super admin to deliver impactful solutions. Furthermore, the organization prioritizes scalability, ensuring that its platform can adapt to various garages and automotive service environments.
+
+1.2.3. Organizational structure 
+
+A typical garage follows a simple hierarchical structure that defines roles and responsibilities:
+
+Admin - The admin oversees the overall operation of the garage. This role includes approving service requests, assigning mechanics to jobs, managing inventory, handling payments, and resolving customer complaints.
+
+Mechanics - Mechanics are responsible for diagnosing vehicle problems, performing repairs, updating job progress, and reporting spare-part usage to the admin.
+
+Customers - Customers initiate service requests, provide vehicle information, make payments, and receive completed services.
+
+Super admin - registers garage, service standards, and complaint handling to ensure compliance and quality.
+
+Information Flow within the garage
+
+In the existing system, information flow is mostly informal and manual. Customers communicate service requests verbally or through phone calls. Admins then relay instructions to mechanics verbally, and updates are shared inconsistently. Inventory and payment records are often kept on paper, making tracking and reporting difficult.
+
+The proposed garage management system improves this flow by digitizing communication. Customer requests move directly to the admin through the system, mechanics receive clear task assignments digitally, and service updates, inventory usage, and payments are recorded in real time. Super admin can access summarized information for monitoring and decision-making. This structured information flow ensures transparency, accuracy, and efficient coordination among all stakeholders.
+
+1.3. Background of the project
+
+The increasing reliance on vehicles for personal and commercial activities has made automotive repair services an essential part of daily life. As the number of vehicles continues to grow, garages are expected to deliver faster, more reliable, and more transparent services. However, many garages still operate using traditional and manual systems that are no longer suitable for managing modern service demands. These outdated practices limit efficiency and create challenges for both service providers and customers.
+
+In many garage environments, service requests, task assignments, inventory records, and payment details are handled manually or through informal communication. Customers often have limited access to accurate service information and are unable to track the progress of their vehicle repairs. Admins face difficulties in coordinating mechanics, monitoring spare parts usage, and maintaining organized records. Mechanics, in turn, rely on verbal instructions, which can lead to misunderstandings and delays. The lack of a structured system also makes it difficult to ensure accountability and consistent service quality.
+
+The absence of integrated digital solutions has further widened the communication gap between customers, garages, and platform administrators. Without centralized data and real-time updates, decision-making becomes inefficient and service monitoring is unreliable. As customer expectations evolve and technology becomes more accessible, there is a clear need for a system that can organize garage operations and improve service delivery.
+
+This project was developed in response to these challenges. It aims to replace manual workflows with a centralized digital platform that supports service requests, real-time updates, inventory management, and secure payments. By introducing a structured and technology-driven approach, the project seeks to improve operational efficiency, transparency, and overall service quality within the automotive repair sector.
+
+1.4. Methodolgy
+
+1.4.1 Fact-Finding techniques
+
+Fact-finding involves the collection of data using specific techniques to gather the requirements for the proposed system.
+
+Interviews: Discussions were held with stakeholders who interact with automotive services, including garage owners and frequent vehicle owners. These sessions were conducted via phone calls to capture detailed insights into the challenges of manual garage management and service booking.
+
+The development process follows a structured sequence:
+
+Requirement gathering: Identifying the needs of admins and customers through interviews.
+
+System analysis: Studying the current manual processes to design a more effective system architecture.
+
+System design: Creating detailed documents for the system's functionality and user interface.
+
+Development and implementation: Writing the code and building the database using chosen frameworks.
+
+Testing and evaluation: Verifying that the system works correctly and satisfies all user requirements.
+
+1.4.2 System development methodologies
+
+The agile methodology was selected for the development of the garage management system. Agile is an iterative approach that breaks the project into smaller phases, allowing for continuous improvement and flexibility.
+
+The reasons for selecting agile include:
+
+Adaptability: Since system requirements can change as development progresses, the iterative nature of agile allows for new features to be added easily.
+
+Collaboration: This methodology promotes steady communication between team members and stakeholders, ensuring the final product aligns with user expectations.
+
+Incremental progress: Each development cycle produces a functional part of the system, allowing for early testing and feedback.
+
+1.4.3 Tools used
+
+The development of this project requires a combination of hardware and software tools to handle coding, documentation, and testing.
+
+Category
+
+Tool / Specification
+
+Purpose
+
+Operating System
+
+Windows 10 or above
+
+Provides a stable and user-friendly development environment.
+
+UML Modeling
+
+Draw.io, EdrawMax
+
+Used for designing system diagrams and user interfaces.
+
+Web browsers
+
+Chrome, Firefox, Edge
+
+Used for testing the web-based features of the system.
+
+Frontend
+
+HTML, CSS, JavaScript, React.JS, ReactNative
+
+Core technologies used to build the user-facing interface.
+
+Backend
+
+Node.JS 
+
+Used for server-side logic and handling system data.
+
+Database
+
+MySQL
+
+The primary relational database for managing system records.
+
+Project Management
+
+Trello
+
+Used to track tasks and manage team progress.
+
+Hardware
+
+PC (6GB+ RAM, 1.7GHz+ CPU)
+
+Main workstation for coding, documentation, and testing.
+
+Mobile Device
+
+Android smartphone
+
+Used for testing the mobile responsiveness of the system.
+
+Table 1. Hardware and Software Tools
+
+1.5. Statement of the problem
+
+Vehicle repair garages play an essential role in supporting transportation and daily economic activities. However, many garages still operate using traditional and manual systems that are inefficient and poorly organized. These practices create several challenges that affect customers, managers, mechanics, and supervising bodies.
+
+One major problem is the lack of access to reliable and timely service information. Customers often struggle to find trustworthy garages, understand available services, or receive clear pricing details. Once a vehicle is submitted for repair, customers usually have no way of tracking progress, which leads to uncertainty, repeated inquiries, and dissatisfaction.
+
+Another significant issue is the communication gap between stakeholders. In most garages, communication depends on phone calls, face-to-face conversations, or verbal instructions. Service requests, task assignments, and progress updates are not systematically recorded, resulting in delays, misunderstandings, and poor coordination between admins and mechanics.
+
+Inventory and resource management also remains a serious challenge. Spare parts are commonly tracked manually, making it difficult to know stock levels accurately. This often leads to unexpected shortages, overstocking, delayed repairs, and increased operational costs.
+
+In addition, payment and transaction handling is inefficient in many garages. Payments are frequently cash-based or poorly documented, which reduces transparency and increases the risk of errors, disputes, and financial mismanagement.
+
+Finally, garages lack effective mechanisms for handling emergency service requests. In urgent situations, there is no structured way to identify nearby garages, share customer locations, or prioritize emergency repairs, resulting in slow response times and customer frustration.
+
+These interconnected problems highlight the need for a centralized, technology-driven solution that improves communication, transparency, efficiency, and service quality in garage operations.
+
+1.6. Objectives of the study
+
+1.6.1. General objective
+
+The primary objective of this project is to design and develop an integrated mobile and web-based garage management system that automates garage operations.
+
+1.6.2. Specific objectives
+
+To achieve this goal, the following specific objectives will guide the development of the system:
+
+To analyze the limitations of the existing garage management system - identify operational and service-related problems in current garage practices.
+
+To design a digital garage management system that integrates all stakeholders - create a unified system connecting customers, admins, mechanics, and super admin.
+
+To develop a mobile application for customers to request and track services - allow customers to request services and monitor repair progress easily.
+
+ To develop a web-based dashboard for admins to manage operations - support efficient service management, task assignment, and monitoring.
+
+To implement a mobile application for mechanics to receive and update tasks - enable mechanics to receive jobs and update service status in real time.
+
+To integrate inventory management and digital payment functionalities - automate spare-parts tracking and support secure payments.
+
+To test and validate the system for functionality, usability, and reliability - ensure the system works correctly and meets user requirements.
+
+1.7. Feasibility analysis
+
+A feasibility analysis was conducted to evaluate the practicality of the proposed garage management system. This analysis encompasses operational, technical, behavioral, market, schedule, and economic feasibility.
+
+1.7.1. Operational feasibility
+
+The system is designed to solve real daily struggles without making work harder for the staff. We focus on:
+
+Cleaning up the communication gap:  Mechanics use the application to post instant updates on a car's status, so customers don’t have to call or visit just to ask for progress.
+
+Handling the stress of inventory:  The system automatically watches the spare parts stock and sends a notification when items are low, which stops the problem of starting a job only to find a part is missing.
+
+Making payments painless:  By offering both digital options like Chapa and traditional cash, the system cuts down on math errors and paper receipts that often get lost.
+
+Responding to roadside trouble: A built-in GPS tool allows drivers with broken-down vehicles to send their exact location to a garage, making roadside assistance faster and more organized.
+
+1.7.2. Technical feasibility
+
+The system leverages modern and proven technologies:
+
+Mobile Applications: Android apps for customers and mechanics, designed with React Native.
+
+Web Dashboards: Admin and Super admin portals built using React.
+
+Backend Services: REST API developed using Node.js for authentication, business logic, and notifications.
+
+Database: MySQL for storing user, garage, service, inventory, and payment data.
+
+External Integrations: Google Maps for location services, Firebase Cloud Messaging for push notifications, and Chapa Payment API for digital payments.
+
+1.7.3. Behavioral/Political feasibility
+
+ The project is built to make people feel comfortable and secure while using new technology:
+
+- Supporting National Goals: The system aligns with Ethiopia’s push to modernize services and make them more professional.
+
+- Building Trust: By using strict login roles and data encryption, we ensure that private information about customers and businesses stays protected.
+
+- User Comfort: The design is simple and uses local languages, making it easy for people to switch from their old paper notebooks to a digital screen without feeling overwhelmed.
+
+1.7.4. Market feasibility
+
+There is a massive need for this system because the current way of fixing cars is often disorganized:
+
+What Customers Want: Drivers are tired of hidden costs and long wait times; they want a way to book repairs and see prices on their phones.
+
+What Owners Need:  Garage owners are looking for a way to stop losing money due to lost parts or lazy tracking, and they need a tool to see how their business is actually doing.
+
+What Mechanics Gain:  Instead of being shouted at by the manager, mechanics get a clear digital list of their tasks for the day, which helps them work faster and better.
+
+What the super administrator  Gains: finally the super administrator gets a way to  see  which garages are doing good work and which ones are following the law, helping to raise the standard of the whole industry.
+
+
+
+
+
+
+
+1.7.5. Schedule feasibility
+
+The project schedule has been designed to ensure timely completion, with clear milestones for each phase. The total estimated time required is 700 hours, distributed over the following phases:
+
+Phase / Task
+
+Start Date
+
+End Date
+
+Estimated Hours
+
+Milestone
+
+Project Planning & Initial Research
+
+Dec 02, 2025
+
+Dec 16, 2025
+
+40
+
+Finalizing goals & scope
+
+Requirements Gathering
+
+Dec 17, 2025
+
+Dec 27, 2025
+
+60
+
+Requirement Specification Document (SRS)
+
+System Analysis & Design
+
+Dec 28, 2025
+
+Jan 18, 2026
+
+80
+
+System Design Document
+
+Development Environment Setup
+
+Jan 19, 2026
+
+Jan 23, 2026
+
+40
+
+Development tools & server setup
+
+System Design & Prototyping
+
+Jan 24, 2026
+
+Feb 10, 2026
+
+80
+
+UI/UX prototype completed
+
+Development of Core Features
+
+Feb 11, 2026
+
+Mar 11, 2026
+
+150
+
+Core system functionality implemented
+
+Integration of Payment & Notifications
+
+Mar 12, 2026
+
+Mar 25, 2026
+
+80
+
+Digital payment and push notifications functional
+
+Testing & Quality Assurance
+
+Mar 26, 2026
+
+Apr 10, 2026
+
+100
+
+Unit & user acceptance testing completed
+
+Pre-Implementation Review & Final Adjustments
+
+Apr 11, 2026
+
+Apr 17, 2026
+
+40
+
+Final review and adjustments
+
+System Deployment
+
+Apr 18, 2026
+
+Apr 25, 2026
+
+40
+
+
+
+Deployed on local device
+
+Post-Implementation Support
+
+Apr 26, 2026
+
+May 06, 2026
+
+40
+
+Bug fixing 
+
+Final Report & Presentation
+
+May 07, 2026
+
+May 12, 2026
+
+30
+
+Report & presentation completed
+
+Table 2. Project management plan and task breakdown
+
+1.7.6. Economic feasibility
+
+1.7.6.1. Cost-benefit analysis
+
+The economic feasibility is supported by leveraging open-source tools and free-tier services, reducing development costs. Benefits include improved garage efficiency, faster service delivery, better customer satisfaction, and reduced operational errors. These improvements translate into higher revenue potential and a strong return on investment, estimated at 9,000 ETB.
+
+1.7.6.2. Cost of the project
+
+The total estimated cost of the project is 9,000 ETB, including:
+
+External storage (64GB flash drive): 1,500 ETB
+
+Internet connection (6-month subscription): 6,000 ETB
+
+Documentation, printing, and other materials: 1,500 ETB
+
+1.7.6.3. Cost breakdown
+
+Recurrent Costs: 
+
+Internet connection – 6,000 ETB
+
+One-time Costs:
+
+External storage – 1,500 ETB
+
+Documentation & materials – 1,500 ETB
+
+1.8. Scope of the project
+
+The garage management system aims to provide a comprehensive solution to address the operational, logistical, and customer service challenges faced by vehicle repair garages. The scope of the project is defined across multiple dimensions, ensuring a clear focus on its functionalities, target users, and deliverables.
+
+The system includes an Android mobile application for customers to search for garages, request services, track repair progress, make payments, and provide reviews. Admins have access to a web dashboard to manage service requests, assign tasks to mechanics, monitor repair statuses, track inventory, and generate reports. Mechanics are provided with a mobile application update task progress, log part usage, and communicate with admins. Super admin can oversee all garages, approve or suspend accounts, monitor complaints, and generate performance analytics.
+
+The platform also supports emergency service requests through GPS-based live location sharing, digital payments via Chapa, and multilingual support (English, Amharic, Affan Oromo). By integrating real-time notifications, inventory management, and reporting tools, the system ensures efficiency, transparency, and enhanced customer satisfaction.
+
+1.9. Significance of the project
+
+The garage management system represents a significant innovation in the automotive service industry by combining digital technologies with a user-centered approach.
+
+For customers, the system ensures access to reliable and timely information about nearby garages, available services, pricing, and repair progress. This empowers them to make informed decisions, reduces waiting times, and enhances trust in garage services. Emergency service functionality further ensures that customers receive prompt assistance during critical situations.
+
+For admins and mechanics, the platform streamlines task assignments, inventory management, and performance monitoring, leading to operational efficiency and better resource utilization. Automated reporting and analytics allow admins to identify service trends, optimize workforce allocation, and enhance overall garage performance.
+
+For super admin, the system provides a comprehensive oversight mechanism, enabling effective regulation, performance evaluation, and quality assurance across garages.
+
+Overall, the project bridges the gap between traditional manual garage operations and modern, technology-driven service solutions. It offers a scalable, cost-effective, and impactful platform that has the potential to transform vehicle repair services, making them more efficient, transparent, and customer-oriented.
+
+1.10. Target beneficiaries of the system
+
+The primary beneficiaries of the garage management system include:
+
+Customers: Who will benefit from timely access to service information, real-time repair tracking, digital payment options, and emergency assistance.
+
+Admins: Who will gain tools to efficiently manage service requests, monitor mechanics, control inventory, generate reports, and handle customer complaints.
+
+Mechanics: Who will have a streamlined interface for task updates, part usage tracking, and communication with the admin.
+
+Super admin: Who will benefit from oversight capabilities, performance monitoring, complaint management, and the ability to regulate and improve the overall garage ecosystem.
+
+1.11. Limitation of the project
+
+The implementation of the Garage Management System is subject to several constraints that may influence its operational efficiency and widespread adoption. Technically, the system’s performance—specifically regarding real-time service tracking and automated reporting—is contingent upon available computational resources, which may impact responsiveness under heavy loads. Furthermore, the transition to a digital platform presents a human factor challenge; users with varying levels of technical proficiency may require structured training to utilize the system effectively.
+
+The scope of the application is further narrowed by its platform and connectivity requirements. Currently, mobile access is restricted to the Android operating system, and the necessity for a continuous internet connection may limit the system's utility in environments with unstable network infrastructure. Additionally, as this project was developed within an academic context, it lacks exposure to a high-volume production environment, and its reporting accuracy is based on simulated data rather than extensive real-world datasets. Finally, the system’s verification process is limited to internal document-based validation and does not extend to formal integration with government databases for legal authentication.
+
+1.12. Risks, assumptions, and constraints
+
+The development and implementation of the garage management system may encounter various risks that could affect system performance and adoption
+
+Risks
+
+Data Security and Privacy Risk:  The system stores sensitive customer, vehicle, and financial information, which may be exposed to unauthorized access or data breaches.
+
+Risk Handling Strategy:  Secure user authentication, role-based access control, encrypted data transmission, and regular data backups will be used to protect data confidentiality and integrity.
+
+System Failure and Downtime Risk: Technical issues such as software errors, server failures, or unexpected crashes may interrupt system availability.
+
+Risk Handling Strategy: The system will be developed using a modular design, undergo thorough testing, and include backup and recovery mechanisms to ensure system stability and continuity.
+
+User Adoption Risk: Some users, including garage staff and customers, may resist using the system due to limited technical skills or familiarity with digital platforms.
+
+Risk Handling Strategy: A simple and user-friendly interface will be designed, supported by clear user guidance to encourage adoption.
+
+Assumptions
+
+Users (customers, admins, mechanics, and super admin) will have internet access and compatible devices.
+
+Admins and mechanics will actively engage with the system to ensure timely service updates and inventory management.
+
+Super admin will oversee the platform to maintain operational compliance and quality standards.
+
+
+
+
+
+Constraints
+
+The project operates under limited time and budget, restricting the scope of advanced features and cross-platform support.
+
+Legal and regulatory requirements for handling customer and financial data constrain flexibility in system design and implementation.
+
+The platform is initially restricted to Android devices and web dashboards, limiting iOS mobile adoption in the first phase.
+
+1.13. Team Composition
+
+Project Title
+
+Garage Management System
+
+Prepared By
+
+S.No
+
+Full Name
+
+Id No
+
+Email/Mobile
+
+Responsibility
+
+
+
+Entisar Kasim
+
+RU0761/14
+
+entisarkasim23@gmail.com
+
+Backend Developer
+
+
+
+Husna Kheyru 
+
+RU0232/14
+
+husskheyru@gmail.com
+
+Mobile App Developer
+
+
+
+Mubarek Teyb
+
+RT10041/15
+
+mubarakteyib46@gmail.com
+
+Frontend developer
+
+
+
+Sumeya Muhammed
+
+RU0093/14
+
+sumenaweya@gmail.com
+
+Backend  Developer
+
+
+
+Sumeya Muhidin
+
+RU0109/14
+
+sumsum8336@gmail.com
+
+UI/UX designer
+
+Advisors’ Name
+
+Mr. Latera Tesfaye
+
+Mr. Yonas Gido 
+
+Date
+
+23 / 04 / 2026
+
+Table 3. Team composition
+
+
+
+
+
+Chapter Two
+
+Requirement Analysis and Specification
+
+2.1. Existing system
+
+2.1.1. Description of the existing system
+
+Currently, vehicle repair garages in Ethiopia and many other regions largely rely on manual, paper-based operations or partially digitized systems to manage their services. For example:
+
+- Manual service logs: Garages record customer information, vehicle details, and service history in physical registers, making tracking and retrieval cumbersome.
+
+- Communication methods: Customers contact garages via phone calls or in-person visits to request services or inquire about progress.
+
+- Inventory tracking: Spare parts are often tracked manually, leading to stock discrepancies and delayed restocking.
+
+- Payment systems: Payments are primarily cash-based, which increases the risk of errors and reduces transaction transparency.
+
+These existing systems are functional at a basic level but are inefficient, error-prone, and lack real-time updates, which affects both customer satisfaction and garage operations.
+
+2.1.2. Problems of the existing system
+
+The current garage management processes face several challenges that hinder operational efficiency and customer service quality. The major problems include:
+
+Lack of integration: Customer management, mechanic assignments, inventory, and payment systems operate independently, causing fragmentation and inefficiencies.
+
+Limited real-time updates: Customers and admins cannot track service progress in real time, leading to uncertainty and delays.
+
+Inefficient task assignment: Mechanics often rely on verbal or manual instructions, which can result in miscommunication and delayed repairs.
+
+Inventory management issues: Manual tracking leads to inaccurate stock levels, unplanned shortages, and overstocking.
+
+Payment inefficiencies: Cash-only systems or untracked digital payments increase errors and reduce financial transparency.
+
+Neglect of customer experience: The existing system lacks features such as GPS-based garage search, service ratings, emergency assistance, or notification systems.
+
+2.1.3. Players in the existing system
+
+The key stakeholders involved in the existing garage system include:
+
+- Customers: Individuals seeking vehicle repair and maintenance services.
+
+- Managers: Responsible for coordinating mechanics, service schedules, and inventory.
+
+- Mechanics: Perform vehicle repairs and maintenance tasks.
+
+2.1.4. Bottlenecks Using the PIECES Framework
+
+The PIECES framework can be used to evaluate the limitations of the current garage systems:
+
+Performance: Slow service due to manual processes and lack of real-time tracking reduces efficiency and customer satisfaction.
+
+Information / Input & Output: Redundant data entry for service records and inventory, coupled with inaccurate reporting, creates operational inefficiencies.
+
+Control / Security: Physical records and cash payments are prone to errors, theft, and unauthorized access.
+
+Efficiency: Fragmented systems force admins, mechanics, and customers to juggle multiple processes, wasting time and resources.
+
+Services / Functionality: Limited features restrict customer engagement, such as the inability to rate services, request emergency assistance, or track repair progress digitally.
+
+Other / Scalability: Current methods cannot easily scale to accommodate multiple garages or higher customer volumes.
+
+2.2. Business rules for proposed system
+
+BR01 – User eligibility and registration
+
+- All users (customers, managers, mechanics, and super administrators) must be registered before participating in any garage-related activity.
+
+- Admins are required to submit valid verification documents and obtain super admin approval before offering services through the platform.
+
+BR02 – Roles and access control
+
+- Access to data and operations is strictly determined by user roles.
+
+- Customers can access only their personal, vehicle, and service-related information.
+
+- Mechanics are restricted to viewing and updating tasks assigned to them.
+
+- Admins oversee services, mechanics, inventory, and garage operations under their control.
+
+- Super administrators have oversight access for monitoring, auditing, and governance purposes.
+
+BR03 – Service requests and job assignment
+
+- Service requests can only be created for vehicles that are registered under a customer’s account.
+
+- Admins are responsible for approving or rejecting all service requests.
+
+- A mechanic may be assigned to only up to 5 active service tasks at a time to ensure service quality and safety.
+
+BR04 – Inventory control policies
+
+- Spare parts inventory is managed exclusively by Admins.
+
+- Mechanics must request approval before using spare parts when stock availability is limited or insufficient.
+
+- Admins must ensure that inventory levels are sufficient to prevent service disruption due to stock shortages.
+
+BR05 – Emergency service handling
+
+- Emergency service requests are treated with higher priority than regular service requests.
+
+- Admins are responsible for ensuring immediate response by assigning available resources.
+
+BR06 – Payment and service completion
+
+- A service is considered complete only after payment has been confirmed.
+
+- All payment transactions must be recorded and retained for accountability, reporting, and auditing purposes.
+
+BR07 – Feedback and performance oversight
+
+- Customers are allowed to provide feedback and ratings only after a service has been completed.
+
+- Admins and super administrators can review performance data to evaluate service quality and operational efficiency.
+
+2.3. Proposed system
+
+2.3.1. Proposed system description
+
+The proposed system garage management system is designed to address the inefficiencies of current garage operations, which are often manual or fragmented across separate tools. These limitations lead to delays in service delivery, poor tracking of service progress, inventory issues, and limited accountability. The GMS provides an integrated digital platform that connects customers, admins, mechanics, and super administrators in a single workflow.
+
+The system is built around role-based access, ensuring that each user interacts only with features relevant to their responsibilities. By automating service requests, task assignment, inventory tracking, and reporting, the system improves operational efficiency, enhances transparency, and ensures consistent enforcement of business policies.
+
+2.3.2 Key components of the system
+
+1. Customer application
+
+Customers can register and manage their profiles, add multiple vehicles, and submit service requests. The app allows searching for nearby garages using GPS, viewing services and prices, and tracking service progress in real time. Emergency requests are prioritized, with optional live vehicle location sharing. Payments are handled securely, linking completion confirmation with service records.
+
+2. Admin web dashboard
+
+Admins can review, approve, or reject service requests, assign tasks to mechanics, and monitor service progress. The dashboard supports inventory management, including tracking spare parts and monitoring usage. It also provides summaries of garage performance, such as service volume, revenue trends, mechanic workload, and customer feedback, helping admins make informed decisions.
+
+Mechanic mobile app
+
+Mechanics receive task assignments with detailed service instructions. They update task status as work progresses and log spare parts usage, providing real-time visibility for both managers and customers. This interface focuses on task execution and reporting, limiting access to only relevant system features.
+
+4. Super admin Portal
+
+It provides oversight across all garages, approves or suspends garage accounts, monitors complaints, reviews performance metrics, and generates system-wide analytics.
+
+2.3.3. System scope and alignment	
+
+The GMS centralizes garage operations while enforcing business rules such as approval workflows, emergency prioritization, and payment verification. The system is technically feasible for implementation using standard web and mobile technologies. It aligns with business rules and functional requirements, ensuring that each actor can perform their responsibilities efficiently while maintaining data integrity and accountability.
+
+2.4. Requirements of the proposed system
+
+2.4.1. Functional requirements
+
+User management
+
+- The system shall allow users to register, log in, and log out based on their assigned roles.
+
+- The system shall support verification and approval of admins by super administrators.
+
+Service request management
+
+- The system shall allow customers to register vehicles and submit service requests.
+
+- The system shall allow admins to approve, reject, and schedule service requests.
+
+- The system shall allow mechanics to update the status of assigned service tasks.
+
+Emergency assistance
+
+- The system shall allow customers to submit emergency service requests.
+
+- The system shall prioritize emergency requests over regular service workflows.
+
+Inventory management
+
+- The system shall allow admins to add, update, and monitor spare parts inventory.
+
+- The system shall allow mechanics to request spare parts required for service tasks.
+
+Payment processing
+
+- The system shall support service payments through approved payment methods.
+
+- The system shall record all payment transactions and associate them with corresponding services.
+
+Notifications and communication
+
+- The system shall notify users about service requests, task assignments, service status updates, inventory alerts, and payment confirmations.
+
+Reporting and feedback
+
+- The system shall generate service reports and invoices.
+
+- The system shall allow customers to submit ratings and feedback after service completion.
+
+- The system shall provide dashboards for admins and super administrators to review operational performance.
+
+2.4.2. Non-functional requirements
+
+Performance and availability	
+
+- The system shall be capable of supporting at least 50 concurrent users without noticeable performance issues.
+
+- Service updates, emergency requests, and notifications must be processed within 5 seconds to ensure timely responses.
+
+- The system shall maintain a minimum uptime of 99.9%, excluding planned maintenance periods.
+
+- Continuous availability shall be ensured, allowing users to access the system 24/7.
+
+Usability and accessibility
+
+- The system shall provide a consistent and easy-to-use interface across all supported platforms.
+
+- Accessibility features such as screen reader compatibility and keyboard navigation shall be supported to accommodate users with special needs.
+
+- The system shall support multiple languages, including English, Amharic, and Affaan Oromo, to improve accessibility for a wider audience.
+
+Security and access control
+
+- Sensitive information, including user details, vehicle data, and payment records, shall be stored in encrypted form.
+
+- Role-based access control shall be enforced to ensure users can access only the features and data relevant to their roles.
+
+- Multi-factor authentication shall be supported to strengthen user account security.
+
+- Secure communication protocols shall be used to protect data during transmission.
+
+Reliability and data management
+
+- The system shall perform automated daily backups to safeguard against data loss.
+
+- Records of service requests, user activities, and payment transactions shall be maintained for at least six months.
+
+- In the event of a system failure, recovery mechanisms shall restore services within 24 hours to minimize disruption.
+
+Scalability
+
+- The system shall be designed to accommodate growth in users, garages, and service requests without requiring major architectural changes.
+
+- Future expansions, such as introducing new services or extending to additional regions, shall be supported without affecting existing system performance.
+
+Maintainability
+
+- The system shall follow a modular and well-documented design to make maintenance and future updates easier.
+
+- The codebase shall be structured to allow developers to modify or extend functionality with minimal impact on existing components.
+
+- The system shall support smooth integration of new features as business needs evolve.
+
+Compliance and auditability
+
+- The system shall comply with relevant data protection and privacy regulations related to personal and financial information.
+
+- All critical operations, including service approvals, emergency handling, and payment processing, shall be logged for audit purposes.
+
+- Audit logs shall be accessible only to authorized administrators to support monitoring, reporting, and accountability.
+
+System quality and reliability assurance
+
+- Load testing shall be conducted to verify system performance under high traffic conditions, including simultaneous service and emergency requests.
+
+- Usability testing shall be performed across supported devices to ensure responsiveness and ease of use.
+
+- Code optimization and database performance techniques shall be applied to maintain efficiency and reduce system latency.
+
+2.5. System analysis
+
+2.5.1. System requirement specifications (SRS)
+
+The System requirement specification (SRS) explains what the garage management system (GMS) should do and how it should work. It lists both functional and non-functional requirements and acts as a guide for building the system. The goal is to create a smooth digital platform where customers, admins, mechanics, and super admins can easily work together. By clearly stating the requirements, the SRS helps make sure the system is secure, reliable, and easy to use.
+
+The main purpose of the SRS is to turn user needs into clear technical instructions. It helps developers and stakeholders understand what the system must achieve and avoids confusion during development. It also supports building an automated and scalable system that can handle garage services, customer requests, and daily operations efficiently.
+
+To explain the system clearly, the SRS uses different diagrams. Use case diagrams show how users interact with the system, like booking services or managing inventory. Activity diagrams explain the flow of tasks, such as scheduling services. Sequence diagrams show how system parts communicate step by step, while state chart diagrams track how a service request moves from start to finish. Together, these models make the system easier to understand and build.
+
+Overall, the SRS gives a clear plan for developing the garage management system. It helps everyone involved share the same understanding of the system and supports smooth development. Most importantly, it ensures the final system improves garage operations and provides a better experience for both customers and service providers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.5.1.1. Use Case Diagram
+
+
+
+Figure 1 Use case diagram
+
+2.5.1.2. Use case documentation
+
+Use Case Scenario: Login
+
+Field
+
+Description
+
+Use Case Name
+
+Login
+
+Participating Actor
+
+Customers, Admins, Mechanics, System Administrators
+
+Description
+
+All users who want to access system features must authenticate with their registered email/phone and password.
+
+Entry Condition
+
+User must already be registered and have valid login credentials.
+
+Flow of Events
+
+The user opens the app/web system
+
+ User selects "Login".
+
+ System displays login page.
+
+ User enters email/phone and password.
+
+ User clicks "Login".
+
+ System validates credentials and redirects user to the appropriate dashboard.
+
+Alternative Flow
+
+If credentials are incorrect, system displays an error message and provides "Retry" or "Forgot Password" options.
+
+Quality Requirements
+
+Secure authentication, encrypted passwords, fast login (<5 seconds), protection against unauthorized access.
+
+Table 4 Security Login
+
+2. Use Case Scenario: Registration
+
+Field
+
+Description
+
+Use Case Name
+
+Registration
+
+Participating Actor
+
+Customers, Admins, Mechanics
+
+Description
+
+New users register by providing required personal and role-based information.
+
+Entry Condition
+
+User opens registration page.
+
+Flow of Events
+
+1. User opens app/system and selects "Register".
+
+2. System displays registration form.
+
+3. User fills name, phone, email, password and optional garage details (for admins).
+
+4. User submits the form.
+
+5. System validates data and creates an account.
+
+6. Confirmation message is displayed.
+
+Alternative Flow
+
+If mandatory fields are missing or invalid, system prompts the user to correct the data.
+
+Quality Requirements
+
+Phone/email must be validated. Data stored securely. Proper role-based registration.
+
+Table 5. Registration
+
+
+
+Use Case Scenario: Book a Service
+
+Field
+
+Description
+
+Use Case Name
+
+Book Service
+
+Participating Actor
+
+Customers
+
+Description
+
+Customers book repair or maintenance services from registered garages.
+
+Entry Condition
+
+User must be logged in.
+
+Flow of Events
+
+1. Customer logs in.
+
+2. Navigates to "Book Service".
+
+3. Selects garage, service type (oil change, diagnosis, etc.).
+
+4. Chooses appointment date and time.
+
+5. Submits booking request.
+
+6. System notifies Admin.
+
+Alternative Flow
+
+If selected time is unavailable, system suggests alternative times.
+
+Quality Requirements
+
+Real-time availability check, fast booking processing, accurate scheduling.
+
+Table 6. Book Garage Service
+
+Use Case Scenario: Approve or Reject Service Booking
+
+Field
+
+Description
+
+Use Case Name
+
+Approve/Reject Service Booking
+
+Participating Actor
+
+Admin
+
+Description
+
+Admin reviews and approves incoming customer service requests.
+
+Entry Condition
+
+Admin must be logged in.
+
+Flow of Events
+
+1. Admin logs in.
+
+2. Navigates to "Pending Requests".
+
+3. Reviews booking details.
+
+4. Approves or rejects the request.
+
+5. Customer receives notification.
+
+Alternative Flow
+
+If Admin rejects, system sends rejection message with reason.
+
+Quality Requirements
+
+Real-time notifications, clear communication, secure access.
+
+Table 7. Booking Approval
+
+Use Case Scenario: Assign Mechanic
+
+Field
+
+Description
+
+Use Case Name
+
+Assign Mechanic
+
+Participating Actor
+
+Admin
+
+Description
+
+Admin assigns a mechanic to handle an approved service request.
+
+Entry Condition
+
+Booking must already be approved.
+
+Flow of Events
+
+1. Admin opens the approved bookings list.
+
+2. Selects a booking.
+
+3. Views list of available mechanics.
+
+4. Assigns a mechanic.
+
+5. Mechanic receives notification.
+
+Alternative Flow
+
+If mechanic unavailable, system displays alternative options.
+
+Quality Requirements
+
+Real-time mechanic availability, accurate assignment, quick notifications.
+
+Table 8. Assign Mechanic to Job
+
+Use Case Scenario: Update Job Status
+
+Field
+
+Description
+
+Use Case Name
+
+Update Job Status
+
+Participating Actor
+
+Mechanics
+
+Description
+
+Assigned mechanics update the progress of the repair job.
+
+Entry Condition
+
+Mechanic must be logged in and assigned a job.
+
+Flow of Events
+
+1. Mechanic logs in.
+
+2. Navigates to "Assigned Jobs".
+
+3. Selects a job.
+
+4. Updates status (In progress, Waiting for parts, Completed).
+
+5. System logs updates and notifies customer.
+
+Alternative Flow
+
+If system fails to update due to connectivity, mechanic retries.
+
+Quality Requirements
+
+Updates must appear instantly for transparency.
+
+Table 9. Update Service Status
+
+Use Case Scenario: View Service History
+
+Field
+
+Description
+
+Use Case Name
+
+View Service History
+
+Participating Actor
+
+Customers
+
+Description
+
+Customers can view records of all completed services.
+
+Entry Condition
+
+User must be logged in.
+
+Flow of Events
+
+1. User logs in.
+
+2. Navigates to "Service History".
+
+3. System displays completed jobs with dates and details.
+
+4. User selects a job for more details.
+
+Alternative Flow
+
+If no history exists, system displays a message "No services found".
+
+Quality Requirements
+
+Data must be accurate, securely stored, available anytime.
+
+Table 10. Customer Service History
+
+Use Case Scenario: Manage Garage Information
+
+Field
+
+Description
+
+Use Case Name
+
+Manage Garage Info
+
+Participating Actor
+
+Admin
+
+Description
+
+Admin updates garage details (services, prices and business hours).
+
+Entry Condition
+
+Admin must be logged in.
+
+Flow of Events
+
+1. Admin navigates to "Garage Profile".
+
+2. Updates services, pricing, images, opening hours.
+
+3. Saves changes.
+
+4. System validates and updates info.
+
+Alternative Flow
+
+If invalid data entered, system prompts correction.
+
+Quality Requirements
+
+Updates appear instantly and accurately.
+
+Table 11. Manage Garage Profile
+
+Use Case Scenario: Reset Password
+
+Field
+
+Description
+
+Use Case Name
+
+Reset Password
+
+Participating Actor
+
+All users
+
+Description
+
+Users reset forgotten passwords through email verification.
+
+Entry Condition
+
+User selects "Forgot Password".
+
+Flow of Events
+
+1. User clicks "Forgot Password".
+
+2. Enters email.
+
+3. System sends reset link.
+
+4. User opens link and sets new password.
+
+5. System updates password.
+
+Alternative Flow
+
+If email not found, system displays error message.
+
+Quality Requirements
+
+Secure password reset, verification required, strong password rules.
+
+Table 12. Reset Password
+
+Use Case Scenario: Make Payment
+
+Field
+
+Description
+
+Use Case Name
+
+Make Payment
+
+Participating Actor
+
+Customers
+
+Description
+
+Customers pay for the service using digital or cash options.
+
+Entry Condition
+
+Service must be completed or approved for billing.
+
+Flow of Events
+
+1. Customer opens invoice.
+
+2. Chooses payment method.
+
+3. Confirms payment.
+
+4. System completes the transaction.
+
+5. Receipt is generated.
+
+Alternative Flow
+
+If payment fails, system notifies customer and allows retry.
+
+Quality Requirements
+
+Secure payment gateway, fast processing, auto-generated receipt.
+
+Table 13. Payment Processing
+
+
+
+
+
+Use Case Scenario: Admin Manage Users
+
+Field
+
+Description
+
+Use Case Name
+
+Manage Users
+
+Participating Actor
+
+System Administrator
+
+Description
+
+Super admin manages customer, Admin, and mechanic accounts.
+
+Entry Condition
+
+Admin logged into admin panel.
+
+Flow of Events
+
+1. Admin logs in.
+
+2. Opens "User Management".
+
+3. Views list of users.
+
+4. Edits, deactivates, or deletes accounts.
+
+5. Saves changes.
+
+Alternative Flow
+
+If system error occurs, admin retries.
+
+Quality Requirements
+
+Admin actions must be logged, secure and traceable.
+
+Table 14. User Management
+
+Use Case Scenario: Analytics Dashboard
+
+Field
+
+Description
+
+Use Case Name
+
+View Analytics Dashboard
+
+Participating Actor
+
+System Administrator
+
+Description
+
+Super admin views system analytics (number of bookings, revenue, active garages).
+
+Entry Condition
+
+Super admin logged in.
+
+Flow of Events
+
+1. Super admin opens dashboard.
+
+2. System displays charts and graphs.
+
+3. Super admin filters by date, garage, or service type.
+
+4. Downloads reports if needed.
+
+Alternative Flow
+
+If data unavailable, system shows error and logs issue.
+
+Quality Requirements
+
+Fast loading, data accuracy, auto-updated charts.
+
+Table 15. Admin Analytics
+
+
+
+
+
+
+
+Use Case Scenario: Manage Inventory
+
+Field
+
+Description
+
+Use Case Name
+
+Manage Inventory
+
+Participating Actor
+
+Admin
+
+Description
+
+Admin adds, updates, or removes spare parts and monitors inventory levels.
+
+Entry Condition
+
+Admin is logged in.
+
+Flow of Events
+
+1. Admin logs in.
+
+2. Navigates to “Inventory Management”.
+
+3. Views current inventory list.
+
+4. Selects Add Item, Update Item, or Remove Item.
+
+5. Enters or edits item details (item name, quantity, unit price).
+
+6. Saves changes.
+
+7. System validates and updates inventory records.
+
+Alternative Flow
+
+If invalid data is entered, system displays an error message and requests correction.
+
+Exit Condition
+
+Inventory data is successfully updated and stored.
+
+Table 16. Manage Inventory Use Case
+
+Use Case Scenario: Submit Review
+
+Field
+
+Description
+
+Use Case Name
+
+Submit Review
+
+Participating Actor
+
+Customer
+
+Description
+
+Customer submits feedback and rating for a completed service.
+
+Entry Condition
+
+Customer is logged in and service is completed.
+
+Flow of Events
+
+1. Customer logs in.
+
+2. Navigates to “Service History”.
+
+3. Selects a completed service.
+
+4. Enters rating and comment.
+
+5. Submits review.
+
+6. System stores review and links it to the garage.
+
+Alternative Flow
+
+If customer submits empty or invalid data, system prompts for correction.
+
+Exit Condition
+
+Review is saved successfully.
+
+Table 17. Submit Review Use Case
+
+2.5.1.3 Sequence DiagramSequence diagrams model the interactions between system components for key workflows in the garage management system. They capture the order of operations for processes such as user login, service booking, mechanic assignment, job status updates, and payment processing. By illustrating message exchanges between actors (customers, Admins, mechanics, and super administrators) and system modules, sequence diagrams provide a clear view of dynamic system behavior, ensuring workflows are well-structured, efficient, and correctly implemented. These diagrams help developers understand how different components communicate dynamically.
+
+
+
+Figure 2. Registration Sequence Diagram
+
+ 
+
+Figure 3. Login Sequence Diagram 
+
+
+
+Figure 4. Book Service Sequence Diagram
+
+
+
+Figure 5. Approve Booking & Assign Mechanic Sequence Diagram
+
+
+
+Figure 6. Payment & Invoice Generation Sequence Diagram
+
+2.5.1.4. Activity Diagram
+
+An activity diagram is a UML diagram that represents the flow of control and decision-making within a system. It provides a graphical overview of the sequence of activities involved in a process, helping to understand how different components interact to achieve specific goals.
+
+
+
+
+
+
+
+Figure 9. Activity diagram for booking service
+
+                                      
+
+
+
+Figure 10. Activity diagram for managing service reques
+
+      
+
+
+
+
+
+Figure 11. Activity diagram for updating job status     
+
+
+
+Figure 12. Activity diagram for making payment
+
+
+
+
+
+
+
+
+
+2.5.1.5. Class Diagram
+
+Class diagrams are a type of static structure diagram in the Unified Modeling Language (UML) that describe the structure of a system by showing its classes, attributes, operations (or methods), and the relationships among the objects. They are crucial for object-oriented design and serve multiple purposes throughout the software development process.
+
+
+
+Figure 13. Class diagram for garage management system
+
+2.5.1.6. State Chart Diagram
+
+State chart diagrams are useful to model the dynamic behavior of a system by illustrating the various states an object or interaction can be in, and the transitions between these states in response to different events.
+
+
+
+Figure 14. State chart diagram payment
+
+
+
+Figure 15. State chart diagram for job progress
+
+
+
+
+
+Figure 16. State chart diagram for service booking
+
+2.5.1.7. User interface prototyping
+
+The user interface prototype for the garage management system was developed to visualize the interaction between users and the system before implementation. The prototype includes key screens such as login, service booking, dashboards for customers, admins, and mechanics, and job assignment interfaces. It illustrates navigational flow, layout structure, and core UI components, enabling early evaluation of usability and workflow efficiency.
+
+
+
+Figure 17. User interface prototype
+
+
+
+
+
+
+
+
+
+Chapter Three
+
+System Design
+
+3.1. Introduction
+
+The design phase of the garage management system (GMS) is a critical step in transforming conceptual requirements into a fully functional platform that optimizes garage operations and enhances customer satisfaction. System design acts as the bridge between identifying user needs, operational requirements, and technical specifications, and implementing a reliable, user-friendly solution. This chapter outlines the methodologies, tools, and processes employed to ensure the system is efficient, accessible, and scalable for admins, mechanics, and customers.
+
+To create a robust and intuitive system, the design phase employed user-centered design principles, iterative development cycles, and stakeholder feedback. Detailed wireframes and interactive prototypes were developed using tools such as Figma to visualize key interfaces including service booking, vehicle management, and inventory tracking. Documentation and collaborative work were managed using Microsoft Word, Google Docs, and Notion, ensuring consistent version control. Additionally, tools like Edrawmax and Draw.io were used to design system architecture diagrams, workflow charts, and process flows, helping to map out interactions between customers, garage staff, and administrative functions. These methodologies and tools were selected to balance usability, performance, and operational efficiency, ensuring the system meets the practical needs of garages while providing a seamless digital experience for users.
+
+3.2. Purpose of the System
+
+The primary purpose of the garage management system is to provide a comprehensive, automated platform that streamlines garage operations and improves the customer experience. The system addresses multiple dimensions of garage management, including service scheduling, resource allocation, vehicle tracking, and customer communication. Its purpose can be categorized into operational, Managerial, and customer-focused support.
+
+Operational SupportThe system enhances day-to-day garage operations by enabling staff to efficiently manage service requests, track ongoing repairs, and maintain inventory records. Mechanics can view assigned tasks, update progress in real time, and receive notifications for urgent repairs or service deadlines. The platform also includes tools for managing spare parts, service history, and equipment availability, helping garages operate smoothly and minimize downtime.
+
+Managerial SupportAdmins can access dashboards that provide insights into performance metrics, such as revenue, completed services, mechanic efficiency, and inventory levels. The system facilitates decision-making by providing real-time analytics, automated reports, and predictive insights to optimize resource allocation and reduce operational bottlenecks. Additionally, admins can oversee staff scheduling, approve service requests, and maintain overall workflow efficiency through a centralized interface.
+
+Customer SupportThe system improves the customer experience by offering an intuitive platform for booking vehicle services, tracking repair status, and receiving notifications for service completion. Customers can view their service history, make payments online, and submit service-related inquiries through the system.. Multi-language support ensures accessibility for diverse user groups, while integrated feedback tools allow customers to provide input on service quality, enabling continuous improvement.
+
+By addressing these purposes, the system aims to enhance the operational efficiency of garages, provide transparent communication with customers, and facilitate better resource management. The GMS integrates all aspects of garage management into a single platform, offering a scalable, reliable, and user-friendly solution that modernizes traditional garage operations while meeting the needs of both staff and customers.
+
+3.3. Design Goals
+
+The garage management system (GMS) is designed with key goals of scalability, security, usability, and efficiency to ensure seamless functionality, adaptability, and long-term reliability for both garage staff and customers.
+
+ScalabilityThe system is built to handle an increasing number of users, including multiple garages, mechanics, and customers, without performance degradation. A modular architecture allows easy expansion to add new features such as advanced inventory management, multiple branches, or loyalty programs. Cloud-based infrastructure ensures secure and reliable data storage, enabling the system to grow alongside the business.
+
+SecurityData security and privacy are central to the system design. Sensitive information, such as customer details, vehicle records, and service histories, is protected through encryption and secure authentication protocols. Access control mechanisms ensure only authorized users can modify critical data. Regular system updates, security patches, and monitoring prevent unauthorized access and potential cyber threats, safeguarding the integrity of both operational and customer data.
+
+UsabilityThe system is designed to be intuitive and accessible, minimizing the learning curve for garage staff and customers. Interfaces are user-friendly, with clear navigation, real-time notifications, and interactive dashboards. Cross-platform compatibility ensures smooth access from smartphones, tablets, and desktops, while responsive design principles guarantee consistent performance across devices. User testing and feedback loops inform iterative improvements, enhancing overall user satisfaction.
+
+EfficiencyOperational efficiency is a primary goal, achieved through optimized workflows for service scheduling, vehicle tracking, and inventory management. Real-time updates allow mechanics and admins to monitor progress, allocate resources effectively, and respond quickly to urgent requests. Automated notifications, reporting dashboards, and data analytics streamline decision-making, while proactive maintenance and monitoring minimize system downtime and operational disruptions.
+
+By adhering to these design goals, the GMS provides a robust, adaptable, and efficient solution that enhances garage operations, improves customer experience, and ensures secure, reliable management of all services and resources.
+
+3.4. Architectural Design
+
+The architectural design of the garage management system (GMS) follows a layered architecture approach, which separates the system into distinct layers based on responsibility. This design improves maintainability, scalability, and reliability by ensuring that changes in one layer do not directly affect others. Each layer communicates with the adjacent layer through well-defined interfaces, enabling clear data flow and controlled interaction across the system.
+
+Presentation Layer
+
+The presentation layer represents the user interface of the system and is responsible for all user interactions. It provides web-based and mobile-accessible interfaces for customers, admins, mechanics, and super administrators. Through this layer, users can register and authenticate, submit service requests, manage appointments, track service progress, view notifications, and access relevant information based on their roles. The presentation layer does not process business logic directly; instead, it communicates with the backend application services through secure API requests and responses, ensuring data integrity and privacy.
+
+Application Layer
+
+The application layer consists of the backend application services, which act as the core processing unit of the system. This layer handles all business logic and system operations, including authentication and role-based access control, service workflow management, vehicle tracking, inventory updates, payment processing, and notification handling. Requests received from the presentation layer are validated, processed, and routed appropriately within this layer. By centralizing business logic in the application layer, the system ensures consistent behavior, secure processing of sensitive data, and efficient coordination between different functional operations.
+
+Data Layer
+
+The data layer is responsible for data storage and retrieval through a database management system. It stores persistent system data such as user profiles, vehicle information, service records, inventory details, payment transactions, and historical logs. The application layer interacts with the data layer to read and write information as required, ensuring data consistency and reliability. This separation allows the database structure to evolve without impacting user interfaces or business logic directly.
+
+Cloud Infrastructure Layer
+
+The cloud infrastructure layer provides the underlying computing and storage environment required to run the system reliably. It supports database hosting, application deployment, data backups, and replication mechanisms to ensure high availability and fault tolerance. This layer enables scalability by allowing system resources to be adjusted based on user demand and ensures continuous system operation through backup and recovery mechanisms. Security controls at the infrastructure level further protect system data and services from unauthorized access or failures.
+
+Overall architectural interaction
+
+In this layered architecture, user actions originate at the presentation layer and are transmitted to the application layer via secure APIs. The application layer processes these requests and interacts with the data layer to store or retrieve required information. The cloud infrastructure supports all layers by providing scalable resources, backup services, and reliable system availability. This structured separation of concerns results in a robust, adaptable, and efficient system architecture that supports current garage operations while allowing future enhancements without significant redesign.
+
+
+
+Figure 18. Software architecture diagram
+
+
+
+3.4.1. Subsystem Decomposition
+
+1. User Interface Subsystem
+
+The User Interface Subsystem serves as the primary interaction layer of the garage management system. It allows customers, admins, mechanics, and super administrators to access core system functions, including user registration and login, service request submission, viewing task assignments, monitoring inventory, checking payment status, and submitting feedback.
+
+The interface is designed to operate smoothly across both mobile and web platforms, ensuring accessibility for users in different working environments and with varying levels of technical experience. To protect user information during system interactions, all communication between the interface and backend services is secured using HTTPS.
+
+2. Authentication and user management subsystem
+
+The Authentication and User Management Subsystem handles user authentication, authorization, and role-based access control within the system. It ensures that only registered and verified users can access the platform and that each user is limited to actions appropriate to their assigned role.
+
+For example, customers are allowed to request services, mechanics can view and update assigned tasks, and admins can approve service requests and manage inventory. The subsystem also manages user sessions and secures passwords using reliable protection mechanisms, providing controlled and dependable access to the system.
+
+3. Service management subsystem
+
+The Service management subsystem manages all service-related activities within the system. It supports the full service lifecycle, including service request submission by customers, approval or rejection by Admins, mechanic assignment, service status updates, and completion tracking.
+
+By enforcing a clear and structured workflow from service initiation to completion, the subsystem helps reduce delays, avoid task conflicts, and improve overall operational efficiency within the garage.
+
+4. Inventory and payment management subsystem
+
+This subsystem handles spare parts inventory and service payments. Admins can easily update inventory levels, pricing, and availability, while the system automatically generates alerts for low-stock items. The payment component supports transactions via Chapa and cash confirmation, ensuring that services are marked as completed only after successful payment verification. All inventory and payment records are securely stored for reporting and auditing purposes.
+
+5. Cloud infrastructure and database subsystem
+
+The cloud infrastructure and database subsystem provide the backbone for data storage, system availability, and scalability. It maintains user profiles, vehicle information, service records, inventory data, payment history, and feedback. Operating in a cloud-based environment, it ensures reliable performance, real-time data access, automated backups, and robust recovery mechanisms, supporting uninterrupted garage operations.
+
+Integration of subsystems
+
+Each subsystem operates independently while remaining smoothly integrated to ensure smooth overall functionality. The user interface subsystem routes user requests to the authentication and user management subsystem for validation before directing them to the Service Management or Inventory and Payment Subsystems. All processed data is securely stored and retrieved via the Cloud Infrastructure and Database Subsystem. This modular integration enables efficient communication between subsystems, supports scalability, and simplifies maintenance and future enhancements.
+
+3.4.2. Component diagram
+
+The component diagram illustrates the system’s modular architecture using lollipop notation, highlighting interactions between the core components of the garage management system. The user interface component interacts with the authentication and user management component, service management component, and inventory and payment component to ensure secure access, structured service workflows, and accurate transaction handling. Thedatabase management component functions as th system’s backbone, securely managing data storage and enabling reliable data exchange across all components.
+
+
+
+Figure 19. Component diagram
+
+3.4.3. Deployment diagram
+
+The deployment diagram illustrates how the hardware and software components of the garage management system (GMS) are distributed. The system follows a distributed client-server architecture, ensuring secure communication, data integrity, and efficient operation across all user interactions.
+
+Client tier: Customers, Admins, and mechanics access with the system through client devices, which support both mobile applications and web browsers. These clients communicate with the backend services using secure API requests.
+
+Application tier: The application server serves as the central logic hub of the system. It hosts critical components including the backend API, the authentication module for secure access, and the notification system. The booking and payment module handles core business workflows and integrates with an external payment gateway to process financial transactions securely.
+
+Data tier: System data is stored and managed by a dedicated database server hosting the GMS Database. Secure database connections maintain data consistency and synchronization across all system modules. This tiered deployment structure allows the system to operate efficiently across multiple locations. By separating the application logic from the database and external payment services, the system achieves high availability, scalability, and optimized performance for real-time service updates and inventory management.
+
+
+
+
+
+Figure 20. Deployment diagram
+
+3.4.4. Persistent modeling
+
+Persistent modeling ensures that system data is stored, managed, and maintained consistently across sessions, providing a reliable foundation for the garage management system. This approach guarantees that user data, service records, payments, and system-generated information remain accurate, available, and secure over time.
+
+Entities in persistent storage
+
+User data
+
+Stores personal information such as full name, phone number, email address, and login credentials.
+
+Passwords are securely hashed before storage.
+
+Role-based attributes define whether the user is a customer, mechanic, admin, or super administrator.
+
+Vehicle data
+
+Stores vehicle details including plate number, model, brand, and year.
+
+Each vehicle is linked to its registered customer.
+
+Service history is maintained for reference and reporting.
+
+Service requests
+
+Records customer service requests including service type, description, request date, and status.
+
+Tracks service progress (Pending, Approved, In Progress, Completed).
+
+Links each request to assigned mechanics and garages.
+
+Inventory records
+
+Stores spare part details such as part name, quantity, unit price, and supplier information.
+
+Tracks part usage during repairs.
+
+Maintains low-stock alerts and restock history.
+
+Payment records
+
+Stores transaction details such as payment ID, service ID, customer ID, payment method (cash or Chapa), amount paid, payment status, and transaction date.
+
+Supports invoice generation and financial reporting.
+
+Feedback and ratings
+
+Stores customer ratings and reviews after service completion.
+
+Links feedback to specific garages and services.
+
+Supports service quality analysis and garage ranking.
+
+Approach to data consistency
+
+1. Relational database design
+
+Data is stored in normalized tables to minimize redundancy and ensure efficient data management.
+
+2. Foreign key constraints
+
+Relationships between entities (e.g., ServiceID in Payments referencing the Service Requests table) enforce referential integrity.
+
+3. Transaction management
+
+Database transactions are atomic, ensuring that operations such as payments, service updates, and inventory changes are completed fully or rolled back in case of failure.
+
+4. Data backup and recovery
+
+Automated backups ensure data recovery in case of system failure, data corruption, or accidental loss.
+
+3.4.5. Access control and security
+
+Access control and security mechanisms are implemented to protect sensitive system data and prevent unauthorized access. These measures ensure secure operations, data privacy, and trust among customers, garages, and admins.
+
+Authentication and authorization
+
+Authentication
+
+Secure login using hashed passwords and phone/email-based verification.
+
+Optional multi-factor authentication (MFA) for administrators and Admins.
+
+Authorization
+
+Role-Based Access Control (RBAC):
+
+Customers can request services, track repairs, make payments, and submit feedback.
+
+Mechanics can view assigned tasks, update service status, and log part usage.
+
+Admins can manage services, assign mechanics, update inventory, and view reports.
+
+Super administrators can approve garages, monitor performance, and handle complaints.
+
+Fine-grained access policies ensure users only access features relevant to their role.
+
+Data privacy measures
+
+Encryption
+
+Sensitive data is encrypted at rest and during transmission using industry-standard encryption (e.g., AES-256).
+
+Secure key management ensures protection of encryption keys.
+
+Secure communication
+
+HTTPS ensures encrypted communication between mobile apps, web dashboards, and backend servers.
+
+Secure certificates are used to maintain data integrity and trust.
+
+Auditing and logging
+
+System logs record user activities such as logins, service updates, and payment transactions.
+
+Logs support monitoring, troubleshooting, and auditing purposes.
+
+System monitoring and alerts
+
+Real-time monitoring detects system failures, unauthorized access attempts, or abnormal activities. 
+
+Alerts notify administrators of critical system events to ensure quick response.
+
+
+
+Security Functionality
+
+Customers
+
+Mechanics
+
+Admins
+
+Super admins
+
+Secure Login
+
+✓
+
+✓
+
+✓
+
+✓
+
+Role-Based Access Control (RBAC)
+
+✓
+
+✓
+
+✓
+
+✓
+
+View Assigned Tasks
+
+✗
+
+✓
+
+✓
+
+✗
+
+Manage Inventory
+
+✗
+
+✗
+
+✓
+
+✗
+
+Encrypt Data at Rest & In Transit
+
+✓
+
+✓
+
+✓
+
+✓
+
+Make Payments
+
+✓
+
+✗
+
+✗
+
+✗
+
+View Reports & Analytics
+
+✗
+
+✗
+
+✓
+
+✓
+
+Audit Logs & Monitoring
+
+✗
+
+✗
+
+✓
+
+✓
+
+Table 18. Security features and user role access control
+
+3.5. User interface design
+
+the interface of the garage service app is designed to be clean, simple, and efficient. the main goal is to ensure that users can navigate the platform without confusion. by using a consistent layout with standardized buttons and clear labels, the design helps guide the user and reduces operational errors.
+
+The authentication screens, which include login and registration, are built for quick access. users have the option to log in using either a phone number or an email address. during registration. A language selector is also placed at the top of these screens, supporting English, Amharic, and Affan Oromo to make the app more accessible.
+
+The customer dashboard is organized to help users find services as fast as possible. a high-visibility "emergency assistance" button is placed at the top for urgent situations. below this, a card-based layout is used to list available garages, allowing users to compare ratings, distance, and pricing at a glance. to further simplify the search, category filters for services like "diagnostics," and "tires" are included just below the main search bar.
+
+The garage details page provides more specific information and account management. when a garage is selected, the ui shows a clear list of popular services, costs, and operating hours. a persistent bottom navigation bar with icons for home, bookings, inbox, and profile is used to allow for quick switching between different parts of the app. this layout ensures a responsive and user-friendly experience across both mobile and web versions of the system.
+
+
+
+
+
+
+
+Figure 21. Login page
+
+
+
+Figure 22. Registration page
+
+
+
+
+
+Figure 23. Garage details page
+
+                            
+
+
+
+Figure 24. Customer dashboard
+
+
+
+
+
+3.6. Database design
+
+The database design of the garage management system is structured to ensure efficient data storage, integrity, scalability, and secure access. A relational database model is adopted, following normalization principles to minimize redundancy and maintain consistency. The system supports multiple garages, customers, mechanics, admins, and system administrators while enforcing strict role-based responsibilities.
+
+3.6.1 User and role modeling
+
+The system applies a disjoint and total specialization of users. Every user belongs to exactly one role, and no user can have multiple roles simultaneously. Common user information is stored in a single parent entity, while role-specific data is stored in separate child entities.
+
+Users (Parent entity)
+
+Attributes: UserID (Primary Key), FullName, Email, PhoneNumber, PasswordHash, Status, CreatedAt
+
+Description: Stores authentication and profile information common to all users.
+
+Role-Specific entities 
+
+Customers
+
+Attributes: UserID (Primary Key, Foreign Key → Users)
+
+Description: Represents system users who request garage services and own vehicles.
+
+Mechanics
+
+Attributes: UserID (Primary Key, Foreign Key → Users), GarageID (Foreign Key)
+
+Description:Represents mechanics assigned to garages and responsible for service execution.
+
+Admins
+
+Attributes: UserID (Primary Key, Foreign Key → Users), GarageID (Foreign Key)
+
+Description: Represents admins responsible for overseeing operations.
+
+Super admins
+
+Attributes:UserID (Primary Key, Foreign Key → Users)
+
+Description:Represents system administrators with full system privileges.
+
+3.6.2 Core operational entities
+
+Garages
+
+Attributes: GarageID (Primary Key), GarageName, Location, ContactNumber, Status, AdminID (Foreign Key → Admins.UserID)
+
+Description: Represents registered garages managed by a designated admin.
+
+Vehicles
+
+Attributes: VehicleID (Primary Key), PlateNumber, VehicleType, Model, CustomerID (Foreign Key → Customers.UserID)
+
+Description: Represents customer-owned vehicles that can be serviced by garages.
+
+ServiceRequests
+
+Attributes: RequestID (Primary Key), ServiceType, Description, RequestDate, Status, VehicleID (Foreign Key), GarageID (Foreign Key)
+
+Description: Represents service requests submitted for vehicle maintenance or repair.
+
+MechanicAssignments
+
+Attributes: AssignmentID (Primary Key), RequestID (Foreign Key), MechanicID (Foreign Key → Mechanics.UserID), AssignedDate, CompletionDate, Status
+
+Description: Manages the assignment of mechanics to service requests.
+
+Inventory
+
+Attributes: ItemID (Primary Key), ItemName, Quantity, UnitPrice, GarageID (Foreign Key)
+
+Description: Represents spare parts and materials used during vehicle repairs.
+
+Payments
+
+Attributes: PaymentID (Primary Key), Amount, PaymentMethod (Chapa/Cash), PaymentStatus, PaymentDate, RequestID (Foreign Key)
+
+Description: Stores payment transactions associated with completed service requests.
+
+Reviews
+
+Attributes: ReviewID (Primary Key), Rating, Comment, ReviewDate, CustomerID (Foreign Key → Customers.UserID), GarageID (Foreign Key)
+
+Description: Stores customer feedback for garages after service completion.
+
+
+
+Figure 25. Entity relationship diagram 
+
+3.6.3 Normalization and integrity
+
+Normalization
+
+The database schema is designed in accordance with Third Normal Form (3NF) to reduce redundancy and maintain consistent functional dependencies. Shared user attributes are stored centrally in the Users table, while role-specific information is separated into specialized entities. This structure improves data consistency and simplifies future maintenance.
+
+Referential integrity
+
+Referential integrity is enforced through foreign key constraints across related tables. These constraints ensure that relationships between entities remain valid and prevent the creation of orphan records, preserving the accuracy and reliability of the database.
+
+3.6.4 Indexing strategy
+
+To improve query efficiency and overall system responsiveness, indexes are applied to frequently accessed attributes. These include:
+
+UserID
+
+GarageID
+
+RequestID
+
+VehicleID
+
+Indexing these attributes reduces query execution time, particularly for operations involving service tracking, user management, and vehicle records.
+
+3.6.5 Security and access control
+
+Security considerations are integrated into the database design to protect sensitive information and restrict unauthorized access. User passwords are stored using secure hashing techniques to prevent exposure of credentials.
+
+Role-based access control is applied to ensure that users can only perform actions permitted by their assigned roles. Sensitive operations, such as inventory updates and administrative actions, are further restricted based on user privileges, strengthening overall system security.
+
+3.6.6 Backup, recovery, and scalability
+
+To ensure data reliability and continuity, automated daily backups are maintained using secure off-site storage. These backups support data recovery in the event of system failure, data corruption, or accidental loss.
+
+Periodic recovery testing is conducted to verify backup effectiveness and system readiness. The database design also supports both horizontal and vertical scaling, allowing the system to grow in terms of users, garages, and service volume without requiring major schema changes.
+
+3.7. Summary
+
+This unit presented the system design of the garage management system, translating system requirements into a clear and practical design. The focus of the design is to support secure, scalable, and efficient garage operations while remaining easy to maintain and extend.
+
+The system follows a modular architecture, dividing functionality into well-defined subsystems responsible for user interaction, authentication and user management, service handling, inventory and payment processing, and cloud-based data storage. Each subsystem operates independently but is fully integrated through structured communication flows, reducing complexity and supporting future enhancements.
+
+Component and deployment designs illustrated how system modules interact and how the system is distributed across client devices, application servers, databases, and external services. The client-server architecture enables secure access through web and mobile platforms, while the separation of application logic and data storage improves reliability, scalability, and performance.
+
+Persistent modeling and database design ensure consistent and reliable data storage across sessions. Core entities such as users, vehicles, service requests, mechanic assignments, inventory items, payments, and feedback are structured using a relational model. Normalization, referential integrity, indexing, and backup mechanisms were applied to maintain data integrity, optimize performance, and support recovery.
+
+Security and access control mechanisms were integrated throughout the design to protect sensitive information and prevent unauthorized access. Authentication, role-based access control, encrypted communication, and system logging ensure secure operations while maintaining accountability.
+
+User interface design emphasized clarity, consistency, and ease of use for all user roles. Role-specific dashboards and responsive layouts support efficient interaction for customers, mechanics, admins, and system administrators across both mobile and web platforms.
+
+Overall, this unit establishes a solid foundation for the implementation phase of the garage management system. By combining modular architecture, reliable data management, intuitive user interfaces, and strong security measures, the system is well-prepared to support real-world garage management needs and future growth.
+
+
+
+
+
+
+
+
+
+
+

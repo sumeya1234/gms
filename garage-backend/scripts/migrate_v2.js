@@ -1,39 +1,32 @@
-import "../config/env.js";
-import db from "../config/db.js";
+import mysql from "mysql2/promise";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
 
-async function migrate() {
-  const queries = [
-    // Issue 1: Add RequestID to Reviews for per-request review tracking
-    `ALTER TABLE Reviews ADD COLUMN RequestID INT NULL`,
-    `ALTER TABLE Reviews ADD UNIQUE KEY unique_request_review (RequestID)`,
+// Load environment variables from the root .env
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
-    // Issue 4: Create ComplaintMessages table for customer-manager messaging
-    `CREATE TABLE IF NOT EXISTS ComplaintMessages (
-      MessageID INT AUTO_INCREMENT PRIMARY KEY,
-      ComplaintID INT NOT NULL,
-      SenderID INT NOT NULL,
-      Message TEXT NOT NULL,
-      CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (ComplaintID) REFERENCES Complaints(ComplaintID) ON DELETE CASCADE,
-      FOREIGN KEY (SenderID) REFERENCES Users(UserID)
-    )`
-  ];
+async function runMigration() {
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    multipleStatements: true
+  });
 
-  for (const sql of queries) {
-    try {
-      await db.query(sql);
-      console.log("✅", sql.slice(0, 60) + "...");
-    } catch (err) {
-      if (err.code === "ER_DUP_FIELDNAME" || err.code === "ER_DUP_KEYNAME" || err.code === "ER_TABLE_EXISTS_ERROR") {
-        console.log("⏩ Skipped (already exists):", sql.slice(0, 60) + "...");
-      } else {
-        console.error("❌ Failed:", err.message);
-      }
-    }
+  try {
+    const sqlPath = path.resolve(process.cwd(), "database", "updateSchema_v2.sql");
+    const sql = fs.readFileSync(sqlPath, "utf8");
+
+    console.log("Executing migration v2...");
+    await connection.query(sql);
+    console.log("Migration successful.");
+  } catch (err) {
+    console.error("Migration failed:", err);
+  } finally {
+    await connection.end();
   }
-
-  console.log("\n🎉 Migration complete!");
-  process.exit(0);
 }
 
-migrate();
+runMigration();

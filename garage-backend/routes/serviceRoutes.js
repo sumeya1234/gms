@@ -1,5 +1,5 @@
 import express from "express";
-import { assignMechanic, createService, updateRequestStatus, completeService, getMyRequests, getGarageRequests, getRequest, updateAssignment, updateStatusById, getMyAssignments, addAssignmentItems, getRequestItems, hideRequest } from "../controllers/serviceController.js";
+import { assignMechanic, createService, updateRequestStatus, respondToOffer, completeService, getMyRequests, getGarageRequests, getRequest, updateAssignment, updateStatusById, getMyAssignments, addAssignmentItems, getRequestItems, hideRequest } from "../controllers/serviceController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import validate from "../middleware/validate.js";
@@ -17,8 +17,9 @@ router.post("/assignments/:assignmentId/items", protect, authorize("Mechanic"), 
 
 router.get("/my-assignments", protect, authorize("Mechanic"), getMyAssignments);
 router.get("/my-requests", protect, authorize("Customer"), getMyRequests);
+router.put("/:requestId/respond", protect, authorize("Customer"), validate(validateRequestId, "params"), respondToOffer);
 router.delete("/my-requests/:requestId", protect, authorize("Customer"), hideRequest);
-router.get("/garage/:garageId", protect, authorize("GarageManager"), validate(validateGarageId, "params"), getGarageRequests);
+router.get("/garage/:garageId", protect, authorize("GarageManager", "GarageOwner"), validate(validateGarageId, "params"), getGarageRequests);
 router.get("/:requestId", protect, validate(validateRequestId, "params"), getRequest);
 router.get("/:requestId/items", protect, validate(validateRequestId, "params"), getRequestItems);
 

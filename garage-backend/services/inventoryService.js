@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export const createInventoryItem = async (itemName, quantity, unitPrice, garageId, admin) => {
+export const createInventoryItem = async (itemName, quantity, unitPrice, garageId, admin, supplierName = null, supplierContact = null, supplierEmail = null) => {
   // 1. If requester is GarageManager, verify they belong to this garageId
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
@@ -15,7 +15,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, garageI
   }
 
   const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
-  
+
   if (garage.length === 0) {
     const error = new Error("Garage not found");
     error.status = 404;
@@ -30,7 +30,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, garageI
 
   if (existingItems.length > 0) {
     const existing = existingItems[0];
-    
+
     // Choose the best casing (if existing is all lowercase and new is CamelCase, prefer the new name)
     let bestName = existing.ItemName;
     const existingHasCaps = /[A-Z]/.test(existing.ItemName);
@@ -39,17 +39,17 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, garageI
       bestName = itemName;
     }
 
-    // Merge: retain best casing, add quantity, update unit price
+    // Merge: retain best casing, add quantity, update unit price and supplier info
     await db.query(
-      "UPDATE Inventory SET Quantity = Quantity + ?, UnitPrice = ?, ItemName = ? WHERE ItemID = ?",
-      [quantity, unitPrice, bestName, existing.ItemID]
+      "UPDATE Inventory SET Quantity = Quantity + ?, UnitPrice = ?, ItemName = ?, SupplierName = COALESCE(?, SupplierName), SupplierContact = COALESCE(?, SupplierContact), SupplierEmail = COALESCE(?, SupplierEmail) WHERE ItemID = ?",
+      [quantity, unitPrice, bestName, supplierName, supplierContact, supplierEmail, existing.ItemID]
     );
   } else {
     // Insert new logic
     await db.query(
-      `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, GarageID)
-       VALUES (?, ?, ?, ?)`,
-      [itemName, quantity, unitPrice, garageId]
+      `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, GarageID, SupplierName, SupplierContact, SupplierEmail)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [itemName, quantity, unitPrice, garageId, supplierName, supplierContact, supplierEmail]
     );
   }
 };
@@ -95,10 +95,13 @@ export const modifyInventoryItem = async (itemId, updateData, admin) => {
       const fieldMap = {
         itemName: 'ItemName',
         quantity: 'Quantity',
-        unitPrice: 'UnitPrice'
+        unitPrice: 'UnitPrice',
+        supplierName: 'SupplierName',
+        supplierContact: 'SupplierContact',
+        supplierEmail: 'SupplierEmail'
       };
-      
-      if(fieldMap[key]) {
+
+      if (fieldMap[key]) {
         updates.push(`${fieldMap[key]} = ?`);
         values.push(value);
       }
@@ -126,6 +129,6 @@ export const removeInventoryItem = async (itemId, admin) => {
       throw error;
     }
   }
-  
+
   await db.query("DELETE FROM Inventory WHERE ItemID = ?", [itemId]);
 };
