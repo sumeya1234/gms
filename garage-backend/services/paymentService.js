@@ -64,10 +64,10 @@ export const createPayment = async (requestId, amount, method) => {
      JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
      JOIN Users u ON v.CustomerID = u.UserID 
      LEFT JOIN Garages g ON sr.GarageID = g.GarageID
-     WHERE sr.RequestID = ?`, 
+     WHERE sr.RequestID = ?`,
     [requestId]
   );
-  
+
   if (service.length === 0) {
     const error = new Error("Service request not found");
     error.status = 404;
@@ -86,6 +86,12 @@ export const createPayment = async (requestId, amount, method) => {
        VALUES (?, ?, 'Cash', 'Pending', NOW(), ?)
        ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod='Cash', TransactionRef=?, PaymentStatus='Pending'`,
       [requestId, amount, tx_ref, amount, tx_ref]
+    );
+
+    // Mark deposit as paid so customer UI updates
+    await db.query(
+      `UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
+      [requestId]
     );
 
     // Notify the garage manager about cash payment
@@ -114,7 +120,7 @@ export const createPayment = async (requestId, amount, method) => {
     // Sanitize phone number (strip spaces, +251, etc.)
     let sanitizedPhone = user.PhoneNumber ? user.PhoneNumber.replace(/\D/g, '') : '';
     if (sanitizedPhone.startsWith('251')) sanitizedPhone = '0' + sanitizedPhone.slice(3);
-    
+
     // Only include phone_number if it strictly matches 10 digits starting with 09 or 07
     const isValidTestPhone = /^(09|07)\d{8}$/.test(sanitizedPhone);
 
@@ -137,7 +143,7 @@ export const createPayment = async (requestId, amount, method) => {
     // Split payment: route funds to garage subaccount with 3% platform commission.
     // Skip test-mode placeholder IDs (they start with "test-sub-")
     if (user.ChapaSubaccountID && !user.ChapaSubaccountID.startsWith('test-sub-')) {
-      payload.subaccounts = { 
+      payload.subaccounts = {
         id: user.ChapaSubaccountID,
         split_type: "percentage",
         split_value: 0.03
@@ -173,6 +179,9 @@ export const createPayment = async (requestId, amount, method) => {
      ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod=?, TransactionRef=?, PaymentStatus='Pending'`,
     [requestId, amount, method, tx_ref, amount, method, tx_ref]
   );
+
+  // Mark deposit as paid so the customer's estimate card is hidden
+  await db.query(`UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
 
   return { checkout_url: redirectUrl, tx_ref };
 };
@@ -227,26 +236,26 @@ export const verifyChapaPayment = async (tx_ref) => {
 };
 
 export const cancelChapaPayment = async (tx_ref) => {
-    try {
-      const response = await axios.put(`https://api.chapa.co/v1/transaction/cancel/${tx_ref}`, {}, {
-        headers: {
-          'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
-        }
-      });
-  
-      if (response.data.status === 'success') {
-        return { success: true, message: "Transaction cancelled successfully" };
+  try {
+    const response = await axios.put(`https://api.chapa.co/v1/transaction/cancel/${tx_ref}`, {}, {
+      headers: {
+        'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}`
       }
-      return { success: false, message: "Could not cancel transaction" };
-    } catch (error) {
-      console.error("Cancel Error:", error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || "Failed to cancel transaction");
+    });
+
+    if (response.data.status === 'success') {
+      return { success: true, message: "Transaction cancelled successfully" };
     }
-  };
-  
+    return { success: false, message: "Could not cancel transaction" };
+  } catch (error) {
+    console.error("Cancel Error:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Failed to cancel transaction");
+  }
+};
+
 export const handleWebhook = async (reqBody) => {
   const { trx_ref, status } = reqBody;
-  
+
   if (status === 'success') {
     // Idempotency: skip if already marked Completed
     const [existing] = await db.query("SELECT PaymentStatus FROM Payments WHERE TransactionRef = ?", [trx_ref]);
@@ -259,7 +268,7 @@ export const handleWebhook = async (reqBody) => {
   }
 };
 
-export const confirmCashPayment = async (requestId, managerId) => {
+export const confirmCashPayment = async (requestId, accountantId) => {
   // Check the payment exists and is Cash + Pending
   const [payment] = await db.query(
     "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending'",
@@ -271,15 +280,15 @@ export const confirmCashPayment = async (requestId, managerId) => {
     throw error;
   }
 
-  // Verify this manager owns the garage for this request
+  // Verify this accountant is assigned to the garage for this request
   const [auth] = await db.query(
     `SELECT 1 FROM ServiceRequests sr
-     JOIN GarageManagers gm ON sr.GarageID = gm.GarageID
-     WHERE sr.RequestID = ? AND gm.UserID = ?`,
-    [requestId, managerId]
+     JOIN Accountants a ON sr.GarageID = a.GarageID
+     WHERE sr.RequestID = ? AND a.UserID = ?`,
+    [requestId, accountantId]
   );
   if (auth.length === 0) {
-    const error = new Error("Unauthorized: You don't manage this garage.");
+    const error = new Error("Unauthorized: You are not assigned to this garage.");
     error.status = 403;
     throw error;
   }
@@ -311,7 +320,7 @@ export const confirmCashPayment = async (requestId, managerId) => {
   return { message: "Cash payment confirmed successfully." };
 };
 
-export const confirmOnlinePayment = async (requestId, managerId) => {
+export const confirmOnlinePayment = async (requestId, accountantId) => {
   // Check the payment exists and is Chapa + Pending
   const [payment] = await db.query(
     "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending'",
@@ -323,15 +332,15 @@ export const confirmOnlinePayment = async (requestId, managerId) => {
     throw error;
   }
 
-  // Verify manager owns the garage
+  // Verify accountant is assigned to this garage
   const [auth] = await db.query(
     `SELECT 1 FROM ServiceRequests sr
-     JOIN GarageManagers gm ON sr.GarageID = gm.GarageID
-     WHERE sr.RequestID = ? AND gm.UserID = ?`,
-    [requestId, managerId]
+     JOIN Accountants a ON sr.GarageID = a.GarageID
+     WHERE sr.RequestID = ? AND a.UserID = ?`,
+    [requestId, accountantId]
   );
   if (auth.length === 0) {
-    const error = new Error("Unauthorized: You don't manage this garage.");
+    const error = new Error("Unauthorized: You are not assigned to this garage.");
     error.status = 403;
     throw error;
   }

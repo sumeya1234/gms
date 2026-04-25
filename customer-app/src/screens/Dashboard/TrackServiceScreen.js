@@ -1,12 +1,94 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Linking, Modal, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, CheckCircle2, Clock, Wrench, Phone } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle2, Clock, Wrench, Phone, DollarSign, MapPin, CreditCard, Banknote } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
+import apiClient from '../../api/client';
 
 export default function TrackServiceScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { job } = route.params || {};
+  const [loading, setLoading] = React.useState(false);
+  const [nearbyGarages, setNearbyGarages] = React.useState([]);
+
+  const [showPayOptions, setShowPayOptions] = React.useState(false);
+  const [paymentLoading, setPaymentLoading] = React.useState(false);
+
+  const depositAmount = job?.EstimatedPrice && job?.DepositPercentage
+    ? Math.ceil((job.EstimatedPrice * job.DepositPercentage) / 100)
+    : null;
+
+  const handleApprove = () => {
+    // Show payment method selection — customer must pay deposit before service begins
+    if (depositAmount) {
+      setShowPayOptions(true);
+    } else {
+      // No deposit required — direct approval
+      confirmApproval();
+    }
+  };
+
+  const confirmApproval = async () => {
+    setLoading(true);
+    try {
+      await apiClient.put(`/services/${job.RequestID}/status`, { status: 'Approved' });
+      Alert.alert(t('Success'), t('Request approved. The garage will begin service shortly.'));
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert(t('Error'), t('Failed to approve request.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayDeposit = async (method) => {
+    setShowPayOptions(false);
+    setPaymentLoading(true);
+    try {
+      // Initiate the deposit payment directly
+      const response = await apiClient.post('/payments/pay', {
+        requestId: job.RequestID,
+        amount: depositAmount,
+        method: method
+      });
+
+      if (method === 'Cash') {
+        Alert.alert(
+          t('Deposit Recorded'),
+          t('Please pay ') + depositAmount + t(' ETB at the garage. The accountant will confirm your payment.'),
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+      } else {
+        const checkoutUrl = response.data?.data?.checkout_url;
+        if (checkoutUrl) {
+          await Linking.openURL(checkoutUrl);
+          navigation.goBack();
+        }
+      }
+    } catch (err) {
+      Alert.alert(t('Error'), err?.response?.data?.error || t('Failed to process deposit payment.'));
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setLoading(true);
+    try {
+      await apiClient.put(`/services/${job.RequestID}/status`, { status: 'Rejected', rejectionReason: 'Customer rejected estimate' });
+
+      // Fetch nearby garages
+      const response = await apiClient.get('/garages');
+      const filtered = response.data.filter(g => g.GarageID.toString() !== job.GarageID?.toString()).slice(0, 3);
+      setNearbyGarages(filtered);
+
+      Alert.alert(t('Request Rejected'), t('We have found some other nearby garages for you.'));
+    } catch (err) {
+      Alert.alert(t('Error'), t('Failed to reject request.'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!job) {
     return (
@@ -29,8 +111,8 @@ export default function TrackServiceScreen({ navigation, route }) {
 
   const steps = [
     { title: t('Request Received'), desc: t('Waiting for garage approval'), icon: Clock },
-    { title: t('Approved'), desc: t('Mechanic assignment pending'), icon: CheckCircle2 },
-    { title: t('In Progress'), desc: t('Mechanic is working on your vehicle'), icon: Wrench },
+    { title: t('Approved'), desc: job.IsEmergency ? t('Deposit paid, assigning mechanic') : t('Mechanic assignment pending'), icon: CheckCircle2 },
+    { title: t('In Progress'), desc: job.IsEmergency ? t('Mechanic is on their way to you') : t('Mechanic is working on your vehicle'), icon: Wrench },
     { title: t('Completed'), desc: t('Service finished & ready for payment'), icon: CheckCircle2 },
   ];
 
@@ -52,7 +134,72 @@ export default function TrackServiceScreen({ navigation, route }) {
           <View style={styles.divider} />
           <Text style={styles.descriptionLabel}>{t('Issue Description')}:</Text>
           <Text style={styles.descriptionText}>{job.description || t('No description provided')}</Text>
+          {job.CustomerStatus && (
+            <>
+              <Text style={[styles.descriptionLabel, { marginTop: 12 }]}>{t('Your Status')}:</Text>
+              <Text style={styles.descriptionText}>{job.CustomerStatus}</Text>
+            </>
+          )}
         </View>
+
+        {/* Emergency Estimate Section */}
+        {!!job.IsEmergency && !!job.EstimatedPrice && !job.IsDepositPaid && (
+          <View style={styles.estimateCard}>
+            <View style={styles.estimateHeader}>
+              <DollarSign size={20} color={colors.accentBlue} />
+              <Text style={styles.estimateTitle}>{t('Garage Estimate')}</Text>
+            </View>
+            <View style={styles.estimateRow}>
+              <Text style={styles.estimateLabel}>{t('Estimated Total')}</Text>
+              <Text style={styles.estimateValue}>{Number(job.EstimatedPrice).toLocaleString()} ETB</Text>
+            </View>
+            <View style={styles.estimateRow}>
+              <Text style={styles.estimateLabel}>{t('Deposit Required')} ({job.DepositPercentage}%)</Text>
+              <Text style={[styles.estimateValue, { color: colors.primaryBlue }]}>{depositAmount?.toLocaleString()} ETB</Text>
+            </View>
+            <Text style={styles.estimateNote}>{t('You must pay the deposit to confirm the service.')}</Text>
+
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.approveBtn]}
+                onPress={handleApprove}
+                disabled={loading || paymentLoading}
+              >
+                <Text style={styles.actionBtnText}>{t('Approve & Pay Deposit')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.rejectBtn]}
+                onPress={handleReject}
+                disabled={loading || paymentLoading}
+              >
+                <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>{t('Reject')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Suggested Garages */}
+        {nearbyGarages.length > 0 && (
+          <View style={styles.nearbyContainer}>
+            <Text style={styles.nearbyTitle}>{t('Other Nearby Garages')}</Text>
+            {nearbyGarages.map(g => (
+              <TouchableOpacity
+                key={g.GarageID}
+                style={styles.nearbyCard}
+                onPress={() => navigation.navigate('GarageDetail', { garage: g })}
+              >
+                <View style={styles.nearbyInfo}>
+                  <Text style={styles.nearbyName}>{g.Name}</Text>
+                  <View style={styles.nearbyLocation}>
+                    <MapPin size={14} color={colors.textGray} />
+                    <Text style={styles.nearbyDist}>{g.Location}</Text>
+                  </View>
+                </View>
+                <ChevronLeft size={20} color={colors.textGray} style={{ transform: [{ rotate: '180deg' }] }} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <Text style={styles.timelineTitle}>{t('Service Timeline')}</Text>
 
@@ -62,12 +209,12 @@ export default function TrackServiceScreen({ navigation, route }) {
             const isCompleted = index <= currentStatusIndex;
             const isCurrent = index === currentStatusIndex;
             const Icon = step.icon;
-            
+
             return (
               <View key={index} style={styles.timelineStep}>
                 <View style={styles.timelineIconColumn}>
                   <View style={[
-                    styles.iconWrapper, 
+                    styles.iconWrapper,
                     isCompleted ? styles.iconWrapperActive : styles.iconWrapperInactive,
                     isCurrent && styles.iconWrapperCurrent
                   ]}>
@@ -112,6 +259,36 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         )}
       </ScrollView>
+
+      {/* Payment Method Modal */}
+      <Modal transparent animationType="slide" visible={showPayOptions}>
+        <View style={styles.payModalOverlay}>
+          <View style={styles.payModalCard}>
+            <Text style={styles.payModalTitle}>{t('Pay Deposit')}</Text>
+            <Text style={styles.payModalAmount}>{depositAmount?.toLocaleString()} ETB</Text>
+            <Text style={styles.payModalSub}>{t('Choose your payment method for the deposit:')}</Text>
+            <TouchableOpacity style={[styles.payMethodBtn, { backgroundColor: '#28a745' }]} onPress={() => handlePayDeposit('Chapa')}>
+              <CreditCard size={20} color="#fff" />
+              <Text style={styles.payMethodText}>{t('Pay Online (Chapa)')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.payMethodBtn, { backgroundColor: colors.primaryBlue }]} onPress={() => handlePayDeposit('Cash')}>
+              <Banknote size={20} color="#fff" />
+              <Text style={styles.payMethodText}>{t('Pay Cash at Garage')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.payMethodCancel} onPress={() => setShowPayOptions(false)}>
+              <Text style={{ color: colors.textGray, fontSize: 15 }}>{t('Cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Payment loading overlay */}
+      {paymentLoading && (
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 99 }}>
+          <ActivityIndicator size="large" color={colors.primaryBlue} />
+          <Text style={{ marginTop: 12, color: colors.textDark, fontFamily: 'Inter-SemiBold' }}>{t('Processing payment...')}</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -170,4 +347,169 @@ const styles = StyleSheet.create({
   mechanicName: { fontSize: 16, fontFamily: 'Inter-SemiBold', color: colors.textDark },
   phoneAction: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
   mechanicPhone: { fontSize: 13, color: colors.accentBlue, fontFamily: 'Inter-SemiBold' },
+  estimateCard: {
+    backgroundColor: '#eff6ff',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    marginBottom: 32,
+  },
+  estimateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  estimateTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: colors.textDark,
+  },
+  estimatePrice: {
+    fontSize: 15,
+    color: colors.textGray,
+    marginBottom: 4,
+  },
+  estimateDeposit: {
+    fontSize: 14,
+    color: colors.textGray,
+    marginBottom: 20,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  approveBtn: {
+    backgroundColor: colors.primaryBlue,
+  },
+  rejectBtn: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+  },
+  actionBtnText: {
+    color: colors.white,
+    fontWeight: 'bold',
+  },
+  nearbyContainer: {
+    marginTop: 20,
+    marginBottom: 32,
+  },
+  nearbyTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: colors.textDark,
+    marginBottom: 16,
+  },
+  nearbyCard: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  nearbyInfo: {
+    flex: 1,
+  },
+  nearbyName: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: colors.textDark,
+    marginBottom: 4,
+  },
+  nearbyLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  nearbyDist: {
+    fontSize: 13,
+    color: colors.textGray,
+  },
+  estimateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  estimateLabel: {
+    fontSize: 14,
+    color: colors.textGray,
+    flex: 1,
+  },
+  estimateValue: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: colors.textDark,
+  },
+  estimateNote: {
+    fontSize: 12,
+    color: colors.textGray,
+    fontStyle: 'italic',
+    marginTop: 4,
+    marginBottom: 16,
+  },
+  payModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  payModalCard: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 28,
+    paddingBottom: 40,
+  },
+  payModalTitle: {
+    fontSize: 22,
+    fontFamily: 'Inter-Bold',
+    color: colors.textDark,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  payModalAmount: {
+    fontSize: 32,
+    fontFamily: 'Inter-Bold',
+    color: colors.primaryBlue,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  payModalSub: {
+    fontSize: 14,
+    color: colors.textGray,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  payMethodBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    height: 56,
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+  payMethodText: {
+    color: colors.white,
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+  },
+  payMethodCancel: {
+    alignItems: 'center',
+    marginTop: 8,
+    padding: 12,
+  },
 });

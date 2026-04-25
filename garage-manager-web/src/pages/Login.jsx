@@ -26,8 +26,8 @@ export default function Login() {
       const response = await api.post('/auth/login', { email, password });
       const { token, role } = response.data;
 
-      if (role !== 'GarageManager') {
-        setError('Unauthorized access. Only Garage Managers can login here.');
+      if (!['GarageManager', 'GarageOwner', 'Accountant'].includes(role)) {
+        setError('Unauthorized access. Only Garage Manager, Garage Owner, or Accountant can login here.');
         setLoading(false);
         return;
       }
@@ -39,7 +39,7 @@ export default function Login() {
       const profileResponse = await api.get('/users/profile');
       const user = profileResponse.data.user;
 
-      if (!user.GarageID) {
+      if (!user.GarageID && role !== 'GarageOwner') {
         localStorage.removeItem('token');
         setError('No garage assigned to your account. Please contact the administrator.');
         setLoading(false);
@@ -70,8 +70,8 @@ export default function Login() {
             <div className="w-16 h-16 bg-blue-50 rounded-[1.25rem] flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-sm border border-blue-100">
               <Wrench size={32} />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Garage Manager</h1>
-            <p className="text-slate-500 mt-2 font-medium">Sign in to manage your garage</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Garage Operations Portal</h1>
+            <p className="text-slate-500 mt-2 font-medium">Sign in as manager, owner, or accountant</p>
           </div>
 
           {error && <div className="text-red-600 text-sm font-bold text-center bg-red-50 border border-red-100 py-3 mx-4 rounded-xl mb-6">{error}</div>}

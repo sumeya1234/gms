@@ -12,6 +12,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  Location: garage?.Location || '',
  ContactNumber: garage?.ContactNumber || '',
  ManagerID: garage?.ManagerID || '',
+  OwnerID: garage?.OwnerID || '',
  bankCode: garage?.BankCode || '',
  bankAccountNumber: garage?.BankAccountNumber || '',
  bankAccountName: garage?.BankAccountName || ''
@@ -19,18 +20,23 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState(null);
  const [users, setUsers] = useState([]);
+ const [owners, setOwners] = useState([]);
  const [banks, setBanks] = useState([]);
  const [managerInput, setManagerInput] = useState('');
+ const [ownerInput, setOwnerInput] = useState('');
  const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false);
+ const [isOwnerDropdownOpen, setIsOwnerDropdownOpen] = useState(false);
 
  useEffect(() => {
  const fetchData = async () => {
  try {
- const [usersRes, banksRes] = await Promise.all([
+ const [usersRes, ownersRes, banksRes] = await Promise.all([
  api.get('/users'),
+ api.get('/users/admin/owners').catch(() => ({ data: [] })),
  api.get('/payments/banks').catch(() => ({ data: { data: [] } }))
  ]);
  setUsers(usersRes.data);
+ setOwners(ownersRes.data || []);
  setBanks(banksRes.data.data || []);
  } catch (err) {
  console.error("Failed to load data", err);
@@ -50,9 +56,23 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  }
  }, [form.ManagerID, managers.length]);
 
+ useEffect(() => {
+ if (form.OwnerID && owners.length > 0) {
+ const o = owners.find(u => u.UserID == form.OwnerID);
+ if (o) {
+ setOwnerInput(o.FullName);
+ }
+ }
+ }, [form.OwnerID, owners.length]);
+
  const filteredManagers = managers.filter(m => 
  m.FullName.toLowerCase().includes(managerInput.toLowerCase()) || 
  m.Email?.toLowerCase().includes(managerInput.toLowerCase())
+ );
+
+ const filteredOwners = owners.filter(o => 
+ o.FullName?.toLowerCase().includes(ownerInput.toLowerCase()) || 
+ o.Email?.toLowerCase().includes(ownerInput.toLowerCase())
  );
 
  const handleSubmit = async (e) => {
@@ -76,6 +96,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  location: form.Location,
  contact: form.ContactNumber || null,
  managerId: form.ManagerID || null,
+ ownerId: form.OwnerID || null,
  bankCode: form.bankCode,
  bankAccountNumber: form.bankAccountNumber,
  bankAccountName: form.bankAccountName
@@ -178,6 +199,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
    </div>
  </div>
 
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="flex flex-col gap-2 relative">
  <label htmlFor="garage-manager" className="font-bold text-sm text-slate-700 ">Garage Manager (Optional)</label>
  <div className="relative">
@@ -210,7 +232,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  </svg>
  </button>
  </div>
- 
+
  {isManagerDropdownOpen && (
  <div className="absolute top-full left-0 right-0 mt-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
  <div 
@@ -244,6 +266,76 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
  ))}
  </div>
  )}
+ </div>
+
+ <div className="flex flex-col gap-2 relative">
+ <label htmlFor="garage-owner" className="font-bold text-sm text-slate-700 ">Garage Owner (Optional)</label>
+ <div className="relative">
+ <input
+ id="garage-owner"
+ type="text"
+ value={ownerInput}
+ onChange={e => {
+ setOwnerInput(e.target.value);
+ setIsOwnerDropdownOpen(true);
+ if (form.OwnerID) {
+ setForm(f => ({ ...f, OwnerID: '' }));
+ }
+ }}
+ onFocus={() => setIsOwnerDropdownOpen(true)}
+ onBlur={() => setTimeout(() => setIsOwnerDropdownOpen(false), 200)}
+ placeholder="Type or select an owner..."
+ className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
+ />
+ <button 
+ type="button"
+ onClick={(e) => {
+ e.preventDefault();
+ setIsOwnerDropdownOpen(!isOwnerDropdownOpen);
+ }}
+ className="absolute inset-y-0 right-0 flex items-center pr-3"
+ >
+ <svg className={`w-5 h-5 text-slate-400 transition-transform ${isOwnerDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+ </svg>
+ </button>
+ </div>
+
+ {isOwnerDropdownOpen && (
+ <div className="absolute top-full left-0 right-0 mt-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
+ <div 
+ className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-slate-700 "
+ onClick={() => {
+ setOwnerInput('');
+ setForm(f => ({ ...f, OwnerID: '' }));
+ setIsOwnerDropdownOpen(false);
+ }}
+ >
+ <span className="italic">Unassigned</span>
+ </div>
+ {filteredOwners.length === 0 && ownerInput && (
+ <div className="px-4 py-2 text-slate-500 ">
+ No owners found.
+ </div>
+ )}
+ {filteredOwners.map(user => (
+ <div 
+ key={user.UserID} 
+ className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex flex-col border-t border-slate-100 "
+ onClick={() => {
+ setOwnerInput(user.FullName);
+ setForm(f => ({ ...f, OwnerID: user.UserID }));
+ setIsOwnerDropdownOpen(false);
+ }}
+ >
+ <span className="font-medium text-slate-900 ">{user.FullName}</span>
+ <span className="text-xs text-slate-500 ">{user.Email}</span>
+ </div>
+ ))}
+ </div>
+ )}
+ </div>
+ 
  </div>
  <div className="flex gap-4 mt-4">
  <button

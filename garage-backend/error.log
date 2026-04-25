@@ -327,3 +327,439 @@
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:35:51"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:11"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-19 14:39:12"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:51:15"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:51:15"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:51:15"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:51:15"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:56"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:56"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:56"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:56"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:59"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=weekly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:54:59"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:28"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:28"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:28"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:29"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=weekly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:48"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:48"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:50"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:55:50"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:56:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 13:56:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:51"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:51"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:51"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:51"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=weekly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:58"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:00:58"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:01:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:01:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:02:58"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:04:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:04:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:04:40"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:04:40"}
+{"level":"error","message":"500 - Unknown column 'Timezone' in 'field list' - /api/garages/2 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:25:00"}
+{"level":"error","message":"500 - Unknown column 'SupplierPhone' in 'field list' - /api/inventory/3 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:45:55"}
+{"level":"error","message":"500 - Unknown column 'SupplierPhone' in 'field list' - /api/inventory - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:52:38"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:57:46"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:57:46"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:58:06"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:58:06"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 15:59:18"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:13:13"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:13:13"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:13:23"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:13:23"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:22:18"}
+{"level":"error","message":"500 - Table 'gms.accountants' doesn't exist - /api/users/garage/2/accountants - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:22:18"}
+{"level":"error","message":"500 - Data truncated for column 'Role' at row 1 - /api/users/garage/2/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:26:20"}
+{"level":"error","message":"500 - Duplicate entry 'shehidah0544@gmail.com' for key 'Email' - /api/users/garage/2/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:29:03"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:04"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:09"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:11"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:20"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:21"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:23"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:34:23"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:35:00"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:35:00"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:35:06"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:35:06"}
+{"level":"error","message":"500 - Expression #14 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.go.UserID' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 16:35:13"}
+{"level":"error","message":"500 - Duplicate entry 'sumeya3633@gmail.com' for key 'Email' - /api/users/garage/1/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:09:55"}
+{"level":"error","message":"500 - Duplicate entry 'sumeya3633@gmail.com' for key 'Email' - /api/users/garage/1/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:09:55"}
+{"level":"error","message":"500 - Duplicate entry 'sumeya3633@gmail.com' for key 'Email' - /api/users/garage/1/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:10:31"}
+{"level":"error","message":"500 - Duplicate entry 'sumeya3633@gmail.com' for key 'Email' - /api/users/garage/1/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:16:23"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:42:55"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:42:55"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:42:55"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:42:55"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:00"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:05"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:19"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:19"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:19"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:19"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:29"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=weekly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:43:30"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:44:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:44:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:44:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:44:39"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-22 17:49:40"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 03:52:40"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 03:53:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 03:53:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 03:53:02"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 03:53:02"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:17"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:25"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:25"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/reports?period=monthly - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:25"}
+{"level":"error","message":"500 - Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'gms.p.PaymentDate' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by - /api/garages/6/revenue-trend?period=daily - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:25"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:30"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:31"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 04:13:40"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 04:22:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:06:49"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:06:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:07:09"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:07:40"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:07:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:08:00"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:20:07"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:20:22"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:20:43"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 05:31:20"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:39:05"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:39:10"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:39:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:39:15"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:43:07"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:43:13"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:43:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 05:43:18"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:05:49"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:05:54"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:06:01"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:06:07"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:31"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:37"}
+{"level":"error","message":"500 - Could not set up bank details with payment gateway. - /api/garages/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:43"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:52"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:57"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:07:57"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:08:01"}
+{"level":"error","message":"500 - Table 'garage_test.serviceitems' doesn't exist - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:13:27"}
+{"level":"error","message":"500 - Table 'garage_test.serviceitems' doesn't exist - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:13:37"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:13:39"}
+{"level":"error","message":"500 - Cannot delete or update a parent row: a foreign key constraint fails (`garage_test`.`garages`, CONSTRAINT `garages_ibfk_1` FOREIGN KEY (`ManagerID`) REFERENCES `garagemanagers` (`UserID`)) - /api/garages/1 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:13:47"}
+{"level":"error","message":"500 - Table 'garage_test.serviceitems' doesn't exist - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:14:01"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:14:09"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:14:14"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:14:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:14:18"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:16:39"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/26/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:16"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:16"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/30/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:26"}
+{"level":"error","message":"403 - Garage Managers can only assign mechanics to their own garage - /api/users/31/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:26"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:26"}
+{"level":"error","message":"404 - Garage not found - /api/garages/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:36"}
+{"level":"error","message":"404 - Garage not found - /api/garages/6 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:20:45"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:26:57"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:26:59"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:27:32"}
+{"level":"error","message":"404 - Garage not found - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:27:51"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:03"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:04"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:14"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:25"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:30"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:38"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:41"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:42"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:28:46"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:30:44"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:30:44"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:31:57"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:31:58"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/7/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:35:57"}
+{"level":"error","message":"403 - Garage Managers can only assign mechanics to their own garage - /api/users/8/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:35:57"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:35:57"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/11/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:04"}
+{"level":"error","message":"500 - Unknown column 'r.RequestID' in 'where clause' - /api/services/my-requests - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:04"}
+{"level":"error","message":"400 - This garage already has a manager assigned. Please unassign the current manager first. - /api/users/15/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:10"}
+{"level":"error","message":"403 - Garage Managers can only assign mechanics to their own garage - /api/users/16/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:10"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:11"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:17"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:28"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:42"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:49"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:36:55"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:37:00"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:37:13"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:37:20"}
+{"level":"error","message":"500 - Pool is closed. - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:37:41"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:37:53"}
+{"level":"error","message":"500 - Pool is closed. - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:07"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:13"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:14"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:21"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:22"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this request - /api/services/1/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:22"}
+{"level":"error","message":"400 - Cannot assign mechanic to a 'Pending' request. The request must be Approved first. - /api/services/assign - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:22"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:22"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:24"}
+{"level":"error","message":"500 - Unknown column 'IsEscalated' in 'field list' - /api/complaints/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:24"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:31"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:37"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:43"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:38:43"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:43:24"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:43:24"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:43:34"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:43:43"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:43:55"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:44:05"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:44:13"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:44:13"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:46:14"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:46:16"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:47:25"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:47:53"}
+{"level":"error","message":"500 - Table 'garage_test.reviews' doesn't exist - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:02"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:29"}
+{"level":"error","message":"500 - Unknown column 'IsEscalated' in 'field list' - /api/complaints/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:29"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:34"}
+{"level":"error","message":"500 - ensureGarageOwnersTable is not defined - /api/garages/2 - DELETE - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:34"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:45"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:53"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:48:54"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:49:00"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:49:04"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:49:05"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:49:09"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:51:33"}
+{"level":"error","message":"404 - Garage not found - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:51:39"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:51:45"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:51:53"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:52:00"}
+{"level":"error","message":"404 - Garage not found - /api/garages/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:52:22"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:52:29"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:52:35"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:52:38"}
+{"level":"error","message":"404 - Garage not found - /api/garages/7 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:56:35"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:16"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:18"}
+{"level":"error","message":"404 - Garage not found - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:23"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:38"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:44"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:50"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:55"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:55"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 06:58:59"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:00:28"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:00:35"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:00:37"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:00:44"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:00:52"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:01:00"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:01:05"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:01:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:01:10"}
+{"level":"error","message":"404 - Garage not found - /api/garages/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:02:48"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:02:56"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:04"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:09"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:10"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:15"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/8 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:20"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/8 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:20"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:24"}
+{"level":"error","message":"404 - Garage not found - /api/garages/7 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:32"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:38"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:46"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:51"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:03:52"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:04:02"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/12 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:04:05"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/12 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:04:06"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:04:11"}
+{"level":"error","message":"500 - Unknown column 'CustomerStatus' in 'field list' - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 07:11:18"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:11:33"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:11:35"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:11:43"}
+{"level":"error","message":"404 - Garage not found - /api/garages/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:11:49"}
+{"level":"error","message":"500 - Unknown column 'CustomerStatus' in 'field list' - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 07:11:50"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:11:55"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:12:03"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:12:12"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:12:12"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:12:16"}
+{"level":"error","message":"500 - Pool is closed. - /api/users/26/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:39"}
+{"level":"error","message":"500 - Pool is closed. - /api/users/27/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:39"}
+{"level":"error","message":"500 - Pool is closed. - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:39"}
+{"level":"error","message":"500 - Pool is closed. - /api/vehicles/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:39"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:56"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:21:59"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:22:12"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/36/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:22:27"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:22:27"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:22:44"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/7 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:23:19"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/7 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:23:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:23:34"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/49/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:11"}
+{"level":"error","message":"500 - Assigner is not linked to a garage - /api/users/50/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:11"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:11"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:18"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:19"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/56/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:30"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:30"}
+{"level":"error","message":"404 - Garage not found - /api/garages/9 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:47"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:52"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/11 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:57"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/11 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:37:58"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:02"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/72/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:11"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:11"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:17"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:17"}
+{"level":"error","message":"404 - Garage not found - /api/garages/11 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:23"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/86/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:37"}
+{"level":"error","message":"500 - Assigner is not linked to a garage - /api/users/87/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:37"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:37"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:41"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/15 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:46"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/15 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:47"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:38:50"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 07:59:24"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/95/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:37"}
+{"level":"error","message":"500 - Assigner is not linked to a garage - /api/users/96/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:37"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:37"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:41"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:41"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/102/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:46"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:46"}
+{"level":"error","message":"404 - Garage not found - /api/garages/15 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:50"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:55"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/19 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:58"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/19 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 07:59:58"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:00"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/118/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:05"}
+{"level":"error","message":"500 - Assigner is not linked to a garage - /api/users/119/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:05"}
+{"level":"error","message":"500 - Duplicate entry 'SRV-999' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:06"}
+{"level":"error","message":"500 - Duplicate entry '1' for key 'GarageID' - /api/users/122/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:11"}
+{"level":"error","message":"500 - Duplicate entry 'C1-AAA' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:11"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:14"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:15"}
+{"level":"error","message":"404 - Garage not found - /api/garages/18 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:18"}
+{"level":"error","message":"500 - Duplicate entry 'PAY-111' for key 'PlateNumber' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:23"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/23 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:26"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/23 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:26"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 08:00:27"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:07:29"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:07:40"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:07:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:01"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:10"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:23"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:25"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:37"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:41"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:54"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:57"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-23 08:08:58"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:39:25"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:39:28"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:39:39"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:39:50"}
+{"level":"error","message":"404 - Garage not found - /api/garages/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:00"}
+{"level":"error","message":"500 - Unknown column 'IsDepositPaid' in 'field list' - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:14"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:14"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:19"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:20"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 11:40:26"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:13:27"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:17:08"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:17:09"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:20:07"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:25:38"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:25:40"}
+{"level":"error","message":"500 - Duplicate entry '+19999999999' for key 'PhoneNumber' - /api/users/profile - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:25:52"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:25:54"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:26:34"}
+{"level":"error","message":"404 - Garage not found - /api/garages/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:26:46"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:26:55"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:26:55"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:26:56"}
+{"level":"error","message":"500 - Unknown column 'IsDepositPaid' in 'field list' - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:06"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:06"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:20"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:20"}
+{"level":"error","message":"500 - Pool is closed. - /api/users/19/garage - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:35"}
+{"level":"error","message":"500 - Pool is closed. - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:35"}
+{"level":"error","message":"500 - Pool is closed. - /api/vehicles/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:35"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:41"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:48"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:27:49"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:48:53"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:02"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:09"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:24"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:25"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:35"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:35"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:35"}
+{"level":"error","message":"404 - Garage not found - /api/garages/6 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:44"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:51"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:52"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:49:58"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:53:14"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:53:29"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:53:29"}
+{"level":"error","message":"500 - Pool is closed. - /api/garages/ - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:53:44"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:53:55"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:54:04"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:54:11"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/3 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:54:11"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:54:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 12:54:25"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:09"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:09"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:10"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:23"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:36"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:38"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:46"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:03:57"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:04:07"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:04:15"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:04:15"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:04:21"}
+{"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:20"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/2 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:33"}
+{"level":"error","message":"400 - Cannot complete service without completed payment - /api/services/complete - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:35"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/inventory/ - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:46"}
+{"level":"error","message":"403 - Unauthorized: You do not manage the garage for this item - /api/inventory/1 - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:47"}
+{"level":"error","message":"404 - Inventory item not found - /api/inventory/item/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:47"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:29:56"}
+{"level":"error","message":"404 - Garage not found - /api/garages/5 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:30:07"}
+{"level":"error","message":"404 - Service request not found - /api/payments/pay - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:30:15"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:30:21"}
+{"level":"error","message":"404 - Vehicle not found or unauthorized - /api/vehicles/4 - GET - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:30:22"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-23 13:30:27"}

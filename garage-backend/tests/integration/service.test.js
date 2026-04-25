@@ -19,8 +19,15 @@ describe('Service Requests Endpoints', () => {
         const gRes = await request(app)
             .post('/api/garages/')
             .set('Authorization', `Bearer ${superAdmin.token}`)
-            .send({ name: "Service Test Garage", location: "Downtown", contact: "1234765432" });
-        
+            .send({
+                name: "Service Test Garage",
+                location: "Downtown",
+                contact: "1234765432",
+                bankCode: "CBE",
+                bankAccountNumber: "1000987654321",
+                bankAccountName: "Service Test Garage"
+            });
+
         // Fetch it back to get ID 
         // We know it's there, but let's query DB to be safe or use GET Garages
         const allGarages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
@@ -72,7 +79,7 @@ describe('Service Requests Endpoints', () => {
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBe(1);
-        
+
         requestId = response.body[0].RequestID;
         expect(response.body[0].Status).toBe('Pending'); // Default status
     });
@@ -83,7 +90,7 @@ describe('Service Requests Endpoints', () => {
             .set('Authorization', `Bearer ${manager.token}`);
 
         expect(response.status).toBe(200);
-        expect(response.body.some(req => req.RequestID === requestId)).toBe(true);
+        expect(response.body.data.some(req => req.RequestID === requestId)).toBe(true);
     });
 
     it('Should block unauthorized managers from viewing requests (GET /api/services/garage/:garageId)', async () => {
@@ -144,7 +151,7 @@ describe('Service Requests Endpoints', () => {
             .send({ requestId });
 
         // Logic enforces payment completed check
-        expect(response.status).toBe(400); 
+        expect(response.status).toBe(400);
         expect(response.body.error).toContain('payment');
     });
 });

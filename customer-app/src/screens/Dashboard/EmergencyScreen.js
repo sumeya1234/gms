@@ -6,25 +6,35 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import { useVehicleStore } from '../../store/vehicleStore';
 import { useServiceStore } from '../../store/serviceStore';
+import { TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 
 export default function EmergencyScreen({ navigation, route }) {
   const { t } = useTranslation();
   const garage = route.params?.garage;
   const insets = useSafeAreaInsets();
-  
+
   const { vehicles, fetchVehicles, isLoading: vehiclesLoading } = useVehicleStore();
   const { createRequest, isLoading: requestLoading } = useServiceStore();
+
+  const [step, setStep] = React.useState(1); // 1: Select Type, 2: Status Form, 3: Confirmation
+  const [emergencyType, setEmergencyType] = React.useState(null);
+  const [customerStatus, setCustomerStatus] = React.useState('');
 
   useEffect(() => {
     fetchVehicles();
   }, []);
 
-  const handleSOS = async (type) => {
+  const handleSelectType = (type) => {
+    setEmergencyType(type);
+    setStep(2);
+  };
+
+  const handleSOS = async () => {
     if (!garage) {
       Alert.alert(t('Error'), t('Could not find nearby garage.'));
       return;
     }
-    
+
     if (vehicles.length === 0) {
       Alert.alert(t('Error'), t('You must add a vehicle in the Vehicles tab first before requesting SOS.'));
       return;
@@ -33,17 +43,18 @@ export default function EmergencyScreen({ navigation, route }) {
     const primaryVehicle = vehicles[0];
 
     const payload = {
-      serviceType: type === 'tow' ? 'Towing' : 'Repair',
+      serviceType: emergencyType === 'tow' ? 'Towing' : 'Repair',
       vehicleId: primaryVehicle.VehicleID || primaryVehicle.id,
       garageId: garage.id,
-      description: `[SOS EMERGENCY REQUEST]\nUser requested immediate ${type === 'tow' ? 'Towing' : 'On-site Mechanic'} assistance.`,
-      isEmergency: true
+      description: `[SOS EMERGENCY REQUEST]\nUser requested immediate ${emergencyType === 'tow' ? 'Towing' : 'On-site Mechanic'} assistance.`,
+      isEmergency: true,
+      customerStatus: customerStatus
     };
 
     const success = await createRequest(payload);
     if (success) {
       Alert.alert(t('SOS Sent'), t('Emergency request sent to ') + garage.name);
-      navigation.navigate('MainTabs'); 
+      navigation.navigate('MainTabs');
     }
   };
 
@@ -56,45 +67,99 @@ export default function EmergencyScreen({ navigation, route }) {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <View style={styles.header}>
-        <ShieldAlert size={64} color="#ef4444" style={{ marginBottom: 16 }} />
-        <Text style={styles.title}>{t('Emergency Assistance')}</Text>
-        <Text style={styles.subtitle}>
-           {t('Connecting you instantly to ')} 
-           <Text style={{fontWeight: 'bold', color: colors.textDark}}>{garage?.name}</Text>
-        </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={styles.header}>
+          <ShieldAlert size={64} color="#ef4444" style={{ marginBottom: 16 }} />
+          <Text style={styles.title}>{t('Emergency Assistance')}</Text>
+          <Text style={styles.subtitle}>
+            {t('Connecting you instantly to ')}
+            <Text style={{ fontWeight: 'bold', color: colors.textDark }}>{garage?.name}</Text>
+          </Text>
+        </View>
+
+        {step === 1 && (
+          <View style={styles.content}>
+            <TouchableOpacity
+              style={[styles.sosButton, styles.towButton]}
+              onPress={() => handleSelectType('tow')}
+              disabled={requestLoading}
+            >
+              <CarFront size={32} color={colors.white} />
+              <Text style={styles.btnText}>{t('I NEED A TOW')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.sosButton, styles.fixButton]}
+              onPress={() => handleSelectType('fix')}
+              disabled={requestLoading}
+            >
+              <Wrench size={32} color={colors.white} />
+              <Text style={styles.btnText}>{t('I NEED A MECHANIC HERE')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {step === 2 && (
+          <View style={styles.formContainer}>
+            <Text style={styles.formLabel}>{t('What is your current status?')}</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder={t('Example: I am stuck at the main road near the gas station...')}
+              value={customerStatus}
+              onChangeText={setCustomerStatus}
+              multiline
+              numberOfLines={4}
+            />
+            <TouchableOpacity
+              style={styles.submitBtn}
+              onPress={() => setStep(3)}
+            >
+              <Text style={styles.submitBtnText}>{t('Next')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setStep(1)} style={styles.backLink}>
+              <Text style={styles.backLinkText}>{t('Go Back')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {step === 3 && (
+          <View style={styles.confirmContainer}>
+            <Text style={styles.confirmTitle}>{t('Confirm Emergency Request')}</Text>
+            <View style={styles.confirmBox}>
+              <Text style={styles.confirmLabel}>{t('Type')}: <Text style={styles.confirmValue}>{emergencyType === 'tow' ? t('Towing') : t('Repair')}</Text></Text>
+              <Text style={styles.confirmLabel}>{t('Status')}: <Text style={styles.confirmValue}>{customerStatus || t('No status provided')}</Text></Text>
+            </View>
+            <TouchableOpacity
+              style={styles.sosFinalButton}
+              onPress={handleSOS}
+              disabled={requestLoading}
+            >
+              <AlertTriangle size={24} color={colors.white} />
+              <Text style={styles.sosFinalText}>{t('SEND SOS NOW')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setStep(2)} style={styles.backLink}>
+              <Text style={styles.backLinkText}>{t('Go Back')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {step === 1 && (
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => navigation.goBack()}>
+            <Text style={styles.cancelText}>{t('Cancel')}</Text>
+          </TouchableOpacity>
+        )}
+
+        {requestLoading && (
+          <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255,255,255,0.7)', justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#ef4444" />
+          </View>
+        )}
       </View>
-
-      <View style={styles.content}>
-        <TouchableOpacity 
-          style={[styles.sosButton, styles.towButton]} 
-          onPress={() => handleSOS('tow')}
-          disabled={requestLoading}
-        >
-          <CarFront size={32} color={colors.white} />
-          <Text style={styles.btnText}>{t('I NEED A TOW')}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.sosButton, styles.fixButton]} 
-          onPress={() => handleSOS('fix')}
-          disabled={requestLoading}
-        >
-          <Wrench size={32} color={colors.white} />
-          <Text style={styles.btnText}>{t('I NEED A MECHANIC HERE')}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={styles.cancelBtn} onPress={() => navigation.goBack()}>
-        <Text style={styles.cancelText}>{t('Cancel')}</Text>
-      </TouchableOpacity>
-      {requestLoading && (
-         <View style={{...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255,255,255,0.7)', justifyContent: 'center', alignItems: 'center'}}>
-           <ActivityIndicator size="large" color="#ef4444" />
-         </View>
-      )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -157,5 +222,94 @@ const styles = StyleSheet.create({
     color: '#ef4444',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  formContainer: {
+    paddingHorizontal: 24,
+    flex: 1,
+  },
+  formLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 12,
+  },
+  textInput: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: colors.textDark,
+    borderWidth: 1,
+    borderColor: colors.border,
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  submitBtn: {
+    backgroundColor: '#ef4444',
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  submitBtnText: {
+    color: colors.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  backLink: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  backLinkText: {
+    color: colors.textGray,
+    fontSize: 16,
+  },
+  confirmContainer: {
+    paddingHorizontal: 24,
+    flex: 1,
+  },
+  confirmTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.textDark,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  confirmBox: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 32,
+  },
+  confirmLabel: {
+    fontSize: 16,
+    color: colors.textGray,
+    marginBottom: 8,
+  },
+  confirmValue: {
+    color: colors.textDark,
+    fontWeight: 'bold',
+  },
+  sosFinalButton: {
+    backgroundColor: '#ef4444',
+    height: 64,
+    borderRadius: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  sosFinalText: {
+    color: colors.white,
+    fontSize: 20,
+    fontWeight: '900',
   }
 });

@@ -1,4 +1,4 @@
-import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage, getAllUsers, getAllManagers, getMechanicsByGarage, changeMechanicStatus, getMechanicSkills, setMechanicSkills } from "../services/userService.js";
+import { getUserProfile, updateProfile, changePassword, updateRole, assignUserToGarage, getAllUsers, getAllManagers, getAllOwners, getMechanicsByGarage, getAccountantsByGarage, createGarageAccountant, changeMechanicStatus, getMechanicSkills, setMechanicSkills } from "../services/userService.js";
 import { registerUser } from "../services/authService.js";
 import { fetchMyNotifications, savePushToken, markAsRead, deleteNotification, deleteAllNotifications } from "../services/notificationService.js";
 import { getSuperAdminStats } from "../services/dashboardService.js";
@@ -88,6 +88,11 @@ export const getManagers = asyncHandler(async (req, res) => {
   res.json(managers);
 });
 
+export const getOwners = asyncHandler(async (req, res) => {
+  const owners = await getAllOwners();
+  res.json(owners);
+});
+
 export const createManager = asyncHandler(async (req, res) => {
   const { fullName, email, phone, password } = req.body;
 
@@ -100,6 +105,20 @@ export const createManager = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json({ message: "Manager created successfully", userId: result.userId });
+});
+
+export const createOwner = asyncHandler(async (req, res) => {
+  const { fullName, email, phone, password } = req.body;
+
+  const result = await registerUser({
+    fullName,
+    email,
+    phone,
+    password,
+    role: "GarageOwner"
+  });
+
+  res.status(201).json({ message: "Garage owner created successfully", userId: result.userId });
 });
 
 export const getGarageMechanics = asyncHandler(async (req, res) => {
@@ -141,6 +160,34 @@ export const createMechanic = asyncHandler(async (req, res) => {
   }
 
   res.status(201).json({ message: "Mechanic created and assigned successfully", userId: result.userId });
+});
+
+export const getGarageAccountants = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  const accountants = await getAccountantsByGarage(garageId, req.user);
+  res.json(accountants);
+});
+
+export const createAccountant = asyncHandler(async (req, res) => {
+  const { garageId } = req.params;
+  let { fullName, email, phone, password } = req.body;
+
+  if (!password || password.trim() === '') {
+    password = crypto.randomBytes(4).toString('hex');
+  }
+
+  const result = await registerUser({
+    fullName,
+    email,
+    phone,
+    password,
+    role: "Accountant"
+  });
+
+  await createGarageAccountant(garageId, result.userId, req.user);
+  await sendTemporaryPasswordEmail(email, fullName, password, "Accountant");
+
+  res.status(201).json({ message: "Accountant created and assigned successfully", userId: result.userId });
 });
 
 export const updateMechanicStatus = asyncHandler(async (req, res) => {

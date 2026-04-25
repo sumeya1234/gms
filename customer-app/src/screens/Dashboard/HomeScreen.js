@@ -22,17 +22,17 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 3958.8; // Radius of the Earth in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c; 
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 };
 
 export default function HomeScreen({ navigation, goToPage }) {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [activeView, setActiveView] = useState('list'); // 'list' or 'map'
   const [garages, setGarages] = useState([]);
@@ -41,6 +41,7 @@ export default function HomeScreen({ navigation, goToPage }) {
   const [locationName, setLocationName] = useState('Pending GPS...');
   const [userCoords, setUserCoords] = useState(null);
   const [sortBy, setSortBy] = useState('Nearest'); // 'Nearest' or 'Lowest Price'
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Deterministic avatar color from user name
   const AVATAR_COLORS = ['#137fec', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#3498db', '#e91e63', '#00bcd4', '#ff5722'];
@@ -61,17 +62,17 @@ export default function HomeScreen({ navigation, goToPage }) {
         let location = await Location.getCurrentPositionAsync({});
         setUserCoords(location.coords);
         let geocode = await Location.reverseGeocodeAsync({
-           latitude: location.coords.latitude,
-           longitude: location.coords.longitude
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
         });
         if (geocode && geocode.length > 0) {
-           const place = geocode[0];
-           // Construct a clean display name using available attributes
-           const localName = place.district || place.street || place.name || '';
-           const cityName = place.city || place.subregion || place.region || '';
-           setLocationName(localName && cityName ? `${localName}, ${cityName}` : (localName || cityName || 'Unknown Location'));
+          const place = geocode[0];
+          // Construct a clean display name using available attributes
+          const localName = place.district || place.street || place.name || '';
+          const cityName = place.city || place.subregion || place.region || '';
+          setLocationName(localName && cityName ? `${localName}, ${cityName}` : (localName || cityName || 'Unknown Location'));
         } else {
-           setLocationName('Coordinates Found');
+          setLocationName('Coordinates Found');
         }
       } catch (e) {
         setLocationName('Locating Failed');
@@ -82,37 +83,39 @@ export default function HomeScreen({ navigation, goToPage }) {
     const fetchGarages = async () => {
       try {
         const response = await apiClient.get('/garages');
-        
+
         const mapped = response.data.map(g => {
-             const mod = g.GarageID % 3;
-             
-             // Base images based on mod
-             const imgs = [
-                 "https://images.unsplash.com/photo-1598555239556-91d179eb9555?q=80&w=600&auto=format&fit=crop",
-                 "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=600&auto=format&fit=crop",
-                 "https://images.unsplash.com/photo-1579227114347-15d08fc37cae?q=80&w=600&auto=format&fit=crop"
-             ];
+          const mod = g.GarageID % 3;
 
-             // Use real services from the database
-             const realServices = (g.Services || []).map(s => s.ServiceName);
+          // Base images based on mod
+          const imgs = [
+            "https://images.unsplash.com/photo-1598555239556-91d179eb9555?q=80&w=600&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=600&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1579227114347-15d08fc37cae?q=80&w=600&auto=format&fit=crop"
+          ];
 
-             return {
-                 id: g.GarageID.toString(),
-                 name: g.Name,
-                 imageUrl: imgs[mod],
-                 rating: Number(g.AverageRating || 0).toFixed(1),
-                 reviews: g.TotalReviews || 0,
-                 isVerified: g.GarageID % 2 === 0,
-                 distance: (0.5 + (g.GarageID % 5) * 0.8).toFixed(1),
-                 availability: "Open Now",
-                 services: realServices,
-                 serviceDetails: g.Services || [],
-                 startingPrice: Number(g.MinPrice) || 0,
-                 location: { 
-                     latitude: 9.0222 + (g.GarageID * 0.002), 
-                     longitude: 38.7468 + (g.GarageID * 0.002) 
-                 }
-             };
+          // Use real services from the database
+          const realServices = (g.Services || []).map(s => s.ServiceName);
+
+          return {
+            id: g.GarageID.toString(),
+            name: g.Name,
+            imageUrl: imgs[mod],
+            rating: Number(g.AverageRating || 0).toFixed(1),
+            reviews: g.TotalReviews || 0,
+            isVerified: g.GarageID % 2 === 0,
+            distance: (0.5 + (g.GarageID % 5) * 0.8).toFixed(1),
+            availability: g.Availability || "Closed",
+            services: realServices,
+            serviceDetails: g.Services || [],
+            startingPrice: Number(g.MinPrice) || 0,
+            workingHours: typeof g.WorkingHours === 'string' ? JSON.parse(g.WorkingHours) : g.WorkingHours,
+            timezone: g.Timezone || 'Africa/Addis_Ababa',
+            location: {
+              latitude: 9.0222 + (g.GarageID * 0.002),
+              longitude: 38.7468 + (g.GarageID * 0.002)
+            }
+          };
         });
         setGarages(mapped);
       } catch (err) {
@@ -122,7 +125,31 @@ export default function HomeScreen({ navigation, goToPage }) {
       }
     };
     fetchGarages();
-  }, []);
+
+    // Fetch unread notifications
+    const fetchUnread = async () => {
+      try {
+        const res = await apiClient.get('/users/notifications');
+        const count = (res.data || []).filter(n => !n.IsRead).length;
+        setUnreadCount(count);
+      } catch (e) {
+        // silent
+      }
+    };
+    fetchUnread();
+
+    // Auto-refresh when screen comes to focus
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchUnread();
+    });
+
+    const timer = setInterval(fetchUnread, 30000); // 30s poll
+
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+    };
+  }, [navigation]);
 
   const toggleCategory = (cat) => {
     if (selectedCategories.includes(cat)) {
@@ -142,7 +169,7 @@ export default function HomeScreen({ navigation, goToPage }) {
       ios: `maps:0,0?q=${label}@${lat},${lng}`,
       android: `geo:0,0?q=${lat},${lng}(${label})`
     });
-    
+
     if (url) Linking.openURL(url);
   };
 
@@ -152,7 +179,11 @@ export default function HomeScreen({ navigation, goToPage }) {
     return selectedCategories.every(cat => g.services.includes(cat));
   }).filter(g => {
     if (!searchQuery) return true;
-    return g.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
+    return (
+      g.name.toLowerCase().includes(q) ||
+      g.services.some(s => s.toLowerCase().includes(q))
+    );
   }).map(g => {
     let finalPrice = g.startingPrice;
     if (selectedCategories.length > 0 && g.serviceDetails) {
@@ -160,12 +191,12 @@ export default function HomeScreen({ navigation, goToPage }) {
         .filter(s => selectedCategories.includes(s.ServiceName))
         .reduce((sum, s) => sum + Number(s.Price), 0);
     }
-    
-    let dist = g.distance; 
+
+    let dist = g.distance;
     if (userCoords && g.location) {
-       dist = calculateDistance(userCoords.latitude, userCoords.longitude, g.location.latitude, g.location.longitude).toFixed(1);
+      dist = calculateDistance(userCoords.latitude, userCoords.longitude, g.location.latitude, g.location.longitude).toFixed(1);
     }
-    
+
     return { ...g, startingPrice: finalPrice, distance: dist };
   }).sort((a, b) => {
     if (sortBy === 'Lowest Price') {
@@ -190,11 +221,22 @@ export default function HomeScreen({ navigation, goToPage }) {
             </Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+            <TouchableOpacity style={{ position: 'relative' }} onPress={() => navigation.navigate('Notifications')}>
               <Bell size={24} color={colors.textDark} />
+              {unreadCount > 0 && (
+                <View style={{
+                  position: 'absolute', top: -4, right: -6, backgroundColor: '#ef4444',
+                  borderRadius: 10, minWidth: 18, height: 18, justifyContent: 'center',
+                  alignItems: 'center', paddingHorizontal: 4, borderWidth: 1.5, borderColor: colors.white
+                }}>
+                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.avatarButton, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]} onPress={() => { if(goToPage) goToPage(3); else navigation.getParent()?.navigate('Profile'); }}>
-               <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{avatarInitial}</Text>
+            <TouchableOpacity style={[styles.avatarButton, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]} onPress={() => { if (goToPage) goToPage(3); else navigation.getParent()?.navigate('Profile'); }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{avatarInitial}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -218,15 +260,15 @@ export default function HomeScreen({ navigation, goToPage }) {
           </View>
           {/* Categories Skeleton */}
           <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16 }}>
-             <Skeleton width={60} height={32} borderRadius={16} style={{ marginRight: 8 }} />
-             <Skeleton width={90} height={32} borderRadius={16} style={{ marginRight: 8 }} />
-             <Skeleton width={100} height={32} borderRadius={16} />
+            <Skeleton width={60} height={32} borderRadius={16} style={{ marginRight: 8 }} />
+            <Skeleton width={90} height={32} borderRadius={16} style={{ marginRight: 8 }} />
+            <Skeleton width={100} height={32} borderRadius={16} />
           </View>
           {/* List content Skeletons */}
           <View style={{ paddingHorizontal: 16, gap: 16, marginTop: 24 }}>
-             <Skeleton width="100%" height={120} borderRadius={16} />
-             <Skeleton width="100%" height={120} borderRadius={16} />
-             <Skeleton width="100%" height={120} borderRadius={16} />
+            <Skeleton width="100%" height={120} borderRadius={16} />
+            <Skeleton width="100%" height={120} borderRadius={16} />
+            <Skeleton width="100%" height={120} borderRadius={16} />
           </View>
         </ScrollView>
       ) : activeView === 'list' ? (
@@ -235,7 +277,7 @@ export default function HomeScreen({ navigation, goToPage }) {
           <View style={styles.searchWrapper}>
             <View style={styles.searchInput}>
               <Search color={colors.textGray} size={20} style={{ marginRight: 8 }} />
-              <TextInput 
+              <TextInput
                 style={{ flex: 1, color: colors.textDark }}
                 placeholder={t('Find service, repair, or garage...')}
                 placeholderTextColor={colors.textGray}
@@ -246,35 +288,35 @@ export default function HomeScreen({ navigation, goToPage }) {
           </View>
 
           {/* Emergency Assistance */}
-          <TouchableOpacity 
-             activeOpacity={0.8} 
-             style={styles.emergencyBtn}
-             onPress={() => {
-                if (filteredGarages.length > 0) {
-                    const nearest = [...filteredGarages].sort((a,b) => parseFloat(a.distance) - parseFloat(b.distance))[0];
-                    navigation.navigate('Emergency', { garage: nearest });
-                } else {
-                    alert('No Garages', 'No nearby garages found for emergency assistance.');
-                }
-             }}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.emergencyBtn}
+            onPress={() => {
+              if (filteredGarages.length > 0) {
+                const nearest = [...filteredGarages].sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))[0];
+                navigation.navigate('Emergency', { garage: nearest });
+              } else {
+                alert('No Garages', 'No nearby garages found for emergency assistance.');
+              }
+            }}
           >
             <AlertCircle size={20} color={colors.white} />
             <Text style={styles.emergencyText}>{t('Emergency Assistance')}</Text>
           </TouchableOpacity>
 
           {/* Categories Horizontal Scroll */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesScroll}
           >
-            <ServiceChip 
-                title={t('All')}
-                isSelected={selectedCategories.length === 0}
-                onPress={() => setSelectedCategories([])}
+            <ServiceChip
+              title={t('All')}
+              isSelected={selectedCategories.length === 0}
+              onPress={() => setSelectedCategories([])}
             />
             {SERVICE_CATEGORIES.map(category => (
-              <ServiceChip 
+              <ServiceChip
                 key={category}
                 title={t(category)}
                 isSelected={selectedCategories.includes(category)}
@@ -286,21 +328,21 @@ export default function HomeScreen({ navigation, goToPage }) {
           {/* Sorting */}
           <View style={[styles.viewToggleWrapper, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }]}>
             <View style={{ flexDirection: 'row', backgroundColor: colors.white, borderRadius: 8, padding: 2, borderWidth: 1, borderColor: colors.border }}>
-               <TouchableOpacity onPress={() => setSortBy('Nearest')} style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: sortBy === 'Nearest' ? colors.primaryBlue : 'transparent', borderRadius: 6 }}>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: sortBy === 'Nearest' ? colors.white : colors.textGray }}>Nearest</Text>
-               </TouchableOpacity>
-               <TouchableOpacity onPress={() => setSortBy('Lowest Price')} style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: sortBy === 'Lowest Price' ? colors.primaryBlue : 'transparent', borderRadius: 6 }}>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: sortBy === 'Lowest Price' ? colors.white : colors.textGray }}>Price</Text>
-               </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSortBy('Nearest')} style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: sortBy === 'Nearest' ? colors.primaryBlue : 'transparent', borderRadius: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: 'bold', color: sortBy === 'Nearest' ? colors.white : colors.textGray }}>Nearest</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSortBy('Lowest Price')} style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: sortBy === 'Lowest Price' ? colors.primaryBlue : 'transparent', borderRadius: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: 'bold', color: sortBy === 'Lowest Price' ? colors.white : colors.textGray }}>Price</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.listContainer}>
             {filteredGarages.map((garage) => (
-              <GarageCard 
-                key={garage.id} 
-                item={garage} 
-                onPress={() => navigation.navigate('GarageDetail', { garage, intentServices: selectedCategories })} 
+              <GarageCard
+                key={garage.id}
+                item={garage}
+                onPress={() => navigation.navigate('GarageDetail', { garage, intentServices: selectedCategories })}
               />
             ))}
             {filteredGarages.length === 0 && (
@@ -309,7 +351,7 @@ export default function HomeScreen({ navigation, goToPage }) {
               </Text>
             )}
           </View>
-          
+
           <View style={{ height: 100 }} />
         </ScrollView>
       ) : (
@@ -334,11 +376,11 @@ export default function HomeScreen({ navigation, goToPage }) {
               />
             ))}
           </MapView>
-          
+
           <View style={styles.mapOverlay}>
             <View style={[styles.searchInput, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
               <Search color={colors.textGray} size={20} style={{ marginRight: 8 }} />
-              <TextInput 
+              <TextInput
                 style={{ flex: 1, color: colors.textDark }}
                 placeholder={t('Search garages...')}
                 placeholderTextColor={colors.textGray}
@@ -346,18 +388,18 @@ export default function HomeScreen({ navigation, goToPage }) {
                 onChangeText={setSearchQuery}
               />
             </View>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.mapCategoriesScroll}
             >
-              <ServiceChip 
-                  title={t('All')}
-                  isSelected={selectedCategories.length === 0}
-                  onPress={() => setSelectedCategories([])}
+              <ServiceChip
+                title={t('All')}
+                isSelected={selectedCategories.length === 0}
+                onPress={() => setSelectedCategories([])}
               />
               {SERVICE_CATEGORIES.map(category => (
-                <ServiceChip 
+                <ServiceChip
                   key={category}
                   title={t(category)}
                   isSelected={selectedCategories.includes(category)}
@@ -371,7 +413,7 @@ export default function HomeScreen({ navigation, goToPage }) {
 
       {/* Floating Toggle Button */}
       {!loading && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.fabToggle}
           activeOpacity={0.9}
           onPress={() => setActiveView(activeView === 'list' ? 'map' : 'list')}
@@ -498,7 +540,7 @@ const styles = StyleSheet.create({
   categoriesScroll: {
     paddingHorizontal: 16,
     marginBottom: 16,
-    paddingBottom: 4, 
+    paddingBottom: 4,
   },
   viewToggleWrapper: {
     paddingHorizontal: 16,

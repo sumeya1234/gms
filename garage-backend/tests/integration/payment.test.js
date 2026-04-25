@@ -13,7 +13,14 @@ describe('Payment Endpoints', () => {
 
         // Create Garage
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
-            .send({ name: "Payment Garage", location: "Downtown", contact: "0999999999" });
+            .send({
+                name: "Payment Garage",
+                location: "Downtown",
+                contact: "0999999999",
+                bankCode: "CBE",
+                bankAccountNumber: "1000123456789",
+                bankAccountName: "Payment Garage Account"
+            });
         const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = garages.body[0].GarageID;
 
@@ -26,7 +33,7 @@ describe('Payment Endpoints', () => {
         // Create Service Request
         await request(app).post('/api/services/').set('Authorization', `Bearer ${customer.token}`)
             .send({ serviceType: "Inspection", garageId, vehicleId });
-        
+
         const requests = await request(app).get('/api/services/my-requests').set('Authorization', `Bearer ${customer.token}`);
         requestId = requests.body[0].RequestID;
     });
@@ -42,7 +49,7 @@ describe('Payment Endpoints', () => {
             });
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty('message', 'Payment successful');
+        expect(response.body).toHaveProperty('message', 'Payment initialized successfully');
     });
 
     it('Should block payment if Service Request does not exist (POST /api/payments/pay)', async () => {

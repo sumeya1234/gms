@@ -2,8 +2,8 @@ import { createInventoryItem, fetchInventory, fetchInventoryItemById, modifyInve
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const addItem = asyncHandler(async (req, res) => {
-  const { itemName, quantity, unitPrice, garageId } = req.body;
-  await createInventoryItem(itemName, quantity, unitPrice, garageId, req.user);
+  const { itemName, quantity, unitPrice, supplierName, supplierEmail, supplierPhone, garageId } = req.body;
+  await createInventoryItem(itemName, quantity, unitPrice, supplierName, supplierEmail, supplierPhone, garageId, req.user);
   res.json({ message: "Item added" });
 });
 

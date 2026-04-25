@@ -5,6 +5,8 @@ import { User, Lock, Building, Check, AlertCircle, Edit2, Eye, EyeOff } from 'lu
 
 export default function Settings() {
   const { user, fetchProfile } = useAuthStore();
+  const role = user?.Role || user?.role;
+  const canManageGarage = role === 'GarageManager';
   const [activeTab, setActiveTab] = useState('profile');
   
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,16 @@ export default function Settings() {
   const [garageData, setGarageData] = useState({
     name: '',
     location: '',
-    contact: ''
+    contact: '',
+    workingHours: {
+      monday: { isOpen: true, open: '08:00', close: '18:00' },
+      tuesday: { isOpen: true, open: '08:00', close: '18:00' },
+      wednesday: { isOpen: true, open: '08:00', close: '18:00' },
+      thursday: { isOpen: true, open: '08:00', close: '18:00' },
+      friday: { isOpen: true, open: '08:00', close: '18:00' },
+      saturday: { isOpen: true, open: '09:00', close: '14:00' },
+      sunday: { isOpen: false, open: null, close: null }
+    }
   });
   const [isEditingGarage, setIsEditingGarage] = useState(false);
 
@@ -44,7 +55,10 @@ export default function Settings() {
           setGarageData({
             name: res.data.Name || '',
             location: res.data.Location || '',
-            contact: res.data.ContactNumber || ''
+            contact: res.data.ContactNumber || '',
+            workingHours: typeof res.data.WorkingHours === 'string'
+              ? JSON.parse(res.data.WorkingHours)
+              : (res.data.WorkingHours || garageData.workingHours)
           });
         } catch (err) {
           console.error(err);
@@ -53,6 +67,12 @@ export default function Settings() {
       fetchGarage();
     }
   }, [activeTab, user?.GarageID, garageData.name]);
+
+  useEffect(() => {
+    if (!canManageGarage && activeTab === 'garage') {
+      setActiveTab('profile');
+    }
+  }, [canManageGarage, activeTab]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -109,7 +129,8 @@ export default function Settings() {
       await api.put(`/garages/${user.GarageID}`, {
         name: garageData.name,
         location: garageData.location,
-        contact: garageData.contact
+        contact: garageData.contact,
+        workingHours: garageData.workingHours
       });
       setMessage({ text: 'Garage details updated successfully!', type: 'success' });
       setIsEditingGarage(false);
@@ -125,7 +146,9 @@ export default function Settings() {
     <div className="space-y-6 animate-in fade-in duration-300 max-w-4xl">
       <div>
         <h1 className="text-3xl font-bold text-[var(--color-primary)]">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your account and garage preferences.</p>
+        <p className="text-gray-500 mt-1">
+          {canManageGarage ? 'Manage your account and garage preferences.' : 'Manage your personal account and password.'}
+        </p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] overflow-hidden flex flex-col md:flex-row">
@@ -153,16 +176,18 @@ export default function Settings() {
             >
               <Lock size={18} /> Security & Password
             </button>
-            <button
-              onClick={() => { setActiveTab('garage'); setMessage({ text: '', type: '' }); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'garage' 
-                  ? 'bg-[var(--color-primary)] text-white shadow-sm' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Building size={18} /> Garage Details
-            </button>
+            {canManageGarage && (
+              <button
+                onClick={() => { setActiveTab('garage'); setMessage({ text: '', type: '' }); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap ${
+                  activeTab === 'garage' 
+                    ? 'bg-[var(--color-primary)] text-white shadow-sm' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Building size={18} /> Garage Details
+              </button>
+            )}
           </nav>
         </div>
 
@@ -327,7 +352,7 @@ export default function Settings() {
           )}
 
           {/* Garage Details Tab */}
-          {activeTab === 'garage' && (
+          {canManageGarage && activeTab === 'garage' && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="flex justify-between items-center mb-6 border-b pb-2">
                 <h2 className="text-xl font-bold text-gray-900">Garage Public Profile</h2>
@@ -376,6 +401,63 @@ export default function Settings() {
                     required
                     disabled={!isEditingGarage}
                   />
+                </div>
+
+                <div className="pt-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Working Hours</label>
+                  <div className="space-y-2">
+                    {Object.entries(garageData.workingHours || {}).map(([dayKey, day]) => (
+                      <div key={dayKey} className="grid grid-cols-4 gap-2 items-center">
+                        <span className="text-sm font-medium text-gray-600 capitalize">{dayKey}</span>
+                        <label className="text-xs text-gray-500 flex items-center gap-1">
+                          <input
+                            type="checkbox"
+                            checked={!!day.isOpen}
+                            disabled={!isEditingGarage}
+                            onChange={(e) => setGarageData(prev => ({
+                              ...prev,
+                              workingHours: {
+                                ...prev.workingHours,
+                                [dayKey]: {
+                                  ...prev.workingHours[dayKey],
+                                  isOpen: e.target.checked,
+                                  open: e.target.checked ? (prev.workingHours[dayKey].open || '08:00') : null,
+                                  close: e.target.checked ? (prev.workingHours[dayKey].close || '18:00') : null
+                                }
+                              }
+                            }))}
+                          />
+                          Open
+                        </label>
+                        <input
+                          type="time"
+                          value={day.open || ''}
+                          disabled={!isEditingGarage || !day.isOpen}
+                          onChange={(e) => setGarageData(prev => ({
+                            ...prev,
+                            workingHours: {
+                              ...prev.workingHours,
+                              [dayKey]: { ...prev.workingHours[dayKey], open: e.target.value }
+                            }
+                          }))}
+                          className="input-field w-full text-sm"
+                        />
+                        <input
+                          type="time"
+                          value={day.close || ''}
+                          disabled={!isEditingGarage || !day.isOpen}
+                          onChange={(e) => setGarageData(prev => ({
+                            ...prev,
+                            workingHours: {
+                              ...prev.workingHours,
+                              [dayKey]: { ...prev.workingHours[dayKey], close: e.target.value }
+                            }
+                          }))}
+                          className="input-field w-full text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {isEditingGarage && (

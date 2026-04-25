@@ -8,6 +8,7 @@ import { useVehicleStore } from '../../store/vehicleStore';
 import { useServiceStore } from '../../store/serviceStore';
 import ServiceChip from '../../components/ServiceChip';
 import Skeleton from '../../components/Skeleton';
+import Dropdown from '../../components/Dropdown';
 
 const SERVICE_CATEGORIES = ['Towing', 'Diagnostics', 'Tires', 'Oil Change', 'Repair', 'Battery', 'Electrical'];
 
@@ -30,10 +31,7 @@ const generateDates = () => {
     return dates;
 };
 const DATES = generateDates();
-const TIME_SLOTS = [
-  '08:00:00', '09:00:00', '10:00:00', '11:00:00', 
-  '12:00:00', '13:00:00', '14:00:00', '15:00:00', '16:00:00'
-];
+const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
 
 export default function ServiceRequestScreen({ navigation, route }) {
   const { t } = useTranslation();
@@ -124,7 +122,7 @@ export default function ServiceRequestScreen({ navigation, route }) {
       description: finalDescription,
       isEmergency: false,
       bookingDate: selectedDate,
-      dropOffTime: selectedTime
+      dropOffTime: `${selectedTime}:00`
     };
 
     const success = await createRequest(payload);
@@ -163,21 +161,14 @@ export default function ServiceRequestScreen({ navigation, route }) {
               <Text style={styles.addVehiclePromptText}>{t('Add a vehicle first')}</Text>
            </TouchableOpacity>
         ) : (
-           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleChipsRow}>
-              {vehicles.map(v => {
-                 const isSelected = selectedVehicle?.VehicleID === v.VehicleID || selectedVehicle?.id === v.id;
-                 return (
-                    <TouchableOpacity 
-                       key={v.VehicleID || v.id} 
-                       onPress={() => setSelectedVehicle(v)}
-                       style={[styles.vehicleChip, isSelected && styles.vehicleChipActive]}
-                    >
-                       <Car size={16} color={isSelected ? colors.white : colors.primaryBlue} />
-                       <Text style={[styles.vehicleChipText, isSelected && styles.vehicleChipTextActive]}>{v.PlateNumber} • {v.Model}</Text>
-                    </TouchableOpacity>
-                 );
-              })}
-           </ScrollView>
+           <Dropdown 
+              options={vehicles}
+              selectedOption={selectedVehicle}
+              onSelect={setSelectedVehicle}
+              placeholder={t('Choose your vehicle', 'Choose your vehicle')}
+              keyExtractor={(v) => v.VehicleID || v.id}
+              labelExtractor={(v) => `${v.PlateNumber} • ${v.Model}`}
+           />
         )}
 
         <Text style={styles.label}>{t('Service Type', 'Service Type')} (Select Multiple)</Text>
@@ -231,16 +222,20 @@ export default function ServiceRequestScreen({ navigation, route }) {
         <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Time', 'Select Time')}</Text>
         {isCheckingTime ? (
            <ActivityIndicator size="small" color={colors.primaryBlue} style={{ alignSelf: 'flex-start', marginVertical: 16 }} />
+        ) : availability?.isClosedDay ? (
+           <View style={styles.fullyBookedWrap}>
+              <Text style={styles.fullyBookedText}>{t('Garage is closed on this date. Please select another date.')}</Text>
+           </View>
         ) : availability?.isFullyBooked ? (
            <View style={styles.fullyBookedWrap}>
               <Text style={styles.fullyBookedText}>{t('Garage is at Max Labor Capacity for this date. Please select another date.')}</Text>
            </View>
         ) : (
            <View style={styles.timeGrid}>
-              {TIME_SLOTS.map(time => {
+              {(availability?.availableSlots?.length ? availability.availableSlots : TIME_SLOTS).map(time => {
                  const isCongested = availability?.congestedTimes?.includes(time);
                  const isSelected = selectedTime === time;
-                 const displayTime = time.substring(0, 5); // 08:00
+                 const displayTime = time.substring(0, 5); // HH:mm
                  
                  return (
                     <TouchableOpacity
@@ -251,7 +246,7 @@ export default function ServiceRequestScreen({ navigation, route }) {
                           isSelected && styles.timeSlotSelected,
                           isCongested && styles.timeSlotDisabled
                        ]}
-                       onPress={() => setSelectedTime(time)}
+                       onPress={() => setSelectedTime(time.substring(0, 5))}
                     >
                        <Text style={[
                           styles.timeSlotText,

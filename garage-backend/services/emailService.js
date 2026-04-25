@@ -29,24 +29,24 @@ async function initTransporter() {
     return transporter;
   }
 
-export const sendTemporaryPasswordEmail = async (email, name, password) => {
+export const sendTemporaryPasswordEmail = async (email, name, password, accountType = "Mechanic") => {
   try {
     const mailer = await initTransporter();
 
     const info = await mailer.sendMail({
       from: `"Garage Management System" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: "Your Mechanic Account Details",
-      text: `Hello ${name},\n\nA mechanic account has been created for you.\nYour temporary password is: ${password}\n\nPlease log in and update your password immediately.\n\nBest regards,\nGMS Team`,
+      subject: `Your ${accountType} Account Details`,
+      text: `Hello ${name},\n\nA ${accountType.toLowerCase()} account has been created for you.\nYour temporary password is: ${password}\n\nPlease log in and update your password immediately.\n\nBest regards,\nGMS Team`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
           <h2 style="color: #1890ff;">Welcome to Garage Management System</h2>
           <p>Hello <strong>${name}</strong>,</p>
-          <p>A mechanic account has been provisioned for you.</p>
+          <p>A ${accountType.toLowerCase()} account has been provisioned for you.</p>
           <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p style="margin: 0;"><strong>Temporary Password:</strong> ${password}</p>
           </div>
-          <p>Please log in to the mechanic portal and change your password as soon as possible.</p>
+          <p>Please log in to the management portal and change your password as soon as possible.</p>
           <br/>
           <p>Best regards,<br/>GMS Team</p>
         </div>

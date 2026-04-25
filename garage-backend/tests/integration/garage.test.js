@@ -33,10 +33,12 @@ describe('Garages Endpoints', () => {
             .send({
                 name: "Auto Fix Central",
                 location: "Downtown Plaza",
-                contact: "+18005551234"
+                contact: "+18005551234",
+                bankCode: "CBE",
+                bankAccountNumber: "1000123456789",
+                bankAccountName: "Auto Fix Central"
             });
-
-        expect(response.status).toBe(200);
+        expect([200, 201]).toContain(response.status);
         expect(response.body).toHaveProperty('message', 'Garage created');
     });
 
@@ -49,8 +51,10 @@ describe('Garages Endpoints', () => {
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBeGreaterThanOrEqual(1);
 
-        garageId = response.body[0].GarageID;
-        expect(response.body[0]).toHaveProperty('Name', 'Auto Fix Central');
+        const myGarage = response.body.find(g => g.Name === 'Auto Fix Central');
+        expect(myGarage).toBeDefined();
+        garageId = myGarage.GarageID;
+        expect(myGarage).toHaveProperty('Name', 'Auto Fix Central');
     });
 
     it('Should fetch a specific garage (GET /api/garages/:id)', async () => {

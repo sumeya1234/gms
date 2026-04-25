@@ -1,5 +1,6 @@
 import "./config/env.js"; // 1. Load env first
 import app from "./app.js";
+import { ensureAccountantsTableExists } from "./config/bootstrapAccountantsTable.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -13,6 +14,8 @@ process.on("uncaughtException", (err) => {
   console.error("UNCAUGHT EXCEPTION (non-fatal):");
   console.error(err?.name, err?.message, err?.stack);
 });
+
+await ensureAccountantsTableExists();
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

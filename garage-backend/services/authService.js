@@ -7,11 +7,22 @@ export const registerUser = async (userData) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const [result] = await db.query(
-    `INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, Role)
-     VALUES (?, ?, ?, ?, ?)`,
-    [fullName, email, phone, hashedPassword, role]
-  );
+  let result;
+  try {
+    [result] = await db.query(
+      `INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, Role)
+       VALUES (?, ?, ?, ?, ?)`,
+      [fullName, email, phone, hashedPassword, role]
+    );
+  } catch (err) {
+    if (err?.code === "ER_DUP_ENTRY") {
+      const field = err.message.includes("Email") ? "Email" : (err.message.includes("PhoneNumber") ? "Phone number" : "Account details");
+      const duplicateError = new Error(`${field} already exists`);
+      duplicateError.status = 409;
+      throw duplicateError;
+    }
+    throw err;
+  }
 
   const userId = result.insertId;
 
@@ -72,7 +83,7 @@ export const generatePasswordResetOTP = async (email) => {
 
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  
+
   // Set expiry to 15 minutes from now
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 

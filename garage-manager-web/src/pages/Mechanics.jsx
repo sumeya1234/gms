@@ -9,11 +9,13 @@ const PREDEFINED_SKILLS = [
   'Transmission', 'Suspension', 'Body Work', 'Tire Service', 'AC/Heating', 'Diagnostics'
 ];
 
-export default function Mechanics() {
+export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   const { t } = useTranslation();
   const { user } = useAuthStore();
+  const [staffType, setStaffType] = useState(defaultStaffType);
   
   const [mechanics, setMechanics] = useState([]);
+  const [accountants, setAccountants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -47,6 +49,10 @@ export default function Mechanics() {
   const [regCustomSkill, setRegCustomSkill] = useState('');
   const [regStep, setRegStep] = useState(1);
 
+  useEffect(() => {
+    setStaffType(defaultStaffType);
+  }, [defaultStaffType]);
+
   const fetchMechanics = useCallback(async () => {
     if (!user?.GarageID) return;
     try {
@@ -62,22 +68,42 @@ export default function Mechanics() {
     }
   }, [user?.GarageID]);
 
+  const fetchAccountants = useCallback(async () => {
+    if (!user?.GarageID) return;
+    try {
+      const response = await api.get(`/users/garage/${user.GarageID}/accountants`);
+      setAccountants(response.data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load accountants.');
+    }
+  }, [user?.GarageID]);
+
   useEffect(() => {
-    fetchMechanics();
-  }, [fetchMechanics]);
+    const load = async () => {
+      setLoading(true);
+      await Promise.all([fetchMechanics(), fetchAccountants()]);
+      setLoading(false);
+    };
+    load();
+  }, [fetchMechanics, fetchAccountants]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddMechanic = async (e) => {
+  const handleAddStaff = async (e) => {
     e.preventDefault();
     setFormError('');
     setFormLoading(true);
     
     try {
-      await api.post(`/users/garage/${user.GarageID}/mechanics`, { ...formData, skills: regSkills });
+      if (staffType === 'Mechanic') {
+        await api.post(`/users/garage/${user.GarageID}/mechanics`, { ...formData, skills: regSkills });
+      } else {
+        await api.post(`/users/garage/${user.GarageID}/accountants`, formData);
+      }
       
       // Reset form and close modal
       setFormData({ fullName: '', email: '', phone: '' });
@@ -87,10 +113,10 @@ export default function Mechanics() {
       setIsAddModalOpen(false);
       
       // Refresh list
-      fetchMechanics();
+      await Promise.all([fetchMechanics(), fetchAccountants()]);
     } catch (err) {
       console.error(err);
-      const apiError = err.response?.data?.errors?.join(', ') || err.response?.data?.message || 'Failed to add mechanic';
+      const apiError = err.response?.data?.errors?.join(', ') || err.response?.data?.message || `Failed to add ${staffType.toLowerCase()}`;
       setFormError(apiError);
     } finally {
       setFormLoading(false);
@@ -177,12 +203,14 @@ export default function Mechanics() {
     }
   };
 
+  const staffRows = staffType === 'Mechanic' ? mechanics : accountants;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-primary)]">Mechanics Management</h1>
-          <p className="text-gray-500 mt-1">Manage the mechanics assigned to your garage.</p>
+          <h1 className="text-3xl font-bold text-[var(--color-primary)]">Staff Management</h1>
+          <p className="text-gray-500 mt-1">Manage mechanics and accountants assigned to your garage.</p>
         </div>
         
         <button 
@@ -190,8 +218,22 @@ export default function Mechanics() {
           className="btn-primary flex items-center gap-2 py-2 px-4 shadow-sm hover:shadow-md transition-all"
         >
           <UserPlus size={18} />
-          <span>Add Mechanic</span>
+          <span>{staffType === 'Mechanic' ? 'Add Mechanic' : 'Add Accountant'}</span>
         </button>
+      </div>
+
+      <div className="inline-flex bg-white border border-[var(--color-border)] rounded-lg p-1 shadow-sm">
+        {['Mechanic', 'Accountant'].map(type => (
+          <button
+            key={type}
+            onClick={() => setStaffType(type)}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
+              staffType === type ? 'bg-[var(--color-primary)] text-white' : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            {type === 'Mechanic' ? 'Mechanics' : 'Accountants'}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -213,11 +255,11 @@ export default function Mechanics() {
           <div className="flex justify-center items-center h-48">
             <span className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></span>
           </div>
-        ) : mechanics.length === 0 ? (
+        ) : staffRows.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-gray-500 bg-gray-50/50">
             <Users size={48} className="mb-4 text-gray-300" />
-            <p className="font-medium text-gray-600">No mechanics found.</p>
-            <p className="text-sm mt-1">Click "Add Mechanic" to get started.</p>
+            <p className="font-medium text-gray-600">No {staffType.toLowerCase()}s found.</p>
+            <p className="text-sm mt-1">Click "Add {staffType}" to get started.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -233,63 +275,69 @@ export default function Mechanics() {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {mechanics.map((mechanic) => (
-                  <tr key={mechanic.UserID} className="border-b border-[var(--color-border)] hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 text-gray-500 font-mono">#{mechanic.UserID}</td>
+                {staffRows.map((member) => (
+                  <tr key={member.UserID} className="border-b border-[var(--color-border)] hover:bg-slate-50/50 transition-colors">
+                    <td className="p-4 text-gray-500 font-mono">#{member.UserID}</td>
                     <td className="p-4 text-[var(--color-text-main)] font-bold">
-                      <div>{mechanic.FullName}</div>
-                      {mechanic.Skills && mechanic.Skills.length > 0 && (
+                      <div>{member.FullName}</div>
+                      {staffType === 'Mechanic' && member.Skills && member.Skills.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {mechanic.Skills.slice(0, 2).map(skill => (
+                          {member.Skills.slice(0, 2).map(skill => (
                             <span key={skill} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-semibold rounded">{skill}</span>
                           ))}
-                          {mechanic.Skills.length > 2 && (
-                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-semibold rounded">+{mechanic.Skills.length - 2} more</span>
+                          {member.Skills.length > 2 && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-semibold rounded">+{member.Skills.length - 2} more</span>
                           )}
                         </div>
                       )}
                     </td>
                     <td className="p-4 text-gray-600">
-                      {mechanic.Email}
+                      {member.Email}
                     </td>
                     <td className="p-4 text-gray-600">
-                      {mechanic.PhoneNumber}
+                      {member.PhoneNumber}
                     </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-xs uppercase tracking-wide ${
-                        mechanic.Status === 'Active' ? 'bg-green-100 text-green-700' : 
-                        mechanic.Status === 'Suspended' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                        member.Status === 'Active' ? 'bg-green-100 text-green-700' : 
+                        member.Status === 'Suspended' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
                       }`}>
-                        {mechanic.Status || 'Active'}
+                        {member.Status || 'Active'}
                       </span>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => openSkillsModal(mechanic)}
-                          className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
-                          title="Manage Skills"
-                        >
-                          <Wrench size={16} />
-                        </button>
-                        <button
-                          onClick={() => openStatusModal(mechanic)}
-                          className={`p-1.5 rounded transition-colors ${
-                            mechanic.Status === 'Suspended' 
-                              ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                              : 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
-                          }`}
-                          title={mechanic.Status === 'Suspended' ? "Activate Mechanic" : "Suspend Mechanic"}
-                        >
-                          <Power size={16} />
-                        </button>
-                        <button
-                          onClick={() => openArchiveModal(mechanic)}
-                          className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors"
-                          title="Archive Mechanic"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {staffType === 'Mechanic' ? (
+                          <>
+                            <button
+                              onClick={() => openSkillsModal(member)}
+                              className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
+                              title="Manage Skills"
+                            >
+                              <Wrench size={16} />
+                            </button>
+                            <button
+                              onClick={() => openStatusModal(member)}
+                              className={`p-1.5 rounded transition-colors ${
+                                member.Status === 'Suspended' 
+                                  ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+                                  : 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
+                              }`}
+                              title={member.Status === 'Suspended' ? "Activate Mechanic" : "Suspend Mechanic"}
+                            >
+                              <Power size={16} />
+                            </button>
+                            <button
+                              onClick={() => openArchiveModal(member)}
+                              className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded transition-colors"
+                              title="Archive Mechanic"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">View only</span>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -300,7 +348,7 @@ export default function Mechanics() {
         )}
       </div>
 
-      {/* Add Mechanic Modal */}
+      {/* Add Staff Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -309,13 +357,15 @@ export default function Mechanics() {
               <div>
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   <UserPlus size={20} className="text-[var(--color-primary)]" />
-                  Register New Mechanic
+                  Register New {staffType}
                 </h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 1 ? 'bg-[var(--color-primary)] text-white' : 'bg-green-100 text-green-700'}`}>1 Info</span>
-                  <span className="text-gray-300 text-xs">›</span>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 2 ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-400'}`}>2 Skills</span>
-                </div>
+                {staffType === 'Mechanic' && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 1 ? 'bg-[var(--color-primary)] text-white' : 'bg-green-100 text-green-700'}`}>1 Info</span>
+                    <span className="text-gray-300 text-xs">›</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${regStep === 2 ? 'bg-[var(--color-primary)] text-white' : 'bg-gray-100 text-gray-400'}`}>2 Skills</span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => { setIsAddModalOpen(false); setRegSkills([]); setRegStep(1); }}
@@ -327,7 +377,7 @@ export default function Mechanics() {
 
             {/* Step 1 — Basic Info */}
             {regStep === 1 && (
-              <form onSubmit={e => { e.preventDefault(); setFormError(''); setRegStep(2); }} className="p-6" autoComplete="off">
+              <form onSubmit={e => { e.preventDefault(); setFormError(''); if (staffType === 'Mechanic') setRegStep(2); else handleAddStaff(e); }} className="p-6" autoComplete="off">
                 {formError && (
                   <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
                 )}
@@ -344,12 +394,12 @@ export default function Mechanics() {
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
                     <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+251 911 234 567" className="input-field w-full" required minLength={10} />
                   </div>
-                  <p className="text-xs text-gray-400 italic">A temporary password will be auto-generated and emailed to the mechanic.</p>
+                  <p className="text-xs text-gray-400 italic">A temporary password will be auto-generated and emailed to the {staffType.toLowerCase()}.</p>
                 </div>
                 <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-100">
                   <button type="button" onClick={() => { setIsAddModalOpen(false); setRegStep(1); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
                   <button type="submit" className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors shadow-sm flex items-center gap-2">
-                    Next: Add Skills <span>›</span>
+                    {staffType === 'Mechanic' ? <>Next: Add Skills <span>›</span></> : <>Create Account</>}
                   </button>
                 </div>
               </form>
@@ -357,7 +407,7 @@ export default function Mechanics() {
 
             {/* Step 2 — Skills */}
             {regStep === 2 && (
-              <form onSubmit={handleAddMechanic} className="p-6">
+              <form onSubmit={handleAddStaff} className="p-6">
                 {formError && (
                   <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
                 )}

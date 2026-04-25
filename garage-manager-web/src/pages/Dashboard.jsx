@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Users, Wrench, DollarSign, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Calendar, Wrench, DollarSign, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 export default function Dashboard() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  
+
   const [requests, setRequests] = useState([]);
   const [garageStats, setGarageStats] = useState({ activeJobs: 0, totalRevenue: 0, lowStockItems: [] });
   const [loading, setLoading] = useState(true);
@@ -16,16 +16,20 @@ export default function Dashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     if (!user?.GarageID) return;
-    
+
     try {
       setLoading(true);
       const [reqsResponse, statsResponse] = await Promise.all([
         api.get(`/services/garage/${user.GarageID}`),
         api.get(`/garages/${user.GarageID}/stats`)
       ]);
-      
-      setRequests(reqsResponse.data.data);
-      setGarageStats(statsResponse.data);
+
+      setRequests(reqsResponse.data?.data || reqsResponse.data || []);
+      setGarageStats({
+        activeJobs: statsResponse.data?.activeJobs || 0,
+        totalRevenue: statsResponse.data?.totalRevenue || 0,
+        lowStockItems: statsResponse.data?.lowStockItems || []
+      });
       setError('');
     } catch (err) {
       console.error('Failed to fetch dashboard data', err);
@@ -42,7 +46,7 @@ export default function Dashboard() {
   const stats = [
     { title: t('activeJobs'), value: garageStats.activeJobs || '0', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-50' },
     { title: t('totalRevenue'), value: `${parseFloat(garageStats.totalRevenue || 0).toLocaleString()} ETB`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50' },
-    { title: t('lowStockWarnings'), value: garageStats.lowStockItems?.length || '0', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
+    { title: t('lowStockWarnings'), value: garageStats.lowStockItems?.length || '0', icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' }
   ];
 
   return (
@@ -85,16 +89,16 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-gray-900">{t('recentBookings')}</h2>
             <Link to="/bookings" className="text-sm font-semibold text-[var(--color-primary)] hover:underline">{t('viewAll')}</Link>
           </div>
-          
+
           {loading ? (
-             <div className="flex-1 flex justify-center items-center h-32">
-               <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
-             </div>
-          ) : requests.length === 0 ? (
-             <div className="flex-1 flex flex-col justify-center items-center text-gray-400 p-4">
-               <Calendar size={48} className="mb-2 opacity-20" />
-               <p>{t('noRecentBookings')}</p>
-             </div>
+            <div className="flex-1 flex justify-center items-center h-32">
+              <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+            </div>
+          ) : !requests || requests.length === 0 ? (
+            <div className="flex-1 flex flex-col justify-center items-center text-gray-400 p-4">
+              <Calendar size={48} className="mb-2 opacity-20" />
+              <p>{t('noRecentBookings')}</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -119,13 +123,12 @@ export default function Dashboard() {
                         )}
                       </td>
                       <td className="p-3">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          req.Status === 'Completed' ? 'bg-green-100 text-green-700' :
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${req.Status === 'Completed' ? 'bg-green-100 text-green-700' :
                           req.Status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                          req.Status === 'InProgress' ? 'bg-blue-100 text-blue-700' :
-                          req.Status === 'Approved' ? 'bg-indigo-100 text-indigo-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
+                            req.Status === 'InProgress' ? 'bg-blue-100 text-blue-700' :
+                              req.Status === 'Approved' ? 'bg-indigo-100 text-indigo-700' :
+                                'bg-red-100 text-red-700'
+                          }`}>
                           {req.Status}
                         </span>
                       </td>
@@ -149,20 +152,20 @@ export default function Dashboard() {
 
           <div className="flex-1">
             {loading ? (
-               <div className="flex justify-center items-center h-32">
-                 <span className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></span>
-               </div>
+              <div className="flex justify-center items-center h-32">
+                <span className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></span>
+              </div>
             ) : !garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? (
-               <div className="flex flex-col items-center justify-center text-center h-full text-green-600 py-10 opacity-70">
-                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                   <Wrench size={32} />
-                 </div>
-                 <p className="font-semibold text-sm">{t('inventoryHealthy')}</p>
-                 <p className="text-xs text-gray-500 mt-1">{t('noMinimumStockLimits')}</p>
-               </div>
+              <div className="flex flex-col items-center justify-center text-center h-full text-green-600 py-10 opacity-70">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                  <Wrench size={32} />
+                </div>
+                <p className="font-semibold text-sm">{t('inventoryHealthy')}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('noMinimumStockLimits')}</p>
+              </div>
             ) : (
               <div className="space-y-3">
-                {garageStats.lowStockItems.map((item, idx) => (
+                {(garageStats.lowStockItems || []).map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center p-3 bg-white border border-red-100 rounded-lg shadow-sm hover:border-red-300 transition-colors">
                     <div>
                       <p className="font-bold text-gray-800 text-sm">{item.ItemName}</p>

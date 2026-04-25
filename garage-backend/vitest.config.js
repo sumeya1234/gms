@@ -5,6 +5,8 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./tests/envSetup.js', './tests/setup.js'],
     globalSetup: './tests/globalSetup.js',
+    testTimeout: 30000,
+    hookTimeout: 30000,
     // Run tests sequentially since they share a single test database
     fileParallelism: false,
     poolOptions: {

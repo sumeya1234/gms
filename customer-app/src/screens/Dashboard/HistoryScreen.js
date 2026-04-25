@@ -10,7 +10,7 @@ import api from '../../api/client';
 export default function HistoryScreen({ navigation }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('History');
-  
+
   const { requests, isLoading, fetchMyRequests } = useServiceStore();
   const [historyFilter, setHistoryFilter] = useState('Today');
   const pendingTxRef = useRef(null);
@@ -29,131 +29,133 @@ export default function HistoryScreen({ navigation }) {
 
   const ServiceCard = ({ item }) => (
     <TouchableOpacity style={styles.historyCard} activeOpacity={0.7} onPress={() => {
-       if (item.Status === 'Completed') {
-          handleViewInvoice(item);
-       } else if (item.Status !== 'Rejected') {
-          navigation.navigate('TrackService', { job: { 
-             ...item, 
-             status: item.Status, 
-             description: item.Description,
-             vehicleId: { brand: item.Brand, model: item.Model, plateNumber: item.PlateNumber } 
-          } });
-       } else {
-          Alert.alert('Request Rejected', item.RejectionReason || 'This request was rejected by the garage.');
-       }
+      if (item.Status === 'Completed') {
+        handleViewInvoice(item);
+      } else if (item.Status !== 'Rejected') {
+        navigation.navigate('TrackService', {
+          job: {
+            ...item,
+            status: item.Status,
+            description: item.Description,
+            vehicleId: { brand: item.Brand, model: item.Model, plateNumber: item.PlateNumber }
+          }
+        });
+      } else {
+        Alert.alert('Request Rejected', item.RejectionReason || 'This request was rejected by the garage.');
+      }
     }}>
-       <View style={styles.histHeaderRow}>
-         <View style={{ flex: 1, paddingRight: 8 }}>
-            <Text style={styles.histTitle} numberOfLines={2}>{item.ServiceType}</Text>
-            {item.GarageName && (
-               <Text style={{ fontSize: 13, color: colors.primaryBlue, fontWeight: '500', marginBottom: 2 }}>{item.GarageName}</Text>
-            )}
-            <Text style={styles.histSub}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
-         </View>
-         <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
-            <View style={{ backgroundColor: getStatusColor(item.Status), paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-               <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' }}>{item.Status}</Text>
-            </View>
-            <TouchableOpacity onPress={() => handleDeleteRequest(item)} style={{ padding: 4 }}>
-               <Trash size={16} color="#ef4444" />
-            </TouchableOpacity>
-         </View>
-       </View>
-       
-       <Text style={styles.histComment}>{item.Description || 'No description provided.'}</Text>
+      <View style={styles.histHeaderRow}>
+        <View style={{ flex: 1, paddingRight: 8 }}>
+          <Text style={styles.histTitle} numberOfLines={2}>{item.ServiceType}</Text>
+          {item.GarageName && (
+            <Text style={{ fontSize: 13, color: colors.primaryBlue, fontWeight: '500', marginBottom: 2 }}>{item.GarageName}</Text>
+          )}
+          <Text style={styles.histSub}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
+        </View>
+        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
+          <View style={{ backgroundColor: getStatusColor(item.Status), paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+            <Text style={{ color: colors.white, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' }}>{item.Status}</Text>
+          </View>
+          <TouchableOpacity onPress={() => handleDeleteRequest(item)} style={{ padding: 4 }}>
+            <Trash size={16} color="#ef4444" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-       {item.RejectionReason ? (
-         <View style={styles.managerResponse}>
-            <View style={styles.respHeader}>
-               <Store size={14} color={colors.primaryBlue} />
-               <Text style={styles.respTitle}>Rejection Reason</Text>
-            </View>
-            <Text style={styles.respText}>{item.RejectionReason}</Text>
-         </View>
-       ) : null}
+      <Text style={styles.histComment}>{item.Description || 'No description provided.'}</Text>
 
-       <View style={[styles.histFooter, { justifyContent: 'flex-end' }]}>
-          {/* No payment yet — show Pay buttons */}
-          {item.Status === 'Completed' && (!item.PaymentStatus || item.PaymentStatus === null) && (
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-              </Text>
-              
-              {paymentLoading === item.RequestID ? (
-                <ActivityIndicator color={colors.primaryBlue} />
-              ) : showPayOptions === item.RequestID ? (
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  <TouchableOpacity 
-                    style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                    onPress={() => handlePayNow(item, 'Chapa')}
-                  >
-                    <CreditCard size={14} color="#fff" />
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                    onPress={() => handlePayNow(item, 'Cash')}
-                  >
-                    <Banknote size={14} color="#fff" />
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity 
-                  style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                  onPress={() => setShowPayOptions(item.RequestID)}
+      {item.RejectionReason ? (
+        <View style={styles.managerResponse}>
+          <View style={styles.respHeader}>
+            <Store size={14} color={colors.primaryBlue} />
+            <Text style={styles.respTitle}>Rejection Reason</Text>
+          </View>
+          <Text style={styles.respText}>{item.RejectionReason}</Text>
+        </View>
+      ) : null}
+
+      <View style={[styles.histFooter, { justifyContent: 'flex-end' }]}>
+        {/* No payment yet — show Pay buttons */}
+        {item.Status === 'Completed' && (!item.PaymentStatus || item.PaymentStatus === null) && (
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
+              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+            </Text>
+
+            {paymentLoading === item.RequestID ? (
+              <ActivityIndicator color={colors.primaryBlue} />
+            ) : showPayOptions === item.RequestID ? (
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <TouchableOpacity
+                  style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                  onPress={() => handlePayNow(item, 'Chapa')}
                 >
                   <CreditCard size={14} color="#fff" />
-                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Now</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
-
-          {/* Payment is pending — Cash */}
-          {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod === 'Cash' && (
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-              </Text>
-              <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Cash - Awaiting Confirmation</Text>
-              </View>
-            </View>
-          )}
-
-          {/* Payment is pending — Online: show Verify button */}
-          {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod !== 'Cash' && (
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-                Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-              </Text>
-              {verifyingPayment === item.RequestID ? (
-                <ActivityIndicator color={colors.primaryBlue} />
-              ) : (
-                <TouchableOpacity 
-                  style={{ backgroundColor: '#0d6efd', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
-                  onPress={() => handleVerifyOnline(item)}
+                <TouchableOpacity
+                  style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                  onPress={() => handlePayNow(item, 'Cash')}
                 >
-                  <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>Verify Payment</Text>
+                  <Banknote size={14} color="#fff" />
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
-          
-          {/* Payment completed */}
-          {item.Status === 'Completed' && item.PaymentStatus === 'Completed' && (
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-                Paid: {(Number(item.TotalPaid)).toLocaleString()} ETB
-              </Text>
-              <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>PAID VIA {item.PaymentMethod || 'CHAPA'}</Text>
               </View>
+            ) : (
+              <TouchableOpacity
+                style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                onPress={() => setShowPayOptions(item.RequestID)}
+              >
+                <CreditCard size={14} color="#fff" />
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Now</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Payment is pending — Cash */}
+        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod === 'Cash' && (
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+            </Text>
+            <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+              <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Cash - Awaiting Confirmation</Text>
             </View>
-          )}
-       </View>
+          </View>
+        )}
+
+        {/* Payment is pending — Online: show Verify button */}
+        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod !== 'Cash' && (
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
+              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
+            </Text>
+            {verifyingPayment === item.RequestID ? (
+              <ActivityIndicator color={colors.primaryBlue} />
+            ) : (
+              <TouchableOpacity
+                style={{ backgroundColor: '#0d6efd', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
+                onPress={() => handleVerifyOnline(item)}
+              >
+                <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>Verify Payment</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Payment completed */}
+        {item.Status === 'Completed' && item.PaymentStatus === 'Completed' && (
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+              Paid: {(Number(item.TotalPaid)).toLocaleString()} ETB
+            </Text>
+            <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+              <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>PAID VIA {item.PaymentMethod || 'CHAPA'}</Text>
+            </View>
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 
@@ -199,17 +201,17 @@ export default function HistoryScreen({ navigation }) {
       "Are you sure you want to remove this service request from your history?",
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Remove", 
+        {
+          text: "Remove",
           style: "destructive",
           onPress: async () => {
-             try {
-               await api.delete(`/services/my-requests/${item.RequestID}`);
-               fetchMyRequests();
-             } catch (err) {
-               console.warn("Failed to delete request", err);
-               Alert.alert("Error", "Could not remove request.");
-             }
+            try {
+              await api.delete(`/services/my-requests/${item.RequestID}`);
+              fetchMyRequests();
+            } catch (err) {
+              console.warn("Failed to delete request", err);
+              Alert.alert("Error", "Could not remove request.");
+            }
           }
         }
       ]
@@ -333,13 +335,25 @@ export default function HistoryScreen({ navigation }) {
     const d = new Date(dateString);
     const now = new Date();
     return d.getFullYear() === now.getFullYear() &&
-           d.getMonth() === now.getMonth() &&
-           d.getDate() === now.getDate();
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
   };
 
   const allRequests = [...requests].sort((a, b) => new Date(b.RequestDate) - new Date(a.RequestDate));
   const todayRequests = allRequests.filter(r => isToday(r.BookingDate) || (!r.BookingDate && isToday(r.RequestDate)));
   const olderRequests = allRequests.filter(r => !todayRequests.some(tr => tr.RequestID === r.RequestID));
+  const upcomingRequests = allRequests.filter(r => {
+    const statuses = ['Pending', 'Approved', 'InProgress'];
+    if (!statuses.includes(r.Status)) return false;
+    if (r.BookingDate) {
+      const bd = new Date(r.BookingDate);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      return bd >= now; // today or future
+    }
+    return true; // no booking date but active
+  });
+  const unreviewedRequests = allRequests.filter(r => r.Status === 'Completed' && !r.HasReviewed);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -349,13 +363,13 @@ export default function HistoryScreen({ navigation }) {
 
       <View style={styles.tabsWrap}>
         <View style={styles.tabsContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabBtn, activeTab === 'History' && styles.tabBtnActive]}
             onPress={() => setActiveTab('History')}
           >
             <Text style={[styles.tabText, activeTab === 'History' && styles.tabTextActive]}>{t('History', 'History')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabBtn, activeTab === 'Rate' && styles.tabBtnActive]}
             onPress={() => setActiveTab('Rate')}
           >
@@ -368,29 +382,29 @@ export default function HistoryScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.historyCard, { marginBottom: 16 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-               <View style={{ gap: 6 }}>
-                  <Skeleton width={120} height={16} />
-                  <Skeleton width={80} height={12} />
-               </View>
-               <Skeleton width={60} height={20} borderRadius={6} />
+              <View style={{ gap: 6 }}>
+                <Skeleton width={120} height={16} />
+                <Skeleton width={80} height={12} />
+              </View>
+              <Skeleton width={60} height={20} borderRadius={6} />
             </View>
             <Skeleton width="100%" height={40} style={{ marginBottom: 12 }} />
             <View style={{ borderTopWidth: 1, borderTopColor: colors.bgGray, paddingTop: 12 }}>
-               <Skeleton width={80} height={12} />
+              <Skeleton width={80} height={12} />
             </View>
           </View>
 
           <View style={[styles.historyCard, { marginBottom: 16 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-               <View style={{ gap: 6 }}>
-                  <Skeleton width={140} height={16} />
-                  <Skeleton width={90} height={12} />
-               </View>
-               <Skeleton width={70} height={20} borderRadius={6} />
+              <View style={{ gap: 6 }}>
+                <Skeleton width={140} height={16} />
+                <Skeleton width={90} height={12} />
+              </View>
+              <Skeleton width={70} height={20} borderRadius={6} />
             </View>
             <Skeleton width="100%" height={40} style={{ marginBottom: 12 }} />
             <View style={{ borderTopWidth: 1, borderTopColor: colors.bgGray, paddingTop: 12 }}>
-               <Skeleton width={80} height={12} />
+              <Skeleton width={80} height={12} />
             </View>
           </View>
         </ScrollView>
@@ -399,7 +413,7 @@ export default function HistoryScreen({ navigation }) {
           {activeTab === 'Rate' ? (
             <View>
               <Text style={styles.sectionTitle}>{t('Pending Reviews', 'Pending Reviews')}</Text>
-              
+
               {unreviewedRequests.length === 0 ? (
                 <View style={{ alignItems: 'center', marginTop: 40 }}>
                   <CheckCircle size={48} color={colors.border} />
@@ -408,83 +422,93 @@ export default function HistoryScreen({ navigation }) {
                   </Text>
                 </View>
               ) : (
-                 unreviewedRequests.map(item => (
-                    <View key={item.RequestID} style={styles.pendingCard}>
-                       <View style={styles.pendingImgWrap}>
-                          <View style={[styles.pendingImg, { backgroundColor: colors.primaryBlue, justifyContent: 'center', alignItems: 'center' }]}>
-                             <Wrench size={48} color={colors.white} />
-                          </View>
-                           <View style={styles.pendingOverlay}>
-                              <Text style={styles.pendingJobText}>{item.ServiceType}</Text>
-                              {item.GarageName && (
-                                 <Text style={{ color: colors.white, fontSize: 15, fontWeight: '600', marginTop: 2 }}>{item.GarageName}</Text>
-                              )}
-                              <Text style={styles.pendingSubText}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
-                           </View>
-                       </View>
-
-                       <View style={styles.pendingActionWrap}>
-                          <Text style={styles.askText}>{t('How was your experience?', 'How was your experience?')}</Text>
-                          <View style={styles.starsRow}>
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <TouchableOpacity key={star} onPress={() => setRatings(prev => ({ ...prev, [item.RequestID]: star }))} activeOpacity={0.7}>
-                                <Star 
-                                  size={36} 
-                                  color={star <= (ratings[item.RequestID] || 0) ? '#eab308' : colors.textGray} 
-                                  fill={star <= (ratings[item.RequestID] || 0) ? '#eab308' : 'transparent'} 
-                                />
-                              </TouchableOpacity>
-                            ))}
-                          </View>
-
-                          <TextInput
-                            style={styles.textArea}
-                            placeholder={t("Share your experience... (optional)", "Share your experience... (optional)")}
-                            placeholderTextColor={colors.textGray}
-                            multiline
-                            value={comments[item.RequestID] || ''}
-                            onChangeText={(text) => setComments(prev => ({ ...prev, [item.RequestID]: text }))}
-                          />
-
-                          <TouchableOpacity 
-                            style={[styles.submitBtn, submittingReview === item.RequestID && { opacity: 0.7 }]}
-                            onPress={() => handleSubmitReview(item)}
-                            disabled={submittingReview === item.RequestID}
-                          >
-                             {submittingReview === item.RequestID ? (
-                               <ActivityIndicator color={colors.white} />
-                             ) : (
-                               <>
-                                 <Text style={styles.submitBtnText}>{t('Submit Feedback', 'Submit Feedback')}</Text>
-                                 <Send size={18} color={colors.white} />
-                               </>
-                             )}
-                          </TouchableOpacity>
-                       </View>
+                unreviewedRequests.map(item => (
+                  <View key={item.RequestID} style={styles.pendingCard}>
+                    <View style={styles.pendingImgWrap}>
+                      <View style={[styles.pendingImg, { backgroundColor: colors.primaryBlue, justifyContent: 'center', alignItems: 'center' }]}>
+                        <Wrench size={48} color={colors.white} />
+                      </View>
+                      <View style={styles.pendingOverlay}>
+                        <Text style={styles.pendingJobText}>{item.ServiceType}</Text>
+                        {item.GarageName && (
+                          <Text style={{ color: colors.white, fontSize: 15, fontWeight: '600', marginTop: 2 }}>{item.GarageName}</Text>
+                        )}
+                        <Text style={styles.pendingSubText}>{new Date(item.RequestDate).toLocaleDateString()}</Text>
+                      </View>
                     </View>
-                 ))
+
+                    <View style={styles.pendingActionWrap}>
+                      <Text style={styles.askText}>{t('How was your experience?', 'How was your experience?')}</Text>
+                      <View style={styles.starsRow}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <TouchableOpacity key={star} onPress={() => setRatings(prev => ({ ...prev, [item.RequestID]: star }))} activeOpacity={0.7}>
+                            <Star
+                              size={36}
+                              color={star <= (ratings[item.RequestID] || 0) ? '#eab308' : colors.textGray}
+                              fill={star <= (ratings[item.RequestID] || 0) ? '#eab308' : 'transparent'}
+                            />
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+
+                      <TextInput
+                        style={styles.textArea}
+                        placeholder={t("Share your experience... (optional)", "Share your experience... (optional)")}
+                        placeholderTextColor={colors.textGray}
+                        multiline
+                        value={comments[item.RequestID] || ''}
+                        onChangeText={(text) => setComments(prev => ({ ...prev, [item.RequestID]: text }))}
+                      />
+
+                      <TouchableOpacity
+                        style={[styles.submitBtn, submittingReview === item.RequestID && { opacity: 0.7 }]}
+                        onPress={() => handleSubmitReview(item)}
+                        disabled={submittingReview === item.RequestID}
+                      >
+                        {submittingReview === item.RequestID ? (
+                          <ActivityIndicator color={colors.white} />
+                        ) : (
+                          <>
+                            <Text style={styles.submitBtnText}>{t('Submit Feedback', 'Submit Feedback')}</Text>
+                            <Send size={18} color={colors.white} />
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))
               )}
             </View>
           ) : (
             <View>
               <View style={styles.historyHeader}>
-                 <View style={styles.filterChipsRow}>
-                    {['Today', 'Previous'].map(f => (
-                       <TouchableOpacity 
-                          key={f} 
-                          onPress={() => setHistoryFilter(f)}
-                          style={[styles.filterChip, historyFilter === f && styles.filterChipActive]}
-                       >
-                          <Text style={[styles.filterChipText, historyFilter === f && styles.filterChipTextActive]}>{f}</Text>
-                       </TouchableOpacity>
-                    ))}
-                 </View>
+                <View style={styles.filterChipsRow}>
+                  {['Today', 'Upcoming', 'Previous'].map(f => (
+                    <TouchableOpacity
+                      key={f}
+                      onPress={() => setHistoryFilter(f)}
+                      style={[styles.filterChip, historyFilter === f && styles.filterChipActive]}
+                    >
+                      <Text style={[styles.filterChipText, historyFilter === f && styles.filterChipTextActive]}>{f}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               {allRequests.length === 0 ? (
                 <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('You have no service requests yet.', 'You have no service requests yet.')}</Text>
               ) : (
                 <View>
+                  {(historyFilter === 'Upcoming') && upcomingRequests.length > 0 && (
+                    <View style={{ marginBottom: 24 }}>
+                      {upcomingRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                    </View>
+                  )}
+
+                  {historyFilter === 'Upcoming' && upcomingRequests.length === 0 && (
+                    <Text style={styles.emptyFilterText}>{t('No upcoming services found.')}</Text>
+                  )}
+
                   {(historyFilter === 'Today') && todayRequests.length > 0 && (
                     <View style={{ marginBottom: 24 }}>
                       {todayRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
@@ -527,13 +551,13 @@ export default function HistoryScreen({ navigation }) {
                 {t('Your service has been completed. Would you like to leave a review?', 'Your service has been completed. Would you like to leave a review?')}
               </Text>
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.modalBtn, { backgroundColor: colors.bgGray }]}
                   onPress={() => setReviewPrompt(null)}
                 >
                   <Text style={[styles.modalBtnText, { color: colors.textDark }]}>{t('Later', 'Later')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.modalBtn, { backgroundColor: colors.primaryBlue }]}
                   onPress={() => { setReviewPrompt(null); setActiveTab('Rate'); }}
                 >
@@ -563,7 +587,7 @@ export default function HistoryScreen({ navigation }) {
                 <View style={{ backgroundColor: colors.bgGray, padding: 14, borderRadius: 12, marginBottom: 20 }}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>#{invoiceItem.RequestID} — {invoiceItem.ServiceType}</Text>
                   {invoiceItem.GarageName && (
-                     <Text style={{ fontSize: 14, fontWeight: 'bold', color: colors.primaryBlue, marginTop: 4 }}>{invoiceItem.GarageName}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold', color: colors.primaryBlue, marginTop: 4 }}>{invoiceItem.GarageName}</Text>
                   )}
                   <Text style={{ fontSize: 12, color: colors.textGray, marginTop: 4 }}>{new Date(invoiceItem.RequestDate).toLocaleDateString()}</Text>
                 </View>
@@ -629,8 +653,8 @@ export default function HistoryScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: colors.bgGray,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
   },

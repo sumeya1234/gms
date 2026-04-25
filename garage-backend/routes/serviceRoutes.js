@@ -1,5 +1,5 @@
 import express from "express";
-import { assignMechanic, createService, updateRequestStatus, completeService, getMyRequests, getGarageRequests, getRequest, updateAssignment, updateStatusById, getMyAssignments, addAssignmentItems, getRequestItems, hideRequest } from "../controllers/serviceController.js";
+import { assignMechanic, createService, updateRequestStatus, completeService, getMyRequests, getGarageRequests, getFilteredBookings, getRequest, updateAssignment, updateStatusById, getMyAssignments, addAssignmentItems, getRequestItems, hideRequest } from "../controllers/serviceController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import validate from "../middleware/validate.js";
@@ -8,7 +8,7 @@ import { validateServiceRequest, validateAssignMechanic, validateUpdateStatus, v
 const router = express.Router();
 
 router.post("/", protect, authorize("Customer"), validate(validateServiceRequest), createService);
-router.put("/:requestId/status", protect, authorize("GarageManager"), validate(validateRequestId, "params"), validate(validateUpdateStatus, "body"), updateStatusById);
+router.put("/:requestId/status", protect, authorize("GarageManager", "Customer"), validate(validateRequestId, "params"), validate(validateUpdateStatus, "body"), updateStatusById);
 router.post("/assign", protect, authorize("GarageManager"), validate(validateAssignMechanic), assignMechanic);
 router.put("/status", protect, authorize("GarageManager"), validate(validateUpdateStatus), updateRequestStatus);
 router.put("/complete", protect, authorize("GarageManager"), validate(validateCompleteService), completeService);
@@ -17,6 +17,7 @@ router.post("/assignments/:assignmentId/items", protect, authorize("Mechanic"), 
 
 router.get("/my-assignments", protect, authorize("Mechanic"), getMyAssignments);
 router.get("/my-requests", protect, authorize("Customer"), getMyRequests);
+router.get("/bookings", protect, authorize("GarageManager", "GarageOwner", "Accountant", "SuperAdmin"), getFilteredBookings);
 router.delete("/my-requests/:requestId", protect, authorize("Customer"), hideRequest);
 router.get("/garage/:garageId", protect, authorize("GarageManager"), validate(validateGarageId, "params"), getGarageRequests);
 router.get("/:requestId", protect, validate(validateRequestId, "params"), getRequest);

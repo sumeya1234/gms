@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare, Package, Globe, Building2 } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare, Package, Globe, Building2, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { useTranslation } from 'react-i18next';
@@ -25,15 +25,15 @@ export const Layout = () => {
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  
+
   // Set language from local storage on mount
   useEffect(() => {
-     const savedLang = localStorage.getItem('language');
-     if (savedLang && i18n.language !== savedLang) {
-       i18n.changeLanguage(savedLang);
-     }
+    const savedLang = localStorage.getItem('language');
+    if (savedLang && i18n.language !== savedLang) {
+      i18n.changeLanguage(savedLang);
+    }
   }, []);
-  
+
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/users/notifications');
@@ -62,15 +62,28 @@ export const Layout = () => {
 
   const unreadCount = notifications.filter(n => !n.IsRead).length;
 
-  const navItems = [
-    { path: '/', icon: LayoutDashboard, label: t('dashboard') },
-    { path: '/bookings', icon: Calendar, label: t('bookings') },
-    { path: '/mechanics', icon: Users, label: t('mechanics') },
-    { path: '/services', icon: Wrench, label: t('services') },
-    { path: '/inventory', icon: Package, label: t('inventory') },
-    { path: '/feedback', icon: MessageSquare, label: t('feedback') },
-    { path: '/settings', icon: Settings, label: t('settings') },
-  ];
+  const role = user?.Role || user?.role;
+  const roleTitle = role === 'GarageOwner' ? 'GMS Owner' : role === 'Accountant' ? 'GMS Accountant' : 'GMS Manager';
+  const navItemsByRole = {
+    GarageManager: [
+      { path: '/', icon: LayoutDashboard, label: t('dashboard') },
+      { path: '/bookings', icon: Calendar, label: t('bookings') },
+      { path: '/staff', icon: Users, label: 'Staff' },
+      { path: '/services', icon: Wrench, label: t('services') },
+      { path: '/inventory', icon: Package, label: t('inventory') },
+      { path: '/feedback', icon: MessageSquare, label: t('feedback') },
+      { path: '/settings', icon: Settings, label: t('settings') },
+    ],
+    GarageOwner: [
+      { path: '/', icon: FileText, label: 'Reports' },
+      { path: '/inventory', icon: Package, label: t('inventory') },
+    ],
+    Accountant: [
+      { path: '/', icon: LayoutDashboard, label: 'Accounting' },
+      { path: '/settings', icon: Settings, label: t('settings') },
+    ]
+  };
+  const navItems = navItemsByRole[role] || navItemsByRole.GarageManager;
 
   return (
     <div className="min-h-screen bg-[var(--color-secondary)] font-sans">
@@ -80,10 +93,10 @@ export const Layout = () => {
           <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
             <Building2 size={18} />
           </div>
-          <h1 className="text-lg font-black text-[#1890ff] tracking-tighter leading-none">GMS Manager</h1>
+          <h1 className="text-lg font-black text-[#1890ff] tracking-tighter leading-none">{roleTitle}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => setIsNotificationOpen(true)}
             className="relative p-1 text-gray-500"
           >
@@ -92,18 +105,18 @@ export const Layout = () => {
               <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border border-white"></span>
             )}
           </button>
-          
+
           <div className="relative">
-             <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="p-1 text-gray-500">
-               <Globe size={20} />
-             </button>
-             {langMenuOpen && (
-               <div className="absolute right-0 mt-2 py-2 w-32 bg-white rounded shadow-xl border z-50">
-                  <button onClick={() => changeLanguage('en')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">English</button>
-                  <button onClick={() => changeLanguage('am')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Amharic</button>
-                  <button onClick={() => changeLanguage('om')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Afaan Oromo</button>
-               </div>
-             )}
+            <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="p-1 text-gray-500">
+              <Globe size={20} />
+            </button>
+            {langMenuOpen && (
+              <div className="absolute right-0 mt-2 py-2 w-32 bg-white rounded shadow-xl border z-50">
+                <button onClick={() => changeLanguage('en')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">English</button>
+                <button onClick={() => changeLanguage('am')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Amharic</button>
+                <button onClick={() => changeLanguage('om')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Afaan Oromo</button>
+              </div>
+            )}
           </div>
 
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[var(--color-text-main)] focus:outline-none">
@@ -119,7 +132,7 @@ export const Layout = () => {
               <Building2 size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-[#1890ff] tracking-tighter leading-none">GMS Manager</h1>
+              <h1 className="text-2xl font-black text-[#1890ff] tracking-tighter leading-none">{roleTitle}</h1>
               <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-1 truncate max-w-[140px]" title={user?.GarageName || t('garageAdmin')}>
                 {user?.GarageName || t('garageAdmin')}
               </p>
@@ -158,7 +171,7 @@ export const Layout = () => {
       <main className="min-h-screen bg-[var(--color-secondary)] md:ml-64 flex flex-col pt-16">
         {/* Desktop Top Bar - Fixed at top */}
         <div className="bg-white border-b border-[var(--color-border)] p-4 justify-end items-center hidden md:flex fixed top-0 right-0 left-0 md:left-64 h-16 z-20 shadow-sm">
-          <button 
+          <button
             onClick={() => setIsNotificationOpen(true)}
             className="relative p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors mr-2"
           >
@@ -169,20 +182,20 @@ export const Layout = () => {
           </button>
 
           <div className="relative">
-             <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="flex items-center gap-2 p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors">
-               <Globe size={20} />
-               <span className="text-sm font-medium">{i18n.language?.toUpperCase() || 'EN'}</span>
-             </button>
-             {langMenuOpen && (
-               <div className="absolute right-0 mt-2 py-2 w-36 bg-white rounded-lg shadow-xl border z-50">
-                  <button onClick={() => changeLanguage('en')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'en' ? 'font-bold text-[var(--color-primary)]' : ''}`}>English</button>
-                  <button onClick={() => changeLanguage('am')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'am' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Amharic</button>
-                  <button onClick={() => changeLanguage('om')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'om' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Afaan Oromo</button>
-               </div>
-             )}
+            <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="flex items-center gap-2 p-2 text-gray-500 hover:bg-gray-100 rounded transition-colors">
+              <Globe size={20} />
+              <span className="text-sm font-medium">{i18n.language?.toUpperCase() || 'EN'}</span>
+            </button>
+            {langMenuOpen && (
+              <div className="absolute right-0 mt-2 py-2 w-36 bg-white rounded-lg shadow-xl border z-50">
+                <button onClick={() => changeLanguage('en')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'en' ? 'font-bold text-[var(--color-primary)]' : ''}`}>English</button>
+                <button onClick={() => changeLanguage('am')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'am' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Amharic</button>
+                <button onClick={() => changeLanguage('om')} className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${i18n.language === 'om' ? 'font-bold text-[var(--color-primary)]' : ''}`}>Afaan Oromo</button>
+              </div>
+            )}
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-6 md:p-8 max-w-7xl mx-auto w-full">
           <Outlet />
         </div>
@@ -199,14 +212,14 @@ export const Layout = () => {
                 <h2 className="text-lg font-bold text-gray-800">{t('notifications')}</h2>
                 {unreadCount > 0 && <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{unreadCount}</span>}
               </div>
-              <button 
-                onClick={() => setIsNotificationOpen(false)} 
+              <button
+                onClick={() => setIsNotificationOpen(false)}
                 className="p-1.5 hover:bg-gray-200 rounded-full text-gray-500 transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-2">
               {notifications.length === 0 ? (
                 <div className="text-center py-10 text-gray-400">
@@ -216,8 +229,8 @@ export const Layout = () => {
               ) : (
                 <div className="space-y-1">
                   {notifications.map(note => (
-                    <div 
-                      key={note.NotificationID} 
+                    <div
+                      key={note.NotificationID}
                       className={`p-4 rounded-lg cursor-pointer transition-colors border ${!note.IsRead ? 'bg-blue-50/50 border-blue-100 hover:bg-blue-50' : 'bg-white border-transparent hover:bg-gray-50'}`}
                       onClick={() => !note.IsRead && markAsRead(note.NotificationID)}
                     >

@@ -1,9 +1,9 @@
-import { createServiceRequest, assignServiceMechanic, updateServiceStatus, completeServiceRequest, fetchCustomerRequests, fetchGarageRequests, fetchRequestById, updateAssignmentStatus, fetchMechanicAssignments, documentAssignmentItems, fetchRequestItems, fetchGarageAvailability, hideCustomerRequest } from "../services/serviceService.js";
+import { createServiceRequest, assignServiceMechanic, updateServiceStatus, completeServiceRequest, fetchCustomerRequests, fetchGarageRequests, fetchFilteredBookings, fetchRequestById, updateAssignmentStatus, fetchMechanicAssignments, documentAssignmentItems, fetchRequestItems, fetchGarageAvailability, hideCustomerRequest } from "../services/serviceService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const createService = asyncHandler(async (req, res) => {
-  const { serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime } = req.body;
-  await createServiceRequest(serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime);
+  const { serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime, customerStatus } = req.body;
+  await createServiceRequest(serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime, customerStatus);
   res.json({ message: "Service request created" });
 });
 
@@ -14,15 +14,15 @@ export const assignMechanic = asyncHandler(async (req, res) => {
 });
 
 export const updateRequestStatus = asyncHandler(async (req, res) => {
-  const { requestId, status, rejectionReason } = req.body;
-  await updateServiceStatus(requestId, status, req.user, rejectionReason);
+  const { requestId, status, rejectionReason, estimatedPrice, depositPercentage } = req.body;
+  await updateServiceStatus(requestId, status, req.user, rejectionReason, estimatedPrice, depositPercentage);
   res.json({ message: `Request updated to ${status}` });
 });
 
 export const updateStatusById = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
-  const { status, rejectionReason } = req.body;
-  await updateServiceStatus(requestId, status, req.user, rejectionReason);
+  const { status, rejectionReason, estimatedPrice, depositPercentage } = req.body;
+  await updateServiceStatus(requestId, status, req.user, rejectionReason, estimatedPrice, depositPercentage);
   res.json({ message: `Request status updated to ${status}` });
 });
 
@@ -58,6 +58,11 @@ export const getGarageRequests = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+export const getFilteredBookings = asyncHandler(async (req, res) => {
+  const result = await fetchFilteredBookings(req.query, req.user);
+  res.json(result);
+});
+
 export const getRequest = asyncHandler(async (req, res) => {
   const request = await fetchRequestById(req.params.requestId);
   res.json(request);
@@ -66,7 +71,7 @@ export const getRequest = asyncHandler(async (req, res) => {
 export const getAvailability = asyncHandler(async (req, res) => {
   const garageId = req.params.garageId ?? req.params.id;
   const { date } = req.query; // YYYY-MM-DD
-  
+
   if (!date) {
     return res.status(400).json({ error: "Date parameter is required" });
   }

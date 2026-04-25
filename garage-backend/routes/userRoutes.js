@@ -1,5 +1,5 @@
 import express from "express";
-import { getProfile, editProfile, editPassword, setUserRole, assignToGarage, getNotifications, registerToken, getAdminDashboard, getUsers, getManagers, createManager, getGarageMechanics, createMechanic, updateMechanicStatus, readNotification, removeNotification, removeAllNotifications, getMechanicSkillsHandler, updateMechanicSkillsHandler } from "../controllers/userController.js";
+import { getProfile, editProfile, editPassword, setUserRole, assignToGarage, getNotifications, registerToken, getAdminDashboard, getUsers, getManagers, getOwners, createManager, createOwner, getGarageMechanics, getGarageAccountants, createMechanic, createAccountant, updateMechanicStatus, readNotification, removeNotification, removeAllNotifications, getMechanicSkillsHandler, updateMechanicSkillsHandler } from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import validate from "../middleware/validate.js";
@@ -21,11 +21,15 @@ router.get("/admin/dashboard", protect, authorize("SuperAdmin"), getAdminDashboa
 router.get("/", protect, authorize("SuperAdmin"), getUsers);
 router.get("/admin/managers", protect, authorize("SuperAdmin"), getManagers);
 router.post("/admin/managers", protect, authorize("SuperAdmin"), validate(validateMechanicCreation), createManager);
+router.get("/admin/owners", protect, authorize("SuperAdmin"), getOwners);
+router.post("/admin/owners", protect, authorize("SuperAdmin"), validate(validateMechanicCreation), createOwner);
 router.put("/:userId/role", protect, authorize("SuperAdmin"), validate(validateRoleUpdate), setUserRole);
 router.put("/:userId/garage", protect, authorize("SuperAdmin", "GarageManager"), validate(validateGarageAssignment), assignToGarage);
 
 router.get("/garage/:garageId/mechanics", protect, authorize("GarageManager"), getGarageMechanics);
 router.post("/garage/:garageId/mechanics", protect, authorize("GarageManager"), validate(validateMechanicCreation), createMechanic);
+router.get("/garage/:garageId/accountants", protect, authorize("GarageManager"), getGarageAccountants);
+router.post("/garage/:garageId/accountants", protect, authorize("GarageManager"), validate(validateMechanicCreation), createAccountant);
 router.put("/garage/:garageId/mechanics/:mechanicId/status", protect, authorize("GarageManager"), validate(validateMechanicStatusUpdate), updateMechanicStatus);
 router.get("/garage/:garageId/mechanics/:mechanicId/skills", protect, authorize("GarageManager"), getMechanicSkillsHandler);
 router.put("/garage/:garageId/mechanics/:mechanicId/skills", protect, authorize("GarageManager"), updateMechanicSkillsHandler);

@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
+import OwnerDashboard from './pages/OwnerDashboard';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import { useAuthStore } from './stores/authStore';
@@ -12,9 +13,11 @@ import Services from './pages/Services';
 import Inventory from './pages/Inventory';
 import Settings from './pages/Settings';
 import Feedback from './pages/Feedback';
+import AccountantPortal from './pages/AccountantPortal';
 
 function App() {
-  const { isAuthenticated, loading, fetchProfile } = useAuthStore();
+  const { isAuthenticated, loading, fetchProfile, user } = useAuthStore();
+  const role = user?.Role || user?.role;
 
   React.useEffect(() => {
     fetchProfile();
@@ -31,6 +34,12 @@ function App() {
     );
   }
 
+  const getDashboard = () => {
+    if (role === 'GarageOwner') return <OwnerDashboard />;
+    if (role === 'Accountant') return <AccountantPortal />;
+    return <Dashboard />;
+  };
+
   return (
     <Routes>
       {/* Public Route */}
@@ -42,19 +51,26 @@ function App() {
       } />
 
       {/* Protected Routes */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
       >
-        <Route index element={<Dashboard />} />
-        <Route path="bookings" element={<Bookings />} />
-        <Route path="mechanics" element={<Mechanics />} />
-        <Route path="services" element={<Services />} />
-        <Route path="inventory" element={<Inventory />} />
-        <Route path="feedback" element={<Feedback />} />
-        <Route path="settings" element={<Settings />} />
+        <Route index element={getDashboard()} />
+
+        {/* Role Protected Routes */}
+        <Route path="bookings" element={role === 'GarageManager' ? <Bookings /> : <Navigate to="/" replace />} />
+        <Route path="staff" element={role === 'GarageManager' ? <Mechanics /> : <Navigate to="/" replace />} />
+        <Route path="mechanics" element={<Navigate to="/staff" replace />} />
+        <Route path="accountants" element={<Navigate to="/staff" replace />} />
+        <Route path="services" element={role === 'GarageManager' ? <Services /> : <Navigate to="/" replace />} />
+        <Route path="inventory" element={(role === 'GarageManager' || role === 'GarageOwner') ? <Inventory /> : <Navigate to="/" replace />} />
+        <Route path="feedback" element={role === 'GarageManager' ? <Feedback /> : <Navigate to="/" replace />} />
+        <Route path="settings" element={role !== 'GarageOwner' ? <Settings /> : <Navigate to="/" replace />} />
+
+        {/* Legacy redirect for accountant path */}
+        <Route path="accounting" element={<Navigate to="/" replace />} />
       </Route>
-      
+
       {/* Catch-all redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

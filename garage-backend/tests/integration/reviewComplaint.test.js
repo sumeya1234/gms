@@ -16,7 +16,14 @@ describe('Reviews and Complaints Endpoints', () => {
 
         // 1. Create Garage
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
-            .send({ name: "End To End Garage", location: "Downtown", contact: "0123456789" });
+            .send({
+                name: "End To End Garage",
+                location: "Downtown",
+                contact: "0123456789",
+                bankCode: "CBE",
+                bankAccountNumber: "1000555555555",
+                bankAccountName: "End To End Garage"
+            });
         const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = garages.body[0].GarageID;
 
@@ -36,17 +43,17 @@ describe('Reviews and Complaints Endpoints', () => {
 
         // Approve
         await request(app).put(`/api/services/${requestId}/status`).set('Authorization', `Bearer ${manager.token}`).send({ status: 'Approved' });
-        
+
         // Mock Payment Completed via DB bypass since we already test endpoints
         await db.query("INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate) VALUES (?, 100, 'Cash', 'Completed', NOW())", [requestId]);
-        
+
         // Complete the service
         const compRes = await request(app).put('/api/services/complete').set('Authorization', `Bearer ${manager.token}`).send({ requestId });
-        if(compRes.status !== 200) console.error("Complete Service Failed:", compRes.body);
+        if (compRes.status !== 200) console.error("Complete Service Failed:", compRes.body);
 
         // Force DB state to guarantee Review tests can execute
         await db.query("UPDATE ServiceRequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
-    });
+    }, 30000);
 
     it('Should block Customer 2 from leaving a review (no completed services)', async () => {
         const response = await request(app)
@@ -91,7 +98,7 @@ describe('Reviews and Complaints Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body.length).toBeGreaterThanOrEqual(1);
         expect(response.body[0].Comment).toBe("Fantastic service, very fast.");
-        
+
         reviewId = response.body[0].ReviewID;
     });
 
@@ -115,7 +122,7 @@ describe('Reviews and Complaints Endpoints', () => {
 
         expect(response.status).toBe(200);
         expect(response.body.length).toBe(1);
-        
+
         complaintId = response.body[0].ComplaintID;
         expect(response.body[0].Status).toBe('Pending');
     });

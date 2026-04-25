@@ -15,9 +15,23 @@ describe('Inventory Endpoints', () => {
 
         // Setup 2 Garages to test tenant isolation
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
-            .send({ name: "Garage A", location: "Downtown", contact: "1234567890" });
+            .send({
+                name: "Garage A",
+                location: "Downtown",
+                contact: "1234567890",
+                bankCode: "CBE",
+                bankAccountNumber: "1000123456789",
+                bankAccountName: "Garage A Account"
+            });
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
-            .send({ name: "Garage B", location: "Uptown", contact: "0987654321" });
+            .send({
+                name: "Garage B",
+                location: "Uptown",
+                contact: "0987654321",
+                bankCode: "CBE",
+                bankAccountNumber: "1000987654321",
+                bankAccountName: "Garage B Account"
+            });
 
         const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageAId = garages.body.find(g => g.Name === "Garage A").GarageID;

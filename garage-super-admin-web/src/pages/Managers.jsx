@@ -10,6 +10,7 @@ export default function Managers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const [staffRole, setStaffRole] = useState('GarageManager');
   
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -26,14 +27,15 @@ export default function Managers() {
   useEffect(() => {
     fetchManagers();
     fetchGarages();
-  }, []);
+  }, [staffRole]);
 
   const fetchManagers = async () => {
     try {
-      const res = await api.get('/users/admin/managers');
+      const endpoint = staffRole === 'GarageOwner' ? '/users/admin/owners' : '/users/admin/managers';
+      const res = await api.get(endpoint);
       setManagers(res.data);
     } catch (err) {
-      setError('Failed to load managers.');
+      setError(`Failed to load ${staffRole === 'GarageOwner' ? 'owners' : 'managers'}.`);
       console.error(err);
     } finally {
       setLoading(false);
@@ -59,12 +61,13 @@ export default function Managers() {
         email: formData.email.trim(),
         password: formData.password.trim(),
       };
-      await api.post('/users/admin/managers', payload);
+      const endpoint = staffRole === 'GarageOwner' ? '/users/admin/owners' : '/users/admin/managers';
+      await api.post(endpoint, payload);
       setIsAddModalOpen(false);
       setFormData({ fullName: '', email: '', phone: '', password: '' });
       fetchManagers();
     } catch (err) {
-      setFormError(err.response?.data?.error || 'Failed to create manager.');
+      setFormError(err.response?.data?.error || `Failed to create ${staffRole === 'GarageOwner' ? 'owner' : 'manager'}.`);
     } finally {
       setFormLoading(false);
     }
@@ -99,17 +102,34 @@ export default function Managers() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Garage Managers</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{staffRole === 'GarageOwner' ? 'Garage Owners' : 'Garage Managers'}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {loading ? 'Loading...' : `${managers.length} managers on the platform`}
+            {loading ? 'Loading...' : `${managers.length} ${staffRole === 'GarageOwner' ? 'owners' : 'managers'} on the platform`}
           </p>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
           className="flex items-center gap-2 bg-[#1890ff] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all hover:bg-blue-600"
         >
-          <Plus size={18} /> Add Manager
+          <Plus size={18} /> {staffRole === 'GarageOwner' ? 'Add Owner' : 'Add Manager'}
         </button>
+      </div>
+
+      <div className="inline-flex bg-white border border-gray-200 rounded-lg p-1 shadow-sm w-fit">
+        {[
+          { id: 'GarageManager', label: 'Managers' },
+          { id: 'GarageOwner', label: 'Owners' }
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setStaffRole(item.id)}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
+              staffRole === item.id ? 'bg-[#1890ff] text-white' : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -138,7 +158,7 @@ export default function Managers() {
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
           <Briefcase size={48} className="mx-auto mb-4 text-gray-200" />
           <h3 className="text-lg font-bold text-gray-900 mb-1">No Managers Found</h3>
-          <p className="text-gray-500 text-sm">{search ? 'Try adjusting your search query.' : 'Click "Add Manager" to onboard your first garage manager.'}</p>
+          <p className="text-gray-500 text-sm">{search ? 'Try adjusting your search query.' : `Click "Add ${staffRole === 'GarageOwner' ? 'Owner' : 'Manager'}" to onboard your first garage ${staffRole === 'GarageOwner' ? 'owner' : 'manager'}.`}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -146,7 +166,7 @@ export default function Managers() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-500">
-                  <th className="p-4 font-semibold whitespace-nowrap">Manager Profile</th>
+                  <th className="p-4 font-semibold whitespace-nowrap">{staffRole === 'GarageOwner' ? 'Owner Profile' : 'Manager Profile'}</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Contact</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Assigned Garage</th>
                   <th className="p-4 font-semibold whitespace-nowrap">Joined Date</th>
@@ -166,7 +186,7 @@ export default function Managers() {
                           <div>
                             <div className="font-bold text-gray-900">{m.FullName || '—'}</div>
                             <div className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full inline-block mt-1">
-                              Manager
+                              {staffRole === 'GarageOwner' ? 'Owner' : 'Manager'}
                             </div>
                           </div>
                         </div>
@@ -219,7 +239,7 @@ export default function Managers() {
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Add New Manager</h2>
+              <h2 className="text-xl font-bold text-gray-900">{staffRole === 'GarageOwner' ? 'Add New Owner' : 'Add New Manager'}</h2>
               <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
                 <X size={20} />
               </button>
@@ -292,7 +312,7 @@ export default function Managers() {
                   disabled={formLoading}
                   className="w-full py-3 rounded-xl bg-[#1890ff] text-white font-bold hover:bg-blue-600 transition-colors disabled:opacity-70"
                 >
-                  {formLoading ? 'Creating Manager...' : 'Create Manager'}
+                  {formLoading ? `Creating ${staffRole === 'GarageOwner' ? 'Owner' : 'Manager'}...` : `Create ${staffRole === 'GarageOwner' ? 'Owner' : 'Manager'}`}
                 </button>
               </div>
             </form>

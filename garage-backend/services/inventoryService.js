@@ -1,6 +1,37 @@
 import db from "../config/db.js";
 
-export const createInventoryItem = async (itemName, quantity, unitPrice, garageId, admin) => {
+let supplierColumnsChecked = false;
+
+const ensureSupplierColumns = async () => {
+  if (supplierColumnsChecked) return;
+
+  const [columns] = await db.query("SHOW COLUMNS FROM Inventory");
+  const existing = new Set(columns.map((c) => c.Field));
+  const alters = [];
+
+  if (!existing.has("SupplierName")) {
+    alters.push("ADD COLUMN SupplierName VARCHAR(100) NULL");
+  }
+  if (!existing.has("SupplierEmail")) {
+    alters.push("ADD COLUMN SupplierEmail VARCHAR(100) NULL");
+  }
+  if (!existing.has("SupplierPhone")) {
+    alters.push("ADD COLUMN SupplierPhone VARCHAR(20) NULL");
+  }
+
+  if (alters.length > 0) {
+    await db.query(`ALTER TABLE Inventory ${alters.join(", ")}`);
+  }
+
+  supplierColumnsChecked = true;
+};
+
+export const createInventoryItem = async (itemName, quantity, unitPrice, supplierName, supplierEmail, supplierPhone, garageId, admin) => {
+  await ensureSupplierColumns();
+
+  const normalizedSupplierName = supplierName?.trim?.() || null;
+  const normalizedSupplierEmail = supplierEmail?.trim?.() || null;
+  const normalizedSupplierPhone = supplierPhone?.trim?.() || null;
   // 1. If requester is GarageManager, verify they belong to this garageId
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
@@ -41,15 +72,22 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, garageI
 
     // Merge: retain best casing, add quantity, update unit price
     await db.query(
-      "UPDATE Inventory SET Quantity = Quantity + ?, UnitPrice = ?, ItemName = ? WHERE ItemID = ?",
-      [quantity, unitPrice, bestName, existing.ItemID]
+      `UPDATE Inventory
+       SET Quantity = Quantity + ?,
+           UnitPrice = ?,
+           ItemName = ?,
+           SupplierName = COALESCE(?, SupplierName),
+           SupplierEmail = COALESCE(?, SupplierEmail),
+           SupplierPhone = COALESCE(?, SupplierPhone)
+       WHERE ItemID = ?`,
+      [quantity, unitPrice, bestName, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, existing.ItemID]
     );
   } else {
     // Insert new logic
     await db.query(
-      `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, GarageID)
-       VALUES (?, ?, ?, ?)`,
-      [itemName, quantity, unitPrice, garageId]
+      `INSERT INTO Inventory (ItemName, Quantity, UnitPrice, SupplierName, SupplierEmail, SupplierPhone, GarageID)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [itemName, quantity, unitPrice, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, garageId]
     );
   }
 };
@@ -73,6 +111,8 @@ export const fetchInventoryItemById = async (itemId) => {
 };
 
 export const modifyInventoryItem = async (itemId, updateData, admin) => {
+  await ensureSupplierColumns();
+
   const item = await fetchInventoryItemById(itemId);
 
   if (admin.role === "GarageManager") {
@@ -95,7 +135,10 @@ export const modifyInventoryItem = async (itemId, updateData, admin) => {
       const fieldMap = {
         itemName: 'ItemName',
         quantity: 'Quantity',
-        unitPrice: 'UnitPrice'
+        unitPrice: 'UnitPrice',
+        supplierName: 'SupplierName',
+        supplierEmail: 'SupplierEmail',
+        supplierPhone: 'SupplierPhone'
       };
       
       if(fieldMap[key]) {

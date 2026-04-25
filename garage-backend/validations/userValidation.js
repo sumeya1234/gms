@@ -11,7 +11,7 @@ export const validatePasswordChange = Joi.object({
 });
 
 export const validateRoleUpdate = Joi.object({
-  role: Joi.string().valid('Customer', 'Mechanic', 'GarageManager', 'SuperAdmin').required()
+  role: Joi.string().valid('Customer', 'Mechanic', 'GarageManager', 'GarageOwner', 'Accountant', 'SuperAdmin').required()
 });
 
 export const validateGarageAssignment = Joi.object({
