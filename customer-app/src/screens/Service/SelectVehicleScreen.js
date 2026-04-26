@@ -17,7 +17,7 @@ export default function SelectVehicleScreen({ navigation }) {
     // Fetch user's vehicles or available vehicles
     const fetchVehicles = async () => {
       try {
-        const response = await apiClient.get('/vehicles');
+        const response = await apiClient.get('/api/vehicles');
         setVehicles(response.data.data);
       } catch (err) {
         console.error('Failed to fetch vehicles', err);
@@ -45,7 +45,7 @@ export default function SelectVehicleScreen({ navigation }) {
       </View>
 
       <View style={styles.content}>
-        <Input 
+        <Input
           placeholder="Search your vehicles..."
           leftIcon={<Search color={colors.textGray} size={20} />}
         />
@@ -57,8 +57,8 @@ export default function SelectVehicleScreen({ navigation }) {
             {vehicles.map((v) => {
               const isSelected = selectedVehicle?._id === v._id;
               return (
-                <TouchableOpacity 
-                  key={v._id} 
+                <TouchableOpacity
+                  key={v._id}
                   style={[styles.gridItem, isSelected && styles.gridItemSelected]}
                   onPress={() => setSelectedVehicle(v)}
                 >
@@ -75,15 +75,15 @@ export default function SelectVehicleScreen({ navigation }) {
       </View>
 
       <View style={styles.footer}>
-        <Button 
-          title="Cancel" 
-          variant="outline" 
-          style={{ flex: 1 }} 
-          onPress={() => navigation.goBack()} 
+        <Button
+          title="Cancel"
+          variant="outline"
+          style={{ flex: 1 }}
+          onPress={() => navigation.goBack()}
         />
-        <Button 
-          title="Next" 
-          style={{ flex: 1 }} 
+        <Button
+          title="Next"
+          style={{ flex: 1 }}
           variant="secondary"
           disabled={!selectedVehicle}
           onPress={handleNext}

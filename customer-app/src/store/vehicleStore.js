@@ -9,7 +9,7 @@ export const useVehicleStore = create((set, get) => ({
   fetchVehicles: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await client.get('/vehicles');
+      const response = await client.get('/api/vehicles');
       set({ vehicles: response.data.vehicles || response.data, isLoading: false });
     } catch (error) {
       console.log('Fetch Vehicles Error', error?.response?.data || error);
@@ -20,11 +20,11 @@ export const useVehicleStore = create((set, get) => ({
   addVehicle: async (vehicleData) => {
     set({ isLoading: true, error: null });
     try {
-      await client.post('/vehicles', vehicleData);
-      
+      await client.post('/api/vehicles', vehicleData);
+
       // Re-fetch to get the assigned DB ID and proper structure
       await get().fetchVehicles();
-      
+
       return true;
     } catch (error) {
       console.log('Add Vehicle Error', error?.response?.data || error);

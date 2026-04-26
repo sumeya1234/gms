@@ -4,6 +4,7 @@ import { ChevronLeft, Star } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { useFeedbackStore } from '../../store/feedbackStore';
+import CustomAlert from '../../components/CustomAlert';
 
 export default function AddReviewScreen({ navigation, route }) {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function AddReviewScreen({ navigation, route }) {
       setLocalError(t('Please select a star rating'));
       return;
     }
-    
+
     // Convert garageId to integer using Number() since models expect ID format
     const success = await submitReview({
       garageId: Number(garage.id || garage.GarageID),
@@ -34,8 +35,11 @@ export default function AddReviewScreen({ navigation, route }) {
     });
 
     if (success) {
-      Alert.alert(t('Success'), t('Your review has been successfully posted.'));
-      navigation.goBack();
+      showAlert(
+        t('Thank You'),
+        t('Your feedback helps us and specifically {{garageName}} improve their services.', { garageName: garage.name }),
+        [{ text: t('OK'), onPress: () => navigation.goBack() }]
+      );
     }
   };
 
@@ -58,10 +62,10 @@ export default function AddReviewScreen({ navigation, route }) {
         <View style={styles.starsRow}>
           {[1, 2, 3, 4, 5].map((star) => (
             <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.8}>
-              <Star 
-                size={40} 
-                color={star <= rating ? "#eab308" : colors.border} 
-                fill={star <= rating ? "#eab308" : "transparent"} 
+              <Star
+                size={40}
+                color={star <= rating ? "#eab308" : colors.border}
+                fill={star <= rating ? "#eab308" : "transparent"}
               />
             </TouchableOpacity>
           ))}
@@ -79,18 +83,18 @@ export default function AddReviewScreen({ navigation, route }) {
         />
 
         {displayError ? (
-           <Text style={styles.errorText}>{displayError.replace(/"/g, '')}</Text>
+          <Text style={styles.errorText}>{displayError.replace(/"/g, '')}</Text>
         ) : null}
 
-        <TouchableOpacity 
-          style={[styles.submitBtn, isLoading && { opacity: 0.7 }]} 
+        <TouchableOpacity
+          style={[styles.submitBtn, isLoading && { opacity: 0.7 }]}
           onPress={handleSubmit}
           disabled={isLoading}
         >
           {isLoading ? (
-             <ActivityIndicator color={colors.white} />
+            <ActivityIndicator color={colors.white} />
           ) : (
-             <Text style={styles.submitBtnText}>{t('Submit Review', 'Submit Review')}</Text>
+            <Text style={styles.submitBtnText}>{t('Submit Review', 'Submit Review')}</Text>
           )}
         </TouchableOpacity>
       </View>

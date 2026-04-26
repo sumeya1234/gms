@@ -6,6 +6,7 @@ import { colors } from '../../theme/colors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { useVehicleStore } from '../../store/vehicleStore';
+import showAlert from '../../utils/alert';
 
 export default function AddVehicleScreen({ navigation }) {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export default function AddVehicleScreen({ navigation }) {
 
   const handleAddVehicle = async () => {
     setError('');
-    
+
     if (!plateNumber.trim() || !model.trim() || !type.trim()) {
       setError(t('All fields are required'));
       return;
@@ -31,9 +32,13 @@ export default function AddVehicleScreen({ navigation }) {
     });
 
     if (success) {
-      navigation.goBack();
+      showAlert(
+        t('Vehicle Added'),
+        t('{{model}} has been successfully added to your profile.', { model }),
+        [{ text: t('OK'), onPress: () => navigation.goBack() }]
+      );
     } else {
-      Alert.alert(t('Error'), t('Failed to add vehicle. Plate number might already exist.'));
+      showAlert(t('Error'), t('Failed to add vehicle. Plate number might already exist.'), [], 'error');
     }
   };
 
@@ -56,14 +61,14 @@ export default function AddVehicleScreen({ navigation }) {
             onChangeText={setPlateNumber}
             autoCapitalize="characters"
           />
-          
+
           <Input
             label={t('Vehicle Model')}
             placeholder={t('e.g., Toyota Corolla')}
             value={model}
             onChangeText={setModel}
           />
-          
+
           <Input
             label={t('Vehicle Type')}
             placeholder={t('e.g., Sedan, SUV, Truck')}
@@ -76,9 +81,9 @@ export default function AddVehicleScreen({ navigation }) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button 
-          title={t('Save Vehicle')} 
-          onPress={handleAddVehicle} 
+        <Button
+          title={t('Save Vehicle')}
+          onPress={handleAddVehicle}
           disabled={!!isLoading}
         />
       </View>

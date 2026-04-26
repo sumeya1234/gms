@@ -9,7 +9,7 @@ export const useServiceStore = create((set, get) => ({
   fetchMyRequests: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await client.get('/services/my-requests');
+      const response = await client.get('/api/services/my-requests');
       set({ requests: response.data || [], isLoading: false });
     } catch (error) {
       console.log('Fetch Requests Error', error?.response?.data || error);
@@ -20,7 +20,7 @@ export const useServiceStore = create((set, get) => ({
   createRequest: async (requestData) => {
     set({ isLoading: true, error: null });
     try {
-      await client.post('/services', requestData);
+      await client.post('/api/services', requestData);
       // Refresh requests silently
       await get().fetchMyRequests();
       return true;
@@ -33,11 +33,25 @@ export const useServiceStore = create((set, get) => ({
 
   checkAvailability: async (garageId, dateString) => {
     try {
-      const response = await client.get(`/garages/${garageId}/availability?date=${dateString}`);
+      const response = await client.get(`/api/garages/${garageId}/availability?date=${dateString}`);
       return response.data;
     } catch (error) {
       console.log('Availability Check Error', error?.response?.data || error);
       return null;
+    }
+  },
+
+  cancelRequest: async (requestId) => {
+    set({ isLoading: true, error: null });
+    try {
+      await client.post(`/api/services/${requestId}/cancel`);
+      await get().fetchMyRequests();
+      return true;
+    } catch (error) {
+      console.log('Cancel Request Error', error?.response?.data || error);
+      const msg = error?.response?.data?.message || error?.response?.data?.error || 'Failed to cancel request';
+      set({ error: msg, isLoading: false });
+      return { success: false, message: msg };
     }
   }
 }));

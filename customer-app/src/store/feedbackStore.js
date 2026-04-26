@@ -9,7 +9,7 @@ export const useFeedbackStore = create((set, get) => ({
   fetchGarageReviews: async (garageId) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.get(`/reviews/garage/${garageId}`);
+      const response = await apiClient.get(`/api/reviews/garage/${garageId}`);
       if (response.data?.success) {
         set({ garageReviews: response.data.data, isLoading: false });
       } else {
@@ -24,7 +24,7 @@ export const useFeedbackStore = create((set, get) => ({
   submitReview: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      await apiClient.post('/reviews', payload);
+      await apiClient.post('/api/reviews', payload);
       // Try to re-fetch to live update the UI array if possible
       await get().fetchGarageReviews(payload.garageId);
       set({ isLoading: false });
@@ -38,7 +38,7 @@ export const useFeedbackStore = create((set, get) => ({
   submitComplaint: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      await apiClient.post('/complaints', payload);
+      await apiClient.post('/api/complaints', payload);
       set({ isLoading: false });
       return true;
     } catch (err) {

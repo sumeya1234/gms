@@ -10,7 +10,7 @@ export default function TaskDetailScreen({ route, navigation }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(task.AssignmentStatus || 'Assigned');
-  
+
   const [inventory, setInventory] = useState([]);
   const [loadingInventory, setLoadingInventory] = useState(false);
   const [documentedItems, setDocumentedItems] = useState([]);
@@ -74,7 +74,7 @@ export default function TaskDetailScreen({ route, navigation }) {
       Alert.alert('Error', 'Please enter a valid quantity');
       return;
     }
-    
+
     // Check if enough stock
     if (qty > selectedItem.Quantity) {
       Alert.alert('Error', `Only ${selectedItem.Quantity} available in stock.`);
@@ -99,7 +99,7 @@ export default function TaskDetailScreen({ route, navigation }) {
       const itemsPayload = documentedItems.map(di => ({ itemId: di.itemId, quantity: di.quantity }));
       await apiClient.post(`/api/services/assignments/${task.AssignmentID}/items`, { itemsUsed: itemsPayload });
       Alert.alert(t('Success'), t('Items documented successfully.'));
-      setDocumentedItems([]); 
+      setDocumentedItems([]);
       fetchInventory(); // refresh inventory because we deducted from it
       fetchPartsUsed(); // refresh saved parts
     } catch (err) {
@@ -114,7 +114,7 @@ export default function TaskDetailScreen({ route, navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← {t('Back')}</Text>
+          <Text style={styles.backText}>{t('Back')}</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('Task Details')}</Text>
         <View style={{ width: 50 }} />
@@ -122,10 +122,10 @@ export default function TaskDetailScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.card}>
-          {task.IsEmergency && (
+          {!!task.IsEmergency && (
             <View style={styles.emergencyBanner}>
               <AlertTriangle size={16} color="#fff" />
-              <Text style={styles.emergencyBannerText}>⚡ EMERGENCY — Handle This Job Immediately</Text>
+              <Text style={styles.emergencyBannerText}>EMERGENCY — Handle This Job Immediately</Text>
             </View>
           )}
           <Text style={[styles.vehicleTitle, task.IsEmergency && { color: '#ff4444' }]}>{task.Model ? `${task.Model} (${task.PlateNumber})` : `Request #${task.RequestID}`}</Text>
@@ -134,17 +134,17 @@ export default function TaskDetailScreen({ route, navigation }) {
           </View>
 
           <View style={styles.divider} />
-          
+
           <Text style={styles.sectionLabel}>{t('Service Type')}</Text>
           <Text style={styles.descText}>{task.ServiceType}</Text>
-          
+
           <View style={styles.divider} />
 
           <Text style={styles.sectionLabel}>{t('Description')}</Text>
           <Text style={styles.descText}>{task.Description || 'No description provided.'}</Text>
 
           <View style={styles.divider} />
-          
+
           <Text style={styles.sectionLabel}>{t('Reported Issues')}</Text>
           {task.IsEmergency ? (
             <Text style={[styles.issueText, { color: colors.error, fontWeight: 'bold' }]}>Emergency Service Requested!</Text>
@@ -154,7 +154,7 @@ export default function TaskDetailScreen({ route, navigation }) {
         </View>
 
         {/* Saved Parts Section (always visible if parts exist) */}
-        {savedParts.length > 0 && (
+        {savedParts.length > 0 ? (
           <View style={[styles.card, { marginTop: 16 }]}>
             <Text style={styles.sectionLabel}>{t('Previously Used Parts')}</Text>
             {savedParts.map((sp, idx) => (
@@ -164,12 +164,12 @@ export default function TaskDetailScreen({ route, navigation }) {
               </View>
             ))}
           </View>
-        )}
+        ) : null}
 
         {status === 'InProgress' && (
           <View style={[styles.card, { marginTop: 16 }]}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-              <Text style={[styles.sectionLabel, {marginBottom: 0}]}>{t('Document New Parts')}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <Text style={[styles.sectionLabel, { marginBottom: 0 }]}>{t('Document New Parts')}</Text>
               <TouchableOpacity style={styles.smallAddBtn} onPress={() => setIsModalVisible(true)}>
                 <Text style={styles.smallAddBtnText}>+ {t('Add Part')}</Text>
               </TouchableOpacity>
@@ -185,16 +185,16 @@ export default function TaskDetailScreen({ route, navigation }) {
                 </View>
               ))
             )}
-            
-            {documentedItems.length > 0 && (
-              <TouchableOpacity 
-                style={styles.submitItemsBtn} 
+
+            {documentedItems.length > 0 ? (
+              <TouchableOpacity
+                style={styles.submitItemsBtn}
                 onPress={submitDocumentedItems}
                 disabled={documenting}
               >
                 {documenting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitItemsText}>{t('Submit Documented Parts')}</Text>}
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         )}
 
@@ -225,28 +225,28 @@ export default function TaskDetailScreen({ route, navigation }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{t('Select Part')}</Text>
-            
+
             {!selectedItem ? (
               loadingInventory ? (
                 <ActivityIndicator color={colors.primary} />
               ) : (
-                <FlatList 
+                <FlatList
                   data={inventory}
                   keyExtractor={item => item.ItemID.toString()}
                   style={{ maxHeight: 300 }}
-                  renderItem={({item}) => (
+                  renderItem={({ item }) => (
                     <TouchableOpacity style={styles.invItemRow} onPress={() => setSelectedItem(item)}>
                       <Text style={styles.invItemName}>{item.ItemName}</Text>
                     </TouchableOpacity>
                   )}
-                  ListEmptyComponent={<Text style={{padding: 20}}>No inventory available.</Text>}
+                  ListEmptyComponent={<Text style={{ padding: 20 }}>No inventory available.</Text>}
                 />
               )
             ) : (
-              <View style={{paddingVertical: 20}}>
-                <Text style={styles.descText}>Item: <Text style={{fontWeight:'bold'}}>{selectedItem.ItemName}</Text></Text>
-                <Text style={[styles.sectionLabel, {marginTop: 20}]}>{t('Quantity')}</Text>
-                <TextInput 
+              <View style={{ paddingVertical: 20 }}>
+                <Text style={styles.descText}>Item: <Text style={{ fontWeight: 'bold' }}>{selectedItem.ItemName}</Text></Text>
+                <Text style={[styles.sectionLabel, { marginTop: 20 }]}>{t('Quantity')}</Text>
+                <TextInput
                   style={styles.qtyInput}
                   keyboardType="numeric"
                   value={quantityInput}
@@ -256,8 +256,8 @@ export default function TaskDetailScreen({ route, navigation }) {
             )}
 
             <View style={styles.modalActions}>
-              <TouchableOpacity 
-                style={styles.modalCancel} 
+              <TouchableOpacity
+                style={styles.modalCancel}
                 onPress={() => {
                   setIsModalVisible(false);
                   setSelectedItem(null);
@@ -265,11 +265,11 @@ export default function TaskDetailScreen({ route, navigation }) {
               >
                 <Text style={styles.modalCancelText}>{t('Cancel')}</Text>
               </TouchableOpacity>
-              
-              {selectedItem && (
-                 <TouchableOpacity style={styles.modalAdd} onPress={addItemToUsage}>
-                   <Text style={styles.modalAddText}>{t('Add Part')}</Text>
-                 </TouchableOpacity>
+
+              {!!selectedItem && (
+                <TouchableOpacity style={styles.modalAdd} onPress={addItemToUsage}>
+                  <Text style={styles.modalAddText}>{t('Add Part')}</Text>
+                </TouchableOpacity>
               )}
             </View>
           </View>
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   startText: { color: colors.textMain, fontSize: 16, fontWeight: 'bold' },
   doneBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 16, alignItems: 'center' },
   doneText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  
+
   smallAddBtn: { backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   smallAddBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
   docItemRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border },

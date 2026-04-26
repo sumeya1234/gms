@@ -1,4 +1,6 @@
-import { createServiceRequest, assignServiceMechanic, updateServiceStatus, completeServiceRequest, fetchCustomerRequests, fetchGarageRequests, fetchFilteredBookings, fetchRequestById, updateAssignmentStatus, fetchMechanicAssignments, documentAssignmentItems, fetchRequestItems, fetchGarageAvailability, hideCustomerRequest } from "../services/serviceService.js";
+import { createServiceRequest, fetchCustomerRequests, fetchGarageRequests, fetchFilteredBookings, fetchRequestById, fetchGarageAvailability, hideCustomerRequest, cancelServiceRequest } from "../services/bookingService.js";
+import { assignServiceMechanic, updateServiceStatus, completeServiceRequest, updateAssignmentStatus, documentAssignmentItems, fetchRequestItems } from "../services/jobService.js";
+import { fetchMechanicAssignments } from "../services/mechanicService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const createService = asyncHandler(async (req, res) => {
@@ -53,8 +55,7 @@ export const getMyRequests = asyncHandler(async (req, res) => {
 
 export const getGarageRequests = asyncHandler(async (req, res) => {
   const { garageId } = req.params;
-  const { status, page, limit, search, date } = req.query;
-  const result = await fetchGarageRequests(garageId, { status, page, limit, search, date }, req.user);
+  const result = await fetchGarageRequests(garageId, req.query, req.user);
   res.json(result);
 });
 
@@ -96,4 +97,9 @@ export const hideRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
   await hideCustomerRequest(requestId, req.user.id);
   res.json({ message: "Request hidden from history" });
+});
+export const cancelRequest = asyncHandler(async (req, res) => {
+  const { requestId } = req.params;
+  await cancelServiceRequest(requestId, req.user.id);
+  res.json({ message: "Service request cancelled successfully" });
 });

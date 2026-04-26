@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator, TextInput, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Search, MapPin, ChevronDown, AlertCircle, Bell, Map as MapIcon, List as ListIcon } from 'lucide-react-native';
+import { Search, MapPin, ChevronDown, AlertCircle, Bell, Map as MapIcon, List as ListIcon, X } from 'lucide-react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
@@ -82,7 +82,7 @@ export default function HomeScreen({ navigation, goToPage }) {
 
     const fetchGarages = async () => {
       try {
-        const response = await apiClient.get('/garages');
+        const response = await apiClient.get('/api/garages');
 
         const mapped = response.data.map(g => {
           const mod = g.GarageID % 3;
@@ -129,7 +129,7 @@ export default function HomeScreen({ navigation, goToPage }) {
     // Fetch unread notifications
     const fetchUnread = async () => {
       try {
-        const res = await apiClient.get('/users/notifications');
+        const res = await apiClient.get('/api/users/notifications');
         const count = (res.data || []).filter(n => !n.IsRead).length;
         setUnreadCount(count);
       } catch (e) {
@@ -212,40 +212,32 @@ export default function HomeScreen({ navigation, goToPage }) {
       {/* Header Area */}
       <View style={[styles.headerWrapper, { paddingTop: 16 }]}>
         <View style={styles.headerTop}>
-          <View style={styles.logoRow}>
-            <View style={styles.logoIcon}>
-              <Text style={{ fontSize: 20 }}>🔧</Text>
-            </View>
-            <Text style={styles.logoText}>
-              Garage<Text style={{ color: colors.primaryBlue }}>Pro</Text>
+          <View>
+            <Text style={styles.greetingText}>
+              {t('Hello')}, {nameStr.split(' ')[0]}
             </Text>
+            <TouchableOpacity style={styles.locationSelector}>
+              <MapPin size={14} color={colors.primaryBlue} />
+              <Text style={styles.locationText} numberOfLines={1}>{locationName}</Text>
+              <ChevronDown size={14} color={colors.textGray} />
+            </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-            <TouchableOpacity style={{ position: 'relative' }} onPress={() => navigation.navigate('Notifications')}>
-              <Bell size={24} color={colors.textDark} />
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Notifications')}>
+              <Bell size={22} color={colors.textDark} />
               {unreadCount > 0 && (
-                <View style={{
-                  position: 'absolute', top: -4, right: -6, backgroundColor: '#ef4444',
-                  borderRadius: 10, minWidth: 18, height: 18, justifyContent: 'center',
-                  alignItems: 'center', paddingHorizontal: 4, borderWidth: 1.5, borderColor: colors.white
-                }}>
-                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badgeText}>
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </Text>
                 </View>
               )}
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.avatarButton, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]} onPress={() => { if (goToPage) goToPage(3); else navigation.getParent()?.navigate('Profile'); }}>
-              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{avatarInitial}</Text>
+            <TouchableOpacity style={[styles.avatarButton, { backgroundColor: avatarColor }]} onPress={() => { if (goToPage) goToPage(3); else navigation.getParent()?.navigate('Profile'); }}>
+              <Text style={styles.avatarText}>{avatarInitial}</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        <TouchableOpacity style={styles.locationSelector}>
-          <MapPin size={16} color={colors.primaryBlue} />
-          <Text style={styles.locationText}>{locationName}</Text>
-          <ChevronDown size={16} color={colors.textGray} />
-        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -273,36 +265,55 @@ export default function HomeScreen({ navigation, goToPage }) {
         </ScrollView>
       ) : activeView === 'list' ? (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+
+          {/* Main Title Section */}
+          <View style={styles.titleSection}>
+            <Text style={styles.mainTitle}>{t('Find the best')} {"\n"}<Text style={{ color: colors.primaryBlue }}>{t('garages')}</Text> {t('near you')}</Text>
+          </View>
+
           {/* Search Input Binding */}
           <View style={styles.searchWrapper}>
             <View style={styles.searchInput}>
-              <Search color={colors.textGray} size={20} style={{ marginRight: 8 }} />
+              <Search color={colors.primaryBlue} size={22} style={{ marginRight: 10 }} />
               <TextInput
-                style={{ flex: 1, color: colors.textDark }}
+                style={styles.searchTextInput}
                 placeholder={t('Find service, repair, or garage...')}
                 placeholderTextColor={colors.textGray}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+                  <X size={18} color={colors.textGray} />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
           {/* Emergency Assistance */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.emergencyBtn}
-            onPress={() => {
-              if (filteredGarages.length > 0) {
-                const nearest = [...filteredGarages].sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))[0];
-                navigation.navigate('Emergency', { garage: nearest });
-              } else {
-                alert('No Garages', 'No nearby garages found for emergency assistance.');
-              }
-            }}
-          >
-            <AlertCircle size={20} color={colors.white} />
-            <Text style={styles.emergencyText}>{t('Emergency Assistance')}</Text>
-          </TouchableOpacity>
+          <View style={styles.emergencyWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={styles.emergencyBtn}
+              onPress={() => {
+                if (filteredGarages.length > 0) {
+                  const nearest = [...filteredGarages].sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))[0];
+                  navigation.navigate('Emergency', { garage: nearest });
+                } else {
+                  alert('No Garages', 'No nearby garages found for emergency assistance.');
+                }
+              }}
+            >
+              <View style={styles.emergencyIconBg}>
+                <AlertCircle size={24} color={'#ef4444'} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.emergencyText}>{t('Emergency Assistance')}</Text>
+                <Text style={styles.emergencySubText}>{t('Request immediate help')}</Text>
+              </View>
+              <ChevronDown size={20} color={colors.white} style={{ transform: [{ rotate: '-90deg' }] }} />
+            </TouchableOpacity>
+          </View>
 
           {/* Categories Horizontal Scroll */}
           <ScrollView
@@ -442,100 +453,161 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   headerWrapper: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    backgroundColor: colors.bgGray,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    paddingTop: 12,
   },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  greetingText: {
+    fontSize: 15,
+    color: colors.textGray,
+    marginBottom: 4,
+    fontWeight: '500',
   },
-  logoIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: colors.primaryBlue,
+  iconButton: {
+    position: 'relative',
+    backgroundColor: colors.white,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.textDark,
-  },
-  avatarButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    overflow: 'hidden',
-    backgroundColor: colors.bgGray,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  locationSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textDark,
-  },
-  scrollContent: {
-    paddingVertical: 16,
-  },
-  searchWrapper: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  searchInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    height: 48,
-    borderRadius: 12,
-    paddingHorizontal: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  emergencyBtn: {
-    marginHorizontal: 16,
+  badgeContainer: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
     backgroundColor: '#ef4444',
-    height: 48,
-    borderRadius: 12,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: colors.white
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  avatarButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 2,
+    borderColor: colors.white,
+  },
+  avatarText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  locationSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginBottom: 16,
+    gap: 4,
+    maxWidth: 220,
+  },
+  locationText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.textDark,
+  },
+  scrollContent: {
+    paddingVertical: 16,
+  },
+  titleSection: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    marginTop: 4,
+  },
+  mainTitle: {
+    fontSize: 30,
+    fontWeight: '800',
+    color: colors.textDark,
+    lineHeight: 38,
+    letterSpacing: -0.5,
+  },
+  searchWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  searchInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    height: 56,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  searchTextInput: {
+    flex: 1,
+    color: colors.textDark,
+    fontSize: 16,
+    height: '100%',
+  },
+  emergencyWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  emergencyBtn: {
+    backgroundColor: '#ef4444',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
     shadowColor: '#ef4444',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 6,
+  },
+  emergencyIconBg: {
+    backgroundColor: colors.white,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emergencyText: {
     color: colors.white,
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 18,
+    marginBottom: 2,
+  },
+  emergencySubText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
   },
   categoriesScroll: {
     paddingHorizontal: 16,

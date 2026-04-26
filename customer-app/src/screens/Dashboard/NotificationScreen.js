@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Platform, StatusBar } from 'react-native';
 import { ChevronLeft, Bell, CheckCircle, Trash } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import api from '../../api/client';
+import showAlert from '../../utils/alert';
 
 export default function NotificationScreen({ navigation }) {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ export default function NotificationScreen({ navigation }) {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await api.get('/users/notifications');
+        const response = await api.get('/api/users/notifications');
         setNotifications(response.data);
       } catch (err) {
         console.warn('Failed to fetch notifications', err);
@@ -26,7 +27,7 @@ export default function NotificationScreen({ navigation }) {
 
   const handleMarkRead = async (id) => {
     try {
-      await api.put(`/users/notifications/${id}/read`);
+      await api.put(`/api/users/notifications/${id}/read`);
       setNotifications(prev => prev.map(n => n.NotificationID === id ? { ...n, IsRead: true } : n));
     } catch (err) {
       console.warn('Failed to mark as read', err);
@@ -34,19 +35,20 @@ export default function NotificationScreen({ navigation }) {
   };
 
   const confirmDelete = (id) => {
-    Alert.alert(
+    showAlert(
       t('Delete Notification'),
       t('Are you sure you want to delete this notification?'),
       [
         { text: t('Cancel'), style: 'cancel' },
         { text: t('Delete'), style: 'destructive', onPress: () => handleDelete(id) }
-      ]
+      ],
+      'confirm'
     );
   };
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/users/notifications/${id}`);
+      await api.delete(`/api/users/notifications/${id}`);
       setNotifications(prev => prev.filter(n => n.NotificationID !== id));
     } catch (err) {
       console.warn('Failed to delete notification', err);
@@ -55,27 +57,28 @@ export default function NotificationScreen({ navigation }) {
 
   const handleClearAll = () => {
     if (notifications.length === 0) return;
-    Alert.alert(
+    showAlert(
       t('Clear All Notifications'),
       t('Are you sure you want to delete all notifications?'),
       [
         { text: t('Cancel'), style: 'cancel' },
-        { 
-          text: t('Clear All'), 
-          style: 'destructive', 
+        {
+          text: t('Clear All'),
+          style: 'destructive',
           onPress: async () => {
-             try {
-               await api.delete(`/users/notifications`);
-               setNotifications([]);
-             } catch (err) {
-               console.warn('Failed to clear ALL notifications', err);
-               // Fallback: clear one by one if the endpoint fails
-               notifications.forEach(n => api.delete(`/users/notifications/${n.NotificationID}`).catch(() => {}));
-               setNotifications([]);
-             }
-          } 
+            try {
+              await api.delete(`/api/users/notifications`);
+              setNotifications([]);
+            } catch (err) {
+              console.warn('Failed to clear ALL notifications', err);
+              // Fallback: clear one by one if the endpoint fails
+              notifications.forEach(n => api.delete(`/api/users/notifications/${n.NotificationID}`).catch(() => { }));
+              setNotifications([]);
+            }
+          }
         }
-      ]
+      ],
+      'confirm'
     );
   };
 
@@ -108,8 +111,8 @@ export default function NotificationScreen({ navigation }) {
           </View>
         ) : (
           notifications.map(notif => (
-            <TouchableOpacity 
-              key={notif.NotificationID} 
+            <TouchableOpacity
+              key={notif.NotificationID}
               style={[styles.notifCard, !notif.IsRead && styles.unreadCard]}
               onPress={() => !notif.IsRead && handleMarkRead(notif.NotificationID)}
               activeOpacity={0.7}

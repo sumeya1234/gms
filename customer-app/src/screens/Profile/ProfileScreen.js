@@ -22,7 +22,7 @@ export default function ProfileScreen({ navigation }) {
     if (isEditing) {
       // Save
       try {
-        await require('../../api/client').default.put('/users/profile', {
+        await require('../../api/client').default.put('/api/users/profile', {
           fullName: editName,
           phone: editPhone
         });
@@ -50,7 +50,7 @@ export default function ProfileScreen({ navigation }) {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await require('../../api/client').default.get('/users/notifications');
+        const response = await require('../../api/client').default.get('/api/users/notifications');
         const unread = response.data.filter(n => !n.IsRead);
         setUnreadCount(unread.length);
         if (unread.length > 0) {
@@ -64,7 +64,7 @@ export default function ProfileScreen({ navigation }) {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchNotifications();
     });
-    
+
     fetchNotifications();
     return unsubscribe;
   }, [navigation]);
@@ -83,93 +83,93 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
-           <View style={styles.avatarWrap}>
-              <View style={[styles.avatar, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 44 }}>{avatarInitial}</Text>
-              </View>
-              <TouchableOpacity style={styles.cameraBtn}>
-                 <Camera size={16} color={colors.white} />
-              </TouchableOpacity>
-           </View>
-           <Text style={styles.userName}>{fullName}</Text>
-           <View style={styles.roleWrap}>
-              <CarFrontIcon />
-              <Text style={styles.roleText}>Vehicle Owner</Text>
-           </View>
+          <View style={styles.avatarWrap}>
+            <View style={[styles.avatar, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 44 }}>{avatarInitial}</Text>
+            </View>
+            <TouchableOpacity style={styles.cameraBtn}>
+              <Camera size={16} color={colors.white} />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.userName}>{fullName}</Text>
+          <View style={styles.roleWrap}>
+            <CarFrontIcon />
+            <Text style={styles.roleText}>Vehicle Owner</Text>
+          </View>
         </View>
 
         {/* Notification Banner */}
         {unreadCount > 0 && latestNotif && (
           <View style={styles.banner}>
-             <View style={styles.bannerContent}>
-                <View style={styles.bannerHead}>
-                   <View style={styles.pulseDot} />
-                   <Text style={styles.bannerTitle}>{unreadCount} NEW UPDATE{unreadCount > 1 ? 'S' : ''}</Text>
-                </View>
-                <Text style={styles.bannerSub} numberOfLines={2}>{latestNotif.Message}</Text>
-                <TouchableOpacity style={styles.bannerLink} onPress={() => navigation.navigate('Notifications')}>
-                   <Text style={styles.bannerLinkText}>View Details</Text>
-                   <ArrowRight size={14} color={colors.primaryBlue} />
-                </TouchableOpacity>
-             </View>
-             <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=150&q=80" }} style={styles.bannerImg} />
+            <View style={styles.bannerContent}>
+              <View style={styles.bannerHead}>
+                <View style={styles.pulseDot} />
+                <Text style={styles.bannerTitle}>{unreadCount} NEW UPDATE{unreadCount > 1 ? 'S' : ''}</Text>
+              </View>
+              <Text style={styles.bannerSub} numberOfLines={2}>{latestNotif.Message}</Text>
+              <TouchableOpacity style={styles.bannerLink} onPress={() => navigation.navigate('Notifications')}>
+                <Text style={styles.bannerLinkText}>View Details</Text>
+                <ArrowRight size={14} color={colors.primaryBlue} />
+              </TouchableOpacity>
+            </View>
+            <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=150&q=80" }} style={styles.bannerImg} />
           </View>
         )}
 
         {/* Account Details Form */}
         <Text style={styles.sectionTitle}>{t('Account Details')}</Text>
         <View style={styles.formGroup}>
-           <View style={styles.formRow}>
-              <UserIcon size={20} color={colors.textGray} />
-              <View style={styles.inputWrap}>
-                 <Text style={styles.label}>{t('Full Name')}</Text>
-                 {isEditing ? (
-                   <TextInput 
-                     style={styles.textInputEdit}
-                     value={editName}
-                     onChangeText={setEditName}
-                   />
-                 ) : (
-                   <Text style={styles.inputValue}>{fullName}</Text>
-                 )}
-              </View>
-           </View>
-           <View style={styles.divider} />
-           
-           <View style={styles.formRow}>
-              <Mail size={20} color={colors.textGray} />
-              <View style={styles.inputWrap}>
-                 <Text style={styles.label}>{t('Email')}</Text>
-                 <Text style={styles.inputValue}>{user?.email || "john.doe@example.com"}</Text>
-              </View>
-           </View>
-           <View style={styles.divider} />
-           
-           <View style={styles.formRow}>
-              <Phone size={20} color={colors.textGray} />
-              <View style={styles.inputWrap}>
-                 <Text style={styles.label}>{t('Phone')}</Text>
-                 {isEditing ? (
-                   <TextInput 
-                     style={styles.textInputEdit}
-                     value={editPhone}
-                     onChangeText={setEditPhone}
-                     keyboardType="phone-pad"
-                   />
-                 ) : (
-                   <Text style={styles.inputValue}>{user?.phone || "+1 (555) 123-4567"}</Text>
-                 )}
-              </View>
-           </View>
-           <View style={styles.divider} />
+          <View style={styles.formRow}>
+            <UserIcon size={20} color={colors.textGray} />
+            <View style={styles.inputWrap}>
+              <Text style={styles.label}>{t('Full Name')}</Text>
+              {isEditing ? (
+                <TextInput
+                  style={styles.textInputEdit}
+                  value={editName}
+                  onChangeText={setEditName}
+                />
+              ) : (
+                <Text style={styles.inputValue}>{fullName}</Text>
+              )}
+            </View>
+          </View>
+          <View style={styles.divider} />
 
-           <View style={styles.formRow}>
-              <Lock size={20} color={colors.textGray} />
-              <View style={styles.inputWrap}>
-                 <Text style={styles.label}>{t('Password')}</Text>
-                 <Text style={styles.inputValue}>••••••••</Text>
-              </View>
-           </View>
+          <View style={styles.formRow}>
+            <Mail size={20} color={colors.textGray} />
+            <View style={styles.inputWrap}>
+              <Text style={styles.label}>{t('Email')}</Text>
+              <Text style={styles.inputValue}>{user?.email || "john.doe@example.com"}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.formRow}>
+            <Phone size={20} color={colors.textGray} />
+            <View style={styles.inputWrap}>
+              <Text style={styles.label}>{t('Phone')}</Text>
+              {isEditing ? (
+                <TextInput
+                  style={styles.textInputEdit}
+                  value={editPhone}
+                  onChangeText={setEditPhone}
+                  keyboardType="phone-pad"
+                />
+              ) : (
+                <Text style={styles.inputValue}>{user?.phone || "+1 (555) 123-4567"}</Text>
+              )}
+            </View>
+          </View>
+          <View style={styles.divider} />
+
+          <View style={styles.formRow}>
+            <Lock size={20} color={colors.textGray} />
+            <View style={styles.inputWrap}>
+              <Text style={styles.label}>{t('Password')}</Text>
+              <Text style={styles.inputValue}>••••••••</Text>
+            </View>
+          </View>
         </View>
 
         <View style={{ height: 24 }} />
@@ -177,43 +177,43 @@ export default function ProfileScreen({ navigation }) {
         {/* Preferences Section // Languages */}
         <Text style={styles.sectionTitle}>{t('Preferences')}</Text>
         <View style={[styles.formGroup, { paddingVertical: 12 }]}>
-           <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-              {[
-                { code: 'en', label: 'English' },
-                { code: 'am', label: 'አማርኛ' },
-                { code: 'om', label: 'Afaan Oromo' }
-              ].map(lang => (
-                <TouchableOpacity 
-                   key={lang.code}
-                   style={[
-                     styles.langBtn,
-                     i18n.language === lang.code && styles.langBtnActive
-                   ]}
-                   onPress={() => i18n.changeLanguage(lang.code)}
-                >
-                   <Text style={[
-                     styles.langBtnText,
-                     i18n.language === lang.code && styles.langBtnTextActive
-                   ]}>{lang.label}</Text>
-                </TouchableOpacity>
-              ))}
-           </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+            {[
+              { code: 'en', label: 'English' },
+              { code: 'am', label: 'አማርኛ' },
+              { code: 'om', label: 'Afaan Oromo' }
+            ].map(lang => (
+              <TouchableOpacity
+                key={lang.code}
+                style={[
+                  styles.langBtn,
+                  i18n.language === lang.code && styles.langBtnActive
+                ]}
+                onPress={() => i18n.changeLanguage(lang.code)}
+              >
+                <Text style={[
+                  styles.langBtnText,
+                  i18n.language === lang.code && styles.langBtnTextActive
+                ]}>{lang.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={{ height: 24 }} />
 
         {/* Footer Actions */}
         <TouchableOpacity style={styles.helpBtn}>
-           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-             <HelpCircle size={20} color={colors.textGray} />
-             <Text style={styles.helpText}>{t('Help & Support', 'Help & Support')}</Text>
-           </View>
-           <ChevronLeft style={{ transform: [{ rotate: '180deg' }] }} size={20} color={colors.textGray} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <HelpCircle size={20} color={colors.textGray} />
+            <Text style={styles.helpText}>{t('Help & Support', 'Help & Support')}</Text>
+          </View>
+          <ChevronLeft style={{ transform: [{ rotate: '180deg' }] }} size={20} color={colors.textGray} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-           <LogOut size={20} color="#ef4444" />
-           <Text style={styles.logoutText}>{t('Logout')}</Text>
+          <LogOut size={20} color="#ef4444" />
+          <Text style={styles.logoutText}>{t('Logout')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: 100 }} />
@@ -232,8 +232,8 @@ function CarFrontIcon() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: colors.bgGray,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
   },

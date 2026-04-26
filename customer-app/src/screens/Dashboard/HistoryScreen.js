@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator, Linking, Alert, AppState, Modal, Platform, StatusBar } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator, Linking, AppState, Modal, Platform, StatusBar } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Star, Send, Flag, Store, CreditCard, Clock, CheckCircle, Banknote, X, Wrench, Trash } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useServiceStore } from '../../store/serviceStore';
 import Skeleton from '../../components/Skeleton';
 import api from '../../api/client';
+import showAlert from '../../utils/alert';
 
 export default function HistoryScreen({ navigation }) {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function HistoryScreen({ navigation }) {
           }
         });
       } else {
-        Alert.alert('Request Rejected', item.RejectionReason || 'This request was rejected by the garage.');
+        showAlert(t('Request Rejected'), item.RejectionReason || t('This request was rejected by the garage.'), [], 'error');
       }
     }}>
       <View style={styles.histHeaderRow}>
@@ -166,8 +167,8 @@ export default function HistoryScreen({ navigation }) {
     setInvoiceLoading(true);
     try {
       const [partsRes, catalogRes] = await Promise.all([
-        api.get(`/services/${item.RequestID}/items`),
-        api.get(`/catalog/${item.GarageID}`)
+        api.get(`/api/services/${item.RequestID}/items`),
+        api.get(`/api/catalog/${item.GarageID}`)
       ]);
       setInvoiceParts(partsRes.data);
       setInvoiceCatalog(catalogRes.data);
@@ -180,41 +181,42 @@ export default function HistoryScreen({ navigation }) {
 
   const handleVerifyOnline = async (item) => {
     if (!item.TransactionRef) {
-      Alert.alert('Error', 'No transaction reference found.');
+      showAlert(t('Error'), t('No transaction reference found.'), [], 'error');
       return;
     }
     setVerifyingPayment(item.RequestID);
     try {
-      await api.get(`/payments/verify/${item.TransactionRef}`);
-      Alert.alert('Success', 'Payment verified successfully!');
+      await api.get(`/api/payments/verify/${item.TransactionRef}`);
+      showAlert(t('Success'), t('Payment verified successfully!'));
       fetchMyRequests();
     } catch (e) {
-      Alert.alert('Verification', 'Payment is still being processed. Please try again shortly.');
+      showAlert(t('Verification'), t('Payment is still being processed. Please try again shortly.'), [], 'info');
     } finally {
       setVerifyingPayment(null);
     }
   };
 
   const handleDeleteRequest = (item) => {
-    Alert.alert(
-      "Remove Request",
-      "Are you sure you want to remove this service request from your history?",
+    showAlert(
+      t("Remove Request"),
+      t("Are you sure you want to remove this service request from your history?"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("Cancel"), style: "cancel" },
         {
-          text: "Remove",
+          text: t("Remove"),
           style: "destructive",
           onPress: async () => {
             try {
-              await api.delete(`/services/my-requests/${item.RequestID}`);
+              await api.delete(`/api/services/my-requests/${item.RequestID}`);
               fetchMyRequests();
             } catch (err) {
               console.warn("Failed to delete request", err);
-              Alert.alert("Error", "Could not remove request.");
+              showAlert(t("Error"), t("Could not remove request."), [], 'error');
             }
           }
         }
-      ]
+      ],
+      'confirm'
     );
   };
 
@@ -224,21 +226,21 @@ export default function HistoryScreen({ navigation }) {
     try {
       const totalAmount = Number(request.PartsCost) + Number(request.BaseServicePrice);
       if (totalAmount <= 0) {
-        Alert.alert("Error", "Invoice amount is zero, cannot proceed to pay.");
+        showAlert(t("Error"), t("Invoice amount is zero, cannot proceed to pay."), [], 'error');
         setPaymentLoading(null);
         return;
       }
-      const response = await api.post('/payments/pay', {
+      const response = await api.post('/api/payments/pay', {
         requestId: request.RequestID,
         amount: totalAmount,
         method: method
       });
 
       if (method === 'Cash') {
-        Alert.alert(
+        showAlert(
           t('Cash Payment Recorded'),
           t('Please pay at the garage. The manager will confirm your payment.'),
-          [{ text: 'OK' }]
+          [{ text: t('OK') }]
         );
         fetchMyRequests();
       } else {
@@ -251,7 +253,7 @@ export default function HistoryScreen({ navigation }) {
       }
     } catch (err) {
       console.error(err);
-      Alert.alert("Payment Error", "Failed to initialize payment.");
+      showAlert(t("Payment Error"), t("Failed to initialize payment."), [], 'error');
     } finally {
       setPaymentLoading(null);
     }
@@ -264,7 +266,7 @@ export default function HistoryScreen({ navigation }) {
         const txRef = pendingTxRef.current;
         pendingTxRef.current = null;
         try {
-          await api.get(`/payments/verify/${txRef}`);
+          await api.get(`/api/payments/verify/${txRef}`);
         } catch (e) {
           console.log('Payment verify check:', e.message);
         }
@@ -281,7 +283,14 @@ export default function HistoryScreen({ navigation }) {
         r => r.Status === 'Completed' && !r.HasReviewed && !prevCompletedRef.current.has(r.RequestID)
       );
       if (newlyCompleted && prevCompletedRef.current.size > 0) {
-        setReviewPrompt(newlyCompleted);
+        showAlert(
+          t('Service Completed!'),
+          t('Your service has been completed. Would you like to leave a review?'),
+          [
+            { text: t('Later'), style: 'cancel' },
+            { text: t('Review Now'), onPress: () => setActiveTab('Rate') }
+          ]
+        );
       }
       prevCompletedRef.current = new Set(requests.filter(r => r.Status === 'Completed').map(r => r.RequestID));
     }
@@ -291,23 +300,23 @@ export default function HistoryScreen({ navigation }) {
     const rating = ratings[item.RequestID];
     const comment = comments[item.RequestID] || '';
     if (!rating || rating === 0) {
-      Alert.alert('Error', 'Please select a star rating.');
+      showAlert(t('Error'), t('Please select a star rating.'), [], 'error');
       return;
     }
     setSubmittingReview(item.RequestID);
     try {
-      await api.post('/reviews', {
+      await api.post('/api/reviews', {
         garageId: item.GarageID,
         requestId: item.RequestID,
         rating,
         comment: comment.trim()
       });
-      Alert.alert('Thank you!', 'Your feedback has been submitted.');
+      showAlert(t('Thank you!'), t('Your feedback has been submitted.'));
       setRatings(prev => ({ ...prev, [item.RequestID]: 0 }));
       setComments(prev => ({ ...prev, [item.RequestID]: '' }));
       fetchMyRequests();
     } catch (err) {
-      Alert.alert('Error', err.response?.data?.error || 'Failed to submit review.');
+      showAlert(t('Error'), err.response?.data?.error || t('Failed to submit review.'), [], 'error');
     } finally {
       setSubmittingReview(null);
     }
@@ -533,40 +542,7 @@ export default function HistoryScreen({ navigation }) {
 
             </View>
           )}
-          <View style={{ height: 100 }} />
         </ScrollView>
-      )}
-
-      {/* Review Prompt Modal — appears when a new service is completed */}
-      {reviewPrompt && (
-        <Modal transparent animationType="fade" visible={!!reviewPrompt}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <TouchableOpacity style={styles.modalClose} onPress={() => setReviewPrompt(null)}>
-                <X size={20} color={colors.textGray} />
-              </TouchableOpacity>
-              <CheckCircle size={48} color="#10b981" />
-              <Text style={styles.modalTitle}>{t('Service Completed!', 'Service Completed!')}</Text>
-              <Text style={styles.modalSubtitle}>
-                {t('Your service has been completed. Would you like to leave a review?', 'Your service has been completed. Would you like to leave a review?')}
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
-                <TouchableOpacity
-                  style={[styles.modalBtn, { backgroundColor: colors.bgGray }]}
-                  onPress={() => setReviewPrompt(null)}
-                >
-                  <Text style={[styles.modalBtnText, { color: colors.textDark }]}>{t('Later', 'Later')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalBtn, { backgroundColor: colors.primaryBlue }]}
-                  onPress={() => { setReviewPrompt(null); setActiveTab('Rate'); }}
-                >
-                  <Text style={[styles.modalBtnText, { color: colors.white }]}>{t('Review Now', 'Review Now')}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
       )}
 
       {/* Invoice Detail Modal */}

@@ -36,10 +36,14 @@ export async function registerForPushNotificationsAsync() {
       console.log('Failed to get push token for push notification!');
       return;
     }
-    
+
     // Get the token that uniquely identifies this device
     try {
       const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+      if (!projectId) {
+        console.log('Skipping Expo Push Token generation: No EAS project ID found in app.json.');
+        return null;
+      }
       token = (await Notifications.getExpoPushTokenAsync({
         projectId: projectId
       })).data;

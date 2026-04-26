@@ -1,14 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Linking, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Modal } from 'react-native';
+import { ChevronLeft, Clock, CheckCircle, Wrench, CreditCard, Banknote, MapPin, Phone, DollarSign } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, CheckCircle2, Clock, Wrench, Phone, DollarSign, MapPin, CreditCard, Banknote } from 'lucide-react-native';
-import { colors } from '../../theme/colors';
+import { useServiceStore } from '../../store/serviceStore';
 import apiClient from '../../api/client';
+import showAlert from '../../utils/alert';
+import { colors } from '../../theme/colors';
 
 export default function TrackServiceScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { job } = route.params || {};
   const [loading, setLoading] = React.useState(false);
+  const { cancelRequest } = useServiceStore();
   const [nearbyGarages, setNearbyGarages] = React.useState([]);
 
   const [showPayOptions, setShowPayOptions] = React.useState(false);
@@ -31,11 +34,11 @@ export default function TrackServiceScreen({ navigation, route }) {
   const confirmApproval = async () => {
     setLoading(true);
     try {
-      await apiClient.put(`/services/${job.RequestID}/status`, { status: 'Approved' });
-      Alert.alert(t('Success'), t('Request approved. The garage will begin service shortly.'));
+      await apiClient.put(`/api/services/${job.RequestID}/status`, { status: 'Approved' });
+      showAlert(t('Success'), t('Request approved. The garage will begin service shortly.'));
       navigation.goBack();
     } catch (err) {
-      Alert.alert(t('Error'), t('Failed to approve request.'));
+      showAlert(t('Error'), t('Failed to approve request.'), [], 'error');
     } finally {
       setLoading(false);
     }
@@ -46,14 +49,14 @@ export default function TrackServiceScreen({ navigation, route }) {
     setPaymentLoading(true);
     try {
       // Initiate the deposit payment directly
-      const response = await apiClient.post('/payments/pay', {
+      const response = await apiClient.post('/api/payments/pay', {
         requestId: job.RequestID,
         amount: depositAmount,
         method: method
       });
 
       if (method === 'Cash') {
-        Alert.alert(
+        showAlert(
           t('Deposit Recorded'),
           t('Please pay ') + depositAmount + t(' ETB at the garage. The accountant will confirm your payment.'),
           [{ text: 'OK', onPress: () => navigation.goBack() }]
@@ -66,7 +69,7 @@ export default function TrackServiceScreen({ navigation, route }) {
         }
       }
     } catch (err) {
-      Alert.alert(t('Error'), err?.response?.data?.error || t('Failed to process deposit payment.'));
+      showAlert(t('Error'), err?.response?.data?.error || t('Failed to process deposit payment.'), [], 'error');
     } finally {
       setPaymentLoading(false);
     }
@@ -75,19 +78,44 @@ export default function TrackServiceScreen({ navigation, route }) {
   const handleReject = async () => {
     setLoading(true);
     try {
-      await apiClient.put(`/services/${job.RequestID}/status`, { status: 'Rejected', rejectionReason: 'Customer rejected estimate' });
+      await apiClient.put(`/api/services/${job.RequestID}/status`, { status: 'Rejected', rejectionReason: 'Customer rejected estimate' });
 
       // Fetch nearby garages
-      const response = await apiClient.get('/garages');
+      const response = await apiClient.get('/api/garages');
       const filtered = response.data.filter(g => g.GarageID.toString() !== job.GarageID?.toString()).slice(0, 3);
       setNearbyGarages(filtered);
-
-      Alert.alert(t('Request Rejected'), t('We have found some other nearby garages for you.'));
+      showAlert(t('Request Rejected'), t('We have found some other nearby garages for you.'));
     } catch (err) {
-      Alert.alert(t('Error'), t('Failed to reject request.'));
+      showAlert(t('Error'), t('Failed to reject request.'), [], 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelRequest = () => {
+    showAlert(
+      t('Cancel Request'),
+      t('Are you sure you want to cancel this service request?'),
+      [
+        { text: t('No'), style: 'cancel' },
+        {
+          text: t('Yes, Cancel'),
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            const result = await cancelRequest(job.RequestID);
+            if (result === true) {
+              showAlert(t('Success'), t('Your request has been cancelled.'));
+              navigation.navigate('History');
+            } else {
+              showAlert(t('Error'), result?.message || t('Failed to cancel request.'), [], 'error');
+              setLoading(false);
+            }
+          }
+        }
+      ],
+      'confirm'
+    );
   };
 
   if (!job) {
@@ -111,9 +139,9 @@ export default function TrackServiceScreen({ navigation, route }) {
 
   const steps = [
     { title: t('Request Received'), desc: t('Waiting for garage approval'), icon: Clock },
-    { title: t('Approved'), desc: job.IsEmergency ? t('Deposit paid, assigning mechanic') : t('Mechanic assignment pending'), icon: CheckCircle2 },
+    { title: t('Approved'), desc: job.IsEmergency ? t('Deposit paid, assigning mechanic') : t('Mechanic assignment pending'), icon: CheckCircle },
     { title: t('In Progress'), desc: job.IsEmergency ? t('Mechanic is on their way to you') : t('Mechanic is working on your vehicle'), icon: Wrench },
-    { title: t('Completed'), desc: t('Service finished & ready for payment'), icon: CheckCircle2 },
+    { title: t('Completed'), desc: t('Service finished & ready for payment'), icon: CheckCircle },
   ];
 
   return (
@@ -179,7 +207,7 @@ export default function TrackServiceScreen({ navigation, route }) {
         )}
 
         {/* Suggested Garages */}
-        {nearbyGarages.length > 0 && (
+        {nearbyGarages.length > 0 ? (
           <View style={styles.nearbyContainer}>
             <Text style={styles.nearbyTitle}>{t('Other Nearby Garages')}</Text>
             {nearbyGarages.map(g => (
@@ -199,7 +227,7 @@ export default function TrackServiceScreen({ navigation, route }) {
               </TouchableOpacity>
             ))}
           </View>
-        )}
+        ) : null}
 
         <Text style={styles.timelineTitle}>{t('Service Timeline')}</Text>
 
@@ -258,6 +286,20 @@ export default function TrackServiceScreen({ navigation, route }) {
             </View>
           </View>
         )}
+
+        {/* Cancellation Section */}
+        {(job.status?.toLowerCase() === 'pending' || job.status?.toLowerCase() === 'approved') && (
+          <View style={{ marginTop: 20 }}>
+            <TouchableOpacity
+              style={styles.cancelBookingBtn}
+              onPress={handleCancelRequest}
+              disabled={loading}
+            >
+              {loading ? <ActivityIndicator size="small" color="#ef4444" /> : <Text style={styles.cancelBookingBtnText}>{t('Cancel Booking')}</Text>}
+            </TouchableOpacity>
+            <Text style={styles.cancelNote}>{t('You can only cancel before work begins.')}</Text>
+          </View>
+        )}
       </ScrollView>
 
       {/* Payment Method Modal */}
@@ -283,13 +325,15 @@ export default function TrackServiceScreen({ navigation, route }) {
       </Modal>
 
       {/* Payment loading overlay */}
-      {paymentLoading && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 99 }}>
-          <ActivityIndicator size="large" color={colors.primaryBlue} />
-          <Text style={{ marginTop: 12, color: colors.textDark, fontFamily: 'Inter-SemiBold' }}>{t('Processing payment...')}</Text>
-        </View>
-      )}
-    </SafeAreaView>
+      {
+        paymentLoading && (
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 99 }}>
+            <ActivityIndicator size="large" color={colors.primaryBlue} />
+            <Text style={{ marginTop: 12, color: colors.textDark, fontFamily: 'Inter-SemiBold' }}>{t('Processing payment...')}</Text>
+          </View>
+        )
+      }
+    </SafeAreaView >
   );
 }
 
@@ -512,4 +556,25 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 12,
   },
+  cancelBookingBtn: {
+    height: 50,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+  },
+  cancelBookingBtnText: {
+    color: '#ef4444',
+    fontSize: 15,
+    fontFamily: 'Inter-Bold',
+  },
+  cancelNote: {
+    fontSize: 12,
+    color: colors.textGray,
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic',
+  }
 });

@@ -1,20 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { colors } from '../../theme/colors';
 import Button from '../../components/Button';
 import { useServiceStore } from '../../store/serviceStore';
+import { useTranslation } from 'react-i18next';
+import showAlert from '../../utils/alert';
 
 export default function ConfirmationScreen({ route, navigation }) {
   const { vehicleId, vehicle, description, address, preferredDate, garageId, serviceType, bookingDate, dropOffTime } = route.params;
   const { createRequest, isLoading } = useServiceStore();
+  const { t } = useTranslation();
 
   const handleConfirm = async () => {
     if (!garageId || !serviceType) {
-      Alert.alert(
-        'Missing Details',
-        'Please book a service from the Home tab by selecting a garage first.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Main') }]
-      );
+      showAlert(t('Missing Details'), t('Please book a service from the Home tab by selecting a garage first.'), [], 'info');
       return;
     }
     try {
@@ -28,15 +27,17 @@ export default function ConfirmationScreen({ route, navigation }) {
         isEmergency: false,
       });
       if (success) {
-        Alert.alert('Success', 'Service requested successfully!', [
-          { text: 'OK', onPress: () => navigation.navigate('Main') }
-        ]);
+        showAlert(
+          t('Service Requested'),
+          t("We've sent your details to the garage. They will update you once they review the request."),
+          [{ text: t('Great!'), onPress: () => navigation.navigate('Main') }]
+        );
       } else {
         const errorMsg = useServiceStore.getState().error || 'Failed to request service. Please try again.';
-        Alert.alert('Booking Error', errorMsg);
+        showAlert(t('Booking Error'), t(errorMsg), [], 'error');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to request service. Please try again.');
+      showAlert(t('Error'), t('Failed to request service. Please try again.'), [], 'error');
     }
   };
 
@@ -78,14 +79,14 @@ export default function ConfirmationScreen({ route, navigation }) {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button 
-          title="Edit Details" 
-          variant="outline" 
+        <Button
+          title="Edit Details"
+          variant="outline"
           onPress={() => navigation.goBack()}
           style={{ marginBottom: 10 }}
         />
-        <Button 
-          title={isLoading ? 'Booking...' : "Confirm Book"} 
+        <Button
+          title={isLoading ? 'Booking...' : "Confirm Book"}
           variant="secondary"
           onPress={handleConfirm}
           disabled={isLoading}

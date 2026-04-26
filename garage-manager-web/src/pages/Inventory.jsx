@@ -42,6 +42,7 @@ export default function Inventory() {
     supplierEmail: '',
     supplierPhone: ''
   });
+  const [showSupplierInfo, setShowSupplierInfo] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -73,6 +74,7 @@ export default function Inventory() {
     setEditingItem(null);
     setFormData({ itemName: '', quantity: '', unitPrice: '', supplierName: '', supplierEmail: '', supplierPhone: '' });
     setFormError('');
+    setShowSupplierInfo(false);
     setIsModalOpen(true);
   };
 
@@ -87,6 +89,7 @@ export default function Inventory() {
       supplierPhone: item.SupplierPhone || ''
     });
     setFormError('');
+    setShowSupplierInfo(!!(item.SupplierName || item.SupplierEmail || item.SupplierPhone));
     setIsModalOpen(true);
   };
 
@@ -340,15 +343,15 @@ export default function Inventory() {
                     value={formData.itemName}
                     onChange={handleInputChange}
                     placeholder="e.g. Premium Engine Oil"
-                    className="input-field w-full"
+                    className="input-field w-full text-base"
                     required
                     minLength={2}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Quantity</label>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Qty</label>
                     <input
                       type="number"
                       name="quantity"
@@ -359,10 +362,9 @@ export default function Inventory() {
                       min="0"
                       required
                     />
-                    <p className="text-[10px] text-gray-500 mt-1">Must be 0 or greater.</p>
                   </div>
 
-                  <div>
+                  <div className="flex-[2]">
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Unit Price (ETB)</label>
                     <input
                       type="number"
@@ -378,40 +380,54 @@ export default function Inventory() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Supplier Name</label>
-                    <input
-                      type="text"
-                      name="supplierName"
-                      value={formData.supplierName}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Addis Parts Supply"
-                      className="input-field w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Supplier Email</label>
-                    <input
-                      type="email"
-                      name="supplierEmail"
-                      value={formData.supplierEmail}
-                      onChange={handleInputChange}
-                      placeholder="supplier@example.com"
-                      className="input-field w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Supplier Phone</label>
-                    <input
-                      type="text"
-                      name="supplierPhone"
-                      value={formData.supplierPhone}
-                      onChange={handleInputChange}
-                      placeholder="+2519..."
-                      className="input-field w-full"
-                    />
-                  </div>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSupplierInfo(!showSupplierInfo)}
+                    className="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors uppercase tracking-wider"
+                  >
+                    {showSupplierInfo ? '− Hide Supplier Details' : '+ Add Supplier Details (Optional)'}
+                  </button>
+
+                  {showSupplierInfo && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Supplier Name</label>
+                        <input
+                          type="text"
+                          name="supplierName"
+                          value={formData.supplierName}
+                          onChange={handleInputChange}
+                          placeholder="Addis Parts Supply"
+                          className="input-field w-full text-sm py-1.5"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+                          <input
+                            type="email"
+                            name="supplierEmail"
+                            value={formData.supplierEmail}
+                            onChange={handleInputChange}
+                            placeholder="supplier@example.com"
+                            className="input-field w-full text-sm py-1.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone</label>
+                          <input
+                            type="text"
+                            name="supplierPhone"
+                            value={formData.supplierPhone}
+                            onChange={handleInputChange}
+                            placeholder="+2519..."
+                            className="input-field w-full text-sm py-1.5"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

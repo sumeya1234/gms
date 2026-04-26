@@ -39,7 +39,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
             data: { type },
           });
         }
-        
+
         try {
           let chunks = expo.chunkPushNotifications(messages);
           for (let chunk of chunks) {
@@ -63,7 +63,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
         try {
           const response = await messaging.sendEachForMulticast(payload);
           console.log(`FCM sent ${response.successCount} messages to ${userId}.`);
-          
+
           if (response.failureCount > 0) {
             const cleanupTokens = [];
             response.responses.forEach((resp, idx) => {
@@ -118,6 +118,13 @@ export const deleteAllNotifications = async (userId) => {
   await db.query(
     "DELETE FROM Notifications WHERE UserID = ?",
     [userId]
+  );
+};
+
+export const deleteNotificationByType = async (userId, type) => {
+  await db.query(
+    "DELETE FROM Notifications WHERE UserID = ? AND Type = ?",
+    [userId, type]
   );
 };
 

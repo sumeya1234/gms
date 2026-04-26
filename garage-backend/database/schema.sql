@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Notifications;
 DROP TABLE IF EXISTS PushTokens;
 DROP TABLE IF EXISTS PasswordResets;
+DROP TABLE IF EXISTS SystemConfigs;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -265,3 +266,26 @@ BEGIN
         SET MESSAGE_TEXT = 'Mechanic cannot have more than 5 active jobs';
     END IF;
 END;
+
+CREATE TABLE SystemConfigs (
+    ConfigKey VARCHAR(100) PRIMARY KEY,
+    ConfigValue JSON NOT NULL,
+    Description TEXT,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO SystemConfigs (ConfigKey, ConfigValue, Description) VALUES
+('service_duration_baselines', '{
+    "oil change": 0.5,
+    "diagnostics": 1.5,
+    "tires": 1.0,
+    "battery": 0.5,
+    "electrical": 2.0,
+    "repair": 3.0,
+    "towing": 2.0,
+    "default": 1.0
+}', 'Calculated duration in hours for various service types'),
+('garage_capacity_settings', '{
+    "daily_labor_hours_per_mechanic": 8.0,
+    "max_dropoff_per_hour": 2
+}', 'Global settings for garage availability and capacity');

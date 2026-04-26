@@ -56,14 +56,14 @@ export default function DashboardScreen({ navigation }) {
   }, [navigation]);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.taskCard, item.IsEmergency && styles.taskCardEmergency]}
       onPress={() => navigation.navigate('TaskDetail', { task: item })}
     >
-      {item.IsEmergency && (
+      {!!item.IsEmergency && (
         <View style={styles.emergencyBanner}>
           <AlertTriangle size={14} color="#fff" />
-          <Text style={styles.emergencyBannerText}>⚡ EMERGENCY — Handle Immediately</Text>
+          <Text style={styles.emergencyBannerText}>EMERGENCY — Handle Immediately</Text>
         </View>
       )}
       <View style={styles.taskHeader}>
@@ -87,16 +87,16 @@ export default function DashboardScreen({ navigation }) {
           <Text style={styles.userName}>{user?.fullName || 'Mechanic'}</Text>
           <Text style={styles.greeting}>{t('Good Morning')}</Text>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigation.navigate('Notifications')}
           style={styles.notificationBtn}
         >
           <Bell size={24} color={colors.textMain} />
-          {unreadCount > 0 && (
+          {unreadCount > 0 ? (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
             </View>
-          )}
+          ) : null}
         </TouchableOpacity>
       </View>
 
@@ -111,41 +111,41 @@ export default function DashboardScreen({ navigation }) {
           </Text>
           <Text style={styles.statLabel}>{t('In Progress')}</Text>
         </View>
-        {tasks.some(t => t.IsEmergency) && (
+        {!!tasks.some(t => t.IsEmergency) && (
           <View style={[styles.statBox, styles.statBoxEmergency]}>
             <Text style={[styles.statValue, { color: '#ff4444' }]}>
               {tasks.filter(t => t.IsEmergency).length}
             </Text>
-            <Text style={[styles.statLabel, { color: '#ff4444' }]}>🚨 Emergency</Text>
+            <Text style={[styles.statLabel, { color: '#ff4444' }]}>Emergency</Text>
           </View>
         )}
       </View>
 
       <View style={styles.listContainer}>
         <View style={styles.listHeaderRow}>
-           <Text style={styles.sectionTitle}>{t('Your Tasks')}</Text>
+          <Text style={styles.sectionTitle}>{t('Your Tasks')}</Text>
         </View>
 
         <View style={styles.filterContainer}>
-           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-              {['All', 'Assigned', 'InProgress', 'Completed'].map(f => (
-                 <TouchableOpacity 
-                    key={f} 
-                    style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
-                    onPress={() => setActiveFilter(f)}
-                 >
-                    <Text style={[styles.filterChipText, activeFilter === f && styles.filterChipTextActive]}>
-                       {t(f === 'InProgress' ? 'In Progress' : f)}
-                    </Text>
-                 </TouchableOpacity>
-              ))}
-           </ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+            {['All', 'Assigned', 'InProgress', 'Completed'].map(f => (
+              <TouchableOpacity
+                key={f}
+                style={[styles.filterChip, activeFilter === f ? styles.filterChipActive : null]}
+                onPress={() => setActiveFilter(f)}
+              >
+                <Text style={[styles.filterChipText, activeFilter === f ? styles.filterChipTextActive : null]}>
+                  {String(t(f === 'InProgress' ? 'In Progress' : f))}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
 
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : (
-          <FlatList 
+          <FlatList
             data={filteredTasks}
             keyExtractor={item => item.AssignmentID?.toString() || Math.random().toString()}
             renderItem={renderItem}
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   filterChipTextActive: {
-    color: '#fff', 
+    color: '#fff',
   },
   taskCard: {
     backgroundColor: colors.surface,

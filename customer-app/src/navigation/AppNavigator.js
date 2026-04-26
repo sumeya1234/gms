@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuthStore } from '../store/authStore';
 import { colors } from '../theme/colors';
+import { useUIStore } from '../store/uiStore';
+import CustomAlert from '../components/CustomAlert';
 
 import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';
@@ -25,6 +27,8 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const { restoreToken, isRestoring, token } = useAuthStore();
+  const alert = useUIStore((state) => state.alert);
+  const hideAlert = useUIStore((state) => state.hideAlert);
 
   useEffect(() => {
     restoreToken();
@@ -43,8 +47,8 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {token == null ? (
           // No token found, user isn't signed in
-          <Stack.Screen 
-            name="Auth" 
+          <Stack.Screen
+            name="Auth"
             component={AuthNavigator}
           />
         ) : (
@@ -65,6 +69,14 @@ export default function AppNavigator() {
           </Stack.Group>
         )}
       </Stack.Navigator>
+
+      <CustomAlert
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        buttons={alert.buttons}
+      />
     </NavigationContainer>
   );
 }

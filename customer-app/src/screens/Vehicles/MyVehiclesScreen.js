@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Car, Plus, Trash2 } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
 import { useVehicleStore } from '../../store/vehicleStore';
+import showAlert from '../../utils/alert';
 
 export default function MyVehiclesScreen({ navigation }) {
   const { t } = useTranslation();
@@ -14,13 +15,14 @@ export default function MyVehiclesScreen({ navigation }) {
   }, []);
 
   const handleDelete = (id) => {
-    Alert.alert(
-      t('Confirm Deletion', 'Confirm Deletion'),
-      t('Are you sure you want to delete this vehicle? This action cannot be undone.', 'Are you sure you want to delete this vehicle? This action cannot be undone.'),
+    showAlert(
+      t('Confirm Deletion'),
+      t('Are you sure you want to delete this vehicle? This action cannot be undone.'),
       [
-        { text: t('Cancel', 'Cancel'), style: 'cancel' },
-        { text: t('Delete', 'Delete'), style: 'destructive', onPress: () => deleteVehicle(id) }
-      ]
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Delete'), style: 'destructive', onPress: () => deleteVehicle(id) }
+      ],
+      'confirm'
     );
   };
 
@@ -43,7 +45,7 @@ export default function MyVehiclesScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('My Garage')}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('AddVehicle')}
         >
@@ -63,7 +65,7 @@ export default function MyVehiclesScreen({ navigation }) {
           <Text style={styles.emptySubtext}>{t('Add a vehicle to make service requests.')}</Text>
         </View>
       ) : (
-        <FlatList 
+        <FlatList
           data={vehicles}
           keyExtractor={(item, index) => (item.VehicleID || item.id || index).toString()}
           renderItem={renderVehicle}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { Filter, Edit2, UserPlus, X, Check, Eye, Wrench, DollarSign, AlertCircle, Clock3 } from 'lucide-react';
+import { Filter, Edit2, UserPlus, X, Check, Eye, Wrench, DollarSign, AlertCircle, Clock3, Search, CalendarDays, ArrowUpDown } from 'lucide-react';
 
 export default function Bookings() {
   const { t } = useTranslation();
@@ -37,6 +37,8 @@ export default function Bookings() {
   const [searchId, setSearchId] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterArrivalTime, setFilterArrivalTime] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [showTimeDropdown, setShowTimeDropdown] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +62,8 @@ export default function Bookings() {
         limit: limit,
         search: searchId,
         date: filterDate,
-        arrivalTime: filterArrivalTime
+        arrivalTime: filterArrivalTime,
+        sort: sortOrder
       };
       let response;
       if (userRole === 'GarageManager') {
@@ -77,7 +80,7 @@ export default function Bookings() {
     } finally {
       setLoading(false);
     }
-  }, [user?.GarageID, userRole, filter, currentPage, searchId, filterDate, filterArrivalTime]);
+  }, [user?.GarageID, userRole, filter, currentPage, searchId, filterDate, filterArrivalTime, sortOrder]);
 
   const fetchMechanics = useCallback(async () => {
     if (!user?.GarageID) return;
@@ -208,104 +211,159 @@ export default function Bookings() {
       case 'inprogress': return 'bg-blue-100 text-blue-700';
       case 'pending': return 'bg-yellow-100 text-yellow-700';
       case 'rejected': return 'bg-red-100 text-red-700';
+      case 'cancelled': return 'bg-slate-200 text-slate-600 border border-slate-300';
       default: return 'bg-slate-100 text-slate-700';
     }
   };
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchId, filterDate, filterArrivalTime]);
+  }, [filter, searchId, filterDate, filterArrivalTime, sortOrder]);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-3xl font-bold text-[var(--color-primary)]">{t('bookings')} {t('serviceManagement')?.split(' ')[1] || 'Management'}</h1>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-blue-600 bg-clip-text text-transparent">
+            {t('bookings')}
+          </h1>
+          <p className="text-gray-500 text-sm mt-1 flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            Manage and track all garage service requests
+          </p>
+        </div>
+      </div>
 
-          {/* Status Filters */}
-          <div className="flex gap-2 p-1 bg-white rounded-lg shadow-sm border border-[var(--color-border)] overflow-x-auto max-w-full">
-            {['All', 'Pending', 'Approved', 'InProgress', 'Completed', 'Rejected'].map(status => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${filter === status
-                    ? 'bg-[var(--color-primary)] text-white shadow'
-                    : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                {status === 'All' ? t('allStatuses') : status}
-              </button>
-            ))}
-          </div>
+      {/* Tabs Selector */}
+      <div className="flex flex-wrap gap-2 p-1 bg-gray-100/50 rounded-xl w-fit border border-gray-100">
+        {['All', 'Pending', 'Approved', 'InProgress', 'Completed', 'Rejected', 'Cancelled'].map((status) => (
+          <button
+            key={status}
+            onClick={() => setFilter(status)}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${filter === status
+              ? 'bg-white text-[var(--color-primary)] shadow-sm'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+              }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+      {/* Modern Filter Bar */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center gap-4 transition-all hover:shadow-md group">
+        {/* Search Input */}
+        <div className="relative flex-1 w-full lg:w-auto">
+          <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by ID, Service, or Customer..."
+            value={searchId}
+            onChange={(e) => setSearchId(e.target.value)}
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none font-medium placeholder:text-slate-400"
+          />
         </div>
 
-        {/* Search and Date Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+        {/* Filters Group */}
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+          {/* Quick Date Selectors */}
+          <div className="flex bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setFilterDate('today')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${filterDate === 'today' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setFilterDate('week')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${filterDate === 'week' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              Week
+            </button>
+          </div>
+
+          {/* Specific Date Picker */}
+          <div className="relative group/date w-full sm:w-[150px]">
+            <CalendarDays size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors group-hover/date:text-blue-500" />
             <input
-              type="text"
-              placeholder="Search by ID or Service Type..."
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
-              className="input-field py-1.5 text-sm h-[32px] w-full"
+              type="date"
+              value={filterDate && filterDate.includes('-') ? filterDate : ''}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium outline-none cursor-pointer"
             />
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mt-2 md:mt-0">
-            <div className="relative md:w-[170px]">
-              <Clock3 size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input
-                type="time"
-                value={filterArrivalTime}
-                onChange={(e) => setFilterArrivalTime(e.target.value)}
-                className="input-field py-1.5 pl-8 text-sm h-[32px] w-full cursor-pointer"
-                title="Arrival time slot"
-              />
-            </div>
-            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200/60 shadow-inner">
-              <button
-                onClick={() => setFilterDate('')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === '' ? 'bg-white text-slate-800 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                  }`}
-              >
-                All Dates
-              </button>
-              <button
-                onClick={() => setFilterDate('today')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === 'today' ? 'bg-white text-blue-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                  }`}
-              >
-                Today
-              </button>
-              <button
-                onClick={() => setFilterDate('week')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${filterDate === 'week' ? 'bg-white text-indigo-700 shadow-sm drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                  }`}
-              >
-                This Week
-              </button>
-            </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-              <div className="relative">
-                <input
-                  type="date"
-                  value={filterDate && filterDate.includes('-') ? filterDate : ''}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="input-field py-1.5 text-sm h-[32px] md:w-[150px] cursor-pointer"
-                  title="Specific exact date"
-                />
+          {/* Arrival Time Dropdown */}
+          <div className="relative w-full sm:w-[140px]">
+            <button
+              onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all outline-none font-semibold ${filterArrivalTime
+                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                : 'border-slate-100 text-slate-500 hover:bg-white hover:border-slate-300'
+                }`}
+            >
+              <div className="flex items-center gap-2">
+                <Clock3 size={16} className={filterArrivalTime ? 'text-blue-600' : 'text-slate-400'} />
+                <span className="truncate">{filterArrivalTime || 'Any Time'}</span>
               </div>
+              <Filter size={12} className={showTimeDropdown ? 'rotate-180 transition-transform' : ''} />
+            </button>
 
-              {(searchId || filterDate || filterArrivalTime) && (
-                <button
-                  onClick={() => { setSearchId(''); setFilterDate(''); setFilterArrivalTime(''); }}
-                  className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-semibold transition-colors border border-red-100/50 whitespace-nowrap"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
+            {showTimeDropdown && (
+              <div className="absolute top-[calc(100%+8px)] left-0 w-[200px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 p-3 animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+                  {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(time => (
+                    <button
+                      key={time}
+                      onClick={() => { setFilterArrivalTime(time); setShowTimeDropdown(false); }}
+                      className={`px-3 py-2 text-xs font-bold rounded-xl transition-all ${filterArrivalTime === time
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                        : 'text-slate-600 hover:bg-slate-50 border border-transparent hover:border-slate-100'
+                        }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-50">
+                  <button
+                    onClick={() => { setFilterArrivalTime(''); setShowTimeDropdown(false); }}
+                    className="w-full py-1.5 text-[10px] uppercase font-black tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+                  >
+                    Clear Time Filter
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Sort Order */}
+          <div className="w-full sm:w-[140px]">
+            <button
+              onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+              className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm hover:bg-white hover:border-blue-500 group/sort transition-all outline-none"
+            >
+              <div className="flex items-center gap-2">
+                <ArrowUpDown size={16} className={sortOrder === 'asc' ? 'text-blue-600' : 'text-slate-400 group-hover/sort:text-blue-400'} />
+                <span className="font-bold text-slate-700">{sortOrder === 'desc' ? 'Newest' : 'Oldest'}</span>
+              </div>
+            </button>
+          </div>
+
+          {/* Reset All */}
+          {(searchId || filterDate || filterArrivalTime || sortOrder !== 'desc') && (
+            <button
+              onClick={() => { setSearchId(''); setFilterDate(''); setFilterArrivalTime(''); setSortOrder('desc'); }}
+              className="p-2.5 text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all border border-rose-100 flex items-center gap-2 font-bold text-xs shadow-sm hover:shadow active:scale-95"
+              title="Reset Filters"
+            >
+              <X size={16} />
+              <span className="lg:hidden xl:inline">Reset</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -513,8 +571,8 @@ export default function Bookings() {
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
                     className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${currentPage === i + 1
-                        ? 'z-10 bg-[var(--color-primary)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]'
-                        : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+                      ? 'z-10 bg-[var(--color-primary)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]'
+                      : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
                       }`}
                   >
                     {i + 1}
@@ -783,8 +841,8 @@ export default function Bookings() {
                                         <span
                                           key={skill}
                                           className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${isMatch
-                                              ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
-                                              : 'bg-gray-100 text-gray-500'
+                                            ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
+                                            : 'bg-gray-100 text-gray-500'
                                             }`}
                                         >
                                           {isMatch ? '✓ ' : ''}{skill}

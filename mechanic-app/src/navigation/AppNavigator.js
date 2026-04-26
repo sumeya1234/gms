@@ -78,9 +78,9 @@ function TabNavigator({ navigation }) {
               <Text style={[
                 styles.tabLabel,
                 { color: isActive ? colors.primary : colors.textMuted },
-                isActive && styles.tabLabelActive
+                isActive ? styles.tabLabelActive : null
               ]}>
-                {t(tab.label)}
+                {String(t(tab.label))}
               </Text>
             </TouchableOpacity>
           );
@@ -127,7 +127,7 @@ export default function AppNavigator() {
   const { userToken, isLoading } = useContext(AuthContext);
 
   if (isLoading) {
-    return null; 
+    return null;
   }
 
   const navTheme = {

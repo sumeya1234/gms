@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Lock, Key, ChevronLeft } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import { colors } from '../../theme/colors';
+import showAlert from '../../utils/alert';
 
 export default function ResetPasswordScreen({ navigation, route }) {
   const { t } = useTranslation();
   const { resetPassword, isLoading, error, clearError } = useAuthStore();
-  
+
   const email = route.params?.email || '';
   const otp = route.params?.otp || '';
 
@@ -32,10 +33,10 @@ export default function ResetPasswordScreen({ navigation, route }) {
       setLocalError('Password must be at least 8 characters long');
       return;
     }
-    
+
     try {
       await resetPassword(email, otp, newPassword);
-      Alert.alert(t('Success'), t('Your password has been reset successfully. Please log in with your new password.'), [
+      showAlert(t('Success'), t('Your password has been reset successfully. Please log in with your new password.'), [
         { text: 'OK', onPress: () => navigation.navigate('Login') }
       ]);
     } catch (err) {
@@ -44,8 +45,8 @@ export default function ResetPasswordScreen({ navigation, route }) {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
@@ -64,7 +65,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
           </View>
         )}
 
-        <Input 
+        <Input
           label={t('New Password')}
           placeholder="••••••••"
           value={newPassword}
@@ -74,7 +75,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
         />
         <Text style={styles.hintText}>{t('Minimum 8 characters')}</Text>
 
-        <Button 
+        <Button
           title={t('Reset Password')}
           onPress={handleReset}
           style={{ marginTop: 24 }}

@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import { AlertTriangle, Wrench, ShieldAlert, CarFront } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import { useVehicleStore } from '../../store/vehicleStore';
 import { useServiceStore } from '../../store/serviceStore';
-import { TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import showAlert from '../../utils/alert';
 
 export default function EmergencyScreen({ navigation, route }) {
   const { t } = useTranslation();
@@ -31,12 +31,12 @@ export default function EmergencyScreen({ navigation, route }) {
 
   const handleSOS = async () => {
     if (!garage) {
-      Alert.alert(t('Error'), t('Could not find nearby garage.'));
+      showAlert(t('Error'), t('Could not find nearby garage.'), [], 'error');
       return;
     }
 
     if (vehicles.length === 0) {
-      Alert.alert(t('Error'), t('You must add a vehicle in the Vehicles tab first before requesting SOS.'));
+      showAlert(t('Error'), t('You must add a vehicle in the Vehicles tab first before requesting SOS.'), [], 'error');
       return;
     }
 
@@ -53,8 +53,11 @@ export default function EmergencyScreen({ navigation, route }) {
 
     const success = await createRequest(payload);
     if (success) {
-      Alert.alert(t('SOS Sent'), t('Emergency request sent to ') + garage.name);
-      navigation.navigate('MainTabs');
+      showAlert(
+        t('SOS Sent'),
+        t('{{garageName}} has been notified of your emergency. Help is on the way. Please stay safe and keep your phone active.', { garageName: garage.name }),
+        [{ text: t('OK'), onPress: () => navigation.navigate('Main') }]
+      );
     }
   };
 

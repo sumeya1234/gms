@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { ChevronLeft, ShieldAlert, Send } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { useFeedbackStore } from '../../store/feedbackStore';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../api/client';
+import showAlert from '../../utils/alert';
 
 export default function AddComplaintScreen({ navigation, route }) {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ export default function AddComplaintScreen({ navigation, route }) {
   const [description, setDescription] = useState('');
   const [isEscalated, setIsEscalated] = useState(false);
   const [localError, setLocalError] = useState('');
-  
+
   const [activeComplaint, setActiveComplaint] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -27,12 +28,12 @@ export default function AddComplaintScreen({ navigation, route }) {
   const fetchContext = async () => {
     try {
       setLoadingContext(true);
-      const response = await api.get('/complaints/my-complaints');
+      const response = await api.get('/api/complaints/my-complaints');
       const garageComplaints = response.data.filter(c => c.GarageID === Number(garage.id || garage.GarageID));
       if (garageComplaints.length > 0) {
         const latest = garageComplaints[0];
         setActiveComplaint(latest);
-        const msgRes = await api.get(`/complaints/${latest.ComplaintID}/messages`);
+        const msgRes = await api.get(`/api/complaints/${latest.ComplaintID}/messages`);
         setMessages(msgRes.data);
       }
     } catch (err) {
@@ -56,7 +57,7 @@ export default function AddComplaintScreen({ navigation, route }) {
       setLocalError(t('Please provide a detailed description (minimum 10 characters)'));
       return;
     }
-    
+
     const success = await submitComplaint({
       garageId: Number(garage.id || garage.GarageID),
       description: description.trim(),
@@ -64,20 +65,23 @@ export default function AddComplaintScreen({ navigation, route }) {
     });
 
     if (success) {
-      Alert.alert(t('Report Submitted'), t('Management has received your report.'));
-      fetchContext(); // Switch to chat view
+      showAlert(
+        t('Report Submitted'),
+        t("We've received your report. Management will review it and get back to you in the chat below."),
+        [{ text: t('Great!'), onPress: () => fetchContext() }]
+      );
     }
   };
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !activeComplaint) return;
     try {
-      await api.post(`/complaints/${activeComplaint.ComplaintID}/messages`, { message: newMessage.trim() });
+      await api.post(`/api/complaints/${activeComplaint.ComplaintID}/messages`, { message: newMessage.trim() });
       setNewMessage('');
-      const msgRes = await api.get(`/complaints/${activeComplaint.ComplaintID}/messages`);
+      const msgRes = await api.get(`/api/complaints/${activeComplaint.ComplaintID}/messages`);
       setMessages(msgRes.data);
     } catch (err) {
-      Alert.alert(t('Error'), t('Failed to send message'));
+      showAlert(t('Error'), t('Failed to send message'), [], 'error');
     }
   };
 
@@ -101,37 +105,37 @@ export default function AddComplaintScreen({ navigation, route }) {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
           {/* Chat View */}
           <View style={{ padding: 16, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderBottomWidth: 1, borderBottomColor: 'rgba(239, 68, 68, 0.1)' }}>
-             <Text style={{ fontWeight: 'bold', color: '#ef4444', marginBottom: 4 }}>Report #{activeComplaint.ComplaintID} ({activeComplaint.Status})</Text>
-             <Text style={{ color: colors.textDark, fontSize: 13, lineHeight: 18 }}>{activeComplaint.Description}</Text>
+            <Text style={{ fontWeight: 'bold', color: '#ef4444', marginBottom: 4 }}>Report #{activeComplaint.ComplaintID} ({activeComplaint.Status})</Text>
+            <Text style={{ color: colors.textDark, fontSize: 13, lineHeight: 18 }}>{activeComplaint.Description}</Text>
           </View>
 
-          <ScrollView 
+          <ScrollView
             ref={scrollViewRef}
             onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
             contentContainerStyle={{ padding: 16, flexGrow: 1 }}
           >
-             {messages.length === 0 ? (
-               <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('No messages yet. Management will respond soon.')}</Text>
-             ) : (
-               messages.map((msg, idx) => {
-                 const isMine = msg.SenderID === user.id;
-                 return (
-                   <View key={idx} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '80%', marginBottom: 12 }}>
-                      <View style={{ backgroundColor: isMine ? colors.primaryBlue : colors.white, padding: 12, borderRadius: 16, borderBottomRightRadius: isMine ? 4 : 16, borderBottomLeftRadius: isMine ? 16 : 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
-                         <Text style={{ color: isMine ? colors.white : colors.textDark }}>{msg.Message}</Text>
-                      </View>
-                      <Text style={{ fontSize: 10, color: colors.textLight, marginTop: 4, alignSelf: isMine ? 'flex-end' : 'flex-start' }}>
-                         {new Date(msg.CreatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {isMine ? 'You' : msg.SenderRole}
-                      </Text>
-                   </View>
-                 );
-               })
-             )}
+            {messages.length === 0 ? (
+              <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('No messages yet. Management will respond soon.')}</Text>
+            ) : (
+              messages.map((msg, idx) => {
+                const isMine = msg.SenderID === user.id;
+                return (
+                  <View key={idx} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '80%', marginBottom: 12 }}>
+                    <View style={{ backgroundColor: isMine ? colors.primaryBlue : colors.white, padding: 12, borderRadius: 16, borderBottomRightRadius: isMine ? 4 : 16, borderBottomLeftRadius: isMine ? 16 : 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
+                      <Text style={{ color: isMine ? colors.white : colors.textDark }}>{msg.Message}</Text>
+                    </View>
+                    <Text style={{ fontSize: 10, color: colors.textLight, marginTop: 4, alignSelf: isMine ? 'flex-end' : 'flex-start' }}>
+                      {new Date(msg.CreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isMine ? 'You' : msg.SenderRole}
+                    </Text>
+                  </View>
+                );
+              })
+            )}
           </ScrollView>
 
           {activeComplaint.Status !== 'Resolved' ? (
             <View style={{ padding: 16, backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
-              <TextInput 
+              <TextInput
                 style={{ flex: 1, backgroundColor: colors.bgGray, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: colors.textDark, marginRight: 12 }}
                 placeholder={t('Type a message...')}
                 value={newMessage}
@@ -139,7 +143,7 @@ export default function AddComplaintScreen({ navigation, route }) {
                 multiline
                 maxLength={500}
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: newMessage.trim() ? colors.primaryBlue : colors.bgGray, justifyContent: 'center', alignItems: 'center' }}
                 onPress={handleSendMessage}
                 disabled={!newMessage.trim()}
@@ -148,22 +152,22 @@ export default function AddComplaintScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
           ) : (
-             <View style={{ padding: 16, backgroundColor: colors.bgGray, alignItems: 'center' }}>
-                <Text style={{ color: colors.textGray, fontStyle: 'italic' }}>{t('This complaint has been resolved by management.')}</Text>
-             </View>
+            <View style={{ padding: 16, backgroundColor: colors.bgGray, alignItems: 'center' }}>
+              <Text style={{ color: colors.textGray, fontStyle: 'italic' }}>{t('This complaint has been resolved by management.')}</Text>
+            </View>
           )}
         </KeyboardAvoidingView>
       ) : (
         <>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <View style={styles.iconHeader}>
-               <View style={styles.shieldWrap}>
-                  <ShieldAlert size={32} color="#ef4444" />
-               </View>
+              <View style={styles.shieldWrap}>
+                <ShieldAlert size={32} color="#ef4444" />
+              </View>
             </View>
 
             <Text style={styles.title}>{garage?.name}</Text>
-            
+
             <View style={styles.infoBox}>
               <Text style={styles.infoText}>
                 {t('This report is private and will be reviewed directly by the Garage Management team. Please provide as much detail as possible to help us investigate.', 'This report is private and will be reviewed directly by the Garage Management team. Please provide as much detail as possible to help us investigate.')}
@@ -182,42 +186,42 @@ export default function AddComplaintScreen({ navigation, route }) {
                 textAlignVertical="top"
               />
               <View style={styles.charCountWrap}>
-                 <Text style={[styles.charCount, description.trim().length < 10 && description.length > 0 && { color: '#ef4444' }]}>
-                    {Math.max(0, 10 - description.trim().length)} {t('chars min remaining')}
-                 </Text>
+                <Text style={[styles.charCount, description.trim().length < 10 && description.length > 0 && { color: '#ef4444' }]}>
+                  {Math.max(0, 10 - description.trim().length)} {t('chars min remaining')}
+                </Text>
               </View>
             </View>
 
             <View style={styles.escalateWrap}>
-               <View style={{ flex: 1, paddingRight: 16 }}>
-                  <Text style={styles.escalateTitle}>{t('Escalate to Super Admin')}</Text>
-                  <Text style={styles.escalateDesc}>{t('Turn this on if you believe this is a severe violation (e.g. fraud, theft, highly unprofessional behavior) and requires top-level system management intervention instead of just the garage manager.')}</Text>
-               </View>
-               <Switch 
-                  value={isEscalated} 
-                  onValueChange={setIsEscalated}
-                  trackColor={{ false: '#d1d5db', true: '#ef4444' }}
-                  thumbColor={isEscalated ? '#fff' : '#fff'}
-               />
+              <View style={{ flex: 1, paddingRight: 16 }}>
+                <Text style={styles.escalateTitle}>{t('Escalate to Super Admin')}</Text>
+                <Text style={styles.escalateDesc}>{t('Turn this on if you believe this is a severe violation (e.g. fraud, theft, highly unprofessional behavior) and requires top-level system management intervention instead of just the garage manager.')}</Text>
+              </View>
+              <Switch
+                value={isEscalated}
+                onValueChange={setIsEscalated}
+                trackColor={{ false: '#d1d5db', true: '#ef4444' }}
+                thumbColor={isEscalated ? '#fff' : '#fff'}
+              />
             </View>
 
             {displayError ? (
-               <Text style={styles.errorText}>{displayError.replace(/"/g, '')}</Text>
+              <Text style={styles.errorText}>{displayError.replace(/"/g, '')}</Text>
             ) : null}
 
             <View style={{ height: 40 }} />
           </ScrollView>
 
           <View style={styles.bottomFixed}>
-            <TouchableOpacity 
-              style={[styles.submitBtn, (isLoading || description.trim().length < 10) && { opacity: 0.7 }]} 
+            <TouchableOpacity
+              style={[styles.submitBtn, (isLoading || description.trim().length < 10) && { opacity: 0.7 }]}
               onPress={handleSubmit}
               disabled={isLoading || description.trim().length < 10}
             >
               {isLoading ? (
-                 <ActivityIndicator color={colors.white} />
+                <ActivityIndicator color={colors.white} />
               ) : (
-                 <Text style={styles.submitBtnText}>{t('Submit Private Report', 'Submit Private Report')}</Text>
+                <Text style={styles.submitBtnText}>{t('Submit Private Report', 'Submit Private Report')}</Text>
               )}
             </TouchableOpacity>
           </View>
