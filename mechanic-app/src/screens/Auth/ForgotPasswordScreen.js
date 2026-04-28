@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
+import CustomAlert from '../../components/CustomAlert';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +11,12 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [errorMsg, setErrorMsg] = useState('');
   const { requestPasswordReset } = useContext(AuthContext);
 
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
+  };
+
   const handleRequestOTP = async () => {
     if (!email) {
       setErrorMsg('Please enter your email address');
@@ -17,7 +24,7 @@ export default function ForgotPasswordScreen({ navigation }) {
     }
     setLoading(true);
     setErrorMsg('');
-    
+
     const res = await requestPasswordReset(email);
     setLoading(false);
 
@@ -26,8 +33,8 @@ export default function ForgotPasswordScreen({ navigation }) {
       // In production, user would check their email.
       if (res.otp) {
         console.log('OTP received (DEV):', res.otp);
-        Alert.alert('Development Mode', `OTP: ${res.otp}`, [
-          { text: 'OK', onPress: () => navigation.navigate('VerifyOTP', { email, devOtp: res.otp }) }
+        showAlert('Development Mode', `OTP: ${res.otp}`, 'info', [
+          { text: 'OK', onPress: () => { closeAlert(); navigation.navigate('VerifyOTP', { email, devOtp: res.otp }); } }
         ]);
       } else {
         navigation.navigate('VerifyOTP', { email });
@@ -39,53 +46,61 @@ export default function ForgotPasswordScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.inner}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.primary} />
-          <Text style={styles.backText}>Back to Login</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={colors.primary} />
+            <Text style={styles.backText}>Back to Login</Text>
+          </TouchableOpacity>
 
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>Forgot Password</Text>
-          <Text style={styles.subtitle}>Enter your email address to receive a 6-digit verification code.</Text>
-        </View>
-
-        <View style={styles.formContainer}>
-          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email address</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#666"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+          <View style={styles.headerContainer}>
+            <Text style={styles.title}>Forgot Password</Text>
+            <Text style={styles.subtitle}>Enter your email address to receive a 6-digit verification code.</Text>
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleRequestOTP} disabled={loading}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Send Code</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </SafeAreaView>
-);
+          <View style={styles.formContainer}>
+            {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email address</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                placeholderTextColor="#666"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={handleRequestOTP} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Send Code</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        <CustomAlert
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          buttons={alertConfig.buttons}
+        />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({

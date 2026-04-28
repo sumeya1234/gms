@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Platform, StatusBar } from 'react-native';
+import CustomAlert from '../../components/CustomAlert';
 import { ChevronLeft, Bell, CheckCircle, Trash } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
@@ -9,6 +10,12 @@ export default function NotificationScreen({ navigation }) {
   const { t } = useTranslation();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -35,12 +42,13 @@ export default function NotificationScreen({ navigation }) {
   };
 
   const confirmDelete = (id) => {
-    Alert.alert(
+    showAlert(
       t('Delete Notification'),
       t('Are you sure you want to delete this notification?'),
+      'confirm',
       [
-        { text: t('Cancel'), style: 'cancel' },
-        { text: t('Delete'), style: 'destructive', onPress: () => handleDelete(id) }
+        { text: t('Cancel'), style: 'cancel', onPress: closeAlert },
+        { text: t('Delete'), style: 'destructive', onPress: () => { closeAlert(); handleDelete(id); } }
       ]
     );
   };
@@ -56,23 +64,25 @@ export default function NotificationScreen({ navigation }) {
 
   const handleClearAll = () => {
     if (notifications.length === 0) return;
-    Alert.alert(
+    showAlert(
       t('Clear All Notifications'),
       t('Are you sure you want to delete all notifications?'),
+      'confirm',
       [
-        { text: t('Cancel'), style: 'cancel' },
-        { 
-          text: t('Clear All'), 
-          style: 'destructive', 
+        { text: t('Cancel'), style: 'cancel', onPress: closeAlert },
+        {
+          text: t('Clear All'),
+          style: 'destructive',
           onPress: async () => {
-             try {
-               await apiClient.delete(`/api/users/notifications`);
-               setNotifications([]);
-             } catch (err) {
-               console.warn('Failed to clear ALL notifications', err);
-               setNotifications([]);
-             }
-          } 
+            closeAlert();
+            try {
+              await apiClient.delete(`/api/users/notifications`);
+              setNotifications([]);
+            } catch (err) {
+              console.warn('Failed to clear ALL notifications', err);
+              setNotifications([]);
+            }
+          }
         }
       ]
     );
@@ -107,8 +117,8 @@ export default function NotificationScreen({ navigation }) {
           </View>
         ) : (
           notifications.map(notif => (
-            <TouchableOpacity 
-              key={notif.NotificationID} 
+            <TouchableOpacity
+              key={notif.NotificationID}
               style={[styles.notifCard, !notif.IsRead && styles.unreadCard]}
               onPress={() => !notif.IsRead && handleMarkRead(notif.NotificationID)}
               activeOpacity={0.7}
@@ -128,6 +138,14 @@ export default function NotificationScreen({ navigation }) {
           ))
         )}
       </ScrollView>
+
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </SafeAreaView>
   );
 }

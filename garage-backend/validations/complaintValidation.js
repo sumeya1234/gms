@@ -4,7 +4,8 @@ const idSchema = Joi.alternatives().try(Joi.number().integer().positive(), Joi.s
 
 export const validateComplaint = Joi.object({
   garageId: idSchema.required(),
-  description: Joi.string().min(10).required()
+  description: Joi.string().min(10).required(),
+  isEscalated: Joi.boolean().optional().default(false)
 });
 
 export const validateComplaintStatus = Joi.object({

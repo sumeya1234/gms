@@ -57,7 +57,7 @@ export const getChapaBanks = async () => {
   }
 };
 
-export const createPayment = async (requestId, amount, method) => {
+export const createPayment = async (requestId, amount, method, category = 'Final') => {
   const [service] = await db.query(
     `SELECT u.*, sr.*, g.ChapaSubaccountID 
      FROM ServiceRequests sr 
@@ -82,19 +82,23 @@ export const createPayment = async (requestId, amount, method) => {
   if (method === 'Cash') {
     // Cash payment: just record as Pending, manager will confirm receipt later
     await db.query(
-      `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef)
-       VALUES (?, ?, 'Cash', 'Pending', NOW(), ?)
+      `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
+       VALUES (?, ?, 'Cash', 'Pending', NOW(), ?, ?)
        ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod='Cash', TransactionRef=?, PaymentStatus='Pending'`,
-      [requestId, amount, tx_ref, amount, tx_ref]
+      [requestId, amount, tx_ref, category, amount, tx_ref]
     );
 
-    // Mark deposit as paid so customer UI updates
-    await db.query(
-      `UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
-      [requestId]
-    );
+    // Mark deposit as paid so customer UI updates - deferred to Accountant Confirm
+    /*
+    if (category === 'Deposit') {
+      await db.query(
+        `UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
+        [requestId]
+      );
+    }
+    */
 
-    // Notify the garage manager about cash payment
+    // Notify the garage manager and accountants about cash payment
     try {
       const [garageInfo] = await db.query(
         `SELECT sr.GarageID, gm.UserID as ManagerUserID
@@ -103,11 +107,22 @@ export const createPayment = async (requestId, amount, method) => {
          WHERE sr.RequestID = ?`,
         [requestId]
       );
-      if (garageInfo.length > 0 && garageInfo[0].ManagerUserID) {
-        await db.query(
-          `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
-          [garageInfo[0].ManagerUserID, 'Cash Payment Pending', `Customer chose to pay ${amount} ETB in cash for Service Request #${requestId}. Please confirm when received.`]
-        );
+
+      const garageId = garageInfo[0]?.GarageID;
+      if (garageId) {
+        // Find all accountants for this garage
+        const [accountants] = await db.query(`SELECT UserID FROM Accountants WHERE GarageID = ?`, [garageId]);
+
+        const notifyUserIDs = new Set();
+        if (garageInfo[0].ManagerUserID) notifyUserIDs.add(garageInfo[0].ManagerUserID);
+        accountants.forEach(acc => notifyUserIDs.add(acc.UserID));
+
+        for (const uid of notifyUserIDs) {
+          await db.query(
+            `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
+            [uid, 'Cash Payment Pending', `Customer chose to pay ${amount} ETB in cash (${category}) for Service Request #${requestId}. Please confirm when received.`]
+          );
+        }
       }
     } catch (e) {
       console.error("Cash notification error:", e.message);
@@ -174,14 +189,18 @@ export const createPayment = async (requestId, amount, method) => {
 
   // Insert Pending Payment record for Chapa
   await db.query(
-    `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef)
-     VALUES (?, ?, ?, 'Pending', NOW(), ?)
+    `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
+     VALUES (?, ?, ?, 'Pending', NOW(), ?, ?)
      ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod=?, TransactionRef=?, PaymentStatus='Pending'`,
-    [requestId, amount, method, tx_ref, amount, method, tx_ref]
+    [requestId, amount, method, tx_ref, category, amount, method, tx_ref]
   );
 
-  // Mark deposit as paid so the customer's estimate card is hidden
-  await db.query(`UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
+  // Mark deposit as paid so the customer's estimate card is hidden - deferred to Accountant Confirm
+  /*
+  if (category === 'Deposit') {
+    await db.query(`UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
+  }
+  */
 
   return { checkout_url: redirectUrl, tx_ref };
 };
@@ -201,25 +220,35 @@ export const verifyChapaPayment = async (tx_ref) => {
         [tx_ref]
       );
 
-      // Notify the garage manager that payment was received
+      // Notify the garage manager and accountants that payment was received
       try {
         const [paymentInfo] = await db.query(
-          `SELECT p.RequestID, p.Amount, sr.GarageID, gm.UserID as ManagerUserID
+          `SELECT p.RequestID, p.Amount, p.PaymentCategory, sr.GarageID, gm.UserID as ManagerUserID
            FROM Payments p
            JOIN ServiceRequests sr ON p.RequestID = sr.RequestID
            LEFT JOIN GarageManagers gm ON sr.GarageID = gm.GarageID
            WHERE p.TransactionRef = ?`,
           [tx_ref]
         );
-        if (paymentInfo.length > 0 && paymentInfo[0].ManagerUserID) {
-          await db.query(
-            `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
-            [
-              paymentInfo[0].ManagerUserID,
-              'Payment Received',
-              `Payment of ${paymentInfo[0].Amount} ETB received for Service Request #${paymentInfo[0].RequestID}.`
-            ]
-          );
+
+        const info = paymentInfo[0];
+        if (info && info.GarageID) {
+          const [accountants] = await db.query(`SELECT UserID FROM Accountants WHERE GarageID = ?`, [info.GarageID]);
+
+          const notifyUserIDs = new Set();
+          if (info.ManagerUserID) notifyUserIDs.add(info.ManagerUserID);
+          accountants.forEach(acc => notifyUserIDs.add(acc.UserID));
+
+          for (const uid of notifyUserIDs) {
+            await db.query(
+              `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
+              [
+                uid,
+                'Payment Received',
+                `Payment of ${info.Amount} ETB (${info.PaymentCategory}) received for Service Request #${info.RequestID}.`
+              ]
+            );
+          }
         }
       } catch (notifErr) {
         console.error("Failed to send payment notification:", notifErr.message);
@@ -268,11 +297,11 @@ export const handleWebhook = async (reqBody) => {
   }
 };
 
-export const confirmCashPayment = async (requestId, accountantId) => {
+export const confirmCashPayment = async (requestId, accountantId, category) => {
   // Check the payment exists and is Cash + Pending
   const [payment] = await db.query(
-    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending'",
-    [requestId]
+    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
+    [requestId, category]
   );
   if (payment.length === 0) {
     const error = new Error("No pending cash payment found for this request.");
@@ -295,9 +324,14 @@ export const confirmCashPayment = async (requestId, accountantId) => {
 
   // Mark payment as Completed
   await db.query(
-    "UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash'",
-    [requestId]
+    "UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentCategory = ?",
+    [requestId, category]
   );
+
+  // If it was a deposit, allow the service to proceed to 'InProgress' or start tracking live
+  if (category === 'Deposit') {
+    await db.query("UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
+  }
 
   // Notify the customer
   try {
@@ -320,11 +354,11 @@ export const confirmCashPayment = async (requestId, accountantId) => {
   return { message: "Cash payment confirmed successfully." };
 };
 
-export const confirmOnlinePayment = async (requestId, accountantId) => {
+export const confirmOnlinePayment = async (requestId, accountantId, category) => {
   // Check the payment exists and is Chapa + Pending
   const [payment] = await db.query(
-    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending'",
-    [requestId]
+    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
+    [requestId, category]
   );
   if (payment.length === 0) {
     const error = new Error("No pending online payment found for this request.");
@@ -352,15 +386,19 @@ export const confirmOnlinePayment = async (requestId, accountantId) => {
       headers: { 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` }
     });
     if (response.data.status === 'success' && response.data.data.status === 'success') {
-      await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ?", [requestId]);
-      return { message: "Payment verified with Chapa and confirmed." };
+      await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
+      // Fall through to common completion logic
     }
   } catch (e) {
     console.log("Chapa verify failed, using manual confirm:", e.message);
+    // Manual confirm if Chapa verify fails (test mode)
+    await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
   }
 
-  // Manual confirm if Chapa verify fails (test mode)
-  await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ?", [requestId]);
+  // If it was a deposit, allow the service to proceed
+  if (category === 'Deposit') {
+    await db.query("UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
+  }
 
   // Notify customer
   try {

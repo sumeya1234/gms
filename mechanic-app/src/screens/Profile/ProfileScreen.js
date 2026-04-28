@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';
+import CustomAlert from '../../components/CustomAlert';
 import apiClient from '../../api/apiClient';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
@@ -15,20 +16,26 @@ export default function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [loadingPassword, setLoadingPassword] = useState(false);
 
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
+  };
+
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword) {
-      Alert.alert('Error', 'Please enter both old and new passwords.');
+      showAlert('Error', 'Please enter both old and new passwords.', 'error');
       return;
     }
     setLoadingPassword(true);
     try {
       await apiClient.put('/api/users/password', { oldPassword, newPassword });
-      Alert.alert('Success', 'Password updated successfully!');
+      showAlert('Success', 'Password updated successfully!', 'success');
       setPasswordModalVisible(false);
       setOldPassword('');
       setNewPassword('');
     } catch (err) {
-      Alert.alert('Error', err.response?.data?.message || 'Failed to change password');
+      showAlert('Error', err.response?.data?.message || 'Failed to change password', 'error');
     } finally {
       setLoadingPassword(false);
     }
@@ -48,10 +55,10 @@ export default function ProfileScreen() {
       <View style={styles.card}>
         <Text style={styles.label}>Name</Text>
         <Text style={styles.value}>{user?.fullName || 'Mechanic'}</Text>
-        
+
         <Text style={styles.label}>Email</Text>
         <Text style={styles.value}>{user?.email || 'N/A'}</Text>
-        
+
         <Text style={styles.label}>Phone</Text>
         <Text style={styles.value}>{user?.phone || 'N/A'}</Text>
 
@@ -63,19 +70,19 @@ export default function ProfileScreen() {
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>{t('Language')}</Text>
         <View style={styles.langContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.langBtn, i18n.language === 'en' && styles.langBtnActive]}
             onPress={() => changeLanguage('en')}
           >
             <Text style={[styles.langText, i18n.language === 'en' && styles.langTextActive]}>English</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.langBtn, i18n.language === 'am' && styles.langBtnActive]}
             onPress={() => changeLanguage('am')}
           >
             <Text style={[styles.langText, i18n.language === 'am' && styles.langTextActive]}>Amharic</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.langBtn, i18n.language === 'om' && styles.langBtnActive]}
             onPress={() => changeLanguage('om')}
           >
@@ -84,7 +91,12 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+      <TouchableOpacity style={styles.logoutBtn} onPress={() => {
+        showAlert(t('Confirm Logout'), t('Are you sure you want to log out?'), 'confirm', [
+          { text: t('Cancel'), style: 'cancel', onPress: closeAlert },
+          { text: t('Logout'), style: 'destructive', onPress: () => { closeAlert(); logout(); } }
+        ]);
+      }}>
         <Text style={styles.logoutText}>{t('Logout')}</Text>
       </TouchableOpacity>
 
@@ -93,7 +105,7 @@ export default function ProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Password</Text>
-            
+
             <TextInput
               style={styles.input}
               placeholder="Old Password"
@@ -121,6 +133,13 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </SafeAreaView>
   );
 }
@@ -140,10 +159,10 @@ const styles = StyleSheet.create({
   langTextActive: { color: colors.primary },
   logoutBtn: { backgroundColor: colors.surface, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: colors.error, alignItems: 'center', marginTop: 'auto', marginBottom: 20 },
   logoutText: { color: colors.error, fontWeight: 'bold', fontSize: 16 },
-  
+
   changePwdBtn: { alignSelf: 'flex-start', marginTop: 8, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: colors.surfaceLight, borderRadius: 8 },
   changePwdText: { color: colors.textMain, fontWeight: '600', fontSize: 14 },
-  
+
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalContent: { backgroundColor: colors.surface, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: colors.border },
   modalTitle: { fontSize: 20, fontWeight: 'bold', color: colors.textMain, marginBottom: 16 },

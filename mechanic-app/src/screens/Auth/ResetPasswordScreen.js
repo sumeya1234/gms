@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
+import CustomAlert from '../../components/CustomAlert';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +13,12 @@ export default function ResetPasswordScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const { confirmPasswordReset } = useContext(AuthContext);
+
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
+  };
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
@@ -34,10 +41,11 @@ export default function ResetPasswordScreen({ navigation, route }) {
     setLoading(false);
 
     if (res.success) {
-      Alert.alert(
+      showAlert(
         'Success',
         'Your password has been reset successfully. Please log in with your new password.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        'success',
+        [{ text: 'OK', onPress: () => { closeAlert(); navigation.navigate('Login'); } }]
       );
     } else {
       setErrorMsg(res.error);
@@ -46,63 +54,71 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.inner}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>New Password</Text>
-          <Text style={styles.subtitle}>Set a secure password for your account.</Text>
-        </View>
+          <View style={styles.headerContainer}>
+            <Text style={styles.title}>New Password</Text>
+            <Text style={styles.subtitle}>Set a secure password for your account.</Text>
+          </View>
 
-        <View style={styles.formContainer}>
-          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+          <View style={styles.formContainer}>
+            {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>New Password</Text>
-            <View style={styles.passwordWrapper}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>New Password</Text>
+              <View style={styles.passwordWrapper}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Enter new password"
+                  placeholderTextColor="#666"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                  <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#999" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Confirm New Password</Text>
               <TextInput
-                style={styles.passwordInput}
-                placeholder="Enter new password"
+                style={styles.input}
+                placeholder="Confirm new password"
                 placeholderTextColor="#666"
-                value={password}
-                onChangeText={setPassword}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#999" />
-              </TouchableOpacity>
             </View>
-          </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm New Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm new password"
-              placeholderTextColor="#666"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showPassword}
-            />
+            <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Reset Password</Text>
+              )}
+            </TouchableOpacity>
           </View>
+        </ScrollView>
 
-          <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Reset Password</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  </SafeAreaView>
+        <CustomAlert
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          buttons={alertConfig.buttons}
+        />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

@@ -171,7 +171,8 @@ export const modifyGarage = async (id, updateData, user) => {
         bankAccountName: 'BankAccountName',
         ChapaSubaccountID: 'ChapaSubaccountID',
         timezone: 'Timezone',
-        workingHours: 'WorkingHours'
+        workingHours: 'WorkingHours',
+        emergencyDepositPercentage: 'EmergencyDepositPercentage'
       };
 
       if (fieldMap[key]) {

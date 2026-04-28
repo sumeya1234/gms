@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Linking, Modal } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { io } from 'socket.io-client';
 import { ChevronLeft, Clock, CheckCircle, Wrench, CreditCard, Banknote, MapPin, Phone, DollarSign } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useServiceStore } from '../../store/serviceStore';
+import { useLocationStore } from '../../store/locationStore';
 import apiClient from '../../api/client';
 import showAlert from '../../utils/alert';
 import { colors } from '../../theme/colors';
@@ -16,6 +19,48 @@ export default function TrackServiceScreen({ navigation, route }) {
 
   const [showPayOptions, setShowPayOptions] = React.useState(false);
   const [paymentLoading, setPaymentLoading] = React.useState(false);
+  const [mechanicLocation, setMechanicLocation] = React.useState(null);
+
+  React.useEffect(() => {
+    let socket;
+    if (job?.IsEmergency && job?.status?.toLowerCase() === 'approved') {
+      socket = io(apiClient.defaults.baseURL);
+
+      socket.on('connect', () => {
+        socket.emit('join_tracking_room', {
+          requestId: job.RequestID,
+          role: 'Customer'
+        });
+      });
+
+      socket.on('mechanic_location_update', (data) => {
+        setMechanicLocation({ latitude: data.latitude, longitude: data.longitude });
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [job?.IsEmergency, job?.status, job?.RequestID]);
+
+  const { location: currentCustomerLocation } = useLocationStore();
+  const customerLocation = currentCustomerLocation?.coords;
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1);
+  };
+
+  const distanceKm = calculateDistance(mechanicLocation?.latitude, mechanicLocation?.longitude, customerLocation?.latitude, customerLocation?.longitude);
 
   const depositAmount = job?.EstimatedPrice && job?.DepositPercentage
     ? Math.ceil((job.EstimatedPrice * job.DepositPercentage) / 100)
@@ -52,7 +97,8 @@ export default function TrackServiceScreen({ navigation, route }) {
       const response = await apiClient.post('/api/payments/pay', {
         requestId: job.RequestID,
         amount: depositAmount,
-        method: method
+        method: method,
+        category: 'Deposit'
       });
 
       if (method === 'Cash') {
@@ -185,24 +231,49 @@ export default function TrackServiceScreen({ navigation, route }) {
               <Text style={styles.estimateLabel}>{t('Deposit Required')} ({job.DepositPercentage}%)</Text>
               <Text style={[styles.estimateValue, { color: colors.primaryBlue }]}>{depositAmount?.toLocaleString()} ETB</Text>
             </View>
-            <Text style={styles.estimateNote}>{t('You must pay the deposit to confirm the service.')}</Text>
 
-            <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.approveBtn]}
-                onPress={handleApprove}
-                disabled={loading || paymentLoading}
-              >
-                <Text style={styles.actionBtnText}>{t('Approve & Pay Deposit')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionBtn, styles.rejectBtn]}
-                onPress={handleReject}
-                disabled={loading || paymentLoading}
-              >
-                <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>{t('Reject')}</Text>
-              </TouchableOpacity>
-            </View>
+            {(() => {
+              // Track if there's a pending deposit payment
+              let payments = job.PaymentDetailsJson;
+              if (typeof payments === 'string') {
+                try { payments = JSON.parse(payments); } catch (e) { payments = []; }
+              }
+              const pendingDeposit = Array.isArray(payments) && payments.find(p => p.PaymentCategory === 'Deposit' && p.PaymentStatus === 'Pending');
+
+              if (pendingDeposit) {
+                return (
+                  <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(255, 193, 7, 0.1)', borderRadius: 8, borderWidth: 1, borderColor: '#ffc107' }}>
+                    <Text style={{ color: '#856404', fontSize: 13, fontFamily: 'Inter-SemiBold', textAlign: 'center' }}>
+                      {pendingDeposit.PaymentMethod === 'Cash'
+                        ? t('Cash Deposit Submitted — Awaiting Confirmation')
+                        : t('Online Deposit Submitted — Awaiting Accountant Verification')}
+                    </Text>
+                  </View>
+                );
+              }
+
+              return (
+                <>
+                  <Text style={styles.estimateNote}>{t('You must pay the deposit to confirm the service.')}</Text>
+                  <View style={styles.actionRow}>
+                    <TouchableOpacity
+                      style={[styles.actionBtn, styles.approveBtn]}
+                      onPress={handleApprove}
+                      disabled={loading || paymentLoading}
+                    >
+                      <Text style={styles.actionBtnText}>{t('Approve & Pay Deposit')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionBtn, styles.rejectBtn]}
+                      onPress={handleReject}
+                      disabled={loading || paymentLoading}
+                    >
+                      <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>{t('Reject')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              );
+            })()}
           </View>
         )}
 
@@ -228,6 +299,52 @@ export default function TrackServiceScreen({ navigation, route }) {
             ))}
           </View>
         ) : null}
+
+        {/* Live Tracking Map */}
+        {job?.IsEmergency && job?.status?.toLowerCase() === 'approved' && (
+          <View style={styles.mapContainer}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[styles.timelineTitle, { marginBottom: 12 }]}>{t('Mechanic is on the way!')}</Text>
+              {distanceKm && (
+                <View style={{ backgroundColor: colors.surfaceLight, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, marginBottom: 10 }}>
+                  <Text style={{ fontWeight: 'bold', color: colors.primaryBlue }}>{distanceKm} km away</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.mapWrapper}>
+              {mechanicLocation ? (
+                <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: mechanicLocation.latitude,
+                    longitude: mechanicLocation.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                  region={{
+                    latitude: mechanicLocation.latitude,
+                    longitude: mechanicLocation.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                >
+                  <Marker coordinate={mechanicLocation} title={t('Mechanic Location')}>
+                    <View style={styles.mechanicMarker}>
+                      <Wrench size={16} color="#fff" />
+                    </View>
+                  </Marker>
+                </MapView>
+              ) : (
+                <View style={{ flex: 1, backgroundColor: colors.bgGray, justifyContent: 'center', alignItems: 'center' }}>
+                  <ActivityIndicator size="large" color={colors.primaryBlue} />
+                  <Text style={{ marginTop: 12, color: colors.textGray, fontFamily: 'Inter-SemiBold' }}>
+                    {t('Waiting for mechanic’s live location...')}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         <Text style={styles.timelineTitle}>{t('Service Timeline')}</Text>
 
@@ -377,6 +494,10 @@ const styles = StyleSheet.create({
   stepTitle: { fontSize: 16, fontFamily: 'Inter-SemiBold', color: colors.textGray },
   stepTitleActive: { color: colors.textDark },
   stepDesc: { fontSize: 13, color: colors.textGray, marginTop: 4 },
+  mapContainer: { marginBottom: 32 },
+  mapWrapper: { height: 200, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: colors.border },
+  map: { width: '100%', height: '100%' },
+  mechanicMarker: { backgroundColor: colors.accentBlue, padding: 6, borderRadius: 20, borderWidth: 2, borderColor: '#fff' },
   mechanicCard: {
     backgroundColor: colors.bgGray, borderRadius: 16, padding: 20, marginTop: 10
   },

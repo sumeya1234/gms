@@ -887,3 +887,15 @@
 {"level":"error","message":"500 - Unknown column 'v.Brand' in 'field list' - /api/services/my-requests - GET - ::ffff:192.168.78.156","timestamp":"2026-04-26 12:48:55"}
 {"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-26 13:54:20"}
 {"level":"error","message":"403 - You can only review a garage after a completed service - /api/reviews - POST - ::ffff:192.168.78.156","timestamp":"2026-04-26 14:09:26"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-26 16:11:05"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-04-27 10:52:02"}
+{"level":"error","message":"400 - Cannot cancel a service request in 'pending' status. Only Pending or Approved requests can be cancelled. - /api/services/51/cancel - POST - ::ffff:192.168.78.64","timestamp":"2026-04-27 10:52:44"}
+{"level":"error","message":"403 - Accountant is not assigned to a garage - /api/services/bookings?garageId=1&page=1&limit=3 - GET - ::1","timestamp":"2026-04-27 13:00:47"}
+{"level":"error","message":"403 - Garage Manager is not assigned to a garage - /api/services/bookings?garageId=1&page=1&limit=3 - GET - ::1","timestamp":"2026-04-27 13:01:07"}
+{"level":"error","message":"502 - Failed connecting to payment gateway. - /api/payments/pay - POST - ::ffff:192.168.78.64","timestamp":"2026-04-27 13:34:15"}
+{"level":"error","message":"500 - Unknown column 'EmergencyDepositPercentage' in 'field list' - /api/services/57/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-04-27 14:46:20"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:30"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:43"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:50"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:56"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:09:02"}

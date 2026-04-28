@@ -83,10 +83,10 @@ export const fetchCustomerRequests = async (customerId) => {
         v.Model,
         v.PlateNumber,
         g.Name as GarageName,
-        p.PaymentStatus,
-        p.PaymentMethod,
-        p.Amount as TotalPaid,
-        p.TransactionRef,
+        (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+        (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+        (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as TotalPaid,
+        (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
         u.FullName as AssignedMechanicName,
         u.PhoneNumber as AssignedMechanicPhone,
         (SELECT COALESCE(SUM(gs.Price), 0) 
@@ -98,11 +98,11 @@ export const fetchCustomerRequests = async (customerId) => {
          JOIN Inventory i ON si.ItemID = i.ItemID 
          WHERE si.RequestID = sr.RequestID) as PartsCost,
         (SELECT COUNT(*) FROM Reviews r 
-         WHERE r.RequestID = sr.RequestID) as HasReviewed
+         WHERE r.RequestID = sr.RequestID) as HasReviewed,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
      FROM ServiceRequests sr
      JOIN Vehicles v ON sr.VehicleID = v.VehicleID
      LEFT JOIN Garages g ON sr.GarageID = g.GarageID
-     LEFT JOIN Payments p ON sr.RequestID = p.RequestID
      LEFT JOIN (
         SELECT ma1.RequestID, ma1.MechanicID 
         FROM MechanicAssignments ma1
@@ -165,7 +165,6 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
       ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
     ) ma ON sr.RequestID = ma.RequestID
     LEFT JOIN Users u ON ma.MechanicID = u.UserID
-    LEFT JOIN Payments p ON sr.RequestID = p.RequestID
     WHERE sr.GarageID = ?
   `;
 
@@ -199,11 +198,15 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
     // Data query
     let dataQuery = `
     SELECT sr.*, u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
-           p.PaymentStatus, p.PaymentMethod, p.Amount as PaymentAmount, p.TransactionRef
+        (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+        (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+        (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
+        (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
     ${baseQuery}
     ORDER BY sr.IsEmergency DESC, sr.RequestDate ${sort === 'asc' ? 'ASC' : 'DESC'}
     LIMIT ? OFFSET ?
-  `;
+        `;
 
     const queryParams = [...params, parseInt(limit), parseInt(offset)];
     const [rows] = await db.query(dataQuery, queryParams);
@@ -254,19 +257,18 @@ export const fetchFilteredBookings = async (filters, admin) => {
     JOIN Garages g ON sr.GarageID = g.GarageID
     LEFT JOIN Vehicles v ON sr.VehicleID = v.VehicleID
     LEFT JOIN Users cu ON v.CustomerID = cu.UserID
-    LEFT JOIN (
-      SELECT ma1.RequestID, ma1.MechanicID
+    LEFT JOIN(
+            SELECT ma1.RequestID, ma1.MechanicID
       FROM MechanicAssignments ma1
-      JOIN (
-         SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
+      JOIN(
+                SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
          FROM MechanicAssignments
          GROUP BY RequestID
-      ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
-    ) ma ON sr.RequestID = ma.RequestID
+            ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
+        ) ma ON sr.RequestID = ma.RequestID
     LEFT JOIN Users u ON ma.MechanicID = u.UserID
-    LEFT JOIN Payments p ON sr.RequestID = p.RequestID
     WHERE 1 = 1
-  `;
+        `;
     const params = [];
 
     if (effectiveGarageId) {
@@ -279,7 +281,7 @@ export const fetchFilteredBookings = async (filters, admin) => {
     }
     if (search) {
         baseQuery += " AND (sr.RequestID = ? OR sr.ServiceType LIKE ?)";
-        params.push(search, `%${search}%`);
+        params.push(search, `% ${search}% `);
     }
     if (date) {
         baseQuery += " AND DATE(sr.BookingDate) = ?";
@@ -287,14 +289,14 @@ export const fetchFilteredBookings = async (filters, admin) => {
     }
     if (location) {
         baseQuery += " AND g.Location LIKE ?";
-        params.push(`%${location}%`);
+        params.push(`% ${location}% `);
     }
     if (arrivalTime) {
         baseQuery += " AND TIME_FORMAT(sr.DropOffTime, '%H:%i') = ?";
         params.push(arrivalTime);
     }
 
-    const [countResult] = await db.query(`SELECT COUNT(*) as total ${baseQuery}`, params);
+    const [countResult] = await db.query(`SELECT COUNT(*) as total ${baseQuery} `, params);
     const total = countResult[0].total;
 
     const dataQuery = `
@@ -302,7 +304,11 @@ export const fetchFilteredBookings = async (filters, admin) => {
            v.Model as VehicleModel, v.PlateNumber as VehiclePlateNumber,
            cu.FullName as CustomerName,
            u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
-           p.PaymentStatus, p.PaymentMethod, p.Amount as PaymentAmount, p.TransactionRef
+           (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+           (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+           (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
+           (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
+           (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
     ${baseQuery}
     ORDER BY sr.IsEmergency DESC, sr.RequestDate ${sort === 'asc' ? 'ASC' : 'DESC'}
     LIMIT ? OFFSET ?
@@ -446,10 +452,10 @@ export const cancelServiceRequest = async (requestId, customerId) => {
         throw error;
     }
 
-    const currentStatus = request[0].Status;
-    const cancellableStatuses = ["Pending", "Approved"];
+    const currentStatusLowerCase = currentStatus.toLowerCase();
+    const cancellableStatuses = ["pending", "approved"];
 
-    if (!cancellableStatuses.includes(currentStatus)) {
+    if (!cancellableStatuses.includes(currentStatusLowerCase)) {
         const error = new Error(`Cannot cancel a service request in '${currentStatus}' status. Only Pending or Approved requests can be cancelled.`);
         error.status = 400;
         throw error;

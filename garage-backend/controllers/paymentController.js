@@ -8,13 +8,13 @@ export const fetchBanks = asyncHandler(async (req, res) => {
 });
 
 export const makePayment = asyncHandler(async (req, res) => {
-  const { requestId, amount, method } = req.body;
-  const result = await createPayment(requestId, amount, method);
-  
+  const { requestId, amount, method, category } = req.body;
+  const result = await createPayment(requestId, amount, method, category);
+
   // result contains checkout_url and tx_ref if Chapa
-  res.status(200).json({ 
-    message: "Payment initialized successfully", 
-    data: result 
+  res.status(200).json({
+    message: "Payment initialized successfully",
+    data: result
   });
 });
 
@@ -25,9 +25,9 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 });
 
 export const cancelPayment = asyncHandler(async (req, res) => {
-    const { tx_ref } = req.params;
-    const result = await cancelChapaPayment(tx_ref);
-    res.status(200).json(result);
+  const { tx_ref } = req.params;
+  const result = await cancelChapaPayment(tx_ref);
+  res.status(200).json(result);
 });
 
 export const webhookPayment = asyncHandler(async (req, res) => {
@@ -48,12 +48,14 @@ export const webhookPayment = asyncHandler(async (req, res) => {
 
 export const confirmCash = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
-  const result = await confirmCashPayment(requestId, req.user.id);
+  const category = req.query.category || 'Final';
+  const result = await confirmCashPayment(requestId, req.user.id, category);
   res.status(200).json(result);
 });
 
 export const confirmOnline = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
-  const result = await confirmOnlinePayment(requestId, req.user.id);
+  const category = req.query.category || 'Final';
+  const result = await confirmOnlinePayment(requestId, req.user.id, category);
   res.status(200).json(result);
 });

@@ -20,7 +20,7 @@ export const validateGarageAssignment = Joi.object({
 
 export const validatePushToken = Joi.object({
   token: Joi.string().required(),
-  deviceType: Joi.string().valid('Android').optional().default('Android')
+  deviceType: Joi.string().valid('Android', 'iOS').optional().default('Android')
 });
 
 export const validateMechanicCreation = Joi.object({

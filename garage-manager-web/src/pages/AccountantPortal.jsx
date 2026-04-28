@@ -49,11 +49,11 @@ export default function AccountantPortal() {
     fetchServices();
   }, [fetchServices]);
 
-  const verifyPayment = async (req) => {
-    const endpoint = req.PaymentMethod === 'Cash' ? 'confirm-cash' : 'confirm-online';
+  const verifyPayment = async (req, pmt) => {
+    const endpoint = pmt.PaymentMethod === 'Cash' ? 'confirm-cash' : 'confirm-online';
     try {
       setBusyId(req.RequestID);
-      await api.put(`/payments/${endpoint}/${req.RequestID}`);
+      await api.put(`/payments/${endpoint}/${req.RequestID}?category=${pmt.PaymentCategory}`);
       await fetchRows();
     } catch (err) {
       setError(err.response?.data?.error || err.response?.data?.message || 'Verification failed.');
@@ -105,9 +105,7 @@ export default function AccountantPortal() {
                   <th className="p-4 font-semibold">Customer</th>
                   <th className="p-4 font-semibold">Vehicle</th>
                   <th className="p-4 font-semibold">Booking Status</th>
-                  <th className="p-4 font-semibold">Payment</th>
-                  <th className="p-4 font-semibold">Amount</th>
-                  <th className="p-4 font-semibold">Verification</th>
+                  <th className="p-4 font-semibold" colSpan={3}>Payment Details</th>
                   <th className="p-4 font-semibold">Details</th>
                 </tr>
               </thead>
@@ -127,35 +125,44 @@ export default function AccountantPortal() {
                       </div>
                     </td>
                     <td className="p-4">{req.Status}</td>
-                    <td className="p-4">
-                      {req.PaymentMethod ? `${req.PaymentMethod} (${req.PaymentStatus || 'Pending'})` : 'Not Initiated'}
-                    </td>
-                    <td className="p-4">
-                      {`${Number(req.PaymentAmount || 0).toLocaleString()} ETB`}
-                    </td>
-                    <td className="p-4">
-                      {req.PaymentStatus === 'Pending' && (req.PaymentMethod === 'Cash' || req.PaymentMethod === 'Chapa') ? (
-                        <button
-                          onClick={() => verifyPayment(req)}
-                          disabled={busyId === req.RequestID}
-                          className="px-3 py-1.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors flex items-center gap-1"
-                        >
-                          {busyId === req.RequestID ? (
-                            <span className="w-3.5 h-3.5 border-2 border-indigo-300 border-t-indigo-700 rounded-full animate-spin" />
-                          ) : (
-                            <>
-                              {req.PaymentMethod === 'Cash' ? <DollarSign size={12} /> : <Check size={12} />}
-                              Approve
-                            </>
-                          )}
-                        </button>
-                      ) : req.PaymentStatus === 'Completed' ? (
-                        <span className="text-green-600 text-xs font-semibold">Verified</span>
-                      ) : req.PaymentMethod ? (
-                        <span className="text-gray-500 text-xs font-semibold">Awaiting Payment</span>
-                      ) : (
-                        <span className="text-gray-400 text-xs font-semibold">N/A</span>
-                      )}
+                    <td className="p-4" colSpan={3}>
+                      <div className="flex flex-col gap-2">
+                        {(() => {
+                          // mysql2 auto-parses JSON_ARRAYAGG columns into JS arrays
+                          let details = req.PaymentDetailsJson;
+                          if (typeof details === 'string') {
+                            try { details = JSON.parse(details); } catch (e) { details = []; }
+                          }
+                          if (!details || !Array.isArray(details) || details.length === 0) {
+                            return <span className="text-gray-400 text-xs font-semibold">Not Initiated</span>;
+                          }
+
+                          return details.map((pmt, i) => (
+                            <div key={i} className="flex justify-between items-center bg-white p-2 border border-gray-100 rounded">
+                              <span className="text-xs font-semibold text-gray-700 w-16">{pmt.PaymentCategory || 'Final'}</span>
+                              <span className="text-xs text-gray-500 w-24">{Number(pmt.Amount).toLocaleString()} ETB</span>
+                              <span className="text-xs text-gray-500 w-24">{pmt.PaymentMethod}</span>
+
+                              {pmt.PaymentStatus === 'Pending' ? (
+                                <button
+                                  onClick={() => verifyPayment(req, pmt)}
+                                  disabled={busyId === req.RequestID}
+                                  className="px-2 py-1 rounded text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors flex items-center gap-1 min-w-[70px] justify-center"
+                                >
+                                  {busyId === req.RequestID ? '...' : (
+                                    <>
+                                      {pmt.PaymentMethod === 'Cash' ? <DollarSign size={12} /> : <Check size={12} />}
+                                      Approve
+                                    </>
+                                  )}
+                                </button>
+                              ) : (
+                                <span className="text-green-600 text-xs font-semibold min-w-[70px] flex justify-center">Verified ✓</span>
+                              )}
+                            </div>
+                          ));
+                        })()}
+                      </div>
                     </td>
                     <td className="p-4">
                       <button

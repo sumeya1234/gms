@@ -179,11 +179,13 @@ CREATE TABLE Payments (
     PaymentID INT AUTO_INCREMENT PRIMARY KEY,
     Amount DECIMAL(10,2),
     PaymentMethod ENUM('Cash','Chapa'),
+    PaymentCategory ENUM('Deposit', 'Final') DEFAULT 'Final',
     PaymentStatus ENUM('Pending','Completed') DEFAULT 'Pending',
     PaymentDate TIMESTAMP,
-    RequestID INT UNIQUE,
+    RequestID INT,
     TransactionRef VARCHAR(100) UNIQUE,
-    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID)
+    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID),
+    UNIQUE (RequestID, PaymentCategory)
 );
 
 CREATE TABLE Reviews (

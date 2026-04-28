@@ -5,3 +5,4 @@ node_modules
 garage-backend/combined.log
 garage-backend/error.log
 garage-backend/config/serviceAccountKey.json
+garage-backend/google-credentials.json

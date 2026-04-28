@@ -1,9 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// In a real app, use environment variables.
-// Use your machine's local IP for physical devices on Expo
-const API_URL = 'http://192.168.78.71:5000';
+// API URL sourced from .env (EXPO_PUBLIC_ prefix required for Expo)
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.78.71:5000';
 
 const apiClient = axios.create({
   baseURL: API_URL,

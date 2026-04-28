@@ -104,9 +104,36 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
         throw error;
     }
 
+    let finalEstimatedPrice = estimatedPrice;
+    let finalDepositPercentage = depositPercentage;
+
+    // Automation for emergency requests: Lookup fixed price and garage-specific deposit %
+    if (status === 'Approved' && request[0].IsEmergency) {
+        // 1. Fetch the fixed price for this service type from the garage's catalog
+        const [serviceData] = await db.query(
+            "SELECT Price FROM GarageServices WHERE GarageID = ? AND ServiceName = ?",
+            [request[0].GarageID, request[0].ServiceType]
+        );
+
+        if (serviceData.length > 0) {
+            finalEstimatedPrice = serviceData[0].Price;
+        } else {
+            const error = new Error(`Fixed price for '${request[0].ServiceType}' is not configured in this garage's Service Catalog. Please configure it before approving.`);
+            error.status = 400;
+            throw error;
+        }
+
+        // 2. Fetch the garage's default emergency deposit percentage
+        const [garageData] = await db.query(
+            "SELECT EmergencyDepositPercentage FROM Garages WHERE GarageID = ?",
+            [request[0].GarageID]
+        );
+        finalDepositPercentage = garageData[0]?.EmergencyDepositPercentage || 10.00;
+    }
+
     await db.query(
         `UPDATE ServiceRequests SET Status = ?, RejectionReason = ?, EstimatedPrice = ?, DepositPercentage = ? WHERE RequestID = ?`,
-        [status, rejectionReason, estimatedPrice, depositPercentage, requestId]
+        [status, rejectionReason, finalEstimatedPrice, finalDepositPercentage, requestId]
     );
 
     const [vehicle] = await db.query("SELECT CustomerID FROM Vehicles WHERE VehicleID = ?", [request[0].VehicleID]);
@@ -116,10 +143,10 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
         let type = status.toUpperCase();
 
         if (status === "Approved") {
-            if (estimatedPrice && depositPercentage) {
-                const depositAmount = calculateDeposit(estimatedPrice, depositPercentage);
+            if (finalEstimatedPrice && finalDepositPercentage) {
+                const depositAmount = calculateDeposit(finalEstimatedPrice, finalDepositPercentage);
                 title = "Estimate Ready — Action Required";
-                message = `Your garage has sent an estimate of ${estimatedPrice} ETB for your emergency request. A pre-service deposit of ${depositAmount} ETB (${depositPercentage}%) is required. Please review and approve in the app.`;
+                message = `Your garage has sent an estimate of ${finalEstimatedPrice} ETB for your emergency request. A pre-service deposit of ${depositAmount} ETB (${finalDepositPercentage}%) is required. Please review and approve in the app.`;
                 type = "ESTIMATE_READY";
             } else {
                 title = "Request Approved";

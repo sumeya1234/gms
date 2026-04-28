@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Modal, FlatList, TextInput } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList, TextInput } from 'react-native';
+import * as Location from 'expo-location';
+import { io } from 'socket.io-client';
 import { colors } from '../../theme/colors';
 import apiClient from '../../api/apiClient';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react-native';
+import CustomAlert from '../../components/CustomAlert';
 
 export default function TaskDetailScreen({ route, navigation }) {
   const { task } = route.params;
@@ -19,6 +22,78 @@ export default function TaskDetailScreen({ route, navigation }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantityInput, setQuantityInput] = useState('1');
   const [documenting, setDocumenting] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
+
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
+  };
+
+  const socketRef = useRef(null);
+  const locationSubRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const startTracking = async () => {
+      if (task.IsEmergency && status === 'Assigned') {
+        const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+        if (locStatus !== 'granted') {
+          console.log('Permission to access location was denied');
+          return;
+        }
+
+        socketRef.current = io(apiClient.defaults.baseURL);
+        socketRef.current.on('connect', () => {
+          socketRef.current.emit('join_tracking_room', {
+            requestId: task.RequestID,
+            role: 'Mechanic'
+          });
+        });
+
+        if (active) {
+          locationSubRef.current = await Location.watchPositionAsync(
+            {
+              accuracy: Location.Accuracy.High,
+              timeInterval: 5000,
+              distanceInterval: 10,
+            },
+            (loc) => {
+              if (socketRef.current && socketRef.current.connected) {
+                socketRef.current.emit('mechanic_location_update', {
+                  requestId: task.RequestID,
+                  latitude: loc.coords.latitude,
+                  longitude: loc.coords.longitude
+                });
+              }
+            }
+          );
+        }
+      }
+    };
+
+    const stopTracking = () => {
+      if (locationSubRef.current) {
+        locationSubRef.current.remove();
+        locationSubRef.current = null;
+      }
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+
+    if (task.IsEmergency && status === 'Assigned') {
+      startTracking();
+    } else {
+      stopTracking();
+    }
+
+    return () => {
+      active = false;
+      stopTracking();
+    };
+  }, [task.IsEmergency, status, task.RequestID]);
 
   useEffect(() => {
     if (task.GarageID) {
@@ -55,13 +130,14 @@ export default function TaskDetailScreen({ route, navigation }) {
     try {
       await apiClient.put(`/api/services/assignments/${task.AssignmentID}/status`, { status: newStatus });
       setStatus(newStatus);
-      Alert.alert(t('Success'), `${t('Status updated to')} ${newStatus}`);
       if (newStatus === 'Completed') {
-        navigation.goBack();
+        showAlert(t('Success'), `${t('Status updated to')} ${newStatus}`, 'success', [{ text: 'OK', onPress: () => { closeAlert(); navigation.goBack(); } }]);
+      } else {
+        showAlert(t('Success'), `${t('Status updated to')} ${newStatus}`, 'success');
       }
     } catch (error) {
       console.log('Error updating task:', error);
-      Alert.alert('Error', 'Failed to update task status');
+      showAlert('Error', 'Failed to update task status', 'error');
     } finally {
       setLoading(false);
     }
@@ -71,13 +147,13 @@ export default function TaskDetailScreen({ route, navigation }) {
     if (!selectedItem) return;
     const qty = parseInt(quantityInput, 10);
     if (!qty || qty <= 0) {
-      Alert.alert('Error', 'Please enter a valid quantity');
+      showAlert('Error', 'Please enter a valid quantity', 'error');
       return;
     }
 
     // Check if enough stock
     if (qty > selectedItem.Quantity) {
-      Alert.alert('Error', `Only ${selectedItem.Quantity} available in stock.`);
+      showAlert('Error', `Only ${selectedItem.Quantity} available in stock.`, 'error');
       return;
     }
 
@@ -98,13 +174,13 @@ export default function TaskDetailScreen({ route, navigation }) {
     try {
       const itemsPayload = documentedItems.map(di => ({ itemId: di.itemId, quantity: di.quantity }));
       await apiClient.post(`/api/services/assignments/${task.AssignmentID}/items`, { itemsUsed: itemsPayload });
-      Alert.alert(t('Success'), t('Items documented successfully.'));
+      showAlert(t('Success'), t('Items documented successfully.'), 'success');
       setDocumentedItems([]);
       fetchInventory(); // refresh inventory because we deducted from it
       fetchPartsUsed(); // refresh saved parts
     } catch (err) {
       console.log('Error documenting items', err?.response?.data || err);
-      Alert.alert('Error', err?.response?.data?.message || 'Failed to document items');
+      showAlert('Error', err?.response?.data?.message || 'Failed to document items', 'error');
     } finally {
       setDocumenting(false);
     }
@@ -128,6 +204,13 @@ export default function TaskDetailScreen({ route, navigation }) {
               <Text style={styles.emergencyBannerText}>EMERGENCY — Handle This Job Immediately</Text>
             </View>
           )}
+          {!!task.IsEmergency && status === 'Assigned' && (
+            <View style={[styles.emergencyBanner, { backgroundColor: '#10b981', marginTop: task.IsEmergency ? 0 : -20 }]}>
+              <AlertTriangle size={16} color="#fff" />
+              <Text style={styles.emergencyBannerText}>{t('Live Location Sharing is Active for this Emergency')}</Text>
+            </View>
+          )}
+
           <Text style={[styles.vehicleTitle, task.IsEmergency && { color: '#ff4444' }]}>{task.Model ? `${task.Model} (${task.PlateNumber})` : `Request #${task.RequestID}`}</Text>
           <View style={[styles.statusBadge, status === 'InProgress' ? styles.statusInProgress : {}]}>
             <Text style={styles.statusText}>{status}</Text>
@@ -276,6 +359,13 @@ export default function TaskDetailScreen({ route, navigation }) {
         </View>
       </Modal>
 
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </SafeAreaView>
   );
 }

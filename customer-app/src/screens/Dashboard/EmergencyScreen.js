@@ -19,10 +19,17 @@ export default function EmergencyScreen({ navigation, route }) {
   const [step, setStep] = React.useState(1); // 1: Select Type, 2: Status Form, 3: Confirmation
   const [emergencyType, setEmergencyType] = React.useState(null);
   const [customerStatus, setCustomerStatus] = React.useState('');
+  const [selectedVehicleId, setSelectedVehicleId] = React.useState(null);
 
   useEffect(() => {
     fetchVehicles();
   }, []);
+
+  useEffect(() => {
+    if (vehicles.length > 0 && !selectedVehicleId) {
+      setSelectedVehicleId(vehicles[0].VehicleID || vehicles[0].id);
+    }
+  }, [vehicles]);
 
   const handleSelectType = (type) => {
     setEmergencyType(type);
@@ -35,16 +42,14 @@ export default function EmergencyScreen({ navigation, route }) {
       return;
     }
 
-    if (vehicles.length === 0) {
+    if (!selectedVehicleId) {
       showAlert(t('Error'), t('You must add a vehicle in the Vehicles tab first before requesting SOS.'), [], 'error');
       return;
     }
 
-    const primaryVehicle = vehicles[0];
-
     const payload = {
       serviceType: emergencyType === 'tow' ? 'Towing' : 'Repair',
-      vehicleId: primaryVehicle.VehicleID || primaryVehicle.id,
+      vehicleId: selectedVehicleId,
       garageId: garage.id,
       description: `[SOS EMERGENCY REQUEST]\nUser requested immediate ${emergencyType === 'tow' ? 'Towing' : 'On-site Mechanic'} assistance.`,
       isEmergency: true,
@@ -108,6 +113,27 @@ export default function EmergencyScreen({ navigation, route }) {
 
         {step === 2 && (
           <View style={styles.formContainer}>
+            <Text style={[styles.formLabel, { marginBottom: 8 }]}>{t('Which vehicle?')}</Text>
+            <View style={{ marginBottom: 16 }}>
+              {vehicles.map(v => (
+                <TouchableOpacity
+                  key={v.VehicleID || v.id}
+                  style={{
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: selectedVehicleId === (v.VehicleID || v.id) ? colors.primaryBlue : colors.border,
+                    backgroundColor: selectedVehicleId === (v.VehicleID || v.id) ? '#eff6ff' : colors.white,
+                    borderRadius: 8,
+                    marginBottom: 8
+                  }}
+                  onPress={() => setSelectedVehicleId(v.VehicleID || v.id)}
+                >
+                  <Text style={{ fontWeight: 'bold', color: colors.textDark }}>{v.Brand || v.brand} {v.Model || v.model}</Text>
+                  <Text style={{ color: colors.textGray }}>{v.PlateNumber || v.plateNumber}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
             <Text style={styles.formLabel}>{t('What is your current status?')}</Text>
             <TextInput
               style={styles.textInput}

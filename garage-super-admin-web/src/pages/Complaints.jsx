@@ -6,7 +6,7 @@ import ComplaintMessageModal from '../components/complaints/ComplaintMessageModa
 
 export default function Complaints() {
   const { t } = useTranslation();
-  
+
   const [activeTab, setActiveTab] = useState('escalated'); // 'escalated' or 'all'
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,18 +46,19 @@ export default function Complaints() {
       fetchComplaints();
     } catch (err) {
       console.error('Failed to resolve complaint', err);
-      alert(err.response?.data?.message || 'Failed to update complaint status');
+      const errMsg = err.response?.data?.error || err.response?.data?.message || err.response?.data?.errors?.join(', ') || 'Failed to update complaint status';
+      setError(errMsg);
     }
   };
 
   const filteredComplaints = complaints.filter(c => {
-    const matchesSearch = 
+    const matchesSearch =
       (c.CustomerName || '').toLowerCase().includes(search.toLowerCase()) ||
       (c.GarageName || '').toLowerCase().includes(search.toLowerCase()) ||
       c.ComplaintID.toString().includes(search);
-    
-    const matchesTab = activeTab === 'all' 
-      ? true 
+
+    const matchesTab = activeTab === 'all'
+      ? true
       : c.IsEscalated === 1;
 
     return matchesSearch && matchesTab;
@@ -75,7 +76,7 @@ export default function Complaints() {
           </h1>
           <p className="text-gray-500 mt-1">Monitor user grievances and handle severe escalations.</p>
         </div>
-        
+
         {/* Search */}
         <div className="relative">
           <input
@@ -106,11 +107,10 @@ export default function Complaints() {
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         <button
-          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-            activeTab === 'escalated'
+          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'escalated'
               ? 'border-[#ef4444] text-[#ef4444]'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
+            }`}
           onClick={() => setActiveTab('escalated')}
         >
           Escalated Issues
@@ -121,11 +121,10 @@ export default function Complaints() {
           )}
         </button>
         <button
-          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${
-            activeTab === 'all'
+          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'all'
               ? 'border-[#1890ff] text-[#1890ff]'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
+            }`}
           onClick={() => setActiveTab('all')}
         >
           All Complaints ({complaints.length})
@@ -184,10 +183,9 @@ export default function Complaints() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-[10px] uppercase tracking-wide border ${
-                          complaint.Status === 'Resolved' ? 'bg-green-50 text-green-700 border-green-200' : 
-                          complaint.Status === 'InProgress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-orange-50 text-orange-700 border-orange-200'
-                        }`}>
+                        <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-[10px] uppercase tracking-wide border ${complaint.Status === 'Resolved' ? 'bg-green-50 text-green-700 border-green-200' :
+                            complaint.Status === 'InProgress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-orange-50 text-orange-700 border-orange-200'
+                          }`}>
                           {complaint.Status}
                         </span>
                       </td>
@@ -210,9 +208,9 @@ export default function Complaints() {
       </div>
 
       {selectedComplaint && (
-        <ComplaintMessageModal 
-          complaint={selectedComplaint} 
-          onClose={() => setSelectedComplaint(null)} 
+        <ComplaintMessageModal
+          complaint={selectedComplaint}
+          onClose={() => setSelectedComplaint(null)}
           onResolved={handleResolveComplaint}
         />
       )}

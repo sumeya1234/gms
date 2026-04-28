@@ -1,8 +1,18 @@
 import "./config/env.js"; // 1. Load env first
 import app from "./app.js";
 import { ensureAccountantsTableExists } from "./config/bootstrapAccountantsTable.js";
+import { initSocketServer } from "./sockets/trackingSocket.js";
+import http from "http";
+import cron from "node-cron";
+import { runFullBackup } from "./services/backupService.js";
 
 const PORT = process.env.PORT || 5000;
+
+// Schedule database backup to run daily at midnight
+cron.schedule("0 0 * * *", () => {
+  runFullBackup();
+});
+
 
 // 2. Add handlers for unhandled errors (log but don't crash the server)
 process.on("unhandledRejection", (err) => {
@@ -17,10 +27,12 @@ process.on("uncaughtException", (err) => {
 
 await ensureAccountantsTableExists();
 
-const server = app.listen(PORT, () => {
+const httpServer = http.createServer(app);
+const io = initSocketServer(httpServer);
+
+const server = httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
 // 3. Graceful shutdown
 process.on("SIGTERM", () => {
   console.log("SIGTERM received. Closing server gracefully.");

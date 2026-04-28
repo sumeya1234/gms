@@ -638,29 +638,14 @@ export default function Bookings() {
                 </select>
               </div>
 
-              {selectedRequest.IsEmergency && (
-                <div className="grid grid-cols-2 gap-4 mb-6 animate-in slide-in-from-top-2 duration-300">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Estimated Price (ETB)</label>
-                    <input
-                      type="number"
-                      value={estimatedPrice}
-                      onChange={(e) => setEstimatedPrice(e.target.value)}
-                      placeholder="e.g. 1500"
-                      className="input-field"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Deposit %</label>
-                    <input
-                      type="number"
-                      value={depositPercentage}
-                      onChange={(e) => setDepositPercentage(e.target.value)}
-                      placeholder="e.g. 10"
-                      min="0"
-                      max="100"
-                      className="input-field"
-                    />
+              {selectedRequest.IsEmergency && newStatus === 'Approved' && (
+                <div className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex items-start gap-3">
+                    <DollarSign className="text-indigo-600 mt-1" size={18} />
+                    <div>
+                      <p className="text-sm font-bold text-indigo-900">Automatic Pricing Active</p>
+                      <p className="text-xs text-indigo-700 mt-0.5"> The fixed price and deposit percentage from your <strong>Garage Settings</strong> will be applied automatically.</p>
+                    </div>
                   </div>
                 </div>
               )}

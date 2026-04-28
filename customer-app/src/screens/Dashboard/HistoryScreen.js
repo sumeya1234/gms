@@ -75,90 +75,96 @@ export default function HistoryScreen({ navigation }) {
         </View>
       ) : null}
 
-      <View style={[styles.histFooter, { justifyContent: 'flex-end' }]}>
-        {/* No payment yet — show Pay buttons */}
-        {item.Status === 'Completed' && (!item.PaymentStatus || item.PaymentStatus === null) && (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-            </Text>
+      <View style={[styles.histFooter, { justifyContent: 'flex-end', flexDirection: 'column', alignItems: 'flex-end' }]}>
+        {(() => {
+          if (item.Status !== 'Completed') return null;
 
-            {paymentLoading === item.RequestID ? (
-              <ActivityIndicator color={colors.primaryBlue} />
-            ) : showPayOptions === item.RequestID ? (
-              <View style={{ flexDirection: 'row', gap: 6 }}>
-                <TouchableOpacity
-                  style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                  onPress={() => handlePayNow(item, 'Chapa')}
-                >
-                  <CreditCard size={14} color="#fff" />
-                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                  onPress={() => handlePayNow(item, 'Cash')}
-                >
-                  <Banknote size={14} color="#fff" />
-                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
-                </TouchableOpacity>
+          const finalCost = Number(item.PartsCost) + Number(item.BaseServicePrice);
+          // TotalPaid = SUM of Completed payments from DB (actual verified amount paid so far)
+          const paidSoFar = Number(item.TotalPaid) || 0;
+          let owedAmount = finalCost - paidSoFar;
+          if (owedAmount < 0) owedAmount = 0;
+
+          // Fully paid scenario
+          if (owedAmount === 0 && paidSoFar > 0) {
+            return (
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+                  Total: {finalCost.toLocaleString()} ETB
+                </Text>
+                <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                  <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>FULLY PAID ✓</Text>
+                </View>
               </View>
-            ) : (
-              <TouchableOpacity
-                style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
-                onPress={() => setShowPayOptions(item.RequestID)}
-              >
-                <CreditCard size={14} color="#fff" />
-                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Now</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+            );
+          }
 
-        {/* Payment is pending — Cash */}
-        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod === 'Cash' && (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-            </Text>
-            <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-              <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>Cash - Awaiting Confirmation</Text>
-            </View>
-          </View>
-        )}
+          // A Final payment is currently Pending (awaiting accountant verification)
+          if (item.PaymentStatus === 'Pending' && owedAmount > 0) {
+            return (
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
+                  Remaining: {owedAmount.toLocaleString()} ETB
+                </Text>
+                <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
+                  <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    {item.PaymentMethod === 'Cash' ? 'Cash — Awaiting Confirmation' : 'Awaiting Accountant Verification'}
+                  </Text>
+                </View>
+              </View>
+            );
+          }
 
-        {/* Payment is pending — Online: show Verify button */}
-        {item.Status === 'Completed' && item.PaymentStatus === 'Pending' && item.PaymentMethod !== 'Cash' && (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 4 }}>
-              Total: {(Number(item.PartsCost) + Number(item.BaseServicePrice)).toLocaleString()} ETB
-            </Text>
-            {verifyingPayment === item.RequestID ? (
-              <ActivityIndicator color={colors.primaryBlue} />
-            ) : (
-              <TouchableOpacity
-                style={{ backgroundColor: '#0d6efd', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 }}
-                onPress={() => handleVerifyOnline(item)}
-              >
-                <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>Verify Payment</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+          // Remaining balance needs to be paid
+          if (owedAmount > 0) {
+            return (
+              <View style={{ alignItems: 'flex-end' }}>
+                {paidSoFar > 0 && (
+                  <Text style={{ fontSize: 11, color: colors.textGray, marginBottom: 2 }}>
+                    Deposit paid: {paidSoFar.toLocaleString()} ETB
+                  </Text>
+                )}
+                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#dc3545', marginBottom: 6 }}>
+                  Remaining: {owedAmount.toLocaleString()} ETB
+                </Text>
+                {paymentLoading === item.RequestID ? (
+                  <ActivityIndicator color={colors.primaryBlue} />
+                ) : showPayOptions === item.RequestID ? (
+                  <View style={{ flexDirection: 'row', gap: 6 }}>
+                    <TouchableOpacity
+                      style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                      onPress={() => handlePayNow(item, 'Chapa', owedAmount)}
+                    >
+                      <CreditCard size={14} color="#fff" />
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                      onPress={() => handlePayNow(item, 'Cash', owedAmount)}
+                    >
+                      <Banknote size={14} color="#fff" />
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#28a745', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, gap: 4 }}
+                    onPress={() => setShowPayOptions(item.RequestID)}
+                  >
+                    <CreditCard size={14} color="#fff" />
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Remaining</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          }
 
-        {/* Payment completed */}
-        {item.Status === 'Completed' && item.PaymentStatus === 'Completed' && (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-              Paid: {(Number(item.TotalPaid)).toLocaleString()} ETB
-            </Text>
-            <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-              <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>PAID VIA {item.PaymentMethod || 'CHAPA'}</Text>
-            </View>
-          </View>
-        )}
+          return null;
+        })()}
       </View>
     </TouchableOpacity>
   );
+
 
   const handleViewInvoice = async (item) => {
     setInvoiceItem(item);
@@ -220,20 +226,20 @@ export default function HistoryScreen({ navigation }) {
     );
   };
 
-  const handlePayNow = async (request, method) => {
+  const handlePayNow = async (request, method, computedAmount) => {
     setShowPayOptions(null);
     setPaymentLoading(request.RequestID);
     try {
-      const totalAmount = Number(request.PartsCost) + Number(request.BaseServicePrice);
-      if (totalAmount <= 0) {
+      if (computedAmount <= 0) {
         showAlert(t("Error"), t("Invoice amount is zero, cannot proceed to pay."), [], 'error');
         setPaymentLoading(null);
         return;
       }
       const response = await api.post('/api/payments/pay', {
         requestId: request.RequestID,
-        amount: totalAmount,
-        method: method
+        amount: computedAmount,
+        method: method,
+        category: 'Final'
       });
 
       if (method === 'Cash') {
@@ -350,17 +356,14 @@ export default function HistoryScreen({ navigation }) {
 
   const allRequests = [...requests].sort((a, b) => new Date(b.RequestDate) - new Date(a.RequestDate));
   const todayRequests = allRequests.filter(r => isToday(r.BookingDate) || (!r.BookingDate && isToday(r.RequestDate)));
-  const olderRequests = allRequests.filter(r => !todayRequests.some(tr => tr.RequestID === r.RequestID));
   const upcomingRequests = allRequests.filter(r => {
     const statuses = ['Pending', 'Approved', 'InProgress'];
-    if (!statuses.includes(r.Status)) return false;
-    if (r.BookingDate) {
-      const bd = new Date(r.BookingDate);
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      return bd >= now; // today or future
-    }
-    return true; // no booking date but active
+    return statuses.includes(r.Status);
+  });
+  const olderRequests = allRequests.filter(r => {
+    const finishedStatuses = ['Completed', 'Rejected'];
+    if (!finishedStatuses.includes(r.Status)) return false;
+    return !isToday(r.BookingDate || r.RequestDate);
   });
   const unreviewedRequests = allRequests.filter(r => r.Status === 'Completed' && !r.HasReviewed);
 
@@ -431,8 +434,8 @@ export default function HistoryScreen({ navigation }) {
                   </Text>
                 </View>
               ) : (
-                unreviewedRequests.map(item => (
-                  <View key={item.RequestID} style={styles.pendingCard}>
+                unreviewedRequests.map((item, idx) => (
+                  <View key={`unreviewed-${item.RequestID}-${idx}`} style={styles.pendingCard}>
                     <View style={styles.pendingImgWrap}>
                       <View style={[styles.pendingImg, { backgroundColor: colors.primaryBlue, justifyContent: 'center', alignItems: 'center' }]}>
                         <Wrench size={48} color={colors.white} />
@@ -510,7 +513,7 @@ export default function HistoryScreen({ navigation }) {
                 <View>
                   {(historyFilter === 'Upcoming') && upcomingRequests.length > 0 && (
                     <View style={{ marginBottom: 24 }}>
-                      {upcomingRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                      {upcomingRequests.map((item, idx) => <ServiceCard key={`upcoming-${item.RequestID}-${idx}`} item={item} />)}
                     </View>
                   )}
 
@@ -520,13 +523,13 @@ export default function HistoryScreen({ navigation }) {
 
                   {(historyFilter === 'Today') && todayRequests.length > 0 && (
                     <View style={{ marginBottom: 24 }}>
-                      {todayRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                      {todayRequests.map((item, idx) => <ServiceCard key={`today-${item.RequestID}-${idx}`} item={item} />)}
                     </View>
                   )}
 
                   {(historyFilter === 'Previous') && olderRequests.length > 0 && (
                     <View>
-                      {olderRequests.map(item => <ServiceCard key={item.RequestID} item={item} />)}
+                      {olderRequests.map((item, idx) => <ServiceCard key={`older-${item.RequestID}-${idx}`} item={item} />)}
                     </View>
                   )}
 
