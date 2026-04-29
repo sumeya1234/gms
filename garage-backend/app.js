@@ -23,19 +23,17 @@ const app = express();
 
 
 app.use(helmet());
+app.use(cors());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
 });
 app.use(limiter);
 
-
 app.use(morgan("combined", { stream: { write: (message) => logger.info(message.trim()) } }));
-
-app.use(cors());
 app.use(express.json());
 
 // API Documentation
