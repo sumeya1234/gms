@@ -7,7 +7,7 @@ let mechanicSkillsTableChecked = false;
 const ensureMechanicSkillsTable = async () => {
   if (mechanicSkillsTableChecked) return;
   await db.query(`
-    CREATE TABLE IF NOT EXISTS MechanicSkills (
+    CREATE TABLE IF NOT EXISTS mechanicskills (
       SkillID INT AUTO_INCREMENT PRIMARY KEY,
       MechanicID INT NOT NULL,
       SkillName VARCHAR(100) NOT NULL,
@@ -284,7 +284,7 @@ export const getMechanicsByGarage = async (garageId) => {
   if (rows.length > 0) {
     const mechanicIds = rows.map(r => r.UserID);
     const [skills] = await db.query(
-      `SELECT MechanicID, SkillName FROM MechanicSkills WHERE MechanicID IN (?)`,
+      `SELECT MechanicID, SkillName FROM mechanicskills WHERE MechanicID IN (?)`,
       [mechanicIds]
     );
 
@@ -370,7 +370,7 @@ export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user
 export const getMechanicSkills = async (mechanicId) => {
   await ensureMechanicSkillsTable();
   const [rows] = await db.query(
-    "SELECT SkillName FROM MechanicSkills WHERE MechanicID = ? ORDER BY SkillName",
+    "SELECT SkillName FROM mechanicskills WHERE MechanicID = ? ORDER BY SkillName",
     [mechanicId]
   );
   return rows.map(r => r.SkillName);
@@ -387,12 +387,12 @@ export const setMechanicSkills = async (garageId, mechanicId, skills, user) => {
   }
 
   // Replace all skills: delete existing, insert new
-  await db.query("DELETE FROM MechanicSkills WHERE MechanicID = ?", [mechanicId]);
+  await db.query("DELETE FROM mechanicskills WHERE MechanicID = ?", [mechanicId]);
 
   if (skills && skills.length > 0) {
     const values = skills.map(skill => [mechanicId, skill.trim()]);
     await db.query(
-      "INSERT INTO MechanicSkills (MechanicID, SkillName) VALUES ?",
+      "INSERT INTO mechanicskills (MechanicID, SkillName) VALUES ?",
       [values]
     );
   }

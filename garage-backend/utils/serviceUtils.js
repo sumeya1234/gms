@@ -33,15 +33,14 @@ export const calculateDuration = (types, baselines) => {
 };
 
 /**
- * Calculates the total base price for requested services based on a garage catalogue.
  * @param {string} serviceType - Comma-separated service types.
- * @param {Array} garageServices - Array of { ServiceName, Price } objects.
+ * @param {Array} garageservices - Array of { ServiceName, Price } objects.
  * @returns {number} Total price.
  */
-export const calculateBaseServicePrice = (serviceType, garageServices) => {
-    if (!serviceType || !garageServices || !Array.isArray(garageServices)) return 0;
+export const calculateBaseServicePrice = (serviceType, garageservices) => {
+    if (!serviceType || !garageservices || !Array.isArray(garageservices)) return 0;
     const requestedServices = serviceType.split(",").map((s) => s.trim().toLowerCase());
-    return garageServices.reduce((total, gs) => {
+    return garageservices.reduce((total, gs) => {
         if (requestedServices.includes(gs.ServiceName.toLowerCase())) {
             return total + Number(gs.Price);
         }
