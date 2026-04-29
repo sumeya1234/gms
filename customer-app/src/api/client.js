@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API URL sourced from .env (EXPO_PUBLIC_ prefix required for Expo)
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.78.71:5000';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://gms-1-v6wu.onrender.com';
 
 const apiClient = axios.create({
   baseURL: API_URL,

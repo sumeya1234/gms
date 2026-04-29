@@ -3,7 +3,7 @@ import request from 'supertest';
 import app from '../../app.js';
 import { createTestUserWithToken } from '../utils/testUtils.js';
 
-describe('Inventory Endpoints', () => {
+describe('inventory Endpoints', () => {
     let superAdmin, managerA, managerB, mechanic;
     let garageAId, garageBId, itemAId;
 
@@ -13,7 +13,7 @@ describe('Inventory Endpoints', () => {
         managerB = await createTestUserWithToken('GarageManager');
         mechanic = await createTestUserWithToken('Mechanic');
 
-        // Setup 2 Garages to test tenant isolation
+        // Setup 2 garages to test tenant isolation
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "Garage A",

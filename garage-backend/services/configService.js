@@ -17,7 +17,7 @@ export const getConfig = async (key) => {
     }
 
     try {
-        const [rows] = await db.query("SELECT ConfigValue FROM SystemConfigs WHERE ConfigKey = ?", [key]);
+        const [rows] = await db.query("SELECT ConfigValue FROM systemconfigs WHERE ConfigKey = ?", [key]);
         if (rows.length === 0) {
             console.warn(`Configuration key "${key}" not found in database.`);
             return null;

@@ -60,10 +60,10 @@ export const getChapaBanks = async () => {
 export const createPayment = async (requestId, amount, method, category = 'Final') => {
   const [service] = await db.query(
     `SELECT u.*, sr.*, g.ChapaSubaccountID 
-     FROM ServiceRequests sr 
-     JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
-     JOIN Users u ON v.CustomerID = u.UserID 
-     LEFT JOIN Garages g ON sr.GarageID = g.GarageID
+     FROM servicerequests sr 
+     JOIN vehicles v ON sr.VehicleID = v.VehicleID 
+     JOIN users u ON v.CustomerID = u.UserID 
+     LEFT JOIN garages g ON sr.GarageID = g.GarageID
      WHERE sr.RequestID = ?`,
     [requestId]
   );
@@ -82,7 +82,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   if (method === 'Cash') {
     // Cash payment: just record as Pending, manager will confirm receipt later
     await db.query(
-      `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
+      `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
        VALUES (?, ?, 'Cash', 'Pending', NOW(), ?, ?)
        ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod='Cash', TransactionRef=?, PaymentStatus='Pending'`,
       [requestId, amount, tx_ref, category, amount, tx_ref]
@@ -92,7 +92,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     /*
     if (category === 'Deposit') {
       await db.query(
-        `UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
+        `UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
         [requestId]
       );
     }
@@ -102,8 +102,8 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     try {
       const [garageInfo] = await db.query(
         `SELECT sr.GarageID, gm.UserID as ManagerUserID
-         FROM ServiceRequests sr
-         LEFT JOIN GarageManagers gm ON sr.GarageID = gm.GarageID
+         FROM servicerequests sr
+         LEFT JOIN garagemanagers gm ON sr.GarageID = gm.GarageID
          WHERE sr.RequestID = ?`,
         [requestId]
       );
@@ -111,7 +111,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
       const garageId = garageInfo[0]?.GarageID;
       if (garageId) {
         // Find all accountants for this garage
-        const [accountants] = await db.query(`SELECT UserID FROM Accountants WHERE GarageID = ?`, [garageId]);
+        const [accountants] = await db.query(`SELECT UserID FROM accountants WHERE GarageID = ?`, [garageId]);
 
         const notifyUserIDs = new Set();
         if (garageInfo[0].ManagerUserID) notifyUserIDs.add(garageInfo[0].ManagerUserID);
@@ -119,7 +119,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
 
         for (const uid of notifyUserIDs) {
           await db.query(
-            `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
+            `INSERT INTO notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
             [uid, 'Cash Payment Pending', `Customer chose to pay ${amount} ETB in cash (${category}) for Service Request #${requestId}. Please confirm when received.`]
           );
         }
@@ -189,7 +189,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
 
   // Insert Pending Payment record for Chapa
   await db.query(
-    `INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
+    `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
      VALUES (?, ?, ?, 'Pending', NOW(), ?, ?)
      ON DUPLICATE KEY UPDATE Amount=?, PaymentMethod=?, TransactionRef=?, PaymentStatus='Pending'`,
     [requestId, amount, method, tx_ref, category, amount, method, tx_ref]
@@ -198,7 +198,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   // Mark deposit as paid so the customer's estimate card is hidden - deferred to Accountant Confirm
   /*
   if (category === 'Deposit') {
-    await db.query(`UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
+    await db.query(`UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
   }
   */
 
@@ -216,7 +216,7 @@ export const verifyChapaPayment = async (tx_ref) => {
     if (response.data.status === 'success' && response.data.data.status === 'success') {
       // Mark payment as completed
       await db.query(
-        "UPDATE Payments SET PaymentStatus = 'Completed', PaymentDate = NOW() WHERE TransactionRef = ?",
+        "UPDATE payments SET PaymentStatus = 'Completed', PaymentDate = NOW() WHERE TransactionRef = ?",
         [tx_ref]
       );
 
@@ -224,16 +224,16 @@ export const verifyChapaPayment = async (tx_ref) => {
       try {
         const [paymentInfo] = await db.query(
           `SELECT p.RequestID, p.Amount, p.PaymentCategory, sr.GarageID, gm.UserID as ManagerUserID
-           FROM Payments p
-           JOIN ServiceRequests sr ON p.RequestID = sr.RequestID
-           LEFT JOIN GarageManagers gm ON sr.GarageID = gm.GarageID
+           FROM payments p
+           JOIN servicerequests sr ON p.RequestID = sr.RequestID
+           LEFT JOIN garagemanagers gm ON sr.GarageID = gm.GarageID
            WHERE p.TransactionRef = ?`,
           [tx_ref]
         );
 
         const info = paymentInfo[0];
         if (info && info.GarageID) {
-          const [accountants] = await db.query(`SELECT UserID FROM Accountants WHERE GarageID = ?`, [info.GarageID]);
+          const [accountants] = await db.query(`SELECT UserID FROM accountants WHERE GarageID = ?`, [info.GarageID]);
 
           const notifyUserIDs = new Set();
           if (info.ManagerUserID) notifyUserIDs.add(info.ManagerUserID);
@@ -241,7 +241,7 @@ export const verifyChapaPayment = async (tx_ref) => {
 
           for (const uid of notifyUserIDs) {
             await db.query(
-              `INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
+              `INSERT INTO notifications (UserID, Title, Message) VALUES (?, ?, ?)`,
               [
                 uid,
                 'Payment Received',
@@ -287,7 +287,7 @@ export const handleWebhook = async (reqBody) => {
 
   if (status === 'success') {
     // Idempotency: skip if already marked Completed
-    const [existing] = await db.query("SELECT PaymentStatus FROM Payments WHERE TransactionRef = ?", [trx_ref]);
+    const [existing] = await db.query("SELECT PaymentStatus FROM payments WHERE TransactionRef = ?", [trx_ref]);
     if (existing.length > 0 && existing[0].PaymentStatus === 'Completed') {
       return; // Already processed
     }
@@ -300,7 +300,7 @@ export const handleWebhook = async (reqBody) => {
 export const confirmCashPayment = async (requestId, accountantId, category) => {
   // Check the payment exists and is Cash + Pending
   const [payment] = await db.query(
-    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
+    "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
   );
   if (payment.length === 0) {
@@ -311,8 +311,8 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
 
   // Verify this accountant is assigned to the garage for this request
   const [auth] = await db.query(
-    `SELECT 1 FROM ServiceRequests sr
-     JOIN Accountants a ON sr.GarageID = a.GarageID
+    `SELECT 1 FROM servicerequests sr
+     JOIN accountants a ON sr.GarageID = a.GarageID
      WHERE sr.RequestID = ? AND a.UserID = ?`,
     [requestId, accountantId]
   );
@@ -324,26 +324,26 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
 
   // Mark payment as Completed
   await db.query(
-    "UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentCategory = ?",
+    "UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentCategory = ?",
     [requestId, category]
   );
 
   // If it was a deposit, allow the service to proceed to 'InProgress' or start tracking live
   if (category === 'Deposit') {
-    await db.query("UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
+    await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
   // Notify the customer
   try {
     const [custInfo] = await db.query(
-      `SELECT v.CustomerID FROM ServiceRequests sr
-       JOIN Vehicles v ON sr.VehicleID = v.VehicleID
+      `SELECT v.CustomerID FROM servicerequests sr
+       JOIN vehicles v ON sr.VehicleID = v.VehicleID
        WHERE sr.RequestID = ?`,
       [requestId]
     );
     if (custInfo.length > 0) {
       await db.query(
-        "INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)",
+        "INSERT INTO notifications (UserID, Title, Message) VALUES (?, ?, ?)",
         [custInfo[0].CustomerID, 'Cash Payment Confirmed', `Your cash payment of ${payment[0].Amount} ETB for Service Request #${requestId} has been confirmed.`]
       );
     }
@@ -357,7 +357,7 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
 export const confirmOnlinePayment = async (requestId, accountantId, category) => {
   // Check the payment exists and is Chapa + Pending
   const [payment] = await db.query(
-    "SELECT * FROM Payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
+    "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
   );
   if (payment.length === 0) {
@@ -368,8 +368,8 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
 
   // Verify accountant is assigned to this garage
   const [auth] = await db.query(
-    `SELECT 1 FROM ServiceRequests sr
-     JOIN Accountants a ON sr.GarageID = a.GarageID
+    `SELECT 1 FROM servicerequests sr
+     JOIN accountants a ON sr.GarageID = a.GarageID
      WHERE sr.RequestID = ? AND a.UserID = ?`,
     [requestId, accountantId]
   );
@@ -386,31 +386,31 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
       headers: { 'Authorization': `Bearer ${process.env.CHAPA_SECRET_KEY}` }
     });
     if (response.data.status === 'success' && response.data.data.status === 'success') {
-      await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
+      await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
       // Fall through to common completion logic
     }
   } catch (e) {
     console.log("Chapa verify failed, using manual confirm:", e.message);
     // Manual confirm if Chapa verify fails (test mode)
-    await db.query("UPDATE Payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
+    await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
   }
 
   // If it was a deposit, allow the service to proceed
   if (category === 'Deposit') {
-    await db.query("UPDATE ServiceRequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
+    await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
   // Notify customer
   try {
     const [custInfo] = await db.query(
-      `SELECT v.CustomerID FROM ServiceRequests sr
-       JOIN Vehicles v ON sr.VehicleID = v.VehicleID
+      `SELECT v.CustomerID FROM servicerequests sr
+       JOIN vehicles v ON sr.VehicleID = v.VehicleID
        WHERE sr.RequestID = ?`,
       [requestId]
     );
     if (custInfo.length > 0) {
       await db.query(
-        "INSERT INTO Notifications (UserID, Title, Message) VALUES (?, ?, ?)",
+        "INSERT INTO notifications (UserID, Title, Message) VALUES (?, ?, ?)",
         [custInfo[0].CustomerID, 'Payment Confirmed', `Your online payment of ${payment[0].Amount} ETB for Service Request #${requestId} has been confirmed.`]
       );
     }

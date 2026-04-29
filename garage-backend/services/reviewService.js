@@ -1,7 +1,7 @@
 import db from "../config/db.js";
 
 export const createReview = async (rating, comment, customerId, garageId, requestId = null) => {
-  const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
+  const [garage] = await db.query("SELECT 1 FROM garages WHERE GarageID = ?", [garageId]);
   
   if (garage.length === 0) {
     const error = new Error("Garage not found");
@@ -11,8 +11,8 @@ export const createReview = async (rating, comment, customerId, garageId, reques
 
   // Review Integrity: Check for at least one completed service at this garage
   const [completedService] = await db.query(
-    `SELECT 1 FROM ServiceRequests sr 
-     JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
+    `SELECT 1 FROM servicerequests sr 
+     JOIN vehicles v ON sr.VehicleID = v.VehicleID 
      WHERE v.CustomerID = ? AND sr.GarageID = ? AND sr.Status = 'Completed'`,
     [customerId, garageId]
   );
@@ -26,7 +26,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
   // If requestId provided, check it hasn't already been reviewed
   if (requestId) {
     const [existing] = await db.query(
-      "SELECT 1 FROM Reviews WHERE RequestID = ?", [requestId]
+      "SELECT 1 FROM reviews WHERE RequestID = ?", [requestId]
     );
     if (existing.length > 0) {
       const error = new Error("This service request has already been reviewed");
@@ -36,7 +36,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
   }
 
   await db.query(
-    `INSERT INTO Reviews (Rating, Comment, CustomerID, GarageID, RequestID)
+    `INSERT INTO reviews (Rating, Comment, CustomerID, GarageID, RequestID)
      VALUES (?, ?, ?, ?, ?)`,
     [rating, comment, customerId, garageId, requestId]
   );
@@ -44,7 +44,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
 
 export const fetchGarageReviews = async (garageId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Reviews WHERE GarageID = ? ORDER BY ReviewDate DESC",
+    "SELECT * FROM reviews WHERE GarageID = ? ORDER BY ReviewDate DESC",
     [garageId]
   );
   return rows;
@@ -52,18 +52,18 @@ export const fetchGarageReviews = async (garageId) => {
 
 export const fetchCustomerReviews = async (customerId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Reviews WHERE CustomerID = ? ORDER BY ReviewDate DESC",
+    "SELECT * FROM reviews WHERE CustomerID = ? ORDER BY ReviewDate DESC",
     [customerId]
   );
   return rows;
 };
 
 export const removeReview = async (reviewId, customerId) => {
-  const [rows] = await db.query("SELECT * FROM Reviews WHERE ReviewID = ? AND CustomerID = ?", [reviewId, customerId]);
+  const [rows] = await db.query("SELECT * FROM reviews WHERE ReviewID = ? AND CustomerID = ?", [reviewId, customerId]);
   if (rows.length === 0) {
     const error = new Error("Review not found or unauthorized");
     error.status = 404;
     throw error;
   }
-  await db.query("DELETE FROM Reviews WHERE ReviewID = ? AND CustomerID = ?", [reviewId, customerId]);
+  await db.query("DELETE FROM reviews WHERE ReviewID = ? AND CustomerID = ?", [reviewId, customerId]);
 };

@@ -55,11 +55,11 @@ export const getAllGarages = async (location) => {
            COUNT(DISTINCT r.ReviewID) as TotalReviews, 
            IFNULL(AVG(r.Rating), 0) as AverageRating,
            MIN(gs.Price) as MinPrice
-    FROM Garages g
-    LEFT JOIN GarageOwners go ON g.GarageID = go.GarageID
-    LEFT JOIN Users ou ON go.UserID = ou.UserID
-    LEFT JOIN Reviews r ON g.GarageID = r.GarageID
-    LEFT JOIN GarageServices gs ON g.GarageID = gs.GarageID
+    FROM garages g
+    LEFT JOIN garageowners go ON g.GarageID = go.GarageID
+    LEFT JOIN users ou ON go.UserID = ou.UserID
+    LEFT JOIN reviews r ON g.GarageID = r.GarageID
+    LEFT JOIN garageservices gs ON g.GarageID = gs.GarageID
   `;
   const params = [];
 
@@ -75,7 +75,7 @@ export const getAllGarages = async (location) => {
   // Fetch services for each garage
   for (const garage of rows) {
     const [services] = await db.query(
-      "SELECT ServiceName, Price FROM GarageServices WHERE GarageID = ? ORDER BY ServiceName",
+      "SELECT ServiceName, Price FROM garageservices WHERE GarageID = ? ORDER BY ServiceName",
       [garage.GarageID]
     );
     garage.Services = services;
@@ -99,7 +99,7 @@ export const addGarage = async (name, location, contact, bankCode, bankAccountNu
 
   console.log(`[addGarage] Creating garage: ${name}`);
   const [result] = await db.query(
-    `INSERT INTO Garages (Name, Location, ContactNumber, BankCode, BankAccountNumber, BankAccountName, ChapaSubaccountID, Timezone, WorkingHours)
+    `INSERT INTO garages (Name, Location, ContactNumber, BankCode, BankAccountNumber, BankAccountName, ChapaSubaccountID, Timezone, WorkingHours)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [name, location, contact, bankCode, bankAccountNumber, bankAccountName, subaccountId, timezone, JSON.stringify(workingHours)]
   );
@@ -110,9 +110,9 @@ export const addGarage = async (name, location, contact, bankCode, bankAccountNu
 export const fetchGarageById = async (id) => {
   const [rows] = await db.query(
     `SELECT g.*, go.UserID AS OwnerID, ou.FullName AS OwnerName
-     FROM Garages g
-     LEFT JOIN GarageOwners go ON g.GarageID = go.GarageID
-     LEFT JOIN Users ou ON go.UserID = ou.UserID
+     FROM garages g
+     LEFT JOIN garageowners go ON g.GarageID = go.GarageID
+     LEFT JOIN users ou ON go.UserID = ou.UserID
      WHERE g.GarageID = ?`,
     [id]
   );
@@ -132,7 +132,7 @@ export const modifyGarage = async (id, updateData, user) => {
   await fetchGarageById(id);
 
   if (user && user.role === "GarageManager") {
-    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+    const [managerRecord] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [user.id]);
     if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(id)) {
       const error = new Error("Garage Managers can only update their own garage details or the garage ID mismatch");
       error.status = 403;
@@ -187,7 +187,7 @@ export const modifyGarage = async (id, updateData, user) => {
   values.push(id);
 
   await db.query(
-    `UPDATE Garages SET ${updates.join(', ')} WHERE GarageID = ?`,
+    `UPDATE garages SET ${updates.join(', ')} WHERE GarageID = ?`,
     values
   );
 };
@@ -196,5 +196,5 @@ export const removeGarage = async (id) => {
   // Check if garage exists
   await fetchGarageById(id);
 
-  await db.query("DELETE FROM Garages WHERE GarageID = ?", [id]);
+  await db.query("DELETE FROM garages WHERE GarageID = ?", [id]);
 };

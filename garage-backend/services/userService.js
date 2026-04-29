@@ -11,7 +11,7 @@ const ensureMechanicSkillsTable = async () => {
       SkillID INT AUTO_INCREMENT PRIMARY KEY,
       MechanicID INT NOT NULL,
       SkillName VARCHAR(100) NOT NULL,
-      FOREIGN KEY (MechanicID) REFERENCES Users(UserID) ON DELETE CASCADE
+      FOREIGN KEY (MechanicID) REFERENCES users(UserID) ON DELETE CASCADE
     )
   `);
   mechanicSkillsTableChecked = true;
@@ -20,18 +20,18 @@ const ensureMechanicSkillsTable = async () => {
 const ensureGarageOwnersTable = async () => {
   if (garageOwnersTableChecked) return;
   await db.query(`
-    CREATE TABLE IF NOT EXISTS GarageOwners (
+    CREATE TABLE IF NOT EXISTS garageowners (
       UserID INT PRIMARY KEY,
       GarageID INT UNIQUE,
-      FOREIGN KEY (UserID) REFERENCES Users(UserID),
-      FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+      FOREIGN KEY (UserID) REFERENCES users(UserID),
+      FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
     )
   `);
   garageOwnersTableChecked = true;
 };
 export const getUserProfile = async (userId) => {
   const [rows] = await db.query(
-    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status FROM Users WHERE UserID = ?",
+    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status FROM users WHERE UserID = ?",
     [userId]
   );
   if (rows.length === 0) {
@@ -46,8 +46,8 @@ export const getUserProfile = async (userId) => {
   if (user.Role === "GarageManager") {
     const [rows] = await db.query(
       `SELECT gm.GarageID, g.Name AS GarageName
-       FROM GarageManagers gm
-       LEFT JOIN Garages g ON gm.GarageID = g.GarageID
+       FROM garagemanagers gm
+       LEFT JOIN garages g ON gm.GarageID = g.GarageID
        WHERE gm.UserID = ?`,
       [userId]
     );
@@ -59,8 +59,8 @@ export const getUserProfile = async (userId) => {
     await ensureGarageOwnersTable();
     const [rows] = await db.query(
       `SELECT go.GarageID, g.Name AS GarageName
-       FROM GarageOwners go
-       LEFT JOIN Garages g ON go.GarageID = g.GarageID
+       FROM garageowners go
+       LEFT JOIN garages g ON go.GarageID = g.GarageID
        WHERE go.UserID = ?`,
       [userId]
     );
@@ -71,8 +71,8 @@ export const getUserProfile = async (userId) => {
   } else if (user.Role === "Accountant") {
     const [rows] = await db.query(
       `SELECT a.GarageID, g.Name AS GarageName
-       FROM Accountants a
-       LEFT JOIN Garages g ON a.GarageID = g.GarageID
+       FROM accountants a
+       LEFT JOIN garages g ON a.GarageID = g.GarageID
        WHERE a.UserID = ?`,
       [userId]
     );
@@ -101,12 +101,12 @@ export const updateProfile = async (userId, data) => {
 
   if (updates.length > 0) {
     values.push(userId);
-    await db.query(`UPDATE Users SET ${updates.join(", ")} WHERE UserID = ?`, values);
+    await db.query(`UPDATE users SET ${updates.join(", ")} WHERE UserID = ?`, values);
   }
 };
 
 export const changePassword = async (userId, oldPassword, newPassword) => {
-  const [rows] = await db.query("SELECT PasswordHash FROM Users WHERE UserID = ?", [userId]);
+  const [rows] = await db.query("SELECT PasswordHash FROM users WHERE UserID = ?", [userId]);
   const user = rows[0];
 
   const isMatch = await bcrypt.compare(oldPassword, user.PasswordHash);
@@ -117,49 +117,49 @@ export const changePassword = async (userId, oldPassword, newPassword) => {
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await db.query("UPDATE Users SET PasswordHash = ? WHERE UserID = ?", [hashedPassword, userId]);
+  await db.query("UPDATE users SET PasswordHash = ? WHERE UserID = ?", [hashedPassword, userId]);
 };
 
 
 export const updateRole = async (userId, newRole) => {
-  const [userRows] = await db.query("SELECT Role FROM Users WHERE UserID = ?", [userId]);
+  const [userRows] = await db.query("SELECT Role FROM users WHERE UserID = ?", [userId]);
   if (userRows.length === 0) throw new Error("User not found");
   const oldRole = userRows[0].Role;
 
   if (oldRole === newRole) return;
 
-  await db.query("UPDATE Users SET Role = ? WHERE UserID = ?", [newRole, userId]);
+  await db.query("UPDATE users SET Role = ? WHERE UserID = ?", [newRole, userId]);
 
   // Maintain Sub-tables for role consistency
-  await db.query("DELETE FROM Customers WHERE UserID = ?", [userId]);
-  await db.query("DELETE FROM SuperAdmins WHERE UserID = ?", [userId]);
-  await db.query("DELETE FROM Accountants WHERE UserID = ?", [userId]);
-  await db.query("DELETE FROM Mechanics WHERE UserID = ?", [userId]);
-  await db.query("DELETE FROM GarageOwners WHERE UserID = ?", [userId]);
-  // Note: GarageManagers deletion might affect Garage assignment, usually handled in assignUserToGarage
+  await db.query("DELETE FROM customers WHERE UserID = ?", [userId]);
+  await db.query("DELETE FROM superadmins WHERE UserID = ?", [userId]);
+  await db.query("DELETE FROM accountants WHERE UserID = ?", [userId]);
+  await db.query("DELETE FROM mechanics WHERE UserID = ?", [userId]);
+  await db.query("DELETE FROM garageowners WHERE UserID = ?", [userId]);
+  // Note: garagemanagers deletion might affect Garage assignment, usually handled in assignUserToGarage
   // But for a clean role change, we should be careful.
 
   if (newRole === "Customer") {
-    await db.query("INSERT IGNORE INTO Customers (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT IGNORE INTO customers (UserID) VALUES (?)", [userId]);
   } else if (newRole === "SuperAdmin") {
-    await db.query("INSERT IGNORE INTO SuperAdmins (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT IGNORE INTO superadmins (UserID) VALUES (?)", [userId]);
   } else if (newRole === "GarageManager") {
     // If they were already a manager, this keeps the record. 
     // If not, they'll need assignUserToGarage to link to a specific garage.
-    await db.query("INSERT IGNORE INTO GarageManagers (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT IGNORE INTO garagemanagers (UserID) VALUES (?)", [userId]);
   } else if (newRole === "Accountant") {
-    await db.query("INSERT IGNORE INTO Accountants (UserID, GarageID) VALUES (?, NULL)", [userId]);
+    await db.query("INSERT IGNORE INTO accountants (UserID, GarageID) VALUES (?, NULL)", [userId]);
   } else if (newRole === "GarageOwner") {
-    await db.query("INSERT IGNORE INTO GarageOwners (UserID, GarageID) VALUES (?, NULL)", [userId]);
+    await db.query("INSERT IGNORE INTO garageowners (UserID, GarageID) VALUES (?, NULL)", [userId]);
   }
 };
 
 export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
   const { id: assignerId, role: assignerRole } = assigner;
 
-  // 1. SuperAdmin Rule: Only assign GarageManagers
+  // 1. SuperAdmin Rule: Only assign garagemanagers
   if (assignerRole === "SuperAdmin") {
-    const [targetUserRows] = await db.query("SELECT Role FROM Users WHERE UserID = ?", [userId]);
+    const [targetUserRows] = await db.query("SELECT Role FROM users WHERE UserID = ?", [userId]);
     if (targetUserRows.length === 0) {
       const error = new Error("User not found");
       error.status = 404;
@@ -169,45 +169,45 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
 
     // Assign Garage Owner logic
     if (targetRole === "GarageOwner") {
-      const [garage] = await db.query("SELECT GarageID FROM Garages WHERE GarageID = ?", [targetGarageId]);
+      const [garage] = await db.query("SELECT GarageID FROM garages WHERE GarageID = ?", [targetGarageId]);
       if (garage.length === 0) throw new Error("Garage not found");
-      await db.query("DELETE FROM GarageOwners WHERE UserID = ? OR GarageID = ?", [userId, targetGarageId]);
-      await db.query("INSERT INTO GarageOwners (UserID, GarageID) VALUES (?, ?)", [userId, targetGarageId]);
+      await db.query("DELETE FROM garageowners WHERE UserID = ? OR GarageID = ?", [userId, targetGarageId]);
+      await db.query("INSERT INTO garageowners (UserID, GarageID) VALUES (?, ?)", [userId, targetGarageId]);
       return;
     }
 
     // 1.3 Handle Manager role (must be unique for garage)
     if (targetRole === "GarageManager") {
-      const [garage] = await db.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [targetGarageId]);
+      const [garage] = await db.query("SELECT ManagerID FROM garages WHERE GarageID = ?", [targetGarageId]);
       if (garage.length === 0) throw new Error("Garage not found");
 
       // If the garage already has a different manager, unassign them first
       if (garage[0].ManagerID && Number(garage[0].ManagerID) !== Number(userId)) {
         console.log(`[assignUserToGarage] Garage ${targetGarageId} has another manager ${garage[0].ManagerID}. Unassigning current mapping.`);
-        // To avoid FK violation, NULL the ManagerID in Garages before deleting from GarageManagers
-        await db.query("UPDATE Garages SET ManagerID = NULL WHERE GarageID = ?", [targetGarageId]);
-        await db.query("DELETE FROM GarageManagers WHERE UserID = ? AND GarageID = ?", [garage[0].ManagerID, targetGarageId]);
+        // To avoid FK violation, NULL the ManagerID in garages before deleting from garagemanagers
+        await db.query("UPDATE garages SET ManagerID = NULL WHERE GarageID = ?", [targetGarageId]);
+        await db.query("DELETE FROM garagemanagers WHERE UserID = ? AND GarageID = ?", [garage[0].ManagerID, targetGarageId]);
       }
 
       // Ensure user is not managing another garage (unassign from old one)
-      const [oldMapping] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [userId]);
+      const [oldMapping] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [userId]);
       if (oldMapping.length > 0) {
         console.log(`[assignUserToGarage] User ${userId} was managing garage ${oldMapping[0].GarageID}. NULLing old reference.`);
-        await db.query("UPDATE Garages SET ManagerID = NULL WHERE GarageID = ?", [oldMapping[0].GarageID]);
-        await db.query("DELETE FROM GarageManagers WHERE UserID = ?", [userId]);
+        await db.query("UPDATE garages SET ManagerID = NULL WHERE GarageID = ?", [oldMapping[0].GarageID]);
+        await db.query("DELETE FROM garagemanagers WHERE UserID = ?", [userId]);
       }
 
       // Now insert new mapping
-      await db.query("INSERT INTO GarageManagers (UserID, GarageID) VALUES (?, ?)", [userId, targetGarageId]);
-      await db.query("UPDATE Garages SET ManagerID = ? WHERE GarageID = ?", [userId, targetGarageId]);
+      await db.query("INSERT INTO garagemanagers (UserID, GarageID) VALUES (?, ?)", [userId, targetGarageId]);
+      await db.query("UPDATE garages SET ManagerID = ? WHERE GarageID = ?", [userId, targetGarageId]);
       return;
     }
   }
 
-  // 2. GarageManager Rule: Only assign Mechanics to OWN garage
+  // 2. GarageManager Rule: Only assign mechanics to OWN garage
   else if (assignerRole === "GarageManager") {
     // Fetch assigner's garage
-    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [assignerId]);
+    const [managerRecord] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [assignerId]);
     if (!managerRecord.length) throw new Error("Assigner is not linked to a garage");
 
     const assignerGarageId = managerRecord[0].GarageID;
@@ -220,9 +220,9 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
     }
 
     // Assign Mechanic logic
-    await db.query("DELETE FROM Mechanics WHERE UserID = ?", [userId]);
-    await db.query("INSERT INTO Mechanics (UserID, GarageID) VALUES (?, ?)", [userId, assignerGarageId]);
-    await db.query("UPDATE Users SET Role = 'Mechanic' WHERE UserID = ?", [userId]);
+    await db.query("DELETE FROM mechanics WHERE UserID = ?", [userId]);
+    await db.query("INSERT INTO mechanics (UserID, GarageID) VALUES (?, ?)", [userId, assignerGarageId]);
+    await db.query("UPDATE users SET Role = 'Mechanic' WHERE UserID = ?", [userId]);
   }
 
   else {
@@ -233,13 +233,13 @@ export const assignUserToGarage = async (userId, targetGarageId, assigner) => {
 };
 
 export const unassignManagerFromGarage = async (garageId) => {
-  await db.query("DELETE FROM GarageManagers WHERE GarageID = ?", [garageId]);
-  await db.query("UPDATE Garages SET ManagerID = NULL WHERE GarageID = ?", [garageId]);
+  await db.query("DELETE FROM garagemanagers WHERE GarageID = ?", [garageId]);
+  await db.query("UPDATE garages SET ManagerID = NULL WHERE GarageID = ?", [garageId]);
 };
 
 export const getAllUsers = async () => {
   const [rows] = await db.query(
-    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status, CreatedAt FROM Users ORDER BY CreatedAt DESC"
+    "SELECT UserID, FullName, Email, PhoneNumber, Role, Status, CreatedAt FROM users ORDER BY CreatedAt DESC"
   );
   return rows;
 };
@@ -248,9 +248,9 @@ export const getAllManagers = async () => {
   const [rows] = await db.query(`
     SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status, u.CreatedAt,
            g.GarageID, g.Name AS GarageName
-    FROM Users u
-    LEFT JOIN GarageManagers gm ON u.UserID = gm.UserID
-    LEFT JOIN Garages g ON gm.GarageID = g.GarageID
+    FROM users u
+    LEFT JOIN garagemanagers gm ON u.UserID = gm.UserID
+    LEFT JOIN garages g ON gm.GarageID = g.GarageID
     WHERE u.Role = 'GarageManager'
     ORDER BY u.CreatedAt DESC
   `);
@@ -262,9 +262,9 @@ export const getAllOwners = async () => {
   const [rows] = await db.query(`
     SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status, u.CreatedAt,
            go.GarageID, g.Name AS GarageName
-    FROM Users u
-    LEFT JOIN GarageOwners go ON u.UserID = go.UserID
-    LEFT JOIN Garages g ON go.GarageID = g.GarageID
+    FROM users u
+    LEFT JOIN garageowners go ON u.UserID = go.UserID
+    LEFT JOIN garages g ON go.GarageID = g.GarageID
     WHERE u.Role = 'GarageOwner'
     ORDER BY u.CreatedAt DESC
   `);
@@ -274,8 +274,8 @@ export const getAllOwners = async () => {
 export const getMechanicsByGarage = async (garageId) => {
   const [rows] = await db.query(
     `SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status 
-     FROM Users u 
-     JOIN Mechanics m ON u.UserID = m.UserID 
+     FROM users u 
+     JOIN mechanics m ON u.UserID = m.UserID 
      WHERE m.GarageID = ? AND u.Status != 'Archived'`,
     [garageId]
   );
@@ -305,7 +305,7 @@ export const getMechanicsByGarage = async (garageId) => {
 
 export const getAccountantsByGarage = async (garageId, user) => {
   if (user.role === "GarageManager") {
-    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+    const [managerRecord] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [user.id]);
     if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(garageId)) {
       const error = new Error("Garage Managers can only view accountants in their own garage");
       error.status = 403;
@@ -315,8 +315,8 @@ export const getAccountantsByGarage = async (garageId, user) => {
 
   const [rows] = await db.query(
     `SELECT u.UserID, u.FullName, u.Email, u.PhoneNumber, u.Status
-     FROM Users u
-     JOIN Accountants a ON u.UserID = a.UserID
+     FROM users u
+     JOIN accountants a ON u.UserID = a.UserID
      WHERE a.GarageID = ? AND u.Status != 'Archived'
      ORDER BY u.CreatedAt DESC`,
     [garageId]
@@ -332,22 +332,22 @@ export const createGarageAccountant = async (garageId, accountantUserId, user) =
     throw error;
   }
 
-  const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+  const [managerRecord] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [user.id]);
   if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(garageId)) {
     const error = new Error("Garage Managers can only create accountants in their own garage");
     error.status = 403;
     throw error;
   }
 
-  await db.query("DELETE FROM Mechanics WHERE UserID = ?", [accountantUserId]);
-  await db.query("DELETE FROM Accountants WHERE UserID = ?", [accountantUserId]);
-  await db.query("INSERT INTO Accountants (UserID, GarageID) VALUES (?, ?)", [accountantUserId, garageId]);
-  await db.query("UPDATE Users SET Role = 'Accountant' WHERE UserID = ?", [accountantUserId]);
+  await db.query("DELETE FROM mechanics WHERE UserID = ?", [accountantUserId]);
+  await db.query("DELETE FROM accountants WHERE UserID = ?", [accountantUserId]);
+  await db.query("INSERT INTO accountants (UserID, GarageID) VALUES (?, ?)", [accountantUserId, garageId]);
+  await db.query("UPDATE users SET Role = 'Accountant' WHERE UserID = ?", [accountantUserId]);
 };
 
 export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user) => {
   if (user.role === "GarageManager") {
-    const [managerRecord] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [user.id]);
+    const [managerRecord] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [user.id]);
     if (!managerRecord.length || Number(managerRecord[0].GarageID) !== Number(garageId)) {
       const error = new Error("Garage Managers can only modify mechanics in their own garage");
       error.status = 403;
@@ -356,15 +356,15 @@ export const changeMechanicStatus = async (garageId, mechanicId, newStatus, user
   }
 
   // Verify mechanic belongs to this garage
-  const [mechanic] = await db.query("SELECT * FROM Mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
+  const [mechanic] = await db.query("SELECT * FROM mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
   if (!mechanic.length) {
     const error = new Error("Mechanic not found in this garage");
     error.status = 404;
     throw error;
   }
 
-  // Update status in Users table
-  await db.query("UPDATE Users SET Status = ? WHERE UserID = ?", [newStatus, mechanicId]);
+  // Update status in users table
+  await db.query("UPDATE users SET Status = ? WHERE UserID = ?", [newStatus, mechanicId]);
 };
 
 export const getMechanicSkills = async (mechanicId) => {
@@ -379,7 +379,7 @@ export const getMechanicSkills = async (mechanicId) => {
 export const setMechanicSkills = async (garageId, mechanicId, skills, user) => {
   await ensureMechanicSkillsTable();
   // Verify mechanic belongs to this garage
-  const [mechanic] = await db.query("SELECT * FROM Mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
+  const [mechanic] = await db.query("SELECT * FROM mechanics WHERE UserID = ? AND GarageID = ?", [mechanicId, garageId]);
   if (!mechanic.length) {
     const error = new Error("Mechanic not found in this garage");
     error.status = 404;

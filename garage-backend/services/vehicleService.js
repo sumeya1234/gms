@@ -2,7 +2,7 @@ import db from "../config/db.js";
 
 export const createVehicle = async (plateNumber, type, model, customerId) => {
   await db.query(
-    `INSERT INTO Vehicles (PlateNumber, Type, Model, CustomerID)
+    `INSERT INTO vehicles (PlateNumber, Type, Model, CustomerID)
      VALUES (?, ?, ?, ?)`,
     [plateNumber, type, model, customerId]
   );
@@ -10,14 +10,14 @@ export const createVehicle = async (plateNumber, type, model, customerId) => {
 
 export const fetchMyVehicles = async (customerId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Vehicles WHERE CustomerID = ?",
+    "SELECT * FROM vehicles WHERE CustomerID = ?",
     [customerId]
   );
   return rows;
 };
 
 export const fetchVehicleById = async (id, customerId) => {
-  const [rows] = await db.query("SELECT * FROM Vehicles WHERE VehicleID = ? AND CustomerID = ?", [id, customerId]);
+  const [rows] = await db.query("SELECT * FROM vehicles WHERE VehicleID = ? AND CustomerID = ?", [id, customerId]);
   if (rows.length === 0) {
     const error = new Error("Vehicle not found or unauthorized");
     error.status = 404;
@@ -53,7 +53,7 @@ export const modifyVehicle = async (id, customerId, updateData) => {
   values.push(id, customerId);
 
   await db.query(
-    `UPDATE Vehicles SET ${updates.join(', ')} WHERE VehicleID = ? AND CustomerID = ?`,
+    `UPDATE vehicles SET ${updates.join(', ')} WHERE VehicleID = ? AND CustomerID = ?`,
     values
   );
 };
@@ -62,5 +62,5 @@ export const removeVehicle = async (id, customerId) => {
   // Check if vehicle exists and belongs to user
   await fetchVehicleById(id, customerId);
   
-  await db.query("DELETE FROM Vehicles WHERE VehicleID = ? AND CustomerID = ?", [id, customerId]);
+  await db.query("DELETE FROM vehicles WHERE VehicleID = ? AND CustomerID = ?", [id, customerId]);
 };

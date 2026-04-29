@@ -4,9 +4,9 @@ import db from "./config/db.js";
 
 async function migrate() {
     try {
-        console.log("Starting migration: Creating SystemConfigs table...");
+        console.log("Starting migration: Creating systemconfigs table...");
         await db.query(`
-            CREATE TABLE IF NOT EXISTS SystemConfigs (
+            CREATE TABLE IF NOT EXISTS systemconfigs (
                 ConfigKey VARCHAR(100) PRIMARY KEY,
                 ConfigValue JSON NOT NULL,
                 Description TEXT,
@@ -42,12 +42,12 @@ async function migrate() {
 
         for (const config of configs) {
             await db.query(
-                "INSERT INTO SystemConfigs (ConfigKey, ConfigValue, Description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ConfigValue = VALUES(ConfigValue), Description = VALUES(Description)",
+                "INSERT INTO systemconfigs (ConfigKey, ConfigValue, Description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ConfigValue = VALUES(ConfigValue), Description = VALUES(Description)",
                 [config.key, config.value, config.description]
             );
         }
 
-        console.log("Migration complete: SystemConfigs table created and seeded.");
+        console.log("Migration complete: systemconfigs table created and seeded.");
     } catch (error) {
         console.error("Migration failed:", error);
     } finally {

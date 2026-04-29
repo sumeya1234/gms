@@ -460,7 +460,7 @@ CREATE TRIGGER `limit_mechanic_jobs` BEFORE INSERT ON `mechanicassignments` FOR 
     DECLARE active_jobs INT;
 
     SELECT COUNT(*) INTO active_jobs
-    FROM MechanicAssignments
+    FROM mechanicassignments
     WHERE MechanicID = NEW.MechanicID
     AND Status IN ('Assigned','InProgress');
 
@@ -920,8 +920,8 @@ CREATE TRIGGER `review_after_completion` BEFORE INSERT ON `reviews` FOR EACH ROW
     DECLARE completed_count INT;
 
     SELECT COUNT(*) INTO completed_count
-    FROM ServiceRequests SR
-    JOIN Vehicles V ON SR.VehicleID = V.VehicleID
+    FROM servicerequests SR
+    JOIN vehicles V ON SR.VehicleID = V.VehicleID
     WHERE V.CustomerID = NEW.CustomerID
     AND SR.Status = 'Completed';
 

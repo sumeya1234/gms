@@ -4,7 +4,7 @@ import app from '../../app.js';
 import { createTestUserWithToken } from '../utils/testUtils.js';
 import db from '../../config/db.js';
 
-describe('Reviews and Complaints Endpoints', () => {
+describe('reviews and complaints Endpoints', () => {
     let superAdmin, manager, customer1, customer2;
     let garageId, vehicleId, requestId, reviewId, complaintId;
 
@@ -45,14 +45,14 @@ describe('Reviews and Complaints Endpoints', () => {
         await request(app).put(`/api/services/${requestId}/status`).set('Authorization', `Bearer ${manager.token}`).send({ status: 'Approved' });
 
         // Mock Payment Completed via DB bypass since we already test endpoints
-        await db.query("INSERT INTO Payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate) VALUES (?, 100, 'Cash', 'Completed', NOW())", [requestId]);
+        await db.query("INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate) VALUES (?, 100, 'Cash', 'Completed', NOW())", [requestId]);
 
         // Complete the service
         const compRes = await request(app).put('/api/services/complete').set('Authorization', `Bearer ${manager.token}`).send({ requestId });
         if (compRes.status !== 200) console.error("Complete Service Failed:", compRes.body);
 
         // Force DB state to guarantee Review tests can execute
-        await db.query("UPDATE ServiceRequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
+        await db.query("UPDATE servicerequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
     }, 30000);
 
     it('Should block Customer 2 from leaving a review (no completed services)', async () => {

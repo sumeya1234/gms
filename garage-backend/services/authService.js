@@ -10,7 +10,7 @@ export const registerUser = async (userData) => {
   let result;
   try {
     [result] = await db.query(
-      `INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, Role)
+      `INSERT INTO users (FullName, Email, PhoneNumber, PasswordHash, Role)
        VALUES (?, ?, ?, ?, ?)`,
       [fullName, email, phone, hashedPassword, role]
     );
@@ -28,19 +28,19 @@ export const registerUser = async (userData) => {
 
   // Insert into role table based on constrained explicit logic
   if (role === "Customer") {
-    await db.query("INSERT INTO Customers (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT INTO customers (UserID) VALUES (?)", [userId]);
   } else if (role === "SuperAdmin") {
-    await db.query("INSERT INTO SuperAdmins (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT INTO superadmins (UserID) VALUES (?)", [userId]);
   } else if (role === "GarageManager") {
     // Note: GarageID must be assigned separately via updateRole/assignToGarage
-    await db.query("INSERT INTO GarageManagers (UserID) VALUES (?)", [userId]);
+    await db.query("INSERT INTO garagemanagers (UserID) VALUES (?)", [userId]);
   }
 
   return { userId, role };
 };
 
 export const loginUser = async (email, password) => {
-  const [rows] = await db.query("SELECT * FROM Users WHERE Email = ?", [email]);
+  const [rows] = await db.query("SELECT * FROM users WHERE Email = ?", [email]);
 
   if (rows.length === 0) {
     const error = new Error("User not found");
@@ -74,7 +74,7 @@ export const loginUser = async (email, password) => {
 };
 
 export const generatePasswordResetOTP = async (email) => {
-  const [rows] = await db.query("SELECT UserID FROM Users WHERE Email = ?", [email]);
+  const [rows] = await db.query("SELECT UserID FROM users WHERE Email = ?", [email]);
   if (rows.length === 0) {
     const error = new Error("User with that email not found");
     error.status = 404;
@@ -88,7 +88,7 @@ export const generatePasswordResetOTP = async (email) => {
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   await db.query(
-    "INSERT INTO PasswordResets (Email, OTP, ExpiresAt) VALUES (?, ?, ?)",
+    "INSERT INTO passwordresets (Email, OTP, ExpiresAt) VALUES (?, ?, ?)",
     [email, otp, expiresAt]
   );
 
@@ -98,7 +98,7 @@ export const generatePasswordResetOTP = async (email) => {
 export const verifyAndResetPassword = async (email, otp, newPassword) => {
   // Check if OTP is valid and not expired
   const [resetRows] = await db.query(
-    "SELECT * FROM PasswordResets WHERE Email = ? AND OTP = ? AND ExpiresAt > NOW()",
+    "SELECT * FROM passwordresets WHERE Email = ? AND OTP = ? AND ExpiresAt > NOW()",
     [email, otp]
   );
 
@@ -113,7 +113,7 @@ export const verifyAndResetPassword = async (email, otp, newPassword) => {
 
   // Update user's password
   const [updateResult] = await db.query(
-    "UPDATE Users SET PasswordHash = ? WHERE Email = ?",
+    "UPDATE users SET PasswordHash = ? WHERE Email = ?",
     [hashedPassword, email]
   );
 
@@ -124,7 +124,7 @@ export const verifyAndResetPassword = async (email, otp, newPassword) => {
   }
 
   // Delete all password resets for this email to prevent reuse
-  await db.query("DELETE FROM PasswordResets WHERE Email = ?", [email]);
+  await db.query("DELETE FROM passwordresets WHERE Email = ?", [email]);
 
   return true;
 };

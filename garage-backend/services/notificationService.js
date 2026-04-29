@@ -8,12 +8,12 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
   // 1. Insert into DB (In-App)
   try {
     await db.query(
-      "INSERT INTO Notifications (UserID, Title, Message, Type) VALUES (?, ?, ?, ?)",
+      "INSERT INTO notifications (UserID, Title, Message, Type) VALUES (?, ?, ?, ?)",
       [userId, title, message, type]
     );
 
     // 2. Fetch User's Push Tokens
-    const [tokens] = await db.query("SELECT Token FROM PushTokens WHERE UserID = ?", [userId]);
+    const [tokens] = await db.query("SELECT Token FROM pushtokens WHERE UserID = ?", [userId]);
 
     if (tokens.length > 0) {
       const expoTokens = [];
@@ -27,7 +27,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
         }
       });
 
-      // --- Handle Expo Notifications ---
+      // --- Handle Expo notifications ---
       if (expoTokens.length > 0) {
         let messages = [];
         for (let pushToken of expoTokens) {
@@ -52,7 +52,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
         }
       }
 
-      // --- Handle FCM Notifications ---
+      // --- Handle FCM notifications ---
       if (fcmTokens.length > 0 && messaging) {
         const payload = {
           tokens: fcmTokens,
@@ -76,7 +76,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
             });
 
             if (cleanupTokens.length > 0) {
-              await db.query("DELETE FROM PushTokens WHERE Token IN (?)", [cleanupTokens]);
+              await db.query("DELETE FROM pushtokens WHERE Token IN (?)", [cleanupTokens]);
             }
           }
         } catch (fcmError) {
@@ -94,7 +94,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
 
 export const fetchMyNotifications = async (userId) => {
   const [rows] = await db.query(
-    "SELECT * FROM Notifications WHERE UserID = ? ORDER BY CreatedAt DESC",
+    "SELECT * FROM notifications WHERE UserID = ? ORDER BY CreatedAt DESC",
     [userId]
   );
   return rows;
@@ -102,35 +102,35 @@ export const fetchMyNotifications = async (userId) => {
 
 export const markAsRead = async (notificationId, userId) => {
   await db.query(
-    "UPDATE Notifications SET IsRead = TRUE WHERE NotificationID = ? AND UserID = ?",
+    "UPDATE notifications SET IsRead = TRUE WHERE NotificationID = ? AND UserID = ?",
     [notificationId, userId]
   );
 };
 
 export const deleteNotification = async (notificationId, userId) => {
   await db.query(
-    "DELETE FROM Notifications WHERE NotificationID = ? AND UserID = ?",
+    "DELETE FROM notifications WHERE NotificationID = ? AND UserID = ?",
     [notificationId, userId]
   );
 };
 
 export const deleteAllNotifications = async (userId) => {
   await db.query(
-    "DELETE FROM Notifications WHERE UserID = ?",
+    "DELETE FROM notifications WHERE UserID = ?",
     [userId]
   );
 };
 
 export const deleteNotificationByType = async (userId, type) => {
   await db.query(
-    "DELETE FROM Notifications WHERE UserID = ? AND Type = ?",
+    "DELETE FROM notifications WHERE UserID = ? AND Type = ?",
     [userId, type]
   );
 };
 
 export const savePushToken = async (userId, token, deviceType) => {
   await db.query(
-    "INSERT INTO PushTokens (UserID, Token, DeviceType) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Token = ?",
+    "INSERT INTO pushtokens (UserID, Token, DeviceType) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Token = ?",
     [userId, token, deviceType, token]
   );
 };

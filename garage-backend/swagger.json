@@ -162,7 +162,7 @@
     },
     "/api/users/{userId}/garage": {
       "put": {
-        "tags": ["Users"],
+        "tags": ["users"],
         "summary": "Assign User to Garage & Update Role",
         "description": "Promotes a user to a specific role and assigns them to a garage.\n\n**Workflows:**\n1. **Super Admin adds Garage Manager:** Call this endpoint with `garageId`. The target user will be promoted to `GarageManager` and linked to the specified garage.\n2. **Garage Manager adds Mechanic:** Call this endpoint with the ID of their own garage. The target user will be promoted to `Mechanic` and linked to that garage.",
         "parameters": [
@@ -198,7 +198,7 @@
     },
     "/api/users/{userId}/role": {
       "put": {
-        "tags": ["Users"],
+        "tags": ["users"],
         "summary": "Update User Role (Super Admin Only)",
         "description": "Directly changes the role of a user.",
         "parameters": [
@@ -230,6 +230,6 @@
   },
   "tags": [
     { "name": "Auth", "description": "Authentication and Registration" },
-    { "name": "Users", "description": "User management and role assignments" }
+    { "name": "users", "description": "User management and role assignments" }
   ]
 }

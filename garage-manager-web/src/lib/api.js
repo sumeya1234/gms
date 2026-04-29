@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Make sure this matches your backend URL
+  baseURL: 'https://gms-1-v6wu.onrender.com/api', 
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,7 +21,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor — only logout on genuine 401 responses from server
 api.interceptors.response.use(
   (response) => response,
   (error) => {

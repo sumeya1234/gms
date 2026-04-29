@@ -29,7 +29,7 @@ describe('Service Requests Endpoints', () => {
             });
 
         // Fetch it back to get ID 
-        // We know it's there, but let's query DB to be safe or use GET Garages
+        // We know it's there, but let's query DB to be safe or use GET garages
         const allGarages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = allGarages.body.find(g => g.Name === "Service Test Garage").GarageID;
 
@@ -128,7 +128,7 @@ describe('Service Requests Endpoints', () => {
 
         // Fetch mechanicAssignmentId from DB to test Mechanic endpoints
         const [assignment] = await db.query(
-            "SELECT AssignmentID FROM MechanicAssignments WHERE RequestID = ? AND MechanicID = ?",
+            "SELECT AssignmentID FROM mechanicassignments WHERE RequestID = ? AND MechanicID = ?",
             [requestId, mechanic.userId]
         );
         mechanicAssignmentId = assignment[0].AssignmentID;

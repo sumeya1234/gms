@@ -1,33 +1,33 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS ServiceItems;
-DROP TABLE IF EXISTS ComplaintMessages;
-DROP TABLE IF EXISTS Complaints;
-DROP TABLE IF EXISTS Reviews;
-DROP TABLE IF EXISTS Payments;
-DROP TABLE IF EXISTS GarageServices;
-DROP TABLE IF EXISTS InventoryRequests;
-DROP TABLE IF EXISTS Inventory;
-DROP TABLE IF EXISTS MechanicAssignments;
-DROP TABLE IF EXISTS ServiceRequests;
-DROP TABLE IF EXISTS Vehicles;
-DROP TABLE IF EXISTS Mechanics;
-DROP TABLE IF EXISTS Accountants;
-DROP TABLE IF EXISTS GarageManagers;
-DROP TABLE IF EXISTS GarageOwners;
-DROP TABLE IF EXISTS SuperAdmins;
-DROP TABLE IF EXISTS Customers;
-DROP TABLE IF EXISTS Garages;
-DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Notifications;
-DROP TABLE IF EXISTS PushTokens;
-DROP TABLE IF EXISTS PasswordResets;
-DROP TABLE IF EXISTS SystemConfigs;
+DROP TABLE IF EXISTS serviceitems;
+DROP TABLE IF EXISTS complaintmessages;
+DROP TABLE IF EXISTS complaints;
+DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS garageservices;
+DROP TABLE IF EXISTS inventoryrequests;
+DROP TABLE IF EXISTS inventory;
+DROP TABLE IF EXISTS mechanicassignments;
+DROP TABLE IF EXISTS servicerequests;
+DROP TABLE IF EXISTS vehicles;
+DROP TABLE IF EXISTS mechanics;
+DROP TABLE IF EXISTS accountants;
+DROP TABLE IF EXISTS garagemanagers;
+DROP TABLE IF EXISTS garageowners;
+DROP TABLE IF EXISTS superadmins;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS garages;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS pushtokens;
+DROP TABLE IF EXISTS passwordresets;
+DROP TABLE IF EXISTS systemconfigs;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
 
-CREATE TABLE Users (
+CREATE TABLE users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
@@ -38,17 +38,17 @@ CREATE TABLE Users (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE Customers (
+CREATE TABLE customers (
     UserID INT PRIMARY KEY,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE
 );
 
-CREATE TABLE SuperAdmins (
+CREATE TABLE superadmins (
     UserID INT PRIMARY KEY,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    FOREIGN KEY (UserID) REFERENCES users(UserID)
 );
 
-CREATE TABLE Garages (
+CREATE TABLE garages (
     GarageID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(100),
     Location VARCHAR(255),
@@ -64,47 +64,47 @@ CREATE TABLE Garages (
     ManagerID INT UNIQUE
 );
 
-CREATE TABLE GarageManagers (
+CREATE TABLE garagemanagers (
     UserID INT PRIMARY KEY,
     GarageID INT UNIQUE,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID) ON DELETE CASCADE
 );
 
-CREATE TABLE GarageOwners (
+CREATE TABLE garageowners (
     UserID INT PRIMARY KEY,
     GarageID INT UNIQUE,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID) ON DELETE CASCADE
 );
 
-ALTER TABLE Garages
-ADD FOREIGN KEY (ManagerID) REFERENCES GarageManagers(UserID);
+ALTER TABLE garages
+ADD FOREIGN KEY (ManagerID) REFERENCES garagemanagers(UserID);
 
-CREATE TABLE Mechanics (
+CREATE TABLE mechanics (
     UserID INT PRIMARY KEY,
     GarageID INT,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
 );
 
-CREATE TABLE Accountants (
+CREATE TABLE accountants (
     UserID INT PRIMARY KEY,
     GarageID INT,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+    FOREIGN KEY (UserID) REFERENCES users(UserID),
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
 );
 
-CREATE TABLE Vehicles (
+CREATE TABLE vehicles (
     VehicleID INT AUTO_INCREMENT PRIMARY KEY,
     PlateNumber VARCHAR(20) UNIQUE,
     Type VARCHAR(50),
     Model VARCHAR(50),
     CustomerID INT,
-    FOREIGN KEY (CustomerID) REFERENCES Customers(UserID)
+    FOREIGN KEY (CustomerID) REFERENCES customers(UserID)
 );
 
-CREATE TABLE ServiceRequests (
+CREATE TABLE servicerequests (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     ServiceType VARCHAR(100),
     Description TEXT,
@@ -122,11 +122,11 @@ CREATE TABLE ServiceRequests (
     EstimatedPrice DECIMAL(10,2) NULL,
     DepositPercentage DECIMAL(5,2) NULL,
     IsDepositPaid BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+    FOREIGN KEY (VehicleID) REFERENCES vehicles(VehicleID),
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
 );
 
-CREATE TABLE Inventory (
+CREATE TABLE inventory (
     ItemID INT AUTO_INCREMENT PRIMARY KEY,
     ItemName VARCHAR(100),
     Quantity INT CHECK (Quantity >= 0),
@@ -135,48 +135,48 @@ CREATE TABLE Inventory (
     SupplierEmail VARCHAR(100) NULL,
     SupplierPhone VARCHAR(20) NULL,
     GarageID INT,
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
 );
 
-CREATE TABLE ServiceItems (
+CREATE TABLE serviceitems (
     RequestID INT,
     ItemID INT,
     QuantityUsed INT,
     PRIMARY KEY (RequestID, ItemID),
-    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID) ON DELETE CASCADE,
-    FOREIGN KEY (ItemID) REFERENCES Inventory(ItemID) ON DELETE CASCADE
+    FOREIGN KEY (RequestID) REFERENCES servicerequests(RequestID) ON DELETE CASCADE,
+    FOREIGN KEY (ItemID) REFERENCES inventory(ItemID) ON DELETE CASCADE
 );
 
-CREATE TABLE MechanicAssignments (
+CREATE TABLE mechanicassignments (
     AssignmentID INT AUTO_INCREMENT PRIMARY KEY,
     RequestID INT,
     MechanicID INT,
     AssignedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CompletionDate TIMESTAMP NULL,
     Status ENUM('Assigned','InProgress','Completed') DEFAULT 'Assigned',
-    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID),
-    FOREIGN KEY (MechanicID) REFERENCES Mechanics(UserID)
+    FOREIGN KEY (RequestID) REFERENCES servicerequests(RequestID),
+    FOREIGN KEY (MechanicID) REFERENCES mechanics(UserID)
 );
 
-CREATE TABLE GarageServices (
+CREATE TABLE garageservices (
     ServiceID INT AUTO_INCREMENT PRIMARY KEY,
     ServiceName VARCHAR(100),
     Price DECIMAL(10,2),
     GarageID INT,
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID) ON DELETE CASCADE
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID) ON DELETE CASCADE
 );
 
-CREATE TABLE InventoryRequests (
+CREATE TABLE inventoryrequests (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     MechanicID INT,
     ItemID INT,
     QuantityRequested INT,
     Status ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
-    FOREIGN KEY (MechanicID) REFERENCES Mechanics(UserID),
-    FOREIGN KEY (ItemID) REFERENCES Inventory(ItemID)
+    FOREIGN KEY (MechanicID) REFERENCES mechanics(UserID),
+    FOREIGN KEY (ItemID) REFERENCES inventory(ItemID)
 );
 
-CREATE TABLE Payments (
+CREATE TABLE payments (
     PaymentID INT AUTO_INCREMENT PRIMARY KEY,
     Amount DECIMAL(10,2),
     PaymentMethod ENUM('Cash','Chapa'),
@@ -185,11 +185,11 @@ CREATE TABLE Payments (
     PaymentDate TIMESTAMP,
     RequestID INT,
     TransactionRef VARCHAR(100) UNIQUE,
-    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID),
+    FOREIGN KEY (RequestID) REFERENCES servicerequests(RequestID),
     UNIQUE (RequestID, PaymentCategory)
 );
 
-CREATE TABLE Reviews (
+CREATE TABLE reviews (
     ReviewID INT AUTO_INCREMENT PRIMARY KEY,
     Rating INT CHECK (Rating BETWEEN 1 AND 5),
     Comment TEXT,
@@ -197,12 +197,12 @@ CREATE TABLE Reviews (
     CustomerID INT,
     GarageID INT,
     RequestID INT UNIQUE,
-    FOREIGN KEY (CustomerID) REFERENCES Customers(UserID),
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID),
-    FOREIGN KEY (RequestID) REFERENCES ServiceRequests(RequestID)
+    FOREIGN KEY (CustomerID) REFERENCES customers(UserID),
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID),
+    FOREIGN KEY (RequestID) REFERENCES servicerequests(RequestID)
 );
 
-CREATE TABLE Complaints (
+CREATE TABLE complaints (
     ComplaintID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT,
     GarageID INT,
@@ -211,22 +211,22 @@ CREATE TABLE Complaints (
     Status ENUM('Pending','Reviewed','Resolved') DEFAULT 'Pending',
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ResolvedBy INT,
-    FOREIGN KEY (CustomerID) REFERENCES Customers(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (GarageID) REFERENCES Garages(GarageID) ON DELETE CASCADE,
-    FOREIGN KEY (ResolvedBy) REFERENCES Users(UserID) ON DELETE SET NULL
+    FOREIGN KEY (CustomerID) REFERENCES customers(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (GarageID) REFERENCES garages(GarageID) ON DELETE CASCADE,
+    FOREIGN KEY (ResolvedBy) REFERENCES users(UserID) ON DELETE SET NULL
 );
 
-CREATE TABLE ComplaintMessages (
+CREATE TABLE complaintmessages (
     MessageID INT AUTO_INCREMENT PRIMARY KEY,
     ComplaintID INT NOT NULL,
     SenderID INT NOT NULL,
     Message TEXT NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ComplaintID) REFERENCES Complaints(ComplaintID) ON DELETE CASCADE,
-    FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE
+    FOREIGN KEY (ComplaintID) REFERENCES complaints(ComplaintID) ON DELETE CASCADE,
+    FOREIGN KEY (SenderID) REFERENCES users(UserID) ON DELETE CASCADE
 );
 
-CREATE TABLE Notifications (
+CREATE TABLE notifications (
     NotificationID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
     Title VARCHAR(255),
@@ -234,19 +234,19 @@ CREATE TABLE Notifications (
     Type VARCHAR(50),
     IsRead BOOLEAN DEFAULT FALSE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE
 );
 
-CREATE TABLE PushTokens (
+CREATE TABLE pushtokens (
     TokenID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT UNIQUE,
     Token VARCHAR(255) UNIQUE,
     DeviceType VARCHAR(50),
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE
 );
 
-CREATE TABLE PasswordResets (
+CREATE TABLE passwordresets (
     ResetID INT AUTO_INCREMENT PRIMARY KEY,
     Email VARCHAR(100) NOT NULL,
     OTP VARCHAR(10) NOT NULL,
@@ -255,12 +255,12 @@ CREATE TABLE PasswordResets (
 );
 
 CREATE TRIGGER limit_mechanic_jobs
-BEFORE INSERT ON MechanicAssignments
+BEFORE INSERT ON mechanicassignments
 FOR EACH ROW
 BEGIN
     DECLARE active_jobs INT;
     SELECT COUNT(*) INTO active_jobs
-    FROM MechanicAssignments
+    FROM mechanicassignments
     WHERE MechanicID = NEW.MechanicID
     AND Status IN ('Assigned','InProgress');
 
@@ -270,14 +270,14 @@ BEGIN
     END IF;
 END;
 
-CREATE TABLE SystemConfigs (
+CREATE TABLE systemconfigs (
     ConfigKey VARCHAR(100) PRIMARY KEY,
     ConfigValue JSON NOT NULL,
     Description TEXT,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-INSERT INTO SystemConfigs (ConfigKey, ConfigValue, Description) VALUES
+INSERT INTO systemconfigs (ConfigKey, ConfigValue, Description) VALUES
 ('service_duration_baselines', '{
     "oil change": 0.5,
     "diagnostics": 1.5,

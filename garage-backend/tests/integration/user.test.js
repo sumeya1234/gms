@@ -70,7 +70,7 @@ describe('User Profiles & Admin Tools', () => {
         });
     });
 
-    describe('Notifications and Tokens', () => {
+    describe('notifications and Tokens', () => {
         it('Should register push token for a user (POST /api/users/push-token)', async () => {
             const response = await request(app)
                 .post('/api/users/push-token')

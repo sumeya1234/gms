@@ -3,7 +3,7 @@ import request from 'supertest';
 import app from '../../app.js';
 import { createTestUserWithToken } from '../utils/testUtils.js';
 
-describe('Garages Endpoints', () => {
+describe('garages Endpoints', () => {
     let superAdmin, customer, manager;
     let garageId;
 
@@ -13,7 +13,7 @@ describe('Garages Endpoints', () => {
         manager = await createTestUserWithToken('GarageManager');
     });
 
-    it('Should block regular Customers from creating a garage (POST /api/garages/)', async () => {
+    it('Should block regular customers from creating a garage (POST /api/garages/)', async () => {
         const response = await request(app)
             .post('/api/garages/')
             .set('Authorization', `Bearer ${customer.token}`)

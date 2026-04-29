@@ -3,7 +3,7 @@ import request from 'supertest';
 import app from '../../app.js';
 import { createTestUserWithToken } from '../utils/testUtils.js';
 
-describe('Vehicles Endpoints', () => {
+describe('vehicles Endpoints', () => {
     let customer1, customer2;
     let vehicleId; // Persists across tests 
 

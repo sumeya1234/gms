@@ -4,14 +4,14 @@ import { calculateDuration } from "../utils/serviceUtils.js";
 import { getConfig } from "./configService.js";
 
 export const createServiceRequest = async (serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime, customerStatus) => {
-    const [garage] = await db.query("SELECT 1 FROM Garages WHERE GarageID = ?", [garageId]);
+    const [garage] = await db.query("SELECT 1 FROM garages WHERE GarageID = ?", [garageId]);
     if (garage.length === 0) {
         const error = new Error("Garage not found");
         error.status = 404;
         throw error;
     }
 
-    const [vehicleRows] = await db.query("SELECT 1 FROM Vehicles WHERE VehicleID = ?", [vehicleId]);
+    const [vehicleRows] = await db.query("SELECT 1 FROM vehicles WHERE VehicleID = ?", [vehicleId]);
     if (vehicleRows.length === 0) {
         const error = new Error("Vehicle not found");
         error.status = 404;
@@ -54,14 +54,14 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
     }
 
     await db.query(
-        `INSERT INTO ServiceRequests (ServiceType, VehicleID, GarageID, Description, IsEmergency, BookingDate, DropOffTime, EstimatedDuration, CustomerStatus)
+        `INSERT INTO servicerequests (ServiceType, VehicleID, GarageID, Description, IsEmergency, BookingDate, DropOffTime, EstimatedDuration, CustomerStatus)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [serviceType, vehicleId, garageId, description || '', isEmergency ? 1 : 0, bookingDate || null, dropOffTime || null, estimatedDuration, customerStatus || null]
     );
 
     // Notify Garage Manager
     try {
-        const [garageInfo] = await db.query("SELECT ManagerID, Name FROM Garages WHERE GarageID = ?", [garageId]);
+        const [garageInfo] = await db.query("SELECT ManagerID, Name FROM garages WHERE GarageID = ?", [garageId]);
         if (garageInfo.length > 0 && garageInfo[0].ManagerID) {
             await createNotification(
                 garageInfo[0].ManagerID,
@@ -83,36 +83,36 @@ export const fetchCustomerRequests = async (customerId) => {
         v.Model,
         v.PlateNumber,
         g.Name as GarageName,
-        (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
-        (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
-        (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as TotalPaid,
-        (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
+        (SELECT PaymentStatus FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+        (SELECT PaymentMethod FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+        (SELECT COALESCE(SUM(Amount), 0) FROM payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as TotalPaid,
+        (SELECT TransactionRef FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
         u.FullName as AssignedMechanicName,
         u.PhoneNumber as AssignedMechanicPhone,
         (SELECT COALESCE(SUM(gs.Price), 0) 
-         FROM GarageServices gs 
+         FROM garageservices gs 
          WHERE gs.GarageID = sr.GarageID 
          AND FIND_IN_SET(gs.ServiceName, REPLACE(sr.ServiceType, ', ', ','))) as BaseServicePrice,
         (SELECT COALESCE(SUM(si.QuantityUsed * i.UnitPrice), 0) 
-         FROM ServiceItems si 
-         JOIN Inventory i ON si.ItemID = i.ItemID 
+         FROM serviceitems si 
+         JOIN inventory i ON si.ItemID = i.ItemID 
          WHERE si.RequestID = sr.RequestID) as PartsCost,
-        (SELECT COUNT(*) FROM Reviews r 
+        (SELECT COUNT(*) FROM reviews r 
          WHERE r.RequestID = sr.RequestID) as HasReviewed,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
-     FROM ServiceRequests sr
-     JOIN Vehicles v ON sr.VehicleID = v.VehicleID
-     LEFT JOIN Garages g ON sr.GarageID = g.GarageID
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
+     FROM servicerequests sr
+     JOIN vehicles v ON sr.VehicleID = v.VehicleID
+     LEFT JOIN garages g ON sr.GarageID = g.GarageID
      LEFT JOIN (
         SELECT ma1.RequestID, ma1.MechanicID 
-        FROM MechanicAssignments ma1
+        FROM mechanicassignments ma1
         JOIN (
            SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
-           FROM MechanicAssignments
+           FROM mechanicassignments
            GROUP BY RequestID
         ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
      ) ma ON sr.RequestID = ma.RequestID
-     LEFT JOIN Users u ON ma.MechanicID = u.UserID
+     LEFT JOIN users u ON ma.MechanicID = u.UserID
      WHERE v.CustomerID = ? AND sr.CustomerHidden = 0
      ORDER BY sr.RequestDate DESC`,
         [customerId]
@@ -123,8 +123,8 @@ export const fetchCustomerRequests = async (customerId) => {
 export const hideCustomerRequest = async (requestId, customerId) => {
     // Verify the request belongs to this customer
     const [rows] = await db.query(
-        `SELECT sr.RequestID FROM ServiceRequests sr 
-     JOIN Vehicles v ON sr.VehicleID = v.VehicleID 
+        `SELECT sr.RequestID FROM servicerequests sr 
+     JOIN vehicles v ON sr.VehicleID = v.VehicleID 
      WHERE sr.RequestID = ? AND v.CustomerID = ?`,
         [requestId, customerId]
     );
@@ -133,7 +133,7 @@ export const hideCustomerRequest = async (requestId, customerId) => {
         error.status = 404;
         throw error;
     }
-    await db.query("UPDATE ServiceRequests SET CustomerHidden = 1 WHERE RequestID = ?", [requestId]);
+    await db.query("UPDATE servicerequests SET CustomerHidden = 1 WHERE RequestID = ?", [requestId]);
 };
 
 export const fetchGarageRequests = async (garageId, options, admin) => {
@@ -143,7 +143,7 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
     // Tenant Isolation
     if (admin.role === "GarageManager") {
         const [manager] = await db.query(
-            "SELECT 1 FROM GarageManagers WHERE UserID = ? AND GarageID = ?",
+            "SELECT 1 FROM garagemanagers WHERE UserID = ? AND GarageID = ?",
             [admin.id, garageId]
         );
         if (manager.length === 0) {
@@ -154,17 +154,17 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
     }
 
     let baseQuery = `
-    FROM ServiceRequests sr
+    FROM servicerequests sr
     LEFT JOIN (
       SELECT ma1.RequestID, ma1.MechanicID 
-      FROM MechanicAssignments ma1
+      FROM mechanicassignments ma1
       JOIN (
          SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
-         FROM MechanicAssignments
+         FROM mechanicassignments
          GROUP BY RequestID
       ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
     ) ma ON sr.RequestID = ma.RequestID
-    LEFT JOIN Users u ON ma.MechanicID = u.UserID
+    LEFT JOIN users u ON ma.MechanicID = u.UserID
     WHERE sr.GarageID = ?
   `;
 
@@ -198,11 +198,11 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
     // Data query
     let dataQuery = `
     SELECT sr.*, u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
-        (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
-        (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
-        (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
-        (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
+        (SELECT PaymentStatus FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+        (SELECT PaymentMethod FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+        (SELECT COALESCE(SUM(Amount), 0) FROM payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
+        (SELECT TransactionRef FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
+        (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
     ${baseQuery}
     ORDER BY sr.IsEmergency DESC, sr.RequestDate ${sort === 'asc' ? 'ASC' : 'DESC'}
     LIMIT ? OFFSET ?
@@ -235,7 +235,7 @@ export const fetchFilteredBookings = async (filters, admin) => {
 
     let effectiveGarageId = garageId;
     if (admin.role === "GarageManager") {
-        const [manager] = await db.query("SELECT GarageID FROM GarageManagers WHERE UserID = ?", [admin.id]);
+        const [manager] = await db.query("SELECT GarageID FROM garagemanagers WHERE UserID = ?", [admin.id]);
         if (!manager.length) {
             const error = new Error("Garage Manager is not assigned to a garage");
             error.status = 403;
@@ -243,7 +243,7 @@ export const fetchFilteredBookings = async (filters, admin) => {
         }
         effectiveGarageId = manager[0].GarageID;
     } else if (admin.role === "Accountant") {
-        const [accountant] = await db.query("SELECT GarageID FROM Accountants WHERE UserID = ?", [admin.id]);
+        const [accountant] = await db.query("SELECT GarageID FROM accountants WHERE UserID = ?", [admin.id]);
         if (!accountant.length) {
             const error = new Error("Accountant is not assigned to a garage");
             error.status = 403;
@@ -253,20 +253,20 @@ export const fetchFilteredBookings = async (filters, admin) => {
     }
 
     let baseQuery = `
-    FROM ServiceRequests sr
-    JOIN Garages g ON sr.GarageID = g.GarageID
-    LEFT JOIN Vehicles v ON sr.VehicleID = v.VehicleID
-    LEFT JOIN Users cu ON v.CustomerID = cu.UserID
+    FROM servicerequests sr
+    JOIN garages g ON sr.GarageID = g.GarageID
+    LEFT JOIN vehicles v ON sr.VehicleID = v.VehicleID
+    LEFT JOIN users cu ON v.CustomerID = cu.UserID
     LEFT JOIN(
             SELECT ma1.RequestID, ma1.MechanicID
-      FROM MechanicAssignments ma1
+      FROM mechanicassignments ma1
       JOIN(
                 SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
-         FROM MechanicAssignments
+         FROM mechanicassignments
          GROUP BY RequestID
             ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
         ) ma ON sr.RequestID = ma.RequestID
-    LEFT JOIN Users u ON ma.MechanicID = u.UserID
+    LEFT JOIN users u ON ma.MechanicID = u.UserID
     WHERE 1 = 1
         `;
     const params = [];
@@ -304,11 +304,11 @@ export const fetchFilteredBookings = async (filters, admin) => {
            v.Model as VehicleModel, v.PlateNumber as VehiclePlateNumber,
            cu.FullName as CustomerName,
            u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
-           (SELECT PaymentStatus FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
-           (SELECT PaymentMethod FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
-           (SELECT COALESCE(SUM(Amount), 0) FROM Payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
-           (SELECT TransactionRef FROM Payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
-           (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM Payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
+           (SELECT PaymentStatus FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,
+           (SELECT PaymentMethod FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentMethod,
+           (SELECT COALESCE(SUM(Amount), 0) FROM payments p WHERE p.RequestID = sr.RequestID AND p.PaymentStatus = 'Completed') as PaymentAmount,
+           (SELECT TransactionRef FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as TransactionRef,
+           (SELECT JSON_ARRAYAGG(JSON_OBJECT('Amount', p.Amount, 'PaymentMethod', p.PaymentMethod, 'PaymentStatus', p.PaymentStatus, 'PaymentCategory', p.PaymentCategory, 'TransactionRef', p.TransactionRef)) FROM payments p WHERE p.RequestID = sr.RequestID) as PaymentDetailsJson
     ${baseQuery}
     ORDER BY sr.IsEmergency DESC, sr.RequestDate ${sort === 'asc' ? 'ASC' : 'DESC'}
     LIMIT ? OFFSET ?
@@ -326,17 +326,17 @@ export const fetchFilteredBookings = async (filters, admin) => {
 export const fetchRequestById = async (requestId) => {
     const [rows] = await db.query(
         `SELECT sr.*, u.FullName as AssignedMechanicName, u.PhoneNumber as AssignedMechanicPhone 
-     FROM ServiceRequests sr
+     FROM servicerequests sr
      LEFT JOIN (
         SELECT ma1.RequestID, ma1.MechanicID 
-        FROM MechanicAssignments ma1
+        FROM mechanicassignments ma1
         JOIN (
            SELECT RequestID, MAX(AssignmentID) as MaxAssignmentID
-           FROM MechanicAssignments
+           FROM mechanicassignments
            GROUP BY RequestID
         ) ma2 ON ma1.AssignmentID = ma2.MaxAssignmentID
      ) ma ON sr.RequestID = ma.RequestID
-     LEFT JOIN Users u ON ma.MechanicID = u.UserID
+     LEFT JOIN users u ON ma.MechanicID = u.UserID
      WHERE sr.RequestID = ?`,
         [requestId]
     );
@@ -349,7 +349,7 @@ export const fetchRequestById = async (requestId) => {
 };
 
 export const fetchGarageAvailability = async (garageId, date) => {
-    const [garageRows] = await db.query("SELECT WorkingHours FROM Garages WHERE GarageID = ?", [garageId]);
+    const [garageRows] = await db.query("SELECT WorkingHours FROM garages WHERE GarageID = ?", [garageId]);
     const garageHoursRaw = garageRows[0]?.WorkingHours;
     const defaultHours = {
         monday: { isOpen: true, open: "08:00", close: "18:00" },
@@ -387,7 +387,7 @@ export const fetchGarageAvailability = async (garageId, date) => {
     }
 
     const [mechanicsCount] = await db.query(
-        "SELECT COUNT(*) as count FROM Mechanics WHERE GarageID = ?",
+        "SELECT COUNT(*) as count FROM mechanics WHERE GarageID = ?",
         [garageId]
     );
     const capacitySettings = await getConfig('garage_capacity_settings');
@@ -399,7 +399,7 @@ export const fetchGarageAvailability = async (garageId, date) => {
 
     const [activeBookings] = await db.query(
         `SELECT SUM(EstimatedDuration) as totalHours 
-     FROM ServiceRequests 
+     FROM servicerequests 
      WHERE GarageID = ? AND BookingDate = ? AND Status NOT IN ('Completed', 'Rejected')`,
         [garageId, date]
     );
@@ -409,7 +409,7 @@ export const fetchGarageAvailability = async (garageId, date) => {
 
     const [dropOffCounts] = await db.query(
         `SELECT DropOffTime, COUNT(*) as count 
-     FROM ServiceRequests 
+     FROM servicerequests 
      WHERE GarageID = ? AND BookingDate = ? AND Status NOT IN ('Completed', 'Rejected') 
      GROUP BY DropOffTime`,
         [garageId, date]
@@ -434,8 +434,8 @@ export const fetchGarageAvailability = async (garageId, date) => {
 export const cancelServiceRequest = async (requestId, customerId) => {
     const [request] = await db.query(
         `SELECT sr.*, v.CustomerID 
-     FROM ServiceRequests sr
-     JOIN Vehicles v ON sr.VehicleID = v.VehicleID
+     FROM servicerequests sr
+     JOIN vehicles v ON sr.VehicleID = v.VehicleID
      WHERE sr.RequestID = ?`,
         [requestId]
     );
@@ -462,7 +462,7 @@ export const cancelServiceRequest = async (requestId, customerId) => {
     }
 
     const [assignments] = await db.query(
-        "SELECT 1 FROM MechanicAssignments WHERE RequestID = ? AND Status IN ('InProgress', 'Completed')",
+        "SELECT 1 FROM mechanicassignments WHERE RequestID = ? AND Status IN ('InProgress', 'Completed')",
         [requestId]
     );
     if (assignments.length > 0) {
@@ -471,10 +471,10 @@ export const cancelServiceRequest = async (requestId, customerId) => {
         throw error;
     }
 
-    await db.query("UPDATE ServiceRequests SET Status = 'Cancelled' WHERE RequestID = ?", [requestId]);
+    await db.query("UPDATE servicerequests SET Status = 'Cancelled' WHERE RequestID = ?", [requestId]);
 
     try {
-        const [garageInfo] = await db.query("SELECT ManagerID, Name FROM Garages WHERE GarageID = ?", [request[0].GarageID]);
+        const [garageInfo] = await db.query("SELECT ManagerID, Name FROM garages WHERE GarageID = ?", [request[0].GarageID]);
         if (garageInfo.length > 0 && garageInfo[0].ManagerID) {
             await createNotification(
                 garageInfo[0].ManagerID,

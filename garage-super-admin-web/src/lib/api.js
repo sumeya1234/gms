@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // The backend seems to be configured to run on port 5000 based on the swagger docs and running environment
 export const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://gms-1-v6wu.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   }
@@ -25,7 +25,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');
-      window.location.href = '/login'; 
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
