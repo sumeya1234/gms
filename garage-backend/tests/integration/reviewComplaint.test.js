@@ -93,7 +93,7 @@ describe('reviews and complaints Endpoints', () => {
             .set('Authorization', `Bearer ${customer2.token}`); // Anyone can fetch
 
         if (!response.body.length) {
-            console.error(">>> GET REVIEWS RESPONSE:", response.body);
+            console.error(">>> GET reviews RESPONSE:", response.body);
         }
         expect(response.status).toBe(200);
         expect(response.body.length).toBeGreaterThanOrEqual(1);

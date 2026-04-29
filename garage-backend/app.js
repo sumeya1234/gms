@@ -35,7 +35,9 @@ app.use(limiter);
 
 app.use(morgan("combined", { stream: { write: (message) => logger.info(message.trim()) } }));
 app.use(express.json());
-
+app.get("/ping", (req, res) => {
+  res.send("OK");
+});
 // API Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

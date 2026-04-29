@@ -7,7 +7,7 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 50,
+  connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
@@ -15,12 +15,14 @@ const db = mysql.createPool({
 });
 
 // Test connection
-try {
-  await db.query("SELECT 1");
-  console.log("Database connected successfully.");
-} catch (error) {
-  console.error("Database connection failed:", error.message);
-  process.exit(1);
-}
-
+// try {
+//   await db.query("SELECT 1");
+//   console.log("Database connected successfully.");
+// } catch (error) {
+//   console.error("Database connection failed:", error.message);
+//   process.exit(1);
+// }
+db.query("SELECT 1")
+  .then(() => console.log("Database connected successfully."))
+  .catch(err => console.error("Database connection failed:", err.message));
 export default db;

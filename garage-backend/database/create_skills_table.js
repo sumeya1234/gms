@@ -3,7 +3,7 @@ import db from '../config/db.js';
 
 const run = async () => {
   await db.query(`
-    CREATE TABLE IF NOT EXISTS MechanicSkills (
+    CREATE TABLE IF NOT EXISTS mechanicskills (
       SkillID INT AUTO_INCREMENT PRIMARY KEY,
       MechanicID INT,
       SkillName VARCHAR(100) NOT NULL,
@@ -11,7 +11,7 @@ const run = async () => {
       UNIQUE KEY unique_skill (MechanicID, SkillName)
     )
   `);
-  console.log('MechanicSkills table created successfully');
+  console.log('mechanicskills table created successfully');
   process.exit(0);
 };
 
