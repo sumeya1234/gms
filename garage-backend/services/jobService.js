@@ -205,6 +205,7 @@ export const updateAssignmentStatus = async (assignmentId, status, userId) => {
 
 export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicId) => {
     const connection = await db.getConnection();
+    const notificationsToSend = [];
     await connection.beginTransaction();
 
     try {
@@ -239,12 +240,26 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
             if (newQuantity < 10) {
                 const [garage] = await connection.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [inventory[0].GarageID]);
                 if (garage.length > 0 && garage[0].ManagerID) {
-                    await createNotification(garage[0].ManagerID, "Low Stock Alert", `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`, "LOW_STOCK");
+                    notificationsToSend.push({
+                        userId: garage[0].ManagerID,
+                        title: "Low Stock Alert",
+                        message: `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`,
+                        type: "LOW_STOCK"
+                    });
                 }
             }
         }
 
         await connection.commit();
+
+        // Process notifications after successful commit
+        for (const note of notificationsToSend) {
+            createNotification(note.userId, note.title, note.message, note.type).catch(err =>
+                console.error("Delayed notification failed:", err)
+            );
+        }
+
+        return { success: true, message: "Items documented successfully" };
     } catch (error) {
         await connection.rollback();
         throw error;
@@ -255,6 +270,7 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
 
 export const completeServiceRequest = async (requestId, itemsUsed = []) => {
     const connection = await db.getConnection();
+    const notificationsToSend = [];
     await connection.beginTransaction();
 
     try {
@@ -293,18 +309,39 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
             if (newQuantity < 10) {
                 const [garage] = await connection.query("SELECT ManagerID FROM Garages WHERE GarageID = ?", [inventory[0].GarageID]);
                 if (garage.length > 0 && garage[0].ManagerID) {
-                    await createNotification(garage[0].ManagerID, "Low Stock Alert", `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`, "LOW_STOCK");
+                    notificationsToSend.push({
+                        userId: garage[0].ManagerID,
+                        title: "Low Stock Alert",
+                        message: `${inventory[0].ItemName} is running low (${newQuantity} remaining). Please restock soon.`,
+                        type: "LOW_STOCK"
+                    });
                 }
             }
         }
 
         await connection.query("UPDATE ServiceRequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
-        await connection.commit();
 
+        // Fetch user data for completion notification after state change
         const [vehicle] = await connection.query("SELECT CustomerID FROM Vehicles WHERE VehicleID = ?", [service[0].VehicleID]);
         if (vehicle.length > 0) {
-            await createNotification(vehicle[0].CustomerID, "Service Ready", "Your vehicle service has been completed and is ready for pickup!", "CAR_READY");
+            notificationsToSend.push({
+                userId: vehicle[0].CustomerID,
+                title: "Service Ready",
+                message: "Your vehicle service has been completed and is ready for pickup!",
+                type: "CAR_READY"
+            });
         }
+
+        await connection.commit();
+
+        // Process all notifications after successful commit
+        for (const note of notificationsToSend) {
+            createNotification(note.userId, note.title, note.message, note.type).catch(err =>
+                console.error("Delayed notification failed:", err)
+            );
+        }
+
+        return { success: true, message: "Service request completed successfully" };
     } catch (error) {
         await connection.rollback();
         throw error;

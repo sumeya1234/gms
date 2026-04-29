@@ -25,13 +25,15 @@ process.on("uncaughtException", (err) => {
   console.error(err?.name, err?.message, err?.stack);
 });
 
-await ensureAccountantsTableExists();
-
 const httpServer = http.createServer(app);
 const io = initSocketServer(httpServer);
 
 const server = httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  // Run bootstrap in background after server starts
+  ensureAccountantsTableExists().catch(err => {
+    console.error("Delayed Bootstrap Error:", err.message);
+  });
 });
 // 3. Graceful shutdown
 process.on("SIGTERM", () => {

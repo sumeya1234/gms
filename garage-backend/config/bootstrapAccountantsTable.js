@@ -14,7 +14,7 @@ const ensureUsersRoleSupportsAccountant = async () => {
     `SELECT COLUMN_TYPE
      FROM INFORMATION_SCHEMA.COLUMNS
      WHERE TABLE_SCHEMA = DATABASE()
-       AND TABLE_NAME = 'Users'
+       AND TABLE_NAME = 'users'
        AND COLUMN_NAME = 'Role'`
   );
 
@@ -28,17 +28,17 @@ const ensureUsersRoleSupportsAccountant = async () => {
 
   const mergedValues = [...new Set([...currentValues, ...requiredValues])];
   const enumSql = mergedValues.map((v) => `'${v}'`).join(", ");
-  await db.query(`ALTER TABLE Users MODIFY COLUMN Role ENUM(${enumSql}) NOT NULL`);
+  await db.query(`ALTER TABLE users MODIFY COLUMN Role ENUM(${enumSql}) NOT NULL`);
 };
 
 export const ensureAccountantsTableExists = async () => {
   await ensureUsersRoleSupportsAccountant();
   await db.query(`
-    CREATE TABLE IF NOT EXISTS Accountants (
+    CREATE TABLE IF NOT EXISTS accountants (
       UserID INT PRIMARY KEY,
       GarageID INT,
-      FOREIGN KEY (UserID) REFERENCES Users(UserID),
-      FOREIGN KEY (GarageID) REFERENCES Garages(GarageID)
+      FOREIGN KEY (UserID) REFERENCES users(UserID),
+      FOREIGN KEY (GarageID) REFERENCES garages(GarageID)
     )
   `);
 };

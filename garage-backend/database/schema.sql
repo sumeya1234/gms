@@ -59,6 +59,7 @@ CREATE TABLE Garages (
     ChapaSubaccountID VARCHAR(100) NULL,
     WorkingHours JSON NULL,
     Timezone VARCHAR(64) DEFAULT 'Africa/Addis_Ababa',
+    EmergencyDepositPercentage DECIMAL(5,2) DEFAULT 10.00,
     Status ENUM('Active','Inactive') DEFAULT 'Active',
     ManagerID INT UNIQUE
 );
