@@ -106,6 +106,13 @@ export default function Bookings() {
     fetchRequests();
     fetchMechanics();
     fetchServices();
+
+    const interval = setInterval(() => {
+      // Only poll when not explicitly loading to avoid multiple simultaneous requests
+      fetchRequests();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
   }, [fetchRequests, fetchMechanics, fetchServices]);
 
   const handleUpdateStatus = async (e) => {

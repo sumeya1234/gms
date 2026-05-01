@@ -52,7 +52,16 @@ export default function DashboardScreen({ navigation }) {
       fetchTasks();
       fetchNotificationCount();
     });
-    return unsubscribe;
+
+    const interval = setInterval(() => {
+      fetchTasks();
+      fetchNotificationCount();
+    }, 30000); // 30 seconds
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, [navigation]);
 
   const renderItem = ({ item }) => (

@@ -1,4 +1,0 @@
-ALTER TABLE servicerequests 
-ADD COLUMN EstimatedPrice DECIMAL(10,2) DEFAULT NULL,
-ADD COLUMN DepositPercentage INT DEFAULT NULL,
-ADD COLUMN CustomerStatus TEXT DEFAULT NULL;

@@ -12,8 +12,29 @@ import { colors } from '../../theme/colors';
 
 export default function TrackServiceScreen({ navigation, route }) {
   const { t } = useTranslation();
-  const { job } = route.params || {};
+  const { job: initialJob } = route.params || {};
+  const [job, setJob] = React.useState(initialJob);
   const [loading, setLoading] = React.useState(false);
+
+  // Polling for status updates
+  React.useEffect(() => {
+    if (!job?.RequestID) return;
+
+    const fetchLatestStatus = async () => {
+      try {
+        const response = await apiClient.get(`/api/services/request/${job.RequestID}`);
+        if (response.data) {
+          setJob(response.data);
+        }
+      } catch (err) {
+        console.error("Polling failed:", err.message);
+      }
+    };
+
+    const interval = setInterval(fetchLatestStatus, 15000); // 15 seconds
+    return () => clearInterval(interval);
+  }, [job?.RequestID]);
+
   const { cancelRequest } = useServiceStore();
   const [nearbyGarages, setNearbyGarages] = React.useState([]);
 
