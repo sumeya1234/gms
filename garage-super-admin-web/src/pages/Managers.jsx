@@ -12,13 +12,13 @@ export default function Managers() {
   const [search, setSearch] = useState('');
   const [staffRole, setStaffRole] = useState('GarageManager');
   
-  // Modals state
+  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Form states
+  
   const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', password: '' });
   const [selectedGarageId, setSelectedGarageId] = useState('');
   const [formError, setFormError] = useState('');
@@ -138,7 +138,7 @@ export default function Managers() {
         </div>
       )}
 
-      {/* Search */}
+      {}
       <div className="relative max-w-sm">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
@@ -149,7 +149,7 @@ export default function Managers() {
         />
       </div>
 
-      {/* Managers Table */}
+      {}
       {loading ? (
          <div className="flex justify-center items-center h-32">
            <span className="w-8 h-8 border-4 border-[#1890ff] border-t-transparent rounded-full animate-spin"></span>
@@ -234,7 +234,7 @@ export default function Managers() {
         </div>
       )}
 
-      {/* Add Manager Modal */}
+      {}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
@@ -320,7 +320,7 @@ export default function Managers() {
         </div>
       )}
 
-      {/* Assign Garage Modal */}
+      {}
       {isAssignModalOpen && selectedManager && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">

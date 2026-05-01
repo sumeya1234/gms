@@ -6,7 +6,7 @@ import { colors } from '../theme/colors';
 export default function JobCard({ job, onPress }) {
   const isOngoing = job.status === 'in-progress' || job.status === 'pending';
   
-  // Basic pulse effect for active job (analogous to the css animation)
+  
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -31,12 +31,12 @@ export default function JobCard({ job, onPress }) {
   const vehicleName = job.vehicleId?.brand ? `${job.vehicleId.brand} ${job.vehicleId.model}` : 'Unknown Vehicle';
   const plate = job.vehicleId?.plateNumber || 'N/A';
   
-  // Format services
+  
   const servicesText = job.services && job.services.length > 0
     ? job.services.map(s => s.name).join(', ')
     : 'General Check';
     
-  // Time mock/estimation mapping
+  
   let statusText = job.status === 'pending' ? 'Waiting' : 'In Service';
   if (!isOngoing) statusText = job.status.toUpperCase();
 
@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 15,
     marginRight: 15,
-    marginBottom: 15, // for vertical layout as well
-    width: 280, // for horizontal list
+    marginBottom: 15, 
+    width: 280, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

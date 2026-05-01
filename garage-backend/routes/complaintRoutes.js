@@ -13,7 +13,7 @@ router.get("/all", protect, authorize("SuperAdmin"), getAllComplaints);
 router.get("/garage/:garageId", protect, authorize("SuperAdmin", "GarageManager"), getGarageComplaints);
 router.put("/:complaintId/resolve", protect, authorize("SuperAdmin", "GarageManager"), validate(validateComplaintId, "params"), validate(validateComplaintStatus, "body"), resolveComplaint);
 
-// Message routes
+
 router.post("/:complaintId/messages", protect, validate(validateComplaintId, "params"), sendMessage);
 router.get("/:complaintId/messages", protect, validate(validateComplaintId, "params"), getMessages);
 

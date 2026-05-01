@@ -14,7 +14,7 @@ export default function SelectVehicleScreen({ navigation }) {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   useEffect(() => {
-    // Fetch user's vehicles or available vehicles
+    
     const fetchVehicles = async () => {
       try {
         const response = await apiClient.get('/api/vehicles');

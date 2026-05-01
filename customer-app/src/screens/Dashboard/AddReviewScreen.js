@@ -27,7 +27,7 @@ export default function AddReviewScreen({ navigation, route }) {
       return;
     }
 
-    // Convert garageId to integer using Number() since models expect ID format
+    
     const success = await submitReview({
       garageId: Number(garage.id || garage.GarageID),
       rating,

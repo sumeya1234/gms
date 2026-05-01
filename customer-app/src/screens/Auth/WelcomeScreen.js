@@ -14,7 +14,7 @@ export default function WelcomeScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
-      {/* Top Image Section */}
+      {}
       <View style={styles.imageSection}>
         <View style={styles.imageBackgroundWrapper}>
           <Image
@@ -25,7 +25,7 @@ export default function WelcomeScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Content Section */}
+      {}
       <View style={styles.contentSection}>
         <View style={styles.textContainer}>
           <View style={styles.badgeWrap}>
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     width: '100%',
-    gap: 16, // using gap for clean spacing
+    gap: 16, 
   },
   loginBtn: {
     height: 56,

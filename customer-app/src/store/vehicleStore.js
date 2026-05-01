@@ -22,7 +22,7 @@ export const useVehicleStore = create((set, get) => ({
     try {
       await client.post('/api/vehicles', vehicleData);
 
-      // Re-fetch to get the assigned DB ID and proper structure
+      
       await get().fetchVehicles();
 
       return true;

@@ -5,7 +5,7 @@ import { createTestUserWithToken } from '../utils/testUtils.js';
 
 describe('vehicles Endpoints', () => {
     let customer1, customer2;
-    let vehicleId; // Persists across tests 
+    let vehicleId; 
 
     beforeAll(async () => {
         customer1 = await createTestUserWithToken('Customer');
@@ -35,7 +35,7 @@ describe('vehicles Endpoints', () => {
         expect(Array.isArray(response.body)).toBe(true);
         expect(response.body.length).toBeGreaterThanOrEqual(1);
         
-        // Save the ID for later tests
+        
         vehicleId = response.body[0].VehicleID;
         expect(response.body[0]).toHaveProperty('PlateNumber', 'ABC-1234');
     });
@@ -54,7 +54,7 @@ describe('vehicles Endpoints', () => {
             .get(`/api/vehicles/${vehicleId}`)
             .set('Authorization', `Bearer ${customer2.token}`);
 
-        // vehicleService throws explicit 404 for unowned vehicles
+        
         expect(response.status).toBe(404);
         expect(response.body).toHaveProperty('error', 'Vehicle not found or unauthorized');
     });
@@ -70,7 +70,7 @@ describe('vehicles Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'Vehicle updated successfully');
 
-        // Verify update
+        
         const fetchRes = await request(app)
             .get(`/api/vehicles/${vehicleId}`)
             .set('Authorization', `Bearer ${customer1.token}`);
@@ -85,7 +85,7 @@ describe('vehicles Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'Vehicle deleted successfully');
 
-        // Verify it is gone
+        
         const fetchRes = await request(app)
             .get(`/api/vehicles/${vehicleId}`)
             .set('Authorization', `Bearer ${customer1.token}`);

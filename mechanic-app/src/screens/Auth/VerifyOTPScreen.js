@@ -22,8 +22,8 @@ export default function VerifyOTPScreen({ navigation, route }) {
       setErrorMsg('Please enter the 6-digit code');
       return;
     }
-    // In this flow, we just pass the OTP to the final reset screen
-    // The backend verification happens during the final reset password call
+    
+    
     navigation.navigate('ResetPassword', { email, otp });
   };
 
@@ -71,7 +71,7 @@ export default function VerifyOTPScreen({ navigation, route }) {
           <TouchableOpacity 
             style={styles.resendButton} 
             disabled={timer > 0}
-            onPress={() => {/* Re-trigger requestPasswordReset */}}
+            onPress={() => {}}
           >
             <Text style={[styles.resendText, timer > 0 && styles.resendDisabled]}>
               {timer > 0 ? `Resend code in ${timer}s` : 'Resend Code'}

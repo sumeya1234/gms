@@ -38,7 +38,7 @@ app.use(express.json());
 app.get("/ping", (req, res) => {
   res.send("OK");
 });
-// API Documentation
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRoutes);

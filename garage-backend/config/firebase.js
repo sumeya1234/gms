@@ -18,7 +18,7 @@ try {
     });
     console.log("Firebase Admin initialized via serviceAccountKey.json");
   } else {
-    // Fallback to environment variables if the file is missing
+    
     const serviceAccount = {
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,

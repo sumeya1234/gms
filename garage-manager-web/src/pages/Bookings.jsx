@@ -40,13 +40,13 @@ export default function Bookings() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
 
-  // Pagination
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const limit = 10;
 
-  // Custom Confirm Modal
+  
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, text: '', onConfirm: null, isAlert: false });
 
   const fetchRequests = useCallback(async () => {
@@ -108,9 +108,9 @@ export default function Bookings() {
     fetchServices();
 
     const interval = setInterval(() => {
-      // Only poll when not explicitly loading to avoid multiple simultaneous requests
+      
       fetchRequests();
-    }, 30000); // 30 seconds
+    }, 30000); 
 
     return () => clearInterval(interval);
   }, [fetchRequests, fetchMechanics, fetchServices]);
@@ -229,7 +229,7 @@ export default function Bookings() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-blue-600 bg-clip-text text-transparent">
@@ -242,7 +242,7 @@ export default function Bookings() {
         </div>
       </div>
 
-      {/* Tabs Selector */}
+      {}
       <div className="flex flex-wrap gap-2 p-1 bg-gray-100/50 rounded-xl w-fit border border-gray-100">
         {['All', 'Pending', 'Approved', 'InProgress', 'Completed', 'Rejected', 'Cancelled'].map((status) => (
           <button
@@ -258,9 +258,9 @@ export default function Bookings() {
         ))}
       </div>
 
-      {/* Modern Filter Bar */}
+      {}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center gap-4 transition-all hover:shadow-md group">
-        {/* Search Input */}
+        {}
         <div className="relative flex-1 w-full lg:w-auto">
           <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -272,9 +272,9 @@ export default function Bookings() {
           />
         </div>
 
-        {/* Filters Group */}
+        {}
         <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-          {/* Quick Date Selectors */}
+          {}
           <div className="flex bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setFilterDate('today')}
@@ -292,7 +292,7 @@ export default function Bookings() {
             </button>
           </div>
 
-          {/* Specific Date Picker */}
+          {}
           <div className="relative group/date w-full sm:w-[150px]">
             <CalendarDays size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors group-hover/date:text-blue-500" />
             <input

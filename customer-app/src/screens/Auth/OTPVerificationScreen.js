@@ -30,7 +30,7 @@ export default function OTPVerificationScreen({ navigation, route }) {
       return;
     }
     
-    // Proceed to Reset Password screen with the verified OTP
+    
     navigation.navigate('ResetPassword', { email, otp });
   };
 

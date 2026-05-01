@@ -80,12 +80,12 @@ export default function HistoryScreen({ navigation }) {
           if (item.Status !== 'Completed') return null;
 
           const finalCost = Number(item.PartsCost) + Number(item.BaseServicePrice);
-          // TotalPaid = SUM of Completed payments from DB (actual verified amount paid so far)
+          
           const paidSoFar = Number(item.TotalPaid) || 0;
           let owedAmount = finalCost - paidSoFar;
           if (owedAmount < 0) owedAmount = 0;
 
-          // Fully paid scenario
+          
           if (owedAmount === 0 && paidSoFar > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
@@ -99,7 +99,7 @@ export default function HistoryScreen({ navigation }) {
             );
           }
 
-          // A Final payment is currently Pending (awaiting accountant verification)
+          
           if (item.PaymentStatus === 'Pending' && owedAmount > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
@@ -115,7 +115,7 @@ export default function HistoryScreen({ navigation }) {
             );
           }
 
-          // Remaining balance needs to be paid
+          
           if (owedAmount > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
@@ -265,7 +265,7 @@ export default function HistoryScreen({ navigation }) {
     }
   };
 
-  // Auto-verify payment when user returns to the app from Chapa checkout
+  
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState) => {
       if (nextAppState === 'active' && pendingTxRef.current) {
@@ -282,7 +282,7 @@ export default function HistoryScreen({ navigation }) {
     return () => subscription.remove();
   }, []);
 
-  // Show review prompt when a new completed service is detected
+  
   useEffect(() => {
     if (requests.length > 0) {
       const newlyCompleted = requests.find(
@@ -344,7 +344,7 @@ export default function HistoryScreen({ navigation }) {
     return colors.textGray;
   };
 
-  // Only show completed requests that haven't been reviewed yet
+  
   const isToday = (dateString) => {
     if (!dateString) return false;
     const d = new Date(dateString);
@@ -548,12 +548,12 @@ export default function HistoryScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {/* Invoice Detail Modal */}
+      {}
       {invoiceItem && (
         <Modal transparent animationType="slide" visible={!!invoiceItem}>
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, { padding: 0, width: '92%', alignItems: 'stretch', maxWidth: 400 }]}>
-              {/* Header */}
+              {}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: colors.border }}>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.textDark }}>Invoice Details</Text>
                 <TouchableOpacity style={{ padding: 8 }} onPress={() => setInvoiceItem(null)}>
@@ -562,7 +562,7 @@ export default function HistoryScreen({ navigation }) {
               </View>
 
               <ScrollView style={{ maxHeight: 450 }} contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-                {/* Service info */}
+                {}
                 <View style={{ backgroundColor: colors.bgGray, padding: 14, borderRadius: 12, marginBottom: 20 }}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>#{invoiceItem.RequestID} — {invoiceItem.ServiceType}</Text>
                   {invoiceItem.GarageName && (
@@ -571,7 +571,7 @@ export default function HistoryScreen({ navigation }) {
                   <Text style={{ fontSize: 12, color: colors.textGray, marginTop: 4 }}>{new Date(invoiceItem.RequestDate).toLocaleDateString()}</Text>
                 </View>
 
-                {/* Service cost lines */}
+                {}
                 <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Services</Text>
                 {invoiceItem.ServiceType.split(',').map((svc, idx) => {
                   const matched = invoiceCatalog.find(c => c.ServiceName === svc.trim());
@@ -588,7 +588,7 @@ export default function HistoryScreen({ navigation }) {
                   <Text style={{ fontSize: 15, fontWeight: 'bold', color: colors.primaryBlue }}>{Number(invoiceItem.BaseServicePrice || 0).toLocaleString()} ETB</Text>
                 </View>
 
-                {/* Parts section */}
+                {}
                 <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Parts Used</Text>
                 {invoiceLoading ? (
                   <ActivityIndicator color={colors.primaryBlue} style={{ marginVertical: 16 }} />
@@ -610,14 +610,14 @@ export default function HistoryScreen({ navigation }) {
                   <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#8b5cf6' }}>{Number(invoiceItem.PartsCost || 0).toLocaleString()} ETB</Text>
                 </View>
 
-                {/* Grand total */}
+                {}
                 <View style={{ backgroundColor: colors.primaryBlue, borderRadius: 12, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.white }}>Total</Text>
                   <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.white }}>{(Number(invoiceItem.BaseServicePrice || 0) + Number(invoiceItem.PartsCost || 0)).toLocaleString()} ETB</Text>
                 </View>
               </ScrollView>
 
-              {/* Close button */}
+              {}
               <View style={{ padding: 20, borderTopWidth: 1, borderTopColor: colors.border }}>
                 <TouchableOpacity style={{ backgroundColor: colors.bgGray, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 20, alignItems: 'center' }} onPress={() => setInvoiceItem(null)}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>Close</Text>
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
   respTitle: { fontSize: 12, fontWeight: 'bold', color: '#ef4444' },
   respText: { fontSize: 12, color: colors.textGray, fontStyle: 'italic' },
   histFooter: { flexDirection: 'row', justifyContent: 'flex-end', borderTopWidth: 1, borderTopColor: colors.bgGray, paddingTop: 12 },
-  // Review Prompt Modal
+  
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   modalCard: { backgroundColor: colors.white, borderRadius: 20, padding: 32, alignItems: 'center', width: '100%', maxWidth: 340 },
   modalClose: { position: 'absolute', top: 12, right: 12, padding: 4 },

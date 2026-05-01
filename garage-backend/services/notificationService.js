@@ -5,14 +5,14 @@ import { Expo } from 'expo-server-sdk';
 const expo = new Expo();
 
 export const createNotification = async (userId, title, message, type = 'GENERAL') => {
-  // 1. Insert into DB (In-App)
+  
   try {
     await db.query(
       "INSERT INTO notifications (UserID, Title, Message, Type) VALUES (?, ?, ?, ?)",
       [userId, title, message, type]
     );
 
-    // 2. Fetch User's Push Tokens
+    
     const [tokens] = await db.query("SELECT Token FROM pushtokens WHERE UserID = ?", [userId]);
 
     if (tokens.length > 0) {
@@ -27,7 +27,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
         }
       });
 
-      // --- Handle Expo notifications ---
+      
       if (expoTokens.length > 0) {
         let messages = [];
         for (let pushToken of expoTokens) {
@@ -44,7 +44,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
           let chunks = expo.chunkPushNotifications(messages);
           for (let chunk of chunks) {
             let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-            // In a production app, you might want to save tickets and check them later
+            
             console.log(`Expo push sent to ${userId}:`, ticketChunk);
           }
         } catch (expoError) {
@@ -52,7 +52,7 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
         }
       }
 
-      // --- Handle FCM notifications ---
+      
       if (fcmTokens.length > 0 && messaging) {
         const payload = {
           tokens: fcmTokens,

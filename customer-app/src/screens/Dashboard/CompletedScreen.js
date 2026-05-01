@@ -31,7 +31,7 @@ export default function CompletedScreen() {
           {historyServices.length > 0 ? (
             historyServices.map((job) => (
               <View key={job._id} style={styles.cardWrapper}>
-                {/* Reusing JobCard but forcing its width to 100% of container */}
+                {}
                 <JobCard job={job} /> 
               </View>
             ))

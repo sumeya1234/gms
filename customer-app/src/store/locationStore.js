@@ -18,7 +18,7 @@ export const useLocationStore = create((set) => ({
 
       let location = await Location.getCurrentPositionAsync({});
       
-      // Optionally Reverse Geocode
+      
       let addressArray = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude

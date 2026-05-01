@@ -22,7 +22,7 @@ describe('Service Utilities - calculateDuration', () => {
     });
 
     it('should sum multiple services correctly (Oil Change + Diagnostics)', () => {
-        // 0.5 + 1.5 = 2.0
+        
         expect(calculateDuration('Oil Change, Diagnostics', mockBaselines)).toBe(2.0);
     });
 
@@ -35,7 +35,7 @@ describe('Service Utilities - calculateDuration', () => {
     });
 
     it('should handle multiple complex services (Tires, Battery, Electrical)', () => {
-        // 1.0 (Tires) + 0.5 (Battery) + 2.0 (Electrical) = 3.5
+        
         expect(calculateDuration('Tires, Battery, Electrical', mockBaselines)).toBe(3.5);
     });
 
@@ -88,7 +88,7 @@ describe('Service Utilities - calculateDeposit', () => {
     });
 
     it('should round up correctly (ceil)', () => {
-        // 10% of 995 = 99.5 -> 100
+        
         expect(calculateDeposit(995, 10)).toBe(100);
     });
 

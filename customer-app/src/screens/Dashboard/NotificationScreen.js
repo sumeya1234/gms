@@ -71,7 +71,7 @@ export default function NotificationScreen({ navigation }) {
               setNotifications([]);
             } catch (err) {
               console.warn('Failed to clear ALL notifications', err);
-              // Fallback: clear one by one if the endpoint fails
+              
               notifications.forEach(n => api.delete(`/api/users/notifications/${n.NotificationID}`).catch(() => { }));
               setNotifications([]);
             }

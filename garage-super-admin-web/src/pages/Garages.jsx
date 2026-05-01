@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { Plus, Building2, MapPin, Pencil, Trash2, X, AlertCircle, CheckCircle, Search } from 'lucide-react';
 
-// ── Modal Component ─────────────────────────────────────────────────────────
+
 function GarageModal({ garage, allGarages, onClose, onSaved }) {
   const { t } = useTranslation();
   const isEditing = !!garage;
@@ -80,7 +80,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
     if (!form.Name.trim() || !form.Location.trim()) { setError('Garages must have a name and location.'); return; }
     if (!form.bankCode || !form.bankAccountNumber.trim() || !form.bankAccountName.trim()) { setError('Garages must have full bank details configured.'); return; }
 
-    // Check if manager is assigned elsewhere
+    
     if (form.ManagerID) {
       const isAssignedElsewhere = allGarages.some(g => g.ManagerID == form.ManagerID && g.GarageID !== garage?.GarageID);
       if (isAssignedElsewhere) {
@@ -360,7 +360,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
   );
 }
 
-// ── Archive Confirm ─────────────────────────────────────────────────────────
+
 function ConfirmDialog({ garage, onClose, onConfirm, loading }) {
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-4">
@@ -394,10 +394,10 @@ function ConfirmDialog({ garage, onClose, onConfirm, loading }) {
   );
 }
 
-// ── Role Badge ──────────────────────────────────────────────────────────────
+
 const ROLE_COLORS = { GarageManager: '#f59e0b', SuperAdmin: '#8b5cf6', Customer: '#22c55e', Mechanic: '#3b82f6' };
 
-// ── Garages Page ────────────────────────────────────────────────────────────
+
 export default function Garages() {
   const { t } = useTranslation();
   const [garages, setGarages] = useState([]);
@@ -447,7 +447,7 @@ export default function Garages() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Toast */}
+      {}
       {toast && (
         <div className={`fixed bottom-6 right-6 z-[2000] rounded-xl px-5 py-3 flex items-center gap-2 shadow-lg font-medium text-sm border
           ${toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
@@ -456,7 +456,7 @@ export default function Garages() {
         </div>
       )}
 
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 ">{t('garages') || 'Garages'}</h1>
@@ -471,7 +471,7 @@ export default function Garages() {
         </button>
       </div>
 
-      {/* Search */}
+      {}
       <div className="relative w-full max-w-[400px]">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
@@ -483,7 +483,7 @@ export default function Garages() {
         />
       </div>
 
-      {/* Table */}
+      {}
       {loading ? (
         <div className="flex flex-col gap-3">
           {[...Array(4)].map((_, i) => (
@@ -566,7 +566,7 @@ export default function Garages() {
         </div>
       )}
 
-      {/* Modals */}
+      {}
       {showModal && (
         <GarageModal
           garage={editTarget}

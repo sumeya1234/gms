@@ -72,7 +72,6 @@ body {
   backdrop-filter: blur(20px);
 }
 
-/* Base styles for root container matching old layout wrapper constraints */
 #root {
   display: flex;
   flex-direction: column;

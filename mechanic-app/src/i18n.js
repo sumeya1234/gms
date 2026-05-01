@@ -94,7 +94,7 @@ const initI18n = async () => {
       interpolation: {
         escapeValue: false, 
       },
-      compatibilityJSON: 'v3' // Required for React Native Android
+      compatibilityJSON: 'v3' 
     });
 };
 

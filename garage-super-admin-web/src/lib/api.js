@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// The backend seems to be configured to run on port 5000 based on the swagger docs and running environment
+
 export const api = axios.create({
   baseURL: 'https://gms-1-v6wu.onrender.com/api',
   headers: {
@@ -8,7 +8,7 @@ export const api = axios.create({
   }
 });
 
-// Configure interceptor to pass auth tokens
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -17,11 +17,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Intercept 401s globally to force re-login — only on genuine server 401 responses
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Only logout on actual 401 from server, NOT on network errors or timeouts
+    
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('role');

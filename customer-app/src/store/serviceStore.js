@@ -21,7 +21,7 @@ export const useServiceStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await client.post('/api/services', requestData);
-      // Refresh requests silently
+      
       await get().fetchMyRequests();
       return true;
     } catch (error) {

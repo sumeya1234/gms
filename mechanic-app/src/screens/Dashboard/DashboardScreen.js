@@ -19,7 +19,7 @@ export default function DashboardScreen({ navigation }) {
       if (activeFilter === 'All') return true;
       return t.AssignmentStatus === activeFilter;
     })
-    // Sort: emergency first, then by assigned date desc
+    
     .sort((a, b) => {
       if (b.IsEmergency !== a.IsEmergency) return (b.IsEmergency ? 1 : 0) - (a.IsEmergency ? 1 : 0);
       return new Date(b.AssignedDate) - new Date(a.AssignedDate);
@@ -56,7 +56,7 @@ export default function DashboardScreen({ navigation }) {
     const interval = setInterval(() => {
       fetchTasks();
       fetchNotificationCount();
-    }, 30000); // 30 seconds
+    }, 30000); 
 
     return () => {
       unsubscribe();
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     marginBottom: 16,
-    marginHorizontal: -20, // To allow edge-to-edge scroll
+    marginHorizontal: -20, 
   },
   filterScroll: {
     paddingHorizontal: 20,

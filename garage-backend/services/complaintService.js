@@ -9,7 +9,7 @@ export const addComplaint = async (customerId, garageId, description, isEscalate
     throw error;
   }
 
-  // Complaint Integrity: Check for at least one completed service at this garage
+  
   const [completedService] = await db.query(
     `SELECT 1 FROM servicerequests sr 
      JOIN vehicles v ON sr.VehicleID = v.VehicleID 
@@ -75,7 +75,7 @@ export const fetchAllComplaints = async () => {
 };
 
 export const addComplaintMessage = async (complaintId, senderId, message) => {
-  // Verify complaint exists
+  
   const [complaint] = await db.query("SELECT 1 FROM complaints WHERE ComplaintID = ?", [complaintId]);
   if (complaint.length === 0) {
     const error = new Error("Complaint not found");

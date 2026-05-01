@@ -56,7 +56,7 @@ export default function BottomTabNavigator({ navigation }) {
         </View>
       </PagerView>
 
-      {/* Custom Bottom Tab Bar */}
+      {}
       <View style={[styles.tabBar, { paddingBottom: Platform.OS === 'ios' ? insets.bottom : 8 }]}>
         {TABS.map((tab, index) => {
           const isActive = activeIndex === index;

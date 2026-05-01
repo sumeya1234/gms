@@ -184,7 +184,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* Capital Status - Only for Owners */}
+      {}
       {userRole === 'GarageOwner' && !loading && inventory.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 shadow-sm flex flex-col justify-between">
@@ -201,7 +201,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* Low Stock Alert */}
+      {}
       {!loading && inventory.some(item => item.Quantity < 10) && (
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm animate-in slide-in-from-top-2">
           <div className="flex">
@@ -224,7 +224,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* Main Table */}
+      {}
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -310,7 +310,7 @@ export default function Inventory() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
+      {}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -458,7 +458,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">

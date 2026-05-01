@@ -40,9 +40,9 @@ export const Layout = () => {
 
  return (
  <div className="flex min-h-screen bg-[#f0f2f5]">
- {/* ── Sidebar ── */}
+ {}
  <aside className="h-screen w-64 fixed left-0 top-0 bg-white flex flex-col py-8 px-4 z-40 transition-all border-r border-slate-200">
- {/* Logo */}
+ {}
  <div className="mb-10 px-2">
  <div className="flex items-center gap-3">
  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-lg shadow-primary/20">
@@ -55,7 +55,7 @@ export const Layout = () => {
  </div>
  </div>
 
- {/* Nav */}
+ {}
  <nav className="flex-1 space-y-1">
  <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-4 px-4">Navigation</p>
  {navItems.map(({ path, label, icon: Icon }) => {
@@ -90,11 +90,11 @@ export const Layout = () => {
  </div>
  </aside>
 
- {/* ── Main ── */}
+ {}
  <main className="ml-64 min-h-screen w-[calc(100%-16rem)] flex flex-col pt-16">
- {/* Top Bar */}
+ {}
  <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-30 bg-white/95 backdrop-blur-md flex justify-between items-center px-8 shadow-sm border-b border-slate-200">
- {/* Breadcrumb */}
+ {}
  <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
  <span>GMS</span>
  <ChevronRight size={14} className="opacity-50" />
@@ -103,7 +103,7 @@ export const Layout = () => {
  </span>
  </div>
 
- {/* Language and Admin Badge */}
+ {}
  <div className="flex items-center gap-4 relative">
  <div className="relative">
  <button onClick={() => setLangMenuOpen(!langMenuOpen)} className="flex items-center gap-2 p-2 text-slate-500 hover:bg-slate-100 rounded transition-colors mr-2">
@@ -126,7 +126,7 @@ export const Layout = () => {
  </div>
  </header>
 
- {/* Page Content */}
+ {}
  <div className="flex-1 p-10 bg-[#f0f2f5]">
  <Outlet />
  </div>

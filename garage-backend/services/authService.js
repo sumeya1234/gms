@@ -26,13 +26,13 @@ export const registerUser = async (userData) => {
 
   const userId = result.insertId;
 
-  // Insert into role table based on constrained explicit logic
+  
   if (role === "Customer") {
     await db.query("INSERT INTO customers (UserID) VALUES (?)", [userId]);
   } else if (role === "SuperAdmin") {
     await db.query("INSERT INTO superadmins (UserID) VALUES (?)", [userId]);
   } else if (role === "GarageManager") {
-    // Note: GarageID must be assigned separately via updateRole/assignToGarage
+    
     await db.query("INSERT INTO garagemanagers (UserID) VALUES (?)", [userId]);
   }
 
@@ -60,7 +60,7 @@ export const loginUser = async (email, password) => {
 
   if (!isMatch) {
     const error = new Error("Invalid credentials");
-    error.status = 401; // Should be 401 Unauthorized
+    error.status = 401; 
     throw error;
   }
 
@@ -81,10 +81,10 @@ export const generatePasswordResetOTP = async (email) => {
     throw error;
   }
 
-  // Generate 6-digit OTP
+  
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Set expiry to 15 minutes from now
+  
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
   await db.query(
@@ -96,7 +96,7 @@ export const generatePasswordResetOTP = async (email) => {
 };
 
 export const verifyAndResetPassword = async (email, otp, newPassword) => {
-  // Check if OTP is valid and not expired
+  
   const [resetRows] = await db.query(
     "SELECT * FROM passwordresets WHERE Email = ? AND OTP = ? AND ExpiresAt > NOW()",
     [email, otp]
@@ -108,10 +108,10 @@ export const verifyAndResetPassword = async (email, otp, newPassword) => {
     throw error;
   }
 
-  // Hash new password
+  
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  // Update user's password
+  
   const [updateResult] = await db.query(
     "UPDATE users SET PasswordHash = ? WHERE Email = ?",
     [hashedPassword, email]
@@ -123,7 +123,7 @@ export const verifyAndResetPassword = async (email, otp, newPassword) => {
     throw error;
   }
 
-  // Delete all password resets for this email to prevent reuse
+  
   await db.query("DELETE FROM passwordresets WHERE Email = ?", [email]);
 
   return true;

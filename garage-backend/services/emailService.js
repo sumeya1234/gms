@@ -6,19 +6,19 @@ let transporter;
 async function initTransporter() {
     if (transporter) return transporter;
 
-    // Configuration for your real Gmail account
+    
     transporter = nodemailer.createTransport({
-  service: 'gmail', // This shortcut handles host/port/secure for you
+  service: 'gmail', 
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    // This allows the connection even if the local SSL certificate isn't perfect
+    
     rejectUnauthorized: false 
   }
 });
-    // Verify connection immediately
+    
     try {
       await transporter.verify();
       logger.info("SMTP Transporter is ready to send emails");

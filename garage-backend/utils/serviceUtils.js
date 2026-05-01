@@ -1,9 +1,4 @@
-/**
- * Calculates estimated service duration based on service types.
- * @param {string} types - Comma-separated or single string of service types.
- * @param {Object} [baselines] - Optional configuration object mapping service types to hours.
- * @returns {number} Duration in hours.
- */
+
 export const calculateDuration = (types, baselines) => {
     let duration = 0;
     const typeStr = (types || "").toLowerCase();
@@ -32,11 +27,7 @@ export const calculateDuration = (types, baselines) => {
     return duration;
 };
 
-/**
- * @param {string} serviceType - Comma-separated service types.
- * @param {Array} garageservices - Array of { ServiceName, Price } objects.
- * @returns {number} Total price.
- */
+
 export const calculateBaseServicePrice = (serviceType, garageservices) => {
     if (!serviceType || !garageservices || !Array.isArray(garageservices)) return 0;
     const requestedServices = serviceType.split(",").map((s) => s.trim().toLowerCase());
@@ -48,12 +39,7 @@ export const calculateBaseServicePrice = (serviceType, garageservices) => {
     }, 0);
 };
 
-/**
- * Calculates pre-service deposit amount.
- * @param {number} estimatedPrice 
- * @param {number} depositPercentage 
- * @returns {number}
- */
+
 export const calculateDeposit = (estimatedPrice, depositPercentage) => {
     if (!estimatedPrice || !depositPercentage) return 0;
     return Math.ceil((Number(estimatedPrice) * Number(depositPercentage)) / 100);

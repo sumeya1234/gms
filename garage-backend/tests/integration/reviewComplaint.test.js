@@ -11,10 +11,10 @@ describe('reviews and complaints Endpoints', () => {
     beforeAll(async () => {
         superAdmin = await createTestUserWithToken('SuperAdmin');
         manager = await createTestUserWithToken('GarageManager');
-        customer1 = await createTestUserWithToken('Customer'); // Will complete a service
-        customer2 = await createTestUserWithToken('Customer'); // Will NOT complete a service
+        customer1 = await createTestUserWithToken('Customer'); 
+        customer2 = await createTestUserWithToken('Customer'); 
 
-        // 1. Create Garage
+        
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "End To End Garage",
@@ -27,10 +27,10 @@ describe('reviews and complaints Endpoints', () => {
         const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = garages.body[0].GarageID;
 
-        // Assign manager
+        
         await request(app).put(`/api/users/${manager.userId}/garage`).set('Authorization', `Bearer ${superAdmin.token}`).send({ garageId });
 
-        // 2. Customer 1 Setup (Completed Service)
+        
         await request(app).post('/api/vehicles/').set('Authorization', `Bearer ${customer1.token}`)
             .send({ plateNumber: "C1-AAA", type: "Car", model: "Honda" });
         let vRes = await request(app).get('/api/vehicles/').set('Authorization', `Bearer ${customer1.token}`);
@@ -41,17 +41,17 @@ describe('reviews and complaints Endpoints', () => {
         let sRes = await request(app).get('/api/services/my-requests').set('Authorization', `Bearer ${customer1.token}`);
         requestId = sRes.body[0].RequestID;
 
-        // Approve
+        
         await request(app).put(`/api/services/${requestId}/status`).set('Authorization', `Bearer ${manager.token}`).send({ status: 'Approved' });
 
-        // Mock Payment Completed via DB bypass since we already test endpoints
+        
         await db.query("INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate) VALUES (?, 100, 'Cash', 'Completed', NOW())", [requestId]);
 
-        // Complete the service
+        
         const compRes = await request(app).put('/api/services/complete').set('Authorization', `Bearer ${manager.token}`).send({ requestId });
         if (compRes.status !== 200) console.error("Complete Service Failed:", compRes.body);
 
-        // Force DB state to guarantee Review tests can execute
+        
         await db.query("UPDATE servicerequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
     }, 30000);
 
@@ -90,7 +90,7 @@ describe('reviews and complaints Endpoints', () => {
     it('Should fetch garage reviews (GET /api/reviews/garage/:garageId)', async () => {
         const response = await request(app)
             .get(`/api/reviews/garage/${garageId}`)
-            .set('Authorization', `Bearer ${customer2.token}`); // Anyone can fetch
+            .set('Authorization', `Bearer ${customer2.token}`); 
 
         if (!response.body.length) {
             console.error(">>> GET reviews RESPONSE:", response.body);
@@ -138,7 +138,7 @@ describe('reviews and complaints Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body.message).toBeDefined();
 
-        // Verify update
+        
         const fetchRes = await request(app)
             .get('/api/complaints/my-complaints')
             .set('Authorization', `Bearer ${customer1.token}`);

@@ -9,5 +9,5 @@ describe('Health & Basics', () => {
         expect(response.body).toBeDefined();
     });
 
-    // Add more basic app tests here (e.g. rate limit, cors headers)
+    
 });

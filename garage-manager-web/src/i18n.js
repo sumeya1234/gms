@@ -16,7 +16,7 @@ const resources = {
       garageAdmin: 'Garage Admin',
       notifications: 'Notifications',
 
-      // Dashboard
+      
       activeJobs: 'Active Jobs',
       totalRevenue: 'Total Revenue',
       recentBookings: 'Recent Service Bookings',
@@ -35,7 +35,7 @@ const resources = {
       yes: 'Yes',
       no: 'No',
 
-      // Bookings
+      
       serviceBookings: 'Service Bookings',
       manageServiceRequests: 'Manage customer service requests.',
       refresh: 'Refresh',
@@ -55,7 +55,7 @@ const resources = {
       price: 'Price',
       bookingDetails: 'Booking Details',
 
-      // Inventory
+      
       inventoryManagement: 'Inventory Management',
       managePhysicalParts: 'Manage your physical parts in stock.',
       addNew: 'Add New',
@@ -77,7 +77,7 @@ const resources = {
       deleteConfirmText: 'Are you sure you want to delete this item? This action cannot be undone.',
       yesDeleteIt: 'Yes, Delete It',
       
-      // Services
+      
       serviceManagement: 'Service Management',
       defineServices: 'Define standard services offered by your garage.',
       serviceName: 'Service Name',
@@ -85,7 +85,7 @@ const resources = {
       estimatedDuration: 'Est. Duration',
       noServicesFound: 'No services defined yet.',
 
-      // Mechanics
+      
       mechanicManagement: 'Mechanic Management',
       manageStaff: 'Manage your garage staff and their availability.',
       contact: 'Contact',
@@ -272,7 +272,7 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en', // Default language
+  lng: 'en', 
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 });

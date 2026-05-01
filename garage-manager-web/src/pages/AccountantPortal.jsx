@@ -128,7 +128,7 @@ export default function AccountantPortal() {
                     <td className="p-4" colSpan={3}>
                       <div className="flex flex-col gap-2">
                         {(() => {
-                          // mysql2 auto-parses JSON_ARRAYAGG columns into JS arrays
+                          
                           let details = req.PaymentDetailsJson;
                           if (typeof details === 'string') {
                             try { details = JSON.parse(details); } catch (e) { details = []; }

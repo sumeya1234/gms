@@ -16,7 +16,7 @@ export default function TrackServiceScreen({ navigation, route }) {
   const [job, setJob] = React.useState(initialJob);
   const [loading, setLoading] = React.useState(false);
 
-  // Polling for status updates
+  
   React.useEffect(() => {
     if (!job?.RequestID) return;
 
@@ -31,7 +31,7 @@ export default function TrackServiceScreen({ navigation, route }) {
       }
     };
 
-    const interval = setInterval(fetchLatestStatus, 15000); // 15 seconds
+    const interval = setInterval(fetchLatestStatus, 15000); 
     return () => clearInterval(interval);
   }, [job?.RequestID]);
 
@@ -88,11 +88,11 @@ export default function TrackServiceScreen({ navigation, route }) {
     : null;
 
   const handleApprove = () => {
-    // Show payment method selection — customer must pay deposit before service begins
+    
     if (depositAmount) {
       setShowPayOptions(true);
     } else {
-      // No deposit required — direct approval
+      
       confirmApproval();
     }
   };
@@ -114,7 +114,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     setShowPayOptions(false);
     setPaymentLoading(true);
     try {
-      // Initiate the deposit payment directly
+      
       const response = await apiClient.post('/api/payments/pay', {
         requestId: job.RequestID,
         amount: depositAmount,
@@ -147,7 +147,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     try {
       await apiClient.put(`/api/services/${job.RequestID}/status`, { status: 'Rejected', rejectionReason: 'Customer rejected estimate' });
 
-      // Fetch nearby garages
+      
       const response = await apiClient.get('/api/garages');
       const filtered = response.data.filter(g => g.GarageID.toString() !== job.GarageID?.toString()).slice(0, 3);
       setNearbyGarages(filtered);
@@ -200,7 +200,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     );
   }
 
-  // Determine active step based on status
+  
   const statuses = ['pending', 'approved', 'inprogress', 'completed'];
   const currentStatusIndex = statuses.indexOf(job.status?.toLowerCase() || 'pending');
 
@@ -222,7 +222,7 @@ export default function TrackServiceScreen({ navigation, route }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Job Summary Card */}
+        {}
         <View style={styles.summaryCard}>
           <Text style={styles.plateNumber}>{job.vehicleId?.plateNumber || 'N/A'}</Text>
           <Text style={styles.vehicleModel}>{job.vehicleId?.brand} {job.vehicleId?.model}</Text>
@@ -237,7 +237,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           )}
         </View>
 
-        {/* Emergency Estimate Section */}
+        {}
         {!!job.IsEmergency && !!job.EstimatedPrice && !job.IsDepositPaid && (
           <View style={styles.estimateCard}>
             <View style={styles.estimateHeader}>
@@ -254,7 +254,7 @@ export default function TrackServiceScreen({ navigation, route }) {
             </View>
 
             {(() => {
-              // Track if there's a pending deposit payment
+              
               let payments = job.PaymentDetailsJson;
               if (typeof payments === 'string') {
                 try { payments = JSON.parse(payments); } catch (e) { payments = []; }
@@ -298,7 +298,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         )}
 
-        {/* Suggested Garages */}
+        {}
         {nearbyGarages.length > 0 ? (
           <View style={styles.nearbyContainer}>
             <Text style={styles.nearbyTitle}>{t('Other Nearby Garages')}</Text>
@@ -321,7 +321,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         ) : null}
 
-        {/* Live Tracking Map */}
+        {}
         {job?.IsEmergency && job?.status?.toLowerCase() === 'approved' && (
           <View style={styles.mapContainer}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -369,7 +369,7 @@ export default function TrackServiceScreen({ navigation, route }) {
 
         <Text style={styles.timelineTitle}>{t('Service Timeline')}</Text>
 
-        {/* Timeline */}
+        {}
         <View style={styles.timelineContainer}>
           {steps.map((step, index) => {
             const isCompleted = index <= currentStatusIndex;
@@ -404,7 +404,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           })}
         </View>
 
-        {/* Mechanic Info */}
+        {}
         {currentStatusIndex >= 1 && job.AssignedMechanicName && (
           <View style={styles.mechanicCard}>
             <Text style={styles.mechanicLabel}>{t('Assigned Mechanic')}</Text>
@@ -425,7 +425,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         )}
 
-        {/* Cancellation Section */}
+        {}
         {(job.status?.toLowerCase() === 'pending' || job.status?.toLowerCase() === 'approved') && (
           <View style={{ marginTop: 20 }}>
             <TouchableOpacity
@@ -440,7 +440,7 @@ export default function TrackServiceScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {/* Payment Method Modal */}
+      {}
       <Modal transparent animationType="slide" visible={showPayOptions}>
         <View style={styles.payModalOverlay}>
           <View style={styles.payModalCard}>
@@ -462,7 +462,7 @@ export default function TrackServiceScreen({ navigation, route }) {
         </View>
       </Modal>
 
-      {/* Payment loading overlay */}
+      {}
       {
         paymentLoading && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 99 }}>

@@ -9,7 +9,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
     throw error;
   }
 
-  // Review Integrity: Check for at least one completed service at this garage
+  
   const [completedService] = await db.query(
     `SELECT 1 FROM servicerequests sr 
      JOIN vehicles v ON sr.VehicleID = v.VehicleID 
@@ -23,7 +23,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
     throw error;
   }
 
-  // If requestId provided, check it hasn't already been reviewed
+  
   if (requestId) {
     const [existing] = await db.query(
       "SELECT 1 FROM reviews WHERE RequestID = ?", [requestId]

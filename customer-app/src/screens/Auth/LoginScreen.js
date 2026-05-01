@@ -30,7 +30,7 @@ export default function LoginScreen({ navigation }) {
     try {
       await signIn(email, password);
     } catch (err) {
-      // error state handled by zustand
+      
     }
   };
 

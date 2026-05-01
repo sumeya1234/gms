@@ -13,7 +13,7 @@ export default function AuthNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false, // Using custom designs as per UI prototypes
+        headerShown: false, 
       }}
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />

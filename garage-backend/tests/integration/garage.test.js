@@ -45,7 +45,7 @@ describe('garages Endpoints', () => {
     it('Should fetch all garages (GET /api/garages/)', async () => {
         const response = await request(app)
             .get('/api/garages/')
-            .set('Authorization', `Bearer ${customer.token}`); // Anyone can list garages
+            .set('Authorization', `Bearer ${customer.token}`); 
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
@@ -72,7 +72,7 @@ describe('garages Endpoints', () => {
             .set('Authorization', `Bearer ${superAdmin.token}`);
 
         expect(response.status).toBe(200);
-        // Dashboard Service expects an object with activeJobs, totalRevenue, lowStockItems
+        
         expect(response.body).toHaveProperty('activeJobs');
         expect(response.body).toHaveProperty('lowStockItems');
     });
@@ -96,7 +96,7 @@ describe('garages Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'Garage updated successfully');
 
-        // Verify update
+        
         const fetchRes = await request(app)
             .get(`/api/garages/${garageId}`)
             .set('Authorization', `Bearer ${customer.token}`);
@@ -111,7 +111,7 @@ describe('garages Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'Garage deleted successfully');
 
-        // Verify it is gone
+        
         const fetchRes = await request(app)
             .get(`/api/garages/${garageId}`)
             .set('Authorization', `Bearer ${customer.token}`);

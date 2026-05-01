@@ -58,7 +58,7 @@ export default function Users() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
+      {}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Users</h1>
         <p className="text-slate-500 text-sm mt-1">
@@ -72,7 +72,7 @@ export default function Users() {
         </div>
       )}
 
-      {/* Filters */}
+      {}
       <div className="flex gap-4 flex-wrap items-center">
         <div className="relative flex-1 min-w-[220px] max-w-[360px]">
           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -102,7 +102,7 @@ export default function Users() {
         </div>
       </div>
 
-      {/* User Table */}
+      {}
       {loading ? (
         <div className="flex flex-col gap-3">
           {[...Array(5)].map((_, i) => (

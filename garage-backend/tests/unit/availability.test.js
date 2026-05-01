@@ -17,7 +17,7 @@ vi.mock('../../services/configService.js', () => ({
 describe('Booking Service - fetchGarageAvailability', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Default configs
+        
         getConfig.mockImplementation(async (key) => {
             if (key === 'garage_capacity_settings') {
                 return { daily_labor_hours_per_mechanic: 8.0, max_dropoff_per_hour: 2 };
@@ -31,12 +31,12 @@ describe('Booking Service - fetchGarageAvailability', () => {
 
     it('should correctly identify a closed day based on working hours', async () => {
         const garageId = 1;
-        const date = '2026-04-26'; // Sunday (closed in default hours)
+        const date = '2026-04-26'; 
 
-        db.query.mockResolvedValueOnce([[{ WorkingHours: null }]]); // default hours used
-        db.query.mockResolvedValueOnce([[{ count: 2 }]]); // mechanics count
-        db.query.mockResolvedValueOnce([[{ totalHours: 0 }]]); // active bookings
-        db.query.mockResolvedValueOnce([[]]); // drop off counts
+        db.query.mockResolvedValueOnce([[{ WorkingHours: null }]]); 
+        db.query.mockResolvedValueOnce([[{ count: 2 }]]); 
+        db.query.mockResolvedValueOnce([[{ totalHours: 0 }]]); 
+        db.query.mockResolvedValueOnce([[]]); 
 
         const result = await fetchGarageAvailability(garageId, date);
         expect(result.isClosedDay).toBe(true);
@@ -45,9 +45,9 @@ describe('Booking Service - fetchGarageAvailability', () => {
 
     it('should return available hourly slots for an open day', async () => {
         const garageId = 1;
-        const date = '2026-04-27'; // Monday
+        const date = '2026-04-27'; 
 
-        // Mock default hours (8-18)
+        
         db.query.mockResolvedValueOnce([[{ WorkingHours: null }]]);
         db.query.mockResolvedValueOnce([[{ count: 2 }]]);
         db.query.mockResolvedValueOnce([[{ totalHours: 0 }]]);
@@ -61,11 +61,11 @@ describe('Booking Service - fetchGarageAvailability', () => {
 
     it('should identify fully booked days when capacity is reached', async () => {
         const garageId = 1;
-        const date = '2026-04-27'; // Monday
+        const date = '2026-04-27'; 
 
         db.query.mockResolvedValueOnce([[{ WorkingHours: null }]]);
-        db.query.mockResolvedValueOnce([[{ count: 1 }]]); // 1 mechanic = 8 hours limit
-        db.query.mockResolvedValueOnce([[{ totalHours: 8.5 }]]); // already 8.5 hours booked
+        db.query.mockResolvedValueOnce([[{ count: 1 }]]); 
+        db.query.mockResolvedValueOnce([[{ totalHours: 8.5 }]]); 
         db.query.mockResolvedValueOnce([[]]);
 
         const result = await fetchGarageAvailability(garageId, date);
@@ -82,7 +82,7 @@ describe('Booking Service - fetchGarageAvailability', () => {
         db.query.mockResolvedValueOnce([[{ count: 2 }]]);
         db.query.mockResolvedValueOnce([[{ totalHours: 2 }]]);
         db.query.mockResolvedValueOnce([[
-            { DropOffTime: '09:00:00', count: 2 }, // Limit is 2
+            { DropOffTime: '09:00:00', count: 2 }, 
             { DropOffTime: '10:00:00', count: 1 }
         ]]);
 

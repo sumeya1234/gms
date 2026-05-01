@@ -40,7 +40,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
         { text: 'OK', onPress: () => navigation.navigate('Login') }
       ]);
     } catch (err) {
-      // handled by authStore
+      
     }
   };
 

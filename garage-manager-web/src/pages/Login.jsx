@@ -32,10 +32,10 @@ export default function Login() {
         return;
       }
 
-      // Store token first so interceptor works for the profile fetch
+      
       localStorage.setItem('token', token);
 
-      // 2. Get User Profile
+      
       const profileResponse = await api.get('/users/profile');
       const user = profileResponse.data.user;
 
@@ -46,11 +46,11 @@ export default function Login() {
         return;
       }
 
-      // 3. Save to global state
+      
       setAuth(user, token);
       navigate('/');
     } catch (err) {
-      localStorage.removeItem('token'); // Clean up on error
+      localStorage.removeItem('token'); 
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-50 p-6 relative overflow-hidden font-sans">
-      {/* Background decorations */}
+      {}
       <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-orange-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       

@@ -21,7 +21,7 @@ export default function GarageDetailScreen({ route, navigation }) {
     fetchGarageReviews(garage.id || garage.GarageID);
   }, []);
 
-  // Inherit filtered services from Home, but let user modify them directly on the Garage page!
+  
   const [selectedServices, setSelectedServices] = useState(intentServices || []);
   const dayLabels = {
     monday: 'Monday',
@@ -87,7 +87,7 @@ export default function GarageDetailScreen({ route, navigation }) {
     const lng = garage.location.longitude;
     const label = encodeURIComponent(garage.name);
 
-    // Fallback coordinates if garage.location is malformed or missing
+    
     if (!lat || !lng) return;
 
     const url = Platform.select({
@@ -111,7 +111,7 @@ export default function GarageDetailScreen({ route, navigation }) {
       </View>
 
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-        {/* Horizontal Images Scroll */}
+        {}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesScroll}>
           <View style={styles.imageWrapper}>
             <Image source={{ uri: garage.imageUrl }} style={styles.garageImage} />
@@ -125,7 +125,7 @@ export default function GarageDetailScreen({ route, navigation }) {
         </ScrollView>
 
         <View style={styles.content}>
-          {/* Title & Info */}
+          {}
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.garageName}>{garage.name}</Text>
@@ -169,7 +169,7 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.divider} />
 
-          {/* Popular Services Mock */}
+          {}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Tap to add to request</Text>
           </View>
@@ -197,7 +197,7 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.divider} />
 
-          {/* Schedule & Map Two-Column representation (Stacking on mobile) */}
+          {}
           <Text style={styles.sectionTitle}>Working Hours</Text>
           {groupedHours.map((group) => {
             const dayText = group.start === group.end
@@ -238,7 +238,7 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.divider} />
 
-          {/* Live Reviews Section */}
+          {}
           <View onLayout={(e) => { reviewsSectionY.current = e.nativeEvent.layout.y; }} style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Customer Reviews ({garageReviews.length})</Text>
             <TouchableOpacity onPress={() => navigation.navigate('AddReview', { garage })}>
@@ -306,7 +306,7 @@ export default function GarageDetailScreen({ route, navigation }) {
         </View>
       </ScrollView>
 
-      {/* Floating Action Bar */}
+      {}
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom || 16 }]}>
         <TouchableOpacity style={styles.chatBtn}>
           <MessageSquare size={24} color={colors.primaryBlue} />

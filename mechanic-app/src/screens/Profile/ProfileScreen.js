@@ -100,7 +100,7 @@ export default function ProfileScreen() {
         <Text style={styles.logoutText}>{t('Logout')}</Text>
       </TouchableOpacity>
 
-      {/* Password Modal */}
+      {}
       <Modal visible={isPasswordModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

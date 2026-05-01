@@ -6,7 +6,7 @@ import { typography } from '../theme/typography';
 const Button = ({ 
   title, 
   onPress, 
-  variant = 'primary', // primary, secondary, outline
+  variant = 'primary', 
   style, 
   textStyle,
   icon,

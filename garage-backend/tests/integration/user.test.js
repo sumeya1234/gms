@@ -8,12 +8,12 @@ describe('User Profiles & Admin Tools', () => {
     let superAdmin;
     let newUserId;
 
-    // Seed realistic users before all tests
+    
     beforeAll(async () => {
         customer = await createTestUserWithToken('Customer');
         superAdmin = await createTestUserWithToken('SuperAdmin');
         
-        // Let's create an extra user whose role the SuperAdmin will change
+        
         const extraUser = await createTestUserWithToken('Customer');
         newUserId = extraUser.userId;
     });
@@ -65,7 +65,7 @@ describe('User Profiles & Admin Tools', () => {
                     newPassword: "NewPassword123!"
                 });
 
-            expect(response.status).toBe(400); // Standard convention or 401
+            expect(response.status).toBe(400); 
             expect(response.body).toHaveProperty('error');
         });
     });
@@ -107,13 +107,13 @@ describe('User Profiles & Admin Tools', () => {
         it('Should deny admin dashboard access to regular Customer', async () => {
             const response = await request(app)
                 .get('/api/users/admin/dashboard')
-                .set('Authorization', `Bearer ${customer.token}`); // Not an admin!
+                .set('Authorization', `Bearer ${customer.token}`); 
 
-            expect(response.status).toBe(403); // Forbidden
+            expect(response.status).toBe(403); 
         });
 
         it('Should allow SuperAdmin to update a user role (PUT /api/users/:id/role)', async () => {
-            // Changing newUserId from Customer to Mechanic
+            
             const response = await request(app)
                 .put(`/api/users/${newUserId}/role`)
                 .set('Authorization', `Bearer ${superAdmin.token}`)

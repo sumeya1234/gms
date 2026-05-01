@@ -50,7 +50,7 @@ export const updateGarageDetails = asyncHandler(async (req, res) => {
       console.log(`[updateGarageDetails] Assigning/Updating manager ${managerId} for garage ${req.params.id}`);
       await assignUserToGarage(managerId, req.params.id, req.user);
     } else if (managerId === null && req.user && req.user.role === 'SuperAdmin') {
-      // Unassign manager if null is explicitly passed
+      
       const { unassignManagerFromGarage } = await import('../services/userService.js');
       console.log(`[updateGarageDetails] Unassigning manager from garage ${req.params.id}`);
       await unassignManagerFromGarage(req.params.id);

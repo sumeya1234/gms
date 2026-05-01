@@ -11,7 +11,7 @@ export const makePayment = asyncHandler(async (req, res) => {
   const { requestId, amount, method, category } = req.body;
   const result = await createPayment(requestId, amount, method, category);
 
-  // result contains checkout_url and tx_ref if Chapa
+  
   res.status(200).json({
     message: "Payment initialized successfully",
     data: result

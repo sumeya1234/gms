@@ -8,14 +8,14 @@ describe('Service Requests Endpoints', () => {
     let superAdmin, manager, mechanic, customer;
     let garageId, vehicleId, requestId, mechanicAssignmentId;
 
-    // --- SETUP HEAVY DATA ---
+    
     beforeAll(async () => {
         superAdmin = await createTestUserWithToken('SuperAdmin');
         manager = await createTestUserWithToken('GarageManager');
         mechanic = await createTestUserWithToken('Mechanic');
         customer = await createTestUserWithToken('Customer');
 
-        // 1. SuperAdmin creates a Garage
+        
         const gRes = await request(app)
             .post('/api/garages/')
             .set('Authorization', `Bearer ${superAdmin.token}`)
@@ -28,24 +28,24 @@ describe('Service Requests Endpoints', () => {
                 bankAccountName: "Service Test Garage"
             });
 
-        // Fetch it back to get ID 
-        // We know it's there, but let's query DB to be safe or use GET garages
+        
+        
         const allGarages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = allGarages.body.find(g => g.Name === "Service Test Garage").GarageID;
 
-        // 2. SuperAdmin assigns Manager to Garage
+        
         await request(app)
             .put(`/api/users/${manager.userId}/garage`)
             .set('Authorization', `Bearer ${superAdmin.token}`)
             .send({ garageId });
 
-        // 3. Manager assigns Mechanic to Garage
+        
         await request(app)
             .put(`/api/users/${mechanic.userId}/garage`)
             .set('Authorization', `Bearer ${manager.token}`)
             .send({ garageId });
 
-        // 4. Customer adds a Vehicle
+        
         await request(app)
             .post('/api/vehicles/')
             .set('Authorization', `Bearer ${customer.token}`)
@@ -55,7 +55,7 @@ describe('Service Requests Endpoints', () => {
         vehicleId = allVehicles.body[0].VehicleID;
     });
 
-    // --- TESTS ---
+    
     it('Should allow a Customer to request a service (POST /api/services/)', async () => {
         const response = await request(app)
             .post('/api/services/')
@@ -81,7 +81,7 @@ describe('Service Requests Endpoints', () => {
         expect(response.body.length).toBe(1);
 
         requestId = response.body[0].RequestID;
-        expect(response.body[0].Status).toBe('Pending'); // Default status
+        expect(response.body[0].Status).toBe('Pending'); 
     });
 
     it('Should fetch garage requests for manager (GET /api/services/garage/:garageId)', async () => {
@@ -110,7 +110,7 @@ describe('Service Requests Endpoints', () => {
 
         expect(response.status).toBe(200);
 
-        // Verify it changed
+        
         const fetchRes = await request(app)
             .get(`/api/services/${requestId}`)
             .set('Authorization', `Bearer ${customer.token}`);
@@ -126,7 +126,7 @@ describe('Service Requests Endpoints', () => {
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('message', 'Mechanic assigned successfully');
 
-        // Fetch mechanicAssignmentId from DB to test Mechanic endpoints
+        
         const [assignment] = await db.query(
             "SELECT AssignmentID FROM mechanicassignments WHERE RequestID = ? AND MechanicID = ?",
             [requestId, mechanic.userId]
@@ -150,7 +150,7 @@ describe('Service Requests Endpoints', () => {
             .set('Authorization', `Bearer ${manager.token}`)
             .send({ requestId });
 
-        // Logic enforces payment completed check
+        
         expect(response.status).toBe(400);
         expect(response.body.error).toContain('payment');
     });

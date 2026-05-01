@@ -23,13 +23,13 @@ async function run() {
         const schemaPath = path.join(__dirname, '../database/schema.sql');
         let schema = fs.readFileSync(schemaPath, 'utf8');
 
-        // Simple split by ; (ignoring comments and strings for now as it's a standard schema.sql)
+        
         const statements = schema.split(';').map(s => s.trim()).filter(s => s.length > 0);
 
         for (let statement of statements) {
             try {
                 await connection.query(statement);
-                // console.log('Successfully executed:', statement.slice(0, 50) + '...');
+                
             } catch (err) {
                 console.error('FAILED STATEMENT:', statement);
                 console.error('ERROR:', err.message);

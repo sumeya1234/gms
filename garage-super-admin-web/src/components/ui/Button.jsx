@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Ensures high-visibility and minimum 24x24 touch target constraints, usually 44px
+
 export const Button = ({ 
  children, 
  variant = 'primary', 
@@ -13,12 +13,10 @@ export const Button = ({
  alignItems: 'center',
  justifyContent: 'center',
  fontWeight: '500',
- borderRadius: '6px', /* Minimalist rounding */
- transition: 'all 0.2s',
+ borderRadius: '6px',  transition: 'all 0.2s',
  cursor: 'pointer',
  border: 'none',
- minHeight: 'var(--touch-target-min)', /* Satisfying target size constraint */
- minWidth: 'var(--touch-target-min)'
+ minHeight: 'var(--touch-target-min)',  minWidth: 'var(--touch-target-min)'
  };
 
  const variants = {
@@ -49,9 +47,9 @@ export const Button = ({
  lg: { padding: '1rem 2rem', fontSize: 'var(--font-sizes-lg)' },
  };
 
- // Convert objects to simple inline styles for lack of a CSS-in-JS library, 
- // or we can use standard classes mapped to the index.css variables if we prefer.
- // Given standard React requirements, inline style merging works fine here.
+ 
+ 
+ 
  const style = {
  ...baseStyles,
  ...variants[variant],

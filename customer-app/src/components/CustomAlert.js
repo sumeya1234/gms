@@ -5,15 +5,7 @@ import { colors } from '../theme/colors';
 
 const { width } = Dimensions.get('window');
 
-/**
- * A premium custom alert modal to replace the default Alert.alert
- * @param {Object} props
- * @param {boolean} props.visible - Whether the modal is visible
- * @param {string} props.title - Title of the alert
- * @param {string} props.message - Body text
- * @param {string} props.type - 'success' | 'info' | 'error' | 'confirm'
- * @param {Array} props.buttons - Array of { text, onPress, style }
- */
+
 export default function CustomAlert({
     visible,
     title,
@@ -39,7 +31,7 @@ export default function CustomAlert({
         }
     };
 
-    // If no buttons provided, default to a single OK button
+    
     const finalButtons = buttons.length > 0 ? buttons : [{ text: 'OK', onPress: () => { } }];
 
     return (

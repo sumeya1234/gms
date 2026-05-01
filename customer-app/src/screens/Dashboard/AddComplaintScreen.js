@@ -103,7 +103,7 @@ export default function AddComplaintScreen({ navigation, route }) {
         </View>
       ) : activeComplaint ? (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-          {/* Chat View */}
+          {}
           <View style={{ padding: 16, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderBottomWidth: 1, borderBottomColor: 'rgba(239, 68, 68, 0.1)' }}>
             <Text style={{ fontWeight: 'bold', color: '#ef4444', marginBottom: 4 }}>Report #{activeComplaint.ComplaintID} ({activeComplaint.Status})</Text>
             <Text style={{ color: colors.textDark, fontSize: 13, lineHeight: 18 }}>{activeComplaint.Description}</Text>

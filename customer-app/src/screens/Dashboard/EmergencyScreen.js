@@ -16,7 +16,7 @@ export default function EmergencyScreen({ navigation, route }) {
   const { vehicles, fetchVehicles, isLoading: vehiclesLoading } = useVehicleStore();
   const { createRequest, isLoading: requestLoading } = useServiceStore();
 
-  const [step, setStep] = React.useState(1); // 1: Select Type, 2: Status Form, 3: Confirmation
+  const [step, setStep] = React.useState(1); 
   const [emergencyType, setEmergencyType] = React.useState(null);
   const [customerStatus, setCustomerStatus] = React.useState('');
   const [selectedVehicleId, setSelectedVehicleId] = React.useState(null);
@@ -195,7 +195,7 @@ export default function EmergencyScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff1f2', // light red tinge
+    backgroundColor: '#fff1f2', 
   },
   header: {
     alignItems: 'center',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#991b1b', // dark red
+    color: '#991b1b', 
     marginBottom: 8,
   },
   subtitle: {
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4444',
   },
   fixButton: {
-    backgroundColor: '#f97316', // orange
+    backgroundColor: '#f97316', 
   },
   btnText: {
     color: colors.white,

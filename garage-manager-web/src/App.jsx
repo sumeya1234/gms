@@ -42,7 +42,7 @@ function App() {
 
   return (
     <Routes>
-      {/* Public Route */}
+      {}
       <Route path="/login" element={
         isAuthenticated ? <Navigate to="/" replace /> : <Login />
       } />
@@ -50,14 +50,14 @@ function App() {
         isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />
       } />
 
-      {/* Protected Routes */}
+      {}
       <Route
         path="/"
         element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
       >
         <Route index element={getDashboard()} />
 
-        {/* Role Protected Routes */}
+        {}
         <Route path="bookings" element={role === 'GarageManager' ? <Bookings /> : <Navigate to="/" replace />} />
         <Route path="staff" element={role === 'GarageManager' ? <Mechanics /> : <Navigate to="/" replace />} />
         <Route path="mechanics" element={<Navigate to="/staff" replace />} />
@@ -67,11 +67,11 @@ function App() {
         <Route path="feedback" element={role === 'GarageManager' ? <Feedback /> : <Navigate to="/" replace />} />
         <Route path="settings" element={role !== 'GarageOwner' ? <Settings /> : <Navigate to="/" replace />} />
 
-        {/* Legacy redirect for accountant path */}
+        {}
         <Route path="accounting" element={<Navigate to="/" replace />} />
       </Route>
 
-      {/* Catch-all redirect */}
+      {}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

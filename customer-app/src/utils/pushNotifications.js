@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import apiClient from '../api/client';
 
-// Configure how notifications are handled when the app is open
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -37,7 +37,7 @@ export async function registerForPushNotificationsAsync() {
       return;
     }
 
-    // Get the token that uniquely identifies this device
+    
     try {
       const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
       if (!projectId) {

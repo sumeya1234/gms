@@ -27,7 +27,7 @@ export const fetchVehicleById = async (id, customerId) => {
 };
 
 export const modifyVehicle = async (id, customerId, updateData) => {
-  // Check if vehicle exists and belongs to user
+  
   await fetchVehicleById(id, customerId);
 
   const updates = [];
@@ -59,7 +59,7 @@ export const modifyVehicle = async (id, customerId, updateData) => {
 };
 
 export const removeVehicle = async (id, customerId) => {
-  // Check if vehicle exists and belongs to user
+  
   await fetchVehicleById(id, customerId);
   
   await db.query("DELETE FROM vehicles WHERE VehicleID = ? AND CustomerID = ?", [id, customerId]);

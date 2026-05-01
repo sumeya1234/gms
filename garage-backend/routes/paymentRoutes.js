@@ -11,7 +11,7 @@ router.get("/banks", protect, fetchBanks);
 router.post("/pay", protect, authorize("Customer"), validate(validatePayment), makePayment);
 router.get("/verify/:tx_ref", protect, verifyPayment);
 router.put("/cancel/:tx_ref", protect, cancelPayment);
-router.post("/webhook", webhookPayment); // Webhook is unprotected, handles its own security/verification
+router.post("/webhook", webhookPayment); 
 router.put("/confirm-cash/:requestId", protect, authorize("Accountant"), confirmCash);
 router.put("/confirm-online/:requestId", protect, authorize("Accountant"), confirmOnline);
 

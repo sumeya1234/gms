@@ -19,18 +19,18 @@ export default async function () {
 
   console.log('Test Global Setup: Creating DB if not exists...');
   
-  // Create database if not exists
+  
   await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``);
   
-  // Use the test database
+  
   await connection.query(`USE \`${process.env.DB_NAME}\``);
 
-  // Read schema
+  
   const schemaPath = path.join(__dirname, '../database/schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
 
   console.log('Test Global Setup: Resetting schema...');
-  // Note: the schema.sql already drops tables based on its content before creating them
+  
   await connection.query(schema);
 
   await connection.end();

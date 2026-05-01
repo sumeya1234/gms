@@ -167,7 +167,7 @@ export default function Services() {
         </div>
       )}
 
-      {/* Main Table */}
+      {}
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -277,7 +277,7 @@ export default function Services() {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
+      {}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -359,7 +359,7 @@ export default function Services() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">

@@ -2,12 +2,12 @@ import { registerUser, loginUser, generatePasswordResetOTP, verifyAndResetPasswo
 import { sendPasswordResetOTP } from "../services/emailService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-// Note: db, bcrypt, and jwt are no longer imported here. Business logic is separated.
+
 
 export const register = asyncHandler(async (req, res) => {
   const { fullName, email, phone, password } = req.body;
 
-  // Security Fix: Only allow Customer role through public registration by default. 
+  
   const assignedRole = "Customer"; 
 
   const result = await registerUser({

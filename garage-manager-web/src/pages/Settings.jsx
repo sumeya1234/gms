@@ -47,7 +47,7 @@ export default function Settings() {
   });
   const [isEditingGarage, setIsEditingGarage] = useState(false);
 
-  // Fetch Garage data when tab is opened
+  
   useEffect(() => {
     if (activeTab === 'garage' && user?.GarageID && !garageData.name) {
       const fetchGarage = async () => {
@@ -85,7 +85,7 @@ export default function Settings() {
       await api.put('/users/profile', profileData);
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
       setIsEditingProfile(false);
-      await fetchProfile(); // Refresh global user state
+      await fetchProfile(); 
     } catch (err) {
       const apiError = err.response?.data?.errors?.join(', ') || err.response?.data?.message || 'Failed to update profile';
       setMessage({ text: apiError, type: 'error' });
@@ -156,7 +156,7 @@ export default function Settings() {
 
       <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] overflow-hidden flex flex-col md:flex-row">
 
-        {/* Sidebar Tabs */}
+        {}
         <div className="w-full md:w-64 bg-gray-50/50 p-4 border-b md:border-b-0 md:border-r border-[var(--color-border)]">
           <nav className="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0">
             <button
@@ -350,7 +350,7 @@ export default function Settings() {
             </div>
           )}
 
-          {/* Garage Details Tab */}
+          {}
           {canManageGarage && activeTab === 'garage' && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="flex justify-between items-center mb-6 border-b pb-2">

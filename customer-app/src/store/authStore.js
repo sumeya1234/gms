@@ -7,7 +7,7 @@ const extractErrorMessage = (error, defaultMsg) => {
   if (!error?.response?.data) return defaultMsg;
   const { data } = error.response;
   if (data.errors && Array.isArray(data.errors)) {
-    // Clean up Joi quotes: "\"email\" is required" -> "email is required"
+    
     return data.errors.map(err => err.replace(/"/g, '')).join('\n');
   }
   return (data.error || data.message || defaultMsg).replace(/"/g, '');
@@ -28,7 +28,7 @@ export const useAuthStore = create((set) => ({
   user: null,
   token: null,
   isLoading: false,
-  isRestoring: true, // For app initialization
+  isRestoring: true, 
   isSignout: false,
   error: null,
   clearError: () => set({ error: null }),
@@ -109,7 +109,7 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await apiClient.post('/api/auth/forgot-password', { email });
       set({ isLoading: false });
-      return response.data.otp; // Return the dev OTP out
+      return response.data.otp; 
     } catch (error) {
       set({ isLoading: false, error: extractErrorMessage(error, 'Failed to request reset') });
       throw error;

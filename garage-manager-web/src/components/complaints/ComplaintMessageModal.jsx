@@ -61,13 +61,13 @@ export default function ComplaintMessageModal({ complaint, onClose, onResolved }
           </button>
         </div>
         
-        {/* Original Complaint Box */}
+        {}
         <div className="p-4 bg-orange-50 border-b border-orange-100 text-sm">
           <span className="font-semibold text-orange-800 block mb-1">Issue Description:</span>
           <p className="text-orange-900">{complaint.Description}</p>
         </div>
 
-        {/* Message Thread */}
+        {}
         <div className="flex-1 p-4 overflow-y-auto bg-gray-50/30 space-y-4">
           {loading ? (
             <div className="text-center py-4"><span className="animate-pulse text-gray-400">Loading messages...</span></div>
@@ -91,7 +91,7 @@ export default function ComplaintMessageModal({ complaint, onClose, onResolved }
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
+        {}
         <div className="p-4 border-t border-gray-100 bg-white">
           {complaint.Status === 'Resolved' ? (
             <div className="text-center p-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
@@ -127,7 +127,7 @@ export default function ComplaintMessageModal({ complaint, onClose, onResolved }
         </div>
       </div>
 
-      {/* Custom Confirmation Modal */}
+      {}
       {showConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">

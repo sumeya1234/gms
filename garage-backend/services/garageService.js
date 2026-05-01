@@ -25,7 +25,7 @@ const getCurrentTimeHHMM = (timezone) => {
 };
 
 const ensureGarageOwnersTable = async () => {
-  // Tables are managed via schema.sql, this is a NOP guard
+  
   return true;
 };
 
@@ -72,7 +72,7 @@ export const getAllGarages = async (location) => {
 
   const [rows] = await db.query(query, params);
 
-  // Fetch services for each garage
+  
   for (const garage of rows) {
     const [services] = await db.query(
       "SELECT ServiceName, Price FROM garageservices WHERE GarageID = ? ORDER BY ServiceName",
@@ -128,7 +128,7 @@ export const fetchGarageById = async (id) => {
 };
 
 export const modifyGarage = async (id, updateData, user) => {
-  // Check if garage exists
+  
   await fetchGarageById(id);
 
   if (user && user.role === "GarageManager") {
@@ -143,9 +143,9 @@ export const modifyGarage = async (id, updateData, user) => {
   const updates = [];
   const values = [];
 
-  // Check if bank details are being updated
+  
   if (updateData.bankCode || updateData.bankAccountNumber || updateData.bankAccountName) {
-    // We need all three to create a subaccount
+    
     const existingGarage = await fetchGarageById(id);
     const bCode = updateData.bankCode || existingGarage.BankCode;
     const bAcc = updateData.bankAccountNumber || existingGarage.BankAccountNumber;
@@ -160,7 +160,7 @@ export const modifyGarage = async (id, updateData, user) => {
 
   for (const [key, value] of Object.entries(updateData)) {
     if (value !== undefined) {
-      // Mapping fields based on the input payload
+      
       const fieldMap = {
         name: 'Name',
         location: 'Location',
@@ -193,7 +193,7 @@ export const modifyGarage = async (id, updateData, user) => {
 };
 
 export const removeGarage = async (id) => {
-  // Check if garage exists
+  
   await fetchGarageById(id);
 
   await db.query("DELETE FROM garages WHERE GarageID = ?", [id]);

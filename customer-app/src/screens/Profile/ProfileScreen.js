@@ -71,7 +71,7 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
+      {}
       <View style={styles.header}>
         <View style={styles.iconButton} />
         <Text style={styles.headerTitle}>Profile</Text>
@@ -81,7 +81,7 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Avatar Section */}
+        {}
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrap}>
             <View style={[styles.avatar, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]}>
@@ -98,7 +98,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Notification Banner */}
+        {}
         {unreadCount > 0 && latestNotif && (
           <View style={styles.banner}>
             <View style={styles.bannerContent}>
@@ -116,7 +116,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         )}
 
-        {/* Account Details Form */}
+        {}
         <Text style={styles.sectionTitle}>{t('Account Details')}</Text>
         <View style={styles.formGroup}>
           <View style={styles.formRow}>
@@ -174,7 +174,7 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={{ height: 24 }} />
 
-        {/* Preferences Section // Languages */}
+        {}
         <Text style={styles.sectionTitle}>{t('Preferences')}</Text>
         <View style={[styles.formGroup, { paddingVertical: 12 }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
@@ -202,7 +202,7 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={{ height: 24 }} />
 
-        {/* Footer Actions */}
+        {}
         <TouchableOpacity style={styles.helpBtn}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <HelpCircle size={20} color={colors.textGray} />
@@ -222,7 +222,7 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-// Simple internal component to mock the material symbol since lucide doesn't have an exact match
+
 function CarFrontIcon() {
   return (
     <View style={{ width: 18, height: 18, borderRadius: 4, backgroundColor: colors.bgGray, justifyContent: 'center', alignItems: 'center', marginRight: 4 }}>

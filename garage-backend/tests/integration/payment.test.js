@@ -11,7 +11,7 @@ describe('Payment Endpoints', () => {
         superAdmin = await createTestUserWithToken('SuperAdmin');
         customer = await createTestUserWithToken('Customer');
 
-        // Create Garage
+        
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "Payment Garage",
@@ -24,13 +24,13 @@ describe('Payment Endpoints', () => {
         const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
         garageId = garages.body[0].GarageID;
 
-        // Create Vehicle
+        
         await request(app).post('/api/vehicles/').set('Authorization', `Bearer ${customer.token}`)
             .send({ plateNumber: "PAY-111", type: "Car", model: "Toyota" });
         const vehicles = await request(app).get('/api/vehicles/').set('Authorization', `Bearer ${customer.token}`);
         vehicleId = vehicles.body[0].VehicleID;
 
-        // Create Service Request
+        
         await request(app).post('/api/services/').set('Authorization', `Bearer ${customer.token}`)
             .send({ serviceType: "Inspection", garageId, vehicleId });
 
@@ -57,7 +57,7 @@ describe('Payment Endpoints', () => {
             .post('/api/payments/pay')
             .set('Authorization', `Bearer ${customer.token}`)
             .send({
-                requestId: 999999, // Fake request
+                requestId: 999999, 
                 amount: 150.00,
                 method: "Chapa"
             });

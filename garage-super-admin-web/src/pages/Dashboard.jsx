@@ -8,7 +8,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-// eslint-disable-next-line no-unused-vars
+
 const StatCard = ({ icon: Icon, label, value, colorClass, iconBgClass, sub, trend }) => (
   <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between min-w-[220px] flex-1">
     <div className="flex justify-between items-start mb-4">
@@ -67,7 +67,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
+      {}
       <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <div className="inline-flex items-center gap-2 text-blue-600 text-xs font-bold mb-2 uppercase tracking-wide">
@@ -85,7 +85,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* 4 Stat Boxes Array */}
+      {}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           icon={Building2}
@@ -125,10 +125,10 @@ export default function Dashboard() {
         />
       </section>
 
-      {/* Main Content Modules */}
+      {}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Quick Actions */}
+        {}
         <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <h3 className="text-lg font-bold text-slate-900 mb-4">{t('quickActions')}</h3>
           
@@ -163,7 +163,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* System Health */}
+        {}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
             <h3 className="text-lg font-bold text-slate-900">{t('systemHealth')}</h3>

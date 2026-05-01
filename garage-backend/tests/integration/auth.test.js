@@ -3,11 +3,11 @@ import request from 'supertest';
 import app from '../../app.js';
 
 describe('Auth Endpoints', () => {
-    // Generate a payload for every test run to avoid 'unique constraint' failures
+    
     const testUser = {
         fullName: 'Test User',
         email: `testuser-${Date.now()}@example.com`,
-        phone: `+123456${Date.now().toString().slice(-4)}`, // Fake random phone
+        phone: `+123456${Date.now().toString().slice(-4)}`, 
         password: 'strongPassword123!',
         role: 'Customer'
     };
@@ -19,11 +19,11 @@ describe('Auth Endpoints', () => {
             .post('/api/auth/register')
             .send(testUser);
 
-        // Typical express register returns 201 Created
+        
         expect([200, 201]).toContain(response.status);
         expect(response.body).toHaveProperty('message');
         if (response.body.token) {
-             userToken = response.body.token; // Save token if returned on register
+             userToken = response.body.token; 
         }
     });
 

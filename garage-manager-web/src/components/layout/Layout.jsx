@@ -26,7 +26,7 @@ export const Layout = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // Set language from local storage on mount
+  
   useEffect(() => {
     const savedLang = localStorage.getItem('language');
     if (savedLang && i18n.language !== savedLang) {
@@ -87,7 +87,7 @@ export const Layout = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-secondary)] font-sans">
-      {/* Mobile Header */}
+      {}
       <div className="md:hidden bg-white border-b border-[var(--color-border)] p-4 flex justify-between items-center z-20 fixed top-0 left-0 w-full h-16">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
@@ -167,9 +167,9 @@ export const Layout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {}
       <main className="min-h-screen bg-[var(--color-secondary)] md:ml-64 flex flex-col pt-16">
-        {/* Desktop Top Bar - Fixed at top */}
+        {}
         <div className="bg-white border-b border-[var(--color-border)] p-4 justify-end items-center hidden md:flex fixed top-0 right-0 left-0 md:left-64 h-16 z-20 shadow-sm">
           <button
             onClick={() => setIsNotificationOpen(true)}
@@ -201,7 +201,7 @@ export const Layout = () => {
         </div>
       </main>
 
-      {/* Notifications Slide-over */}
+      {}
       {isNotificationOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsNotificationOpen(false)}></div>

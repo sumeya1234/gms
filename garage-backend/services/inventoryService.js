@@ -32,7 +32,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
   const normalizedSupplierName = supplierName?.trim?.() || null;
   const normalizedSupplierEmail = supplierEmail?.trim?.() || null;
   const normalizedSupplierPhone = supplierPhone?.trim?.() || null;
-  // 1. If requester is GarageManager, verify they belong to this garageId
+  
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
       "SELECT 1 FROM garagemanagers WHERE UserID = ? AND GarageID = ?",
@@ -53,7 +53,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
     throw error;
   }
 
-  // Case-insensitive check for existing inventory item
+  
   const [existingItems] = await db.query(
     "SELECT ItemID, ItemName, Quantity FROM inventory WHERE GarageID = ? AND LOWER(ItemName) = LOWER(?)",
     [garageId, itemName]
@@ -62,7 +62,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
   if (existingItems.length > 0) {
     const existing = existingItems[0];
     
-    // Choose the best casing (if existing is all lowercase and new is CamelCase, prefer the new name)
+    
     let bestName = existing.ItemName;
     const existingHasCaps = /[A-Z]/.test(existing.ItemName);
     const newHasCaps = /[A-Z]/.test(itemName);
@@ -70,7 +70,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
       bestName = itemName;
     }
 
-    // Merge: retain best casing, add quantity, update unit price
+    
     await db.query(
       `UPDATE inventory
        SET Quantity = Quantity + ?,
@@ -83,7 +83,7 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
       [quantity, unitPrice, bestName, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, existing.ItemID]
     );
   } else {
-    // Insert new logic
+    
     await db.query(
       `INSERT INTO inventory (ItemName, Quantity, UnitPrice, SupplierName, SupplierEmail, SupplierPhone, GarageID)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,

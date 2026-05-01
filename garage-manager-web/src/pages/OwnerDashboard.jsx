@@ -68,7 +68,7 @@ export default function OwnerDashboard() {
                 </div>
             )}
 
-            {/* Stats Cards */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
@@ -87,7 +87,7 @@ export default function OwnerDashboard() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {/* Revenue Reporting */}
+                {}
                 <div className="card p-6 min-h-[350px] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold text-gray-900">Revenue Reporting</h2>
@@ -115,7 +115,7 @@ export default function OwnerDashboard() {
                     )}
                 </div>
 
-                {/* Automated Report Snapshot */}
+                {}
                 <div className="card p-6 min-h-[350px] flex flex-col">
                     <h2 className="text-xl font-bold text-gray-900 mb-4">Automated Report Snapshot</h2>
                     {loading ? (
@@ -136,7 +136,7 @@ export default function OwnerDashboard() {
                 </div>
             </div>
 
-            {/* Low Stock Warning Panel */}
+            {}
             <div className={`card border-t-4 p-6 flex flex-col bg-gradient-to-b ${!garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? 'border-t-green-500 from-green-50/30' : 'border-t-red-500 from-red-50/30'} to-white`}>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">

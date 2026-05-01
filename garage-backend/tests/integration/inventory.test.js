@@ -13,7 +13,7 @@ describe('inventory Endpoints', () => {
         managerB = await createTestUserWithToken('GarageManager');
         mechanic = await createTestUserWithToken('Mechanic');
 
-        // Setup 2 garages to test tenant isolation
+        
         await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "Garage A",
@@ -37,7 +37,7 @@ describe('inventory Endpoints', () => {
         garageAId = garages.body.find(g => g.Name === "Garage A").GarageID;
         garageBId = garages.body.find(g => g.Name === "Garage B").GarageID;
 
-        // Assign managers
+        
         await request(app).put(`/api/users/${managerA.userId}/garage`).set('Authorization', `Bearer ${superAdmin.token}`).send({ garageId: garageAId });
         await request(app).put(`/api/users/${managerB.userId}/garage`).set('Authorization', `Bearer ${superAdmin.token}`).send({ garageId: garageBId });
     });
@@ -65,7 +65,7 @@ describe('inventory Endpoints', () => {
                 itemName: "Stolen Wipers",
                 quantity: 10,
                 unitPrice: 5.00,
-                garageId: garageAId // Attempting to inject into Garage A
+                garageId: garageAId 
             });
 
         expect(response.status).toBe(403);
@@ -74,7 +74,7 @@ describe('inventory Endpoints', () => {
     it('Should fetch all items for a garage (GET /api/inventory/:garageId)', async () => {
         const response = await request(app)
             .get(`/api/inventory/${garageAId}`)
-            .set('Authorization', `Bearer ${mechanic.token}`); // Anyone authenticated can view
+            .set('Authorization', `Bearer ${mechanic.token}`); 
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
@@ -108,11 +108,11 @@ describe('inventory Endpoints', () => {
         const response = await request(app)
             .put(`/api/inventory/${itemAId}`)
             .set('Authorization', `Bearer ${managerA.token}`)
-            .send({ quantity: 45 }); // Used 5 pads
+            .send({ quantity: 45 }); 
 
         expect(response.status).toBe(200);
 
-        // Verify it changed
+        
         const fetchRes = await request(app)
             .get(`/api/inventory/item/${itemAId}`)
             .set('Authorization', `Bearer ${mechanic.token}`);
@@ -126,7 +126,7 @@ describe('inventory Endpoints', () => {
 
         expect(response.status).toBe(200);
 
-        // Verify it was deleted
+        
         const fetchRes = await request(app)
             .get(`/api/inventory/item/${itemAId}`)
             .set('Authorization', `Bearer ${mechanic.token}`);

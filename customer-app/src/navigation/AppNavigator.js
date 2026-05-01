@@ -46,13 +46,13 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {token == null ? (
-          // No token found, user isn't signed in
+          
           <Stack.Screen
             name="Auth"
             component={AuthNavigator}
           />
         ) : (
-          // User is signed in
+          
           <Stack.Group>
             <Stack.Screen name="Main" component={BottomTabNavigator} />
             <Stack.Screen name="AddVehicle" component={AddVehicleScreen} />

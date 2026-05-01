@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }) => {
       setUserToken(token);
 
       try {
-        // Fetch full profile to get name and other details
+        
         const profileRes = await apiClient.get('/api/users/profile');
         setUser(profileRes.data.user);
       } catch (profileErr) {
-        // fallback in case profile fetch fails 
+        
         setUser({ role });
       }
 

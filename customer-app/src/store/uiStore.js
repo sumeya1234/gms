@@ -9,10 +9,7 @@ export const useUIStore = create((set) => ({
         buttons: [],
     },
 
-    /**
-     * Show a custom alert
-     * @param {Object} config - { title, message, type, buttons }
-     */
+    
     showAlert: (config) => set({
         alert: {
             ...config,

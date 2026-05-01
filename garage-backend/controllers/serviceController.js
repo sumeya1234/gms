@@ -71,7 +71,7 @@ export const getRequest = asyncHandler(async (req, res) => {
 
 export const getAvailability = asyncHandler(async (req, res) => {
   const garageId = req.params.garageId ?? req.params.id;
-  const { date } = req.query; // YYYY-MM-DD
+  const { date } = req.query; 
 
   if (!date) {
     return res.status(400).json({ error: "Date parameter is required" });

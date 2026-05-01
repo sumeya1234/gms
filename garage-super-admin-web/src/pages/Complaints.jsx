@@ -7,7 +7,7 @@ import ComplaintMessageModal from '../components/complaints/ComplaintMessageModa
 export default function Complaints() {
   const { t } = useTranslation();
 
-  const [activeTab, setActiveTab] = useState('escalated'); // 'escalated' or 'all'
+  const [activeTab, setActiveTab] = useState('escalated'); 
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,7 +77,7 @@ export default function Complaints() {
           <p className="text-gray-500 mt-1">Monitor user grievances and handle severe escalations.</p>
         </div>
 
-        {/* Search */}
+        {}
         <div className="relative">
           <input
             type="text"
@@ -104,7 +104,7 @@ export default function Complaints() {
         </div>
       )}
 
-      {/* Tabs */}
+      {}
       <div className="flex border-b border-gray-200">
         <button
           className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'escalated'

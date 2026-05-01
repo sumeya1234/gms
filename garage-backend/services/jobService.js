@@ -107,9 +107,9 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     let finalEstimatedPrice = estimatedPrice;
     let finalDepositPercentage = depositPercentage;
 
-    // Automation for emergency requests: Lookup fixed price and garage-specific deposit %
+    
     if (status === 'Approved' && request[0].IsEmergency) {
-        // 1. Fetch the fixed price for this service type from the garage's catalog
+        
         const [serviceData] = await db.query(
             "SELECT Price FROM garageservices WHERE GarageID = ? AND ServiceName = ?",
             [request[0].GarageID, request[0].ServiceType]
@@ -123,7 +123,7 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
             throw error;
         }
 
-        // 2. Fetch the garage's default emergency deposit percentage
+        
         const [garageData] = await db.query(
             "SELECT EmergencyDepositPercentage FROM garages WHERE GarageID = ?",
             [request[0].GarageID]
@@ -252,7 +252,7 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
 
         await connection.commit();
 
-        // Process notifications after successful commit
+        
         for (const note of notificationsToSend) {
             createNotification(note.userId, note.title, note.message, note.type).catch(err =>
                 console.error("Delayed notification failed:", err)
@@ -321,7 +321,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
         await connection.query("UPDATE servicerequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
 
-        // Fetch user data for completion notification after state change
+        
         const [vehicle] = await connection.query("SELECT CustomerID FROM vehicles WHERE VehicleID = ?", [service[0].VehicleID]);
         if (vehicle.length > 0) {
             notificationsToSend.push({
@@ -334,7 +334,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
         await connection.commit();
 
-        // Process all notifications after successful commit
+        
         for (const note of notificationsToSend) {
             createNotification(note.userId, note.title, note.message, note.type).catch(err =>
                 console.error("Delayed notification failed:", err)

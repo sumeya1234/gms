@@ -105,7 +105,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
         await api.post(`/users/garage/${user.GarageID}/accountants`, formData);
       }
       
-      // Reset form and close modal
+      
       setFormData({ fullName: '', email: '', phone: '' });
       setRegSkills([]);
       setRegCustomSkill('');
@@ -249,7 +249,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
         </div>
       )}
 
-      {/* Main Table */}
+      {}
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -348,11 +348,11 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
         )}
       </div>
 
-      {/* Add Staff Modal */}
+      {}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
+            {}
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -375,7 +375,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               </button>
             </div>
 
-            {/* Step 1 — Basic Info */}
+            {}
             {regStep === 1 && (
               <form onSubmit={e => { e.preventDefault(); setFormError(''); if (staffType === 'Mechanic') setRegStep(2); else handleAddStaff(e); }} className="p-6" autoComplete="off">
                 {formError && (
@@ -405,7 +405,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               </form>
             )}
 
-            {/* Step 2 — Skills */}
+            {}
             {regStep === 2 && (
               <form onSubmit={handleAddStaff} className="p-6">
                 {formError && (
@@ -567,7 +567,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                 })}
               </div>
 
-              {/* Custom skills that are not in predefined list */}
+              {}
               {selectedSkills.filter(s => !PREDEFINED_SKILLS.includes(s)).length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Custom Skills</p>

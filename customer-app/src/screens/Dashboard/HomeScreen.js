@@ -19,7 +19,7 @@ const SERVICE_CATEGORIES = ['Towing', 'Diagnostics', 'Tires', 'Oil Change', 'Rep
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
-  const R = 3958.8; // Radius of the Earth in miles
+  const R = 3958.8; 
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -34,16 +34,16 @@ export default function HomeScreen({ navigation, goToPage }) {
   const { user } = useAuthStore();
 
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [activeView, setActiveView] = useState('list'); // 'list' or 'map'
+  const [activeView, setActiveView] = useState('list'); 
   const [garages, setGarages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationName, setLocationName] = useState('Pending GPS...');
   const [userCoords, setUserCoords] = useState(null);
-  const [sortBy, setSortBy] = useState('Nearest'); // 'Nearest' or 'Lowest Price'
+  const [sortBy, setSortBy] = useState('Nearest'); 
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Deterministic avatar color from user name
+  
   const AVATAR_COLORS = ['#137fec', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#3498db', '#e91e63', '#00bcd4', '#ff5722'];
   const nameStr = user?.fullName || user?.firstName || 'User';
   const colorIndex = nameStr.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
@@ -67,7 +67,7 @@ export default function HomeScreen({ navigation, goToPage }) {
         });
         if (geocode && geocode.length > 0) {
           const place = geocode[0];
-          // Construct a clean display name using available attributes
+          
           const localName = place.district || place.street || place.name || '';
           const cityName = place.city || place.subregion || place.region || '';
           setLocationName(localName && cityName ? `${localName}, ${cityName}` : (localName || cityName || 'Unknown Location'));
@@ -87,14 +87,14 @@ export default function HomeScreen({ navigation, goToPage }) {
         const mapped = response.data.map(g => {
           const mod = g.GarageID % 3;
 
-          // Base images based on mod
+          
           const imgs = [
             "https://images.unsplash.com/photo-1598555239556-91d179eb9555?q=80&w=600&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=600&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1579227114347-15d08fc37cae?q=80&w=600&auto=format&fit=crop"
           ];
 
-          // Use real services from the database
+          
           const realServices = (g.Services || []).map(s => s.ServiceName);
 
           return {
@@ -126,24 +126,24 @@ export default function HomeScreen({ navigation, goToPage }) {
     };
     fetchGarages();
 
-    // Fetch unread notifications
+    
     const fetchUnread = async () => {
       try {
         const res = await apiClient.get('/api/users/notifications');
         const count = (res.data || []).filter(n => !n.IsRead).length;
         setUnreadCount(count);
       } catch (e) {
-        // silent
+        
       }
     };
     fetchUnread();
 
-    // Auto-refresh when screen comes to focus
+    
     const unsubscribe = navigation.addListener('focus', () => {
       fetchUnread();
     });
 
-    const timer = setInterval(fetchUnread, 30000); // 30s poll
+    const timer = setInterval(fetchUnread, 30000); 
 
     return () => {
       unsubscribe();
@@ -173,7 +173,7 @@ export default function HomeScreen({ navigation, goToPage }) {
     if (url) Linking.openURL(url);
   };
 
-  // Filter garages logic: garage must provide ALL selected services, matching search query
+  
   const filteredGarages = garages.filter(g => {
     if (selectedCategories.length === 0) return true;
     return selectedCategories.every(cat => g.services.includes(cat));
@@ -209,7 +209,7 @@ export default function HomeScreen({ navigation, goToPage }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Area */}
+      {}
       <View style={[styles.headerWrapper, { paddingTop: 16 }]}>
         <View style={styles.headerTop}>
           <View>
@@ -242,21 +242,21 @@ export default function HomeScreen({ navigation, goToPage }) {
 
       {loading ? (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Search Bar Skeleton */}
+          {}
           <View style={styles.searchWrapper}>
             <Skeleton width="100%" height={48} borderRadius={12} />
           </View>
-          {/* Emergency Button Skeleton */}
+          {}
           <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
             <Skeleton width="100%" height={48} borderRadius={12} />
           </View>
-          {/* Categories Skeleton */}
+          {}
           <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16 }}>
             <Skeleton width={60} height={32} borderRadius={16} style={{ marginRight: 8 }} />
             <Skeleton width={90} height={32} borderRadius={16} style={{ marginRight: 8 }} />
             <Skeleton width={100} height={32} borderRadius={16} />
           </View>
-          {/* List content Skeletons */}
+          {}
           <View style={{ paddingHorizontal: 16, gap: 16, marginTop: 24 }}>
             <Skeleton width="100%" height={120} borderRadius={16} />
             <Skeleton width="100%" height={120} borderRadius={16} />
@@ -266,12 +266,12 @@ export default function HomeScreen({ navigation, goToPage }) {
       ) : activeView === 'list' ? (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
-          {/* Main Title Section */}
+          {}
           <View style={styles.titleSection}>
             <Text style={styles.mainTitle}>{t('Find the best')} {"\n"}<Text style={{ color: colors.primaryBlue }}>{t('garages')}</Text> {t('near you')}</Text>
           </View>
 
-          {/* Search Input Binding */}
+          {}
           <View style={styles.searchWrapper}>
             <View style={styles.searchInput}>
               <Search color={colors.primaryBlue} size={22} style={{ marginRight: 10 }} />
@@ -315,7 +315,7 @@ export default function HomeScreen({ navigation, goToPage }) {
             </TouchableOpacity>
           </View>
 
-          {/* Categories Horizontal Scroll */}
+          {}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -336,7 +336,7 @@ export default function HomeScreen({ navigation, goToPage }) {
             ))}
           </ScrollView>
 
-          {/* Sorting */}
+          {}
           <View style={[styles.viewToggleWrapper, { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }]}>
             <View style={{ flexDirection: 'row', backgroundColor: colors.white, borderRadius: 8, padding: 2, borderWidth: 1, borderColor: colors.border }}>
               <TouchableOpacity onPress={() => setSortBy('Nearest')} style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: sortBy === 'Nearest' ? colors.primaryBlue : 'transparent', borderRadius: 6 }}>
@@ -422,7 +422,7 @@ export default function HomeScreen({ navigation, goToPage }) {
         </View>
       )}
 
-      {/* Floating Toggle Button */}
+      {}
       {!loading && (
         <TouchableOpacity
           style={styles.fabToggle}

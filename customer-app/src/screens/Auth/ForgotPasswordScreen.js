@@ -28,10 +28,10 @@ export default function ForgotPasswordScreen({ navigation }) {
     
     try {
       const otpValue = await forgotPassword(email);
-      // Pass the retrieved OTP to the verification screen
+      
       navigation.navigate('OTPVerification', { email, autoOtp: otpValue });
     } catch (err) {
-      // handled by authStore
+      
     }
   };
 

@@ -14,7 +14,7 @@ const resources = {
       logout: 'Logout',
       settings: 'Settings',
 
-      // Dashboard
+      
       welcomeBack: 'Welcome back',
       overviewOf: "Here's an overview of the",
       platformToday: 'Platform today.',
@@ -34,7 +34,7 @@ const resources = {
       allSystemsOperational: 'All Systems Operational',
       platformStable: 'Platform is currently stable with normal request volumes.',
 
-      // Garages
+      
       manageGarages: 'Manage Garages',
       onboardGarages: 'Onboard and manage garage partners.',
       searchGarage: 'Search garage name...',
@@ -152,7 +152,7 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en', // Default language
+  lng: 'en', 
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 });

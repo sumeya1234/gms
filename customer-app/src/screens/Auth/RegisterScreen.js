@@ -32,7 +32,7 @@ export default function RegisterScreen({ navigation }) {
     try {
       await register({ name, phone, email, password, role: 'customer' });
     } catch (err) {
-      // error state handled by zustand
+      
     }
   };
 

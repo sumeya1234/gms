@@ -34,7 +34,7 @@ export const createServiceRequest = async (serviceType, vehicleId, garageId, des
             throw error;
         }
         if (dropOffTime) {
-            const formattedDropOff = dropOffTime.slice(0, 5); // "HH:mm"
+            const formattedDropOff = dropOffTime.slice(0, 5); 
             const slotAllowed = (availability.availableSlots || []).includes(formattedDropOff);
             if (!slotAllowed) {
                 const error = new Error("Selected drop-off time is outside garage working hours.");
@@ -121,7 +121,7 @@ export const fetchCustomerRequests = async (customerId) => {
 };
 
 export const hideCustomerRequest = async (requestId, customerId) => {
-    // Verify the request belongs to this customer
+    
     const [rows] = await db.query(
         `SELECT sr.RequestID FROM servicerequests sr 
      JOIN vehicles v ON sr.VehicleID = v.VehicleID 
@@ -140,7 +140,7 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
     const { status, page = 1, limit = 10, search = '', date = '', sort = 'desc' } = options;
     const offset = (page - 1) * limit;
 
-    // Tenant Isolation
+    
     if (admin.role === "GarageManager") {
         const [manager] = await db.query(
             "SELECT 1 FROM garagemanagers WHERE UserID = ? AND GarageID = ?",
@@ -191,11 +191,11 @@ export const fetchGarageRequests = async (garageId, options, admin) => {
         }
     }
 
-    // Count query
+    
     const [countResult] = await db.query(`SELECT COUNT(*) as total ${baseQuery}`, params);
     const total = countResult[0].total;
 
-    // Data query
+    
     let dataQuery = `
     SELECT sr.*, u.FullName as AssignedMechanicName, ma.MechanicID as AssignedMechanicID,
         (SELECT PaymentStatus FROM payments p WHERE p.RequestID = sr.RequestID ORDER BY PaymentDate DESC LIMIT 1) as PaymentStatus,

@@ -13,7 +13,7 @@ export const useFeedbackStore = create((set, get) => ({
       if (response.data?.success) {
         set({ garageReviews: response.data.data, isLoading: false });
       } else {
-        // Fallback for API structure inconsistencies
+        
         set({ garageReviews: response.data || [], isLoading: false });
       }
     } catch (err) {
@@ -25,7 +25,7 @@ export const useFeedbackStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await apiClient.post('/api/reviews', payload);
-      // Try to re-fetch to live update the UI array if possible
+      
       await get().fetchGarageReviews(payload.garageId);
       set({ isLoading: false });
       return true;

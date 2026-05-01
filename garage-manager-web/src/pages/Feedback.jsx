@@ -9,7 +9,7 @@ export default function Feedback() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   
-  const [activeTab, setActiveTab] = useState('reviews'); // 'reviews' or 'complaints'
+  const [activeTab, setActiveTab] = useState('reviews'); 
   
   const [reviews, setReviews] = useState([]);
   const [complaints, setComplaints] = useState([]);
@@ -92,7 +92,7 @@ export default function Feedback() {
         </div>
       )}
 
-      {/* Tabs */}
+      {}
       <div className="flex border-b border-gray-200">
         <button
           className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${
@@ -128,7 +128,7 @@ export default function Feedback() {
           </div>
         ) : (
           <>
-            {/* Reviews View */}
+            {}
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] flex items-center gap-6">
@@ -174,7 +174,7 @@ export default function Feedback() {
               </div>
             )}
 
-            {/* Complaints View */}
+            {}
             {activeTab === 'complaints' && (
               <div className="space-y-4">
                 {complaints.length === 0 ? (

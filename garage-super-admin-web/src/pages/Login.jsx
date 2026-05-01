@@ -20,7 +20,7 @@ export default function Login() {
       const response = await api.post('/auth/login', { email, password });
       const { token, role } = response.data;
       
-      // Super Admin specifically needed
+      
       if (role !== 'SuperAdmin') {
         throw new Error('Access denied: You must be a Super Admin to access this portal');
       }
@@ -37,7 +37,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-50 p-6 relative overflow-hidden font-sans">
-      {/* Background decorations */}
+      {}
       <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       

@@ -151,7 +151,7 @@ export default function TaskDetailScreen({ route, navigation }) {
       return;
     }
 
-    // Check if enough stock
+    
     if (qty > selectedItem.Quantity) {
       showAlert('Error', `Only ${selectedItem.Quantity} available in stock.`, 'error');
       return;
@@ -176,8 +176,8 @@ export default function TaskDetailScreen({ route, navigation }) {
       await apiClient.post(`/api/services/assignments/${task.AssignmentID}/items`, { itemsUsed: itemsPayload });
       showAlert(t('Success'), t('Items documented successfully.'), 'success');
       setDocumentedItems([]);
-      fetchInventory(); // refresh inventory because we deducted from it
-      fetchPartsUsed(); // refresh saved parts
+      fetchInventory(); 
+      fetchPartsUsed(); 
     } catch (err) {
       console.log('Error documenting items', err?.response?.data || err);
       showAlert('Error', err?.response?.data?.message || 'Failed to document items', 'error');
@@ -236,7 +236,7 @@ export default function TaskDetailScreen({ route, navigation }) {
           )}
         </View>
 
-        {/* Saved Parts Section (always visible if parts exist) */}
+        {}
         {savedParts.length > 0 ? (
           <View style={[styles.card, { marginTop: 16 }]}>
             <Text style={styles.sectionLabel}>{t('Previously Used Parts')}</Text>
@@ -303,7 +303,7 @@ export default function TaskDetailScreen({ route, navigation }) {
         )}
       </View>
 
-      {/* Part Picker Modal */}
+      {}
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>

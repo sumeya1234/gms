@@ -2,7 +2,7 @@ import db from "../config/db.js";
 import axios from "axios";
 
 export const createChapaSubaccount = async (businessName, accountName, bankCode, accountNumber) => {
-  // In test mode, Chapa still validates real bank accounts, so we generate a local placeholder
+  
   const isTestMode = process.env.CHAPA_SECRET_KEY?.startsWith('CHASECK_TEST');
   if (isTestMode) {
     const placeholderId = `test-sub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -80,7 +80,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   let redirectUrl = null;
 
   if (method === 'Cash') {
-    // Cash payment: just record as Pending, manager will confirm receipt later
+    
     await db.query(
       `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
        VALUES (?, ?, 'Cash', 'Pending', NOW(), ?, ?)
@@ -88,17 +88,10 @@ export const createPayment = async (requestId, amount, method, category = 'Final
       [requestId, amount, tx_ref, category, amount, tx_ref]
     );
 
-    // Mark deposit as paid so customer UI updates - deferred to Accountant Confirm
-    /*
-    if (category === 'Deposit') {
-      await db.query(
-        `UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?`,
-        [requestId]
-      );
-    }
-    */
+    
+    
 
-    // Notify the garage manager and accountants about cash payment
+    
     try {
       const [garageInfo] = await db.query(
         `SELECT sr.GarageID, gm.UserID as ManagerUserID
@@ -110,7 +103,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
 
       const garageId = garageInfo[0]?.GarageID;
       if (garageId) {
-        // Find all accountants for this garage
+        
         const [accountants] = await db.query(`SELECT UserID FROM accountants WHERE GarageID = ?`, [garageId]);
 
         const notifyUserIDs = new Set();
@@ -132,11 +125,11 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   }
 
   if (method === 'Chapa') {
-    // Sanitize phone number (strip spaces, +251, etc.)
+    
     let sanitizedPhone = user.PhoneNumber ? user.PhoneNumber.replace(/\D/g, '') : '';
     if (sanitizedPhone.startsWith('251')) sanitizedPhone = '0' + sanitizedPhone.slice(3);
 
-    // Only include phone_number if it strictly matches 10 digits starting with 09 or 07
+    
     const isValidTestPhone = /^(09|07)\d{8}$/.test(sanitizedPhone);
 
     const payload = {
@@ -187,7 +180,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     }
   }
 
-  // Insert Pending Payment record for Chapa
+  
   await db.query(
     `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
      VALUES (?, ?, ?, 'Pending', NOW(), ?, ?)
@@ -195,12 +188,8 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     [requestId, amount, method, tx_ref, category, amount, method, tx_ref]
   );
 
-  // Mark deposit as paid so the customer's estimate card is hidden - deferred to Accountant Confirm
-  /*
-  if (category === 'Deposit') {
-    await db.query(`UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?`, [requestId]);
-  }
-  */
+  
+  
 
   return { checkout_url: redirectUrl, tx_ref };
 };
@@ -214,13 +203,13 @@ export const verifyChapaPayment = async (tx_ref) => {
     });
 
     if (response.data.status === 'success' && response.data.data.status === 'success') {
-      // Mark payment as completed
+      
       await db.query(
         "UPDATE payments SET PaymentStatus = 'Completed', PaymentDate = NOW() WHERE TransactionRef = ?",
         [tx_ref]
       );
 
-      // Notify the garage manager and accountants that payment was received
+      
       try {
         const [paymentInfo] = await db.query(
           `SELECT p.RequestID, p.Amount, p.PaymentCategory, sr.GarageID, gm.UserID as ManagerUserID
@@ -286,19 +275,19 @@ export const handleWebhook = async (reqBody) => {
   const { trx_ref, status } = reqBody;
 
   if (status === 'success') {
-    // Idempotency: skip if already marked Completed
+    
     const [existing] = await db.query("SELECT PaymentStatus FROM payments WHERE TransactionRef = ?", [trx_ref]);
     if (existing.length > 0 && existing[0].PaymentStatus === 'Completed') {
-      return; // Already processed
+      return; 
     }
 
-    // Verify with Chapa officially before committing funds
+    
     await verifyChapaPayment(trx_ref);
   }
 };
 
 export const confirmCashPayment = async (requestId, accountantId, category) => {
-  // Check the payment exists and is Cash + Pending
+  
   const [payment] = await db.query(
     "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
@@ -309,7 +298,7 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
     throw error;
   }
 
-  // Verify this accountant is assigned to the garage for this request
+  
   const [auth] = await db.query(
     `SELECT 1 FROM servicerequests sr
      JOIN accountants a ON sr.GarageID = a.GarageID
@@ -322,18 +311,18 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
     throw error;
   }
 
-  // Mark payment as Completed
+  
   await db.query(
     "UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentCategory = ?",
     [requestId, category]
   );
 
-  // If it was a deposit, allow the service to proceed to 'InProgress' or start tracking live
+  
   if (category === 'Deposit') {
     await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
-  // Notify the customer
+  
   try {
     const [custInfo] = await db.query(
       `SELECT v.CustomerID FROM servicerequests sr
@@ -355,7 +344,7 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
 };
 
 export const confirmOnlinePayment = async (requestId, accountantId, category) => {
-  // Check the payment exists and is Chapa + Pending
+  
   const [payment] = await db.query(
     "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
@@ -366,7 +355,7 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     throw error;
   }
 
-  // Verify accountant is assigned to this garage
+  
   const [auth] = await db.query(
     `SELECT 1 FROM servicerequests sr
      JOIN accountants a ON sr.GarageID = a.GarageID
@@ -379,7 +368,7 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     throw error;
   }
 
-  // Try to verify with Chapa first
+  
   const tx_ref = payment[0].TransactionRef;
   try {
     const response = await axios.get(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
@@ -387,20 +376,20 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     });
     if (response.data.status === 'success' && response.data.data.status === 'success') {
       await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
-      // Fall through to common completion logic
+      
     }
   } catch (e) {
     console.log("Chapa verify failed, using manual confirm:", e.message);
-    // Manual confirm if Chapa verify fails (test mode)
+    
     await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
   }
 
-  // If it was a deposit, allow the service to proceed
+  
   if (category === 'Deposit') {
     await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
-  // Notify customer
+  
   try {
     const [custInfo] = await db.query(
       `SELECT v.CustomerID FROM servicerequests sr
