@@ -1,6 +1,8 @@
 garage-backend/node_modules
 .env
 .env.example
+Analysis Results.md
+Exa
 # garage-backend/scripts
 garage-backend/combined.log
 garage-backend/error.log
