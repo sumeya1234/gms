@@ -37,7 +37,7 @@ export default function OwnerDashboard() {
             setError('');
         } catch (err) {
             console.error('Failed to fetch dashboard data', err);
-            setError('Failed to load dashboard metrics.');
+            setError(t('failedToLoadMetrics'));
         } finally {
             setLoading(false);
         }
@@ -57,7 +57,7 @@ export default function OwnerDashboard() {
         <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-3xl font-bold text-[var(--color-primary)]">
-                    Owner Reports
+                    {t('ownerReportsTitle')}
                 </h1>
             </div>
 
@@ -68,7 +68,7 @@ export default function OwnerDashboard() {
                 </div>
             )}
 
-            {}
+            { }
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
@@ -87,14 +87,14 @@ export default function OwnerDashboard() {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {}
+                { }
                 <div className="card p-6 min-h-[350px] flex flex-col">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-gray-900">Revenue Reporting</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{t('revenueReportingTitle')}</h2>
                         <select className="input-field !py-1.5 !text-sm" value={revenuePeriod} onChange={(e) => setRevenuePeriod(e.target.value)}>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
+                            <option value="daily">{t('revenuePeriodDaily')}</option>
+                            <option value="weekly">{t('revenuePeriodWeekly')}</option>
+                            <option value="monthly">{t('revenuePeriodMonthly')}</option>
                         </select>
                     </div>
                     {loading ? (
@@ -102,7 +102,7 @@ export default function OwnerDashboard() {
                             <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
                         </div>
                     ) : !revenueTrend || revenueTrend.length === 0 ? (
-                        <div className="flex-1 flex justify-center items-center text-gray-400">No revenue data available for this period.</div>
+                        <div className="flex-1 flex justify-center items-center text-gray-400">{t('noRevenueData')}</div>
                     ) : (
                         <div className="space-y-2 flex-1">
                             {revenueTrend.map((row) => (
@@ -115,28 +115,28 @@ export default function OwnerDashboard() {
                     )}
                 </div>
 
-                {}
+                { }
                 <div className="card p-6 min-h-[350px] flex flex-col">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">Automated Report Snapshot</h2>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">{t('automatedReportSnapshot')}</h2>
                     {loading ? (
                         <div className="flex-1 flex justify-center items-center">
                             <span className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
                         </div>
                     ) : generatedReport ? (
                         <div className="space-y-2 text-sm flex-1">
-                            <p><span className="text-gray-500">Generated:</span> {generatedReport.generatedAt ? new Date(generatedReport.generatedAt).toLocaleString() : 'N/A'}</p>
-                            <p><span className="text-gray-500">Active Jobs:</span> <span className="font-semibold">{generatedReport.operations?.activeJobs || 0}</span></p>
-                            <p><span className="text-gray-500">Completed Jobs:</span> <span className="font-semibold">{generatedReport.operations?.completedJobs || 0}</span></p>
-                            <p><span className="text-gray-500">Inventory Stock Value:</span> <span className="font-semibold">{Number(generatedReport.inventory?.totalStockValue || 0).toLocaleString()} ETB</span></p>
-                            <p><span className="text-gray-500">Low Stock Items:</span> <span className="font-semibold">{generatedReport.inventory?.lowStockItems?.length || 0}</span></p>
+                            <p><span className="text-gray-500">{t('generatedLabel')}:</span> {generatedReport.generatedAt ? new Date(generatedReport.generatedAt).toLocaleString() : 'N/A'}</p>
+                            <p><span className="text-gray-500">{t('activeJobs')}:</span> <span className="font-semibold">{generatedReport.operations?.activeJobs || 0}</span></p>
+                            <p><span className="text-gray-500">{t('completed')}:</span> <span className="font-semibold">{generatedReport.operations?.completedJobs || 0}</span></p>
+                            <p><span className="text-gray-500">{t('inventoryStockValue')}:</span> <span className="font-semibold">{Number(generatedReport.inventory?.totalStockValue || 0).toLocaleString()} ETB</span></p>
+                            <p><span className="text-gray-500">{t('lowStockWarnings')}:</span> <span className="font-semibold">{generatedReport.inventory?.lowStockItems?.length || 0}</span></p>
                         </div>
                     ) : (
-                        <div className="flex-1 flex justify-center items-center text-gray-400 text-sm">No report data available.</div>
+                        <div className="flex-1 flex justify-center items-center text-gray-400 text-sm">{t('noReportData')}</div>
                     )}
                 </div>
             </div>
 
-            {}
+            { }
             <div className={`card border-t-4 p-6 flex flex-col bg-gradient-to-b ${!garageStats.lowStockItems || garageStats.lowStockItems.length === 0 ? 'border-t-green-500 from-green-50/30' : 'border-t-red-500 from-red-50/30'} to-white`}>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">

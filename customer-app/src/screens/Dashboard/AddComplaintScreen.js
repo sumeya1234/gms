@@ -7,6 +7,7 @@ import { useFeedbackStore } from '../../store/feedbackStore';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../api/client';
 import showAlert from '../../utils/alert';
+import { io } from 'socket.io-client';
 
 export default function AddComplaintScreen({ navigation, route }) {
   const { t } = useTranslation();
@@ -20,16 +21,21 @@ export default function AddComplaintScreen({ navigation, route }) {
   const [localError, setLocalError] = useState('');
 
   const [activeComplaint, setActiveComplaint] = useState(null);
+  const [allComplaints, setAllComplaints] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loadingContext, setLoadingContext] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const scrollViewRef = useRef(null);
+  const socketRef = useRef(null);
 
   const fetchContext = async () => {
     try {
       setLoadingContext(true);
       const response = await api.get('/api/complaints/my-complaints');
       const garageComplaints = response.data.filter(c => c.GarageID === Number(garage.id || garage.GarageID));
+      setAllComplaints(garageComplaints);
       if (garageComplaints.length > 0) {
         const latest = garageComplaints[0];
         setActiveComplaint(latest);
@@ -46,6 +52,54 @@ export default function AddComplaintScreen({ navigation, route }) {
   useEffect(() => {
     fetchContext();
   }, []);
+
+  useEffect(() => {
+    if (activeComplaint) {
+      // Always disconnect any existing socket before creating a new one
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+
+      const socket = io(api.defaults.baseURL, { transports: ['websocket'] });
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        socket.emit('join_complaint_room', { complaintId: activeComplaint.ComplaintID });
+      });
+
+      socket.on('receive_complaint_message', (data) => {
+        // Normalize both camelCase (socket relay) and PascalCase (REST) shapes
+        const normalized = {
+          complaintId: Number(data.complaintId ?? data.ComplaintID),
+          SenderID: data.SenderID ?? data.senderId,
+          Message: data.Message ?? data.message,
+          SenderRole: data.SenderRole ?? data.senderRole ?? 'Support',
+          SenderName: data.SenderName ?? data.senderName,
+          CreatedAt: data.CreatedAt ?? new Date().toISOString(),
+        };
+        // Use Number() on both sides to avoid string/number strict equality mismatch
+        if (normalized.complaintId === Number(activeComplaint.ComplaintID)) {
+          setMessages(prev => {
+            const alreadyExists = prev.some(
+              m => m.Message === normalized.Message && m.SenderID === normalized.SenderID
+            );
+            if (alreadyExists) return prev;
+            return [...prev, normalized];
+          });
+        }
+      });
+
+      socket.on('connect_error', (err) => {
+        console.warn('Complaint socket connection error:', err.message);
+      });
+
+      return () => {
+        socket.disconnect();
+        socketRef.current = null;
+      };
+    }
+  }, [activeComplaint]);
 
   useEffect(() => {
     clearError();
@@ -68,20 +122,40 @@ export default function AddComplaintScreen({ navigation, route }) {
       showAlert(
         t('Report Submitted'),
         t("We've received your report. Management will review it and get back to you in the chat below."),
-        [{ text: t('Great!'), onPress: () => fetchContext() }]
+        [{ text: t('Great!'), onPress: () => { setShowForm(false); fetchContext(); } }]
       );
     }
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !activeComplaint) return;
+    if (!newMessage.trim() || !activeComplaint || isSending) return;
+    const msgText = newMessage.trim();
+    setIsSending(true);
+    setNewMessage(''); // clear immediately for UX
     try {
-      await api.post(`/api/complaints/${activeComplaint.ComplaintID}/messages`, { message: newMessage.trim() });
-      setNewMessage('');
-      const msgRes = await api.get(`/api/complaints/${activeComplaint.ComplaintID}/messages`);
-      setMessages(msgRes.data);
+      await api.post(`/api/complaints/${activeComplaint.ComplaintID}/messages`, { message: msgText });
+      
+      const socketMsg = {
+        complaintId: Number(activeComplaint.ComplaintID),
+        SenderID: user.id,
+        Message: msgText,
+        SenderRole: 'Customer',
+        CreatedAt: new Date().toISOString()
+      };
+
+      setMessages(prev => [...prev, socketMsg]);
+
+      if (socketRef.current) {
+        socketRef.current.emit('send_complaint_message', {
+          ...socketMsg,
+          senderName: user.fullName
+        });
+      }
     } catch (err) {
+      setNewMessage(msgText); // restore if failed
       showAlert(t('Error'), t('Failed to send message'), [], 'error');
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -93,20 +167,60 @@ export default function AddComplaintScreen({ navigation, route }) {
         <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('Report an Issue', 'Report an Issue')}</Text>
-        <View style={{ width: 40 }} />
+        <Text style={styles.headerTitle}>{t('Report an Issue')}</Text>
+        {activeComplaint && !showForm ? (
+          <TouchableOpacity onPress={() => { setShowForm(true); setDescription(''); setIsEscalated(false); }} style={styles.headerRightBtn}>
+            <Text style={styles.headerRightText}>{t('+ New')}</Text>
+          </TouchableOpacity>
+        ) : activeComplaint && showForm ? (
+          <TouchableOpacity onPress={() => setShowForm(false)} style={styles.headerRightBtn}>
+            <Text style={styles.headerRightText}>{t('Chat')}</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
       </View>
 
       {loadingContext ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={colors.primaryBlue} />
         </View>
-      ) : activeComplaint ? (
+      ) : activeComplaint && !showForm ? (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-          {}
-          <View style={{ padding: 16, backgroundColor: 'rgba(239, 68, 68, 0.05)', borderBottomWidth: 1, borderBottomColor: 'rgba(239, 68, 68, 0.1)' }}>
-            <Text style={{ fontWeight: 'bold', color: '#ef4444', marginBottom: 4 }}>Report #{activeComplaint.ComplaintID} ({activeComplaint.Status})</Text>
-            <Text style={{ color: colors.textDark, fontSize: 13, lineHeight: 18 }}>{activeComplaint.Description}</Text>
+          {allComplaints.length > 1 && (
+            <View style={styles.tabContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 10, paddingHorizontal: 16 }}>
+                {allComplaints.map((comp, idx) => {
+                  const isActive = comp.ComplaintID === activeComplaint.ComplaintID;
+                  const isResolved = comp.Status === 'Resolved';
+                  return (
+                    <TouchableOpacity
+                      key={comp.ComplaintID}
+                      onPress={async () => {
+                        setActiveComplaint(comp);
+                        setMessages([]);
+                        try {
+                          const msgRes = await api.get(`/api/complaints/${comp.ComplaintID}/messages`);
+                          setMessages(msgRes.data);
+                        } catch (err) {
+                          console.warn('Failed to load complaint messages', err);
+                        }
+                      }}
+                      style={[styles.tabButton, isActive && styles.activeTabButton]}
+                    >
+                      <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+                        {t('Ticket')} #{allComplaints.length - idx} {isResolved ? `(${t('Resolved')})` : ''}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+
+          <View style={styles.chatDescriptionBanner}>
+            <Text style={styles.chatBannerTitle}>{t('Active Support Thread')}</Text>
+            <Text style={styles.chatBannerDesc}>{activeComplaint.Description}</Text>
           </View>
 
           <ScrollView
@@ -120,13 +234,13 @@ export default function AddComplaintScreen({ navigation, route }) {
               messages.map((msg, idx) => {
                 const isMine = msg.SenderID === user.id;
                 return (
-                  <View key={idx} style={{ alignSelf: isMine ? 'flex-end' : 'flex-start', maxWidth: '80%', marginBottom: 12 }}>
-                    <View style={{ backgroundColor: isMine ? colors.primaryBlue : colors.white, padding: 12, borderRadius: 16, borderBottomRightRadius: isMine ? 4 : 16, borderBottomLeftRadius: isMine ? 16 : 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
-                      <Text style={{ color: isMine ? colors.white : colors.textDark }}>{msg.Message}</Text>
+                  <View key={idx} style={[styles.messageRow, isMine ? styles.myMessageRow : styles.theirMessageRow]}>
+                    <View style={[styles.messageBubble, isMine ? styles.myMessageBubble : styles.theirMessageBubble]}>
+                      <Text style={[styles.messageText, isMine ? styles.myMessageText : styles.theirMessageText]}>{msg.Message}</Text>
+                      <Text style={[styles.messageTime, isMine ? styles.myMessageTime : styles.theirMessageTime]}>
+                        {new Date(msg.CreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
                     </View>
-                    <Text style={{ fontSize: 10, color: colors.textLight, marginTop: 4, alignSelf: isMine ? 'flex-end' : 'flex-start' }}>
-                      {new Date(msg.CreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {isMine ? 'You' : msg.SenderRole}
-                    </Text>
                   </View>
                 );
               })
@@ -134,21 +248,26 @@ export default function AddComplaintScreen({ navigation, route }) {
           </ScrollView>
 
           {activeComplaint.Status !== 'Resolved' ? (
-            <View style={{ padding: 16, backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={styles.chatInputContainer}>
               <TextInput
-                style={{ flex: 1, backgroundColor: colors.bgGray, borderRadius: 24, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: colors.textDark, marginRight: 12 }}
+                style={styles.chatTextInput}
                 placeholder={t('Type a message...')}
                 value={newMessage}
                 onChangeText={setNewMessage}
                 multiline
                 maxLength={500}
+                editable={!isSending}
               />
               <TouchableOpacity
-                style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: newMessage.trim() ? colors.primaryBlue : colors.bgGray, justifyContent: 'center', alignItems: 'center' }}
+                style={[styles.chatSendButton, { backgroundColor: (newMessage.trim() && !isSending) ? '#3b82f6' : colors.bgGray }]}
                 onPress={handleSendMessage}
-                disabled={!newMessage.trim()}
+                disabled={!newMessage.trim() || isSending}
               >
-                <Send size={20} color={newMessage.trim() ? colors.white : colors.textLight} />
+                {isSending ? (
+                  <ActivityIndicator size="small" color="#3b82f6" />
+                ) : (
+                  <Send size={20} color={newMessage.trim() ? colors.white : colors.textLight} />
+                )}
               </TouchableOpacity>
             </View>
           ) : (
@@ -170,16 +289,16 @@ export default function AddComplaintScreen({ navigation, route }) {
 
             <View style={styles.infoBox}>
               <Text style={styles.infoText}>
-                {t('This report is private and will be reviewed directly by the Garage Management team. Please provide as much detail as possible to help us investigate.', 'This report is private and will be reviewed directly by the Garage Management team. Please provide as much detail as possible to help us investigate.')}
+                {t('This report is private and will be reviewed directly by the Garage Management team. Please provide as much detail as possible to help us investigate.')}
               </Text>
             </View>
 
-            <Text style={styles.label}>{t('Incident Description', 'Incident Description')}</Text>
+            <Text style={styles.label}>{t('Incident Description')}</Text>
             <View style={styles.inputWrap}>
               <TextInput
                 style={styles.textArea}
                 multiline
-                placeholder={t('Describe what happened in detail...', 'Describe what happened in detail...')}
+                placeholder={t('Describe what happened in detail...')}
                 placeholderTextColor={colors.textGray}
                 value={description}
                 onChangeText={setDescription}
@@ -221,7 +340,7 @@ export default function AddComplaintScreen({ navigation, route }) {
               {isLoading ? (
                 <ActivityIndicator color={colors.white} />
               ) : (
-                <Text style={styles.submitBtnText}>{t('Submit Private Report', 'Submit Private Report')}</Text>
+                <Text style={styles.submitBtnText}>{t('Submit Private Report')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -266,5 +385,138 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   escalateTitle: { fontSize: 15, fontWeight: 'bold', color: colors.textDark, marginBottom: 4 },
-  escalateDesc: { fontSize: 12, color: colors.textGray, lineHeight: 18 }
+  escalateDesc: { fontSize: 12, color: colors.textGray, lineHeight: 18 },
+  headerRightBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, backgroundColor: 'rgba(239, 68, 68, 0.08)' },
+  headerRightText: { fontSize: 14, fontWeight: 'bold', color: '#ef4444' },
+  chatDescriptionBanner: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    zIndex: 10,
+  },
+  chatBannerTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#ef4444',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  chatBannerDesc: {
+    color: colors.textDark,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  messageRow: {
+    marginBottom: 12,
+    maxWidth: '75%',
+  },
+  myMessageRow: {
+    alignSelf: 'flex-end',
+  },
+  theirMessageRow: {
+    alignSelf: 'flex-start',
+  },
+  messageBubble: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  myMessageBubble: {
+    backgroundColor: '#3b82f6',
+    borderBottomRightRadius: 4,
+  },
+  theirMessageBubble: {
+    backgroundColor: '#ffffff',
+    borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  myMessageText: {
+    color: '#ffffff',
+  },
+  theirMessageText: {
+    color: '#1f2937',
+  },
+  messageTime: {
+    fontSize: 9,
+    marginTop: 4,
+    alignSelf: 'flex-end',
+  },
+  myMessageTime: {
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  theirMessageTime: {
+    color: '#9ca3af',
+  },
+  chatInputContainer: {
+    padding: 16,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chatTextInput: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: colors.textDark,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  chatSendButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tabContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  tabButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeTabButton: {
+    backgroundColor: '#eff6ff',
+    borderColor: '#3b82f6',
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#6b7280',
+  },
+  activeTabText: {
+    color: '#3b82f6',
+  }
 });

@@ -54,13 +54,13 @@
   --radius-xl: 0.5rem;
   --radius-full: 0.75rem;
 
-  --font-headline: "Public Sans";
-  --font-body: "Public Sans";
-  --font-label: "Public Sans";
+  --font-headline: "Outfit", sans-serif;
+  --font-body: "Outfit", sans-serif;
+  --font-label: "Outfit", sans-serif;
 }
 
 body { 
-  font-family: 'Public Sans', sans-serif; 
+  font-family: 'Outfit', sans-serif; 
 }
 
 .material-symbols-outlined {

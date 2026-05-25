@@ -1,16 +1,16 @@
 import db from "../config/db.js";
 
-export const createServiceItem = async (serviceName, price, garageId) => {
+export const createServiceItem = async (serviceName, price, garageId, isEmergency = false) => {
   await db.query(
-    "INSERT INTO garageservices (ServiceName, Price, GarageID) VALUES (?, ?, ?)",
-    [serviceName, price, garageId]
+    "INSERT INTO garageservices (ServiceName, Price, GarageID, IsEmergency) VALUES (?, ?, ?, ?)",
+    [serviceName, price, garageId, isEmergency ? 1 : 0]
   );
 };
 
-export const updateServiceItem = async (serviceId, serviceName, price) => {
+export const updateServiceItem = async (serviceId, serviceName, price, isEmergency = false) => {
   const [result] = await db.query(
-    "UPDATE garageservices SET ServiceName = ?, Price = ? WHERE ServiceID = ?",
-    [serviceName, price, serviceId]
+    "UPDATE garageservices SET ServiceName = ?, Price = ?, IsEmergency = ? WHERE ServiceID = ?",
+    [serviceName, price, isEmergency ? 1 : 0, serviceId]
   );
   if (result.affectedRows === 0) {
     const error = new Error("Service not found");

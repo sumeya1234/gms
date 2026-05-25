@@ -38,6 +38,7 @@ export default function Inventory() {
     itemName: '',
     quantity: '',
     unitPrice: '',
+    sellingPrice: '',
     supplierName: '',
     supplierEmail: '',
     supplierPhone: ''
@@ -45,6 +46,7 @@ export default function Inventory() {
   const [showSupplierInfo, setShowSupplierInfo] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const fetchInventory = useCallback(async () => {
     if (!user?.GarageID) return;
@@ -55,7 +57,7 @@ export default function Inventory() {
       setError('');
     } catch (err) {
       console.error(err);
-      setError('Failed to load inventory & services.');
+      setError(t('failedToLoadInventory'));
     } finally {
       setLoading(false);
     }
@@ -68,12 +70,17 @@ export default function Inventory() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const openAddModal = () => {
     setEditingItem(null);
-    setFormData({ itemName: '', quantity: '', unitPrice: '', supplierName: '', supplierEmail: '', supplierPhone: '' });
+    setFormData({ itemName: '', quantity: '', unitPrice: '', sellingPrice: '', supplierName: '', supplierEmail: '', supplierPhone: '' });
     setFormError('');
+    setFieldErrors({});
     setShowSupplierInfo(false);
     setIsModalOpen(true);
   };
@@ -84,6 +91,7 @@ export default function Inventory() {
       itemName: item.ItemName,
       quantity: item.Quantity,
       unitPrice: item.UnitPrice,
+      sellingPrice: item.SellingPrice || '',
       supplierName: item.SupplierName || '',
       supplierEmail: item.SupplierEmail || '',
       supplierPhone: item.SupplierPhone || ''
@@ -101,6 +109,43 @@ export default function Inventory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    const newFieldErrors = {};
+
+    // Custom Validation
+    if (!formData.itemName.trim()) {
+      newFieldErrors.itemName = t('itemNameRequired');
+    } else if (!/^[a-zA-Z0-9\s\-\.]+$/.test(formData.itemName)) {
+      newFieldErrors.itemName = t('itemNameInvalid');
+    }
+
+    if (formData.quantity === "" || formData.quantity < 0) {
+      newFieldErrors.quantity = t('invalidQuantity');
+    }
+
+    if (formData.unitPrice === "" || formData.unitPrice < 0) {
+      newFieldErrors.unitPrice = t('invalidBuyPrice');
+    }
+
+    if (formData.sellingPrice === "" || Number(formData.sellingPrice) <= 0) {
+      newFieldErrors.sellingPrice = t('invalidSalePrice');
+    } else if (Number(formData.sellingPrice) <= Number(formData.unitPrice)) {
+      newFieldErrors.sellingPrice = t('salePriceRule');
+    }
+
+    if (showSupplierInfo) {
+      if (formData.supplierEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.supplierEmail)) {
+        newFieldErrors.supplierEmail = t('invalidEmail');
+      }
+      if (formData.supplierPhone && !/^\+?[0-9\s\-]+$/.test(formData.supplierPhone)) {
+        newFieldErrors.supplierPhone = t('invalidPhone');
+      }
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
+      return;
+    }
+
     setFormLoading(true);
 
     try {
@@ -109,29 +154,36 @@ export default function Inventory() {
           itemName: formData.itemName,
           quantity: Number(formData.quantity),
           unitPrice: Number(formData.unitPrice),
+          sellingPrice: Number(formData.sellingPrice),
           supplierName: formData.supplierName || null,
           supplierEmail: formData.supplierEmail || null,
           supplierPhone: formData.supplierPhone || null
         });
-        showSuccess(`Item "${formData.itemName}" updated successfully!`);
+        showSuccess(t('itemUpdatedSuccess', { name: formData.itemName }));
       } else {
         await api.post(`/inventory`, {
           itemName: formData.itemName,
           quantity: Number(formData.quantity),
           unitPrice: Number(formData.unitPrice),
+          sellingPrice: Number(formData.sellingPrice),
           supplierName: formData.supplierName || null,
           supplierEmail: formData.supplierEmail || null,
           supplierPhone: formData.supplierPhone || null,
           garageId: user.GarageID
         });
-        showSuccess(`Item "${formData.itemName}" added successfully!`);
+        showSuccess(t('itemCreatedSuccess', { name: formData.itemName }));
       }
 
       setIsModalOpen(false);
       fetchInventory();
     } catch (err) {
       console.error(err);
-      setFormError(err.response?.data?.errors?.join(', ') || err.response?.data?.message || 'Failed to save item');
+      if (err.response?.data?.errors) {
+        // Map backend errors if any
+        setFormError(err.response.data.errors.join(', '));
+      } else {
+        setFormError(err.response?.data?.message || 'Failed to save item');
+      }
     } finally {
       setFormLoading(false);
     }
@@ -142,7 +194,7 @@ export default function Inventory() {
     try {
       await api.delete(`/inventory/${editingItem.ItemID}`);
       setIsDeleteModalOpen(false);
-      showSuccess(`Item deleted successfully!`);
+      showSuccess(t('itemDeletedSuccess'));
       fetchInventory();
     } catch (err) {
       console.error(err);
@@ -184,24 +236,24 @@ export default function Inventory() {
         </div>
       )}
 
-      {}
+      { }
       {userRole === 'GarageOwner' && !loading && inventory.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 shadow-sm flex flex-col justify-between">
-            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Total Capital Value</span>
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">{t('totalCapitalValue')}</span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-black text-slate-900 leading-none">
                 ETB {inventory.reduce((acc, item) => acc + (item.Quantity * item.UnitPrice), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-4 leading-relaxed">
-              * Total theoretical value of all current stock items combined.
+              {t('theoreticalValueDesc')}
             </p>
           </div>
         </div>
       )}
 
-      {}
+      { }
       {!loading && inventory.some(item => item.Quantity < 10) && (
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm animate-in slide-in-from-top-2">
           <div className="flex">
@@ -224,7 +276,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {}
+      { }
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -245,7 +297,8 @@ export default function Inventory() {
                   <th className="p-4 font-semibold">{t('partName')}</th>
                   <th className="p-4 font-semibold">{t('quantity')}</th>
                   <th className="p-4 font-semibold text-right">{t('unitPrice')}</th>
-                  <th className="p-4 font-semibold">Supplier</th>
+                  <th className="p-4 font-semibold text-right">{t('sellingPrice')}</th>
+                  <th className="p-4 font-semibold">{t('supplier')}</th>
                   <th className="p-4 font-semibold text-right w-32">{t('actions')}</th>
                 </tr>
               </thead>
@@ -264,11 +317,14 @@ export default function Inventory() {
                           item.Quantity > 0 ? 'bg-orange-500' : 'bg-red-500'
                           }`} />
                         {item.Quantity >= 10 ? `${item.Quantity} ${t('inStock')}` :
-                          item.Quantity > 0 ? `${item.Quantity} - LOW STOCK` : 'OUT OF STOCK'}
+                          item.Quantity > 0 ? `${item.Quantity} - ${t('lowStockCap')}` : t('outOfStock')}
                       </span>
                     </td>
                     <td className="p-4 text-right text-[var(--color-text-main)] font-semibold">
                       ETB {Number(item.UnitPrice).toFixed(2)}
+                    </td>
+                    <td className="p-4 text-right text-[var(--color-text-main)] font-semibold">
+                      ETB {Number(item.SellingPrice || 0).toFixed(2)}
                     </td>
                     <td className="p-4 text-xs text-gray-600">
                       {item.SupplierName ? (
@@ -277,7 +333,7 @@ export default function Inventory() {
                           <div>{item.SupplierPhone || '-'}</div>
                         </div>
                       ) : (
-                        <span className="text-gray-400">Not specified</span>
+                        <span className="text-gray-400">{t('notSpecified')}</span>
                       )}
                     </td>
                     <td className="p-4 text-right">
@@ -299,7 +355,7 @@ export default function Inventory() {
                           </button>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400 italic">View only</span>
+                        <span className="text-xs text-gray-400 italic">{t('viewOnly')}</span>
                       )}
                     </td>
                   </tr>
@@ -310,14 +366,14 @@ export default function Inventory() {
         )}
       </div>
 
-      {}
+      { }
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Box size={20} className="text-[var(--color-primary)]" />
-                {editingItem ? 'Edit Item' : 'Add New Item'}
+                {editingItem ? t('editItem') : t('addNewItem')}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -327,56 +383,75 @@ export default function Inventory() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6" autoComplete="off">
+            <form onSubmit={handleSubmit} className="p-6" autoComplete="off" noValidate>
               {formError && (
                 <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
                   {formError}
                 </div>
               )}
 
+              {/* Conflict Caution */}
+              {!editingItem && formData.itemName.trim() && inventory.some(item => item.ItemName.toLowerCase() === formData.itemName.trim().toLowerCase()) && (
+                <div className="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 text-sm animate-in fade-in slide-in-from-top-1">
+                  <div className="font-bold flex items-center gap-1.5 mb-1">
+                    <Check size={14} className="text-yellow-600" />
+                    {t('itemExistsCautionTitle')}
+                  </div>
+                  <p>{t('itemExistsCautionText')}</p>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Part Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">{t('partName')}</label>
                   <input
                     type="text"
                     name="itemName"
                     value={formData.itemName}
                     onChange={handleInputChange}
-                    placeholder="e.g. Premium Engine Oil"
-                    className="input-field w-full text-base"
-                    required
-                    minLength={2}
+                    placeholder={t('partNameExample')}
+                    className={`input-field w-full text-base ${fieldErrors.itemName ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                   />
+                  {fieldErrors.itemName && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.itemName}</p>}
                 </div>
 
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Qty</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('qtyLabel')}</label>
                     <input
                       type="number"
                       name="quantity"
                       value={formData.quantity}
                       onChange={handleInputChange}
                       placeholder="0"
-                      className="input-field w-full"
-                      min="0"
-                      required
+                      className={`input-field w-full ${fieldErrors.quantity ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                     />
+                    {fieldErrors.quantity && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.quantity}</p>}
                   </div>
 
-                  <div className="flex-[2]">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Unit Price (ETB)</label>
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('buyPriceLabel')}</label>
                     <input
                       type="number"
                       name="unitPrice"
                       value={formData.unitPrice}
                       onChange={handleInputChange}
                       placeholder="0.00"
-                      className="input-field w-full"
-                      min="0"
-                      step="0.01"
-                      required
+                      className={`input-field w-full ${fieldErrors.unitPrice ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                     />
+                    {fieldErrors.unitPrice && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.unitPrice}</p>}
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('salePriceLabel')}</label>
+                    <input
+                      type="number"
+                      name="sellingPrice"
+                      value={formData.sellingPrice}
+                      onChange={handleInputChange}
+                      placeholder="0.00"
+                      className={`input-field w-full ${fieldErrors.sellingPrice ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
+                    />
+                    {fieldErrors.sellingPrice && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.sellingPrice}</p>}
                   </div>
                 </div>
 
@@ -386,44 +461,47 @@ export default function Inventory() {
                     onClick={() => setShowSupplierInfo(!showSupplierInfo)}
                     className="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors uppercase tracking-wider"
                   >
-                    {showSupplierInfo ? '− Hide Supplier Details' : '+ Add Supplier Details (Optional)'}
+                    {showSupplierInfo ? t('hideSupplierDetails') : t('addSupplierDetails')}
                   </button>
 
                   {showSupplierInfo && (
                     <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Supplier Name</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{t('supplierNameLabel')}</label>
                         <input
                           type="text"
                           name="supplierName"
                           value={formData.supplierName}
                           onChange={handleInputChange}
-                          placeholder="Addis Parts Supply"
-                          className="input-field w-full text-sm py-1.5"
+                          placeholder={t('notSpecified')}
+                          className={`input-field w-full text-sm py-1.5 ${fieldErrors.supplierName ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                         />
+                        {fieldErrors.supplierName && <p className="mt-1 text-[10px] text-red-600 font-medium">{fieldErrors.supplierName}</p>}
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{t('supplierEmailLabel')}</label>
                           <input
                             type="email"
                             name="supplierEmail"
                             value={formData.supplierEmail}
                             onChange={handleInputChange}
                             placeholder="supplier@example.com"
-                            className="input-field w-full text-sm py-1.5"
+                            className={`input-field w-full text-sm py-1.5 ${fieldErrors.supplierEmail ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                           />
+                          {fieldErrors.supplierEmail && <p className="mt-1 text-[10px] text-red-600 font-medium">{fieldErrors.supplierEmail}</p>}
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Phone</label>
+                          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{t('supplierPhoneLabel')}</label>
                           <input
                             type="text"
                             name="supplierPhone"
                             value={formData.supplierPhone}
                             onChange={handleInputChange}
                             placeholder="+2519..."
-                            className="input-field w-full text-sm py-1.5"
+                            className={`input-field w-full text-sm py-1.5 ${fieldErrors.supplierPhone ? 'border-red-500 ring-2 ring-red-500/20' : ''}`}
                           />
+                          {fieldErrors.supplierPhone && <p className="mt-1 text-[10px] text-red-600 font-medium">{fieldErrors.supplierPhone}</p>}
                         </div>
                       </div>
                     </div>
@@ -438,7 +516,7 @@ export default function Inventory() {
                   disabled={formLoading}
                   className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
@@ -450,7 +528,7 @@ export default function Inventory() {
                   ) : (
                     <Check size={16} />
                   )}
-                  {editingItem ? 'Save Changes' : 'Create Item'}
+                  {editingItem ? t('saveChanges') : t('createItem')}
                 </button>
               </div>
             </form>
@@ -458,7 +536,7 @@ export default function Inventory() {
         </div>
       )}
 
-      {}
+      { }
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -466,9 +544,9 @@ export default function Inventory() {
               <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Item</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('deleteItem')}</h3>
               <p className="text-gray-500 text-sm">
-                Are you sure you want to delete <span className="font-semibold text-gray-800">"{editingItem?.ItemName}"</span>? This action cannot be undone.
+                {t('deleteItemConfirm', { name: editingItem?.ItemName })}
               </p>
             </div>
             <div className="flex gap-3 justify-center p-6 border-t border-gray-50 bg-gray-50/50">
@@ -477,7 +555,7 @@ export default function Inventory() {
                 disabled={formLoading}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleDelete}
@@ -487,7 +565,7 @@ export default function Inventory() {
                 {formLoading ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
-                  "Yes, Delete It"
+                  t('yesDeleteIt')
                 )}
               </button>
             </div>

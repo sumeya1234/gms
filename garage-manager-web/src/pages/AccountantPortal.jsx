@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { Check, DollarSign, Eye, RefreshCcw, Wrench, X } from 'lucide-react';
 
 export default function AccountantPortal() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ export default function AccountantPortal() {
       setRows(response.data.data || []);
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load accountant bookings.');
+      setError(err.response?.data?.message || t('failedToLoadBookings'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export default function AccountantPortal() {
       await api.put(`/payments/${endpoint}/${req.RequestID}?category=${pmt.PaymentCategory}`);
       await fetchRows();
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.message || 'Verification failed.');
+      setError(err.response?.data?.error || err.response?.data?.message || t('verifyFailed'));
     } finally {
       setBusyId(null);
     }
@@ -72,6 +74,7 @@ export default function AccountantPortal() {
       setRequestItems(response.data || []);
     } catch (err) {
       console.error('Failed to fetch request items', err);
+      setError(t('fetchItemsFailed'));
     } finally {
       setLoadingItems(false);
     }
@@ -81,11 +84,11 @@ export default function AccountantPortal() {
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-primary)]">Accountant Portal</h1>
-          <p className="text-gray-500 mt-1">Financial verification and payment finalization</p>
+          <h1 className="text-3xl font-bold text-[var(--color-primary)]">{t('accountantPortalTitle')}</h1>
+          <p className="text-gray-500 mt-1">{t('accountantPortalSub')}</p>
         </div>
         <button onClick={fetchRows} className="btn-primary flex items-center gap-2 px-4 py-2">
-          <RefreshCcw size={16} /> Refresh
+          <RefreshCcw size={16} /> {t('refresh')}
         </button>
       </div>
 
@@ -101,12 +104,12 @@ export default function AccountantPortal() {
             <table className="w-full min-w-[1100px] text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-[var(--color-border)] text-sm text-[var(--color-text-light)]">
-                  <th className="p-4 font-semibold">Request</th>
-                  <th className="p-4 font-semibold">Customer</th>
-                  <th className="p-4 font-semibold">Vehicle</th>
-                  <th className="p-4 font-semibold">Booking Status</th>
-                  <th className="p-4 font-semibold" colSpan={3}>Payment Details</th>
-                  <th className="p-4 font-semibold">Details</th>
+                  <th className="p-4 font-semibold">{t('requestHeader')}</th>
+                  <th className="p-4 font-semibold">{t('customerHeader')}</th>
+                  <th className="p-4 font-semibold">{t('vehicleHeader')}</th>
+                  <th className="p-4 font-semibold">{t('bookingStatusHeader')}</th>
+                  <th className="p-4 font-semibold" colSpan={3}>{t('paymentDetailsHeader')}</th>
+                  <th className="p-4 font-semibold">{t('detailsHeader')}</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -124,22 +127,22 @@ export default function AccountantPortal() {
                         <span className="text-xs text-gray-500">{req.VehiclePlateNumber || '-'}</span>
                       </div>
                     </td>
-                    <td className="p-4">{req.Status}</td>
+                    <td className="p-4">{t(req.Status.toLowerCase()) || req.Status}</td>
                     <td className="p-4" colSpan={3}>
                       <div className="flex flex-col gap-2">
                         {(() => {
-                          
+
                           let details = req.PaymentDetailsJson;
                           if (typeof details === 'string') {
                             try { details = JSON.parse(details); } catch (e) { details = []; }
                           }
                           if (!details || !Array.isArray(details) || details.length === 0) {
-                            return <span className="text-gray-400 text-xs font-semibold">Not Initiated</span>;
+                            return <span className="text-gray-400 text-xs font-semibold">{t('paymentNotInitiated')}</span>;
                           }
 
                           return details.map((pmt, i) => (
                             <div key={i} className="flex justify-between items-center bg-white p-2 border border-gray-100 rounded">
-                              <span className="text-xs font-semibold text-gray-700 w-16">{pmt.PaymentCategory || 'Final'}</span>
+                              <span className="text-xs font-semibold text-gray-700 w-16">{pmt.PaymentCategory === 'Final' ? t('final') : (pmt.PaymentCategory || t('final'))}</span>
                               <span className="text-xs text-gray-500 w-24">{Number(pmt.Amount).toLocaleString()} ETB</span>
                               <span className="text-xs text-gray-500 w-24">{pmt.PaymentMethod}</span>
 
@@ -151,13 +154,12 @@ export default function AccountantPortal() {
                                 >
                                   {busyId === req.RequestID ? '...' : (
                                     <>
-                                      {pmt.PaymentMethod === 'Cash' ? <DollarSign size={12} /> : <Check size={12} />}
-                                      Approve
+                                      {t('approve')}
                                     </>
                                   )}
                                 </button>
                               ) : (
-                                <span className="text-green-600 text-xs font-semibold min-w-[70px] flex justify-center">Verified ✓</span>
+                                <span className="text-green-600 text-xs font-semibold min-w-[70px] flex justify-center">{t('paymentVerified')}</span>
                               )}
                             </div>
                           ));
@@ -169,7 +171,7 @@ export default function AccountantPortal() {
                         onClick={() => handleViewDetails(req)}
                         className="px-3 py-1.5 rounded text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors flex items-center gap-1"
                       >
-                        <Eye size={12} /> Details
+                        <Eye size={12} /> {t('detailsHeader')}
                       </button>
                     </td>
                   </tr>
@@ -184,7 +186,7 @@ export default function AccountantPortal() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900">Invoice Details</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('invoiceDetailsTitle')}</h2>
               <button onClick={() => setDetailsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <X size={20} />
               </button>
@@ -193,15 +195,15 @@ export default function AccountantPortal() {
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
                 <h3 className="font-bold text-lg text-slate-800 mb-1">#{selectedRequest.RequestID} - {selectedRequest.ServiceType}</h3>
-                <p className="text-sm text-slate-500 mb-3">{selectedRequest.Description || 'No description provided.'}</p>
+                <p className="text-sm text-slate-500 mb-3">{selectedRequest.Description || t('noDescription')}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm mt-4">
                   <div>
-                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">Booking Status</span>
-                    <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.Status}</span>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('bookingStatusHeader')}</span>
+                    <span className="block mt-1 font-semibold text-slate-700">{t(selectedRequest.Status.toLowerCase()) || selectedRequest.Status}</span>
                   </div>
                   <div>
-                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">Payment</span>
-                    <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.PaymentMethod || 'Not Initiated'} ({selectedRequest.PaymentStatus || 'Pending'})</span>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('paymentHeader')}</span>
+                    <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.PaymentMethod || t('paymentNotInitiated')} ({t(selectedRequest.PaymentStatus?.toLowerCase()) || (selectedRequest.PaymentStatus || t('pending'))})</span>
                   </div>
                 </div>
               </div>
@@ -210,10 +212,10 @@ export default function AccountantPortal() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
-                      <th className="p-3 font-semibold text-slate-600">Item</th>
-                      <th className="p-3 font-semibold text-slate-600 text-center">Qty</th>
-                      <th className="p-3 font-semibold text-slate-600 text-right">Unit Price</th>
-                      <th className="p-3 font-semibold text-slate-600 text-right">Total</th>
+                      <th className="p-3 font-semibold text-slate-600">{t('itemLabel')}</th>
+                      <th className="p-3 font-semibold text-slate-600 text-center">{t('qtyLabel')}</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">{t('unitPrice')}</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">{t('total')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -257,7 +259,7 @@ export default function AccountantPortal() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="p-3 text-center text-slate-400 italic text-xs">No parts used for this service</td>
+                        <td colSpan="4" className="p-3 text-center text-slate-400 italic text-xs">{t('noPartsUsed')}</td>
                       </tr>
                     )}
                   </tbody>
@@ -272,15 +274,15 @@ export default function AccountantPortal() {
                       return (
                         <>
                           <tr>
-                            <td colSpan="3" className="p-3 text-right font-bold text-slate-500 uppercase text-xs tracking-wider">Service Cost</td>
+                            <td colSpan="3" className="p-3 text-right font-bold text-slate-500 uppercase text-xs tracking-wider">{t('serviceCostLabel')}</td>
                             <td className="p-3 text-right font-bold text-slate-700">{serviceCost.toLocaleString()} ETB</td>
                           </tr>
                           <tr>
-                            <td colSpan="3" className="p-3 text-right font-bold text-slate-500 uppercase text-xs tracking-wider border-t border-slate-100">Parts Cost</td>
+                            <td colSpan="3" className="p-3 text-right font-bold text-slate-500 uppercase text-xs tracking-wider border-t border-slate-100">{t('partsCostLabel')}</td>
                             <td className="p-3 text-right font-bold text-slate-700 border-t border-slate-100">{partsCost.toLocaleString()} ETB</td>
                           </tr>
                           <tr className="bg-blue-50/50">
-                            <td colSpan="3" className="p-4 text-right font-black text-slate-800 uppercase text-sm tracking-wider border-t border-blue-100">Total Invoice</td>
+                            <td colSpan="3" className="p-4 text-right font-black text-slate-800 uppercase text-sm tracking-wider border-t border-blue-100">{t('totalInvoiceLabel')}</td>
                             <td className="p-4 text-right font-black text-blue-600 text-xl border-t border-blue-100">
                               {(serviceCost + partsCost).toLocaleString()} ETB
                             </td>
@@ -298,7 +300,7 @@ export default function AccountantPortal() {
                 onClick={() => setDetailsModalOpen(false)}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors shadow-sm"
               >
-                Close
+                {t('close')}
               </button>
             </div>
           </div>

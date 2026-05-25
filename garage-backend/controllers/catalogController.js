@@ -7,15 +7,15 @@ export const getCatalog = asyncHandler(async (req, res) => {
 });
 
 export const addCatalogItem = asyncHandler(async (req, res) => {
-  const { serviceName, price, garageId } = req.body;
-  await createServiceItem(serviceName, price, garageId);
+  const { serviceName, price, garageId, isEmergency } = req.body;
+  await createServiceItem(serviceName, price, garageId, isEmergency);
   res.status(201).json({ message: "Service added successfully" });
 });
 
 export const editCatalogItem = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { serviceName, price } = req.body;
-  await updateServiceItem(id, serviceName, price);
+  const { serviceName, price, isEmergency } = req.body;
+  await updateServiceItem(id, serviceName, price, isEmergency);
   res.json({ message: "Service updated successfully" });
 });
 

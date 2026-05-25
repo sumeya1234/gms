@@ -47,10 +47,22 @@ export const getGarageManagerStats = async (garageId, user) => {
     [garageId]
   );
 
+  const [[activeEstimates]] = await db.query(
+    "SELECT COUNT(*) as count FROM servicerequests WHERE GarageID = ? AND Status = 'pending'",
+    [garageId]
+  );
+
+  const [[approvedEstimates]] = await db.query(
+    "SELECT COUNT(*) as count FROM servicerequests WHERE GarageID = ? AND Status = 'Approved'",
+    [garageId]
+  );
+
   return {
     activeJobs: activeJobs?.count || 0,
     totalRevenue: totalRevenue?.sum || 0,
-    lowStockItems: lowStockItems || []
+    lowStockItems: lowStockItems || [],
+    activeEstimates: (activeEstimates?.count || 0) + (approvedEstimates?.count || 0),
+    pendingApproval: activeEstimates?.count || 0
   };
 };
 
@@ -115,6 +127,17 @@ export const getGarageRevenueByPeriod = async (garageId, period = "daily") => {
       ORDER BY MAX(p.PaymentDate) DESC
       LIMIT 12
     `;
+  } else if (period === "yearly") {
+    query = `
+      SELECT DATE_FORMAT(p.PaymentDate, '%Y') as label, COALESCE(SUM(p.Amount), 0) as revenue
+      FROM payments p
+      JOIN servicerequests sr ON p.RequestID = sr.RequestID
+      WHERE sr.GarageID = ? AND p.PaymentStatus = 'Completed'
+        AND p.PaymentDate >= DATE_SUB(CURDATE(), INTERVAL 5 YEAR)
+      GROUP BY label
+      ORDER BY label DESC
+      LIMIT 5
+    `;
   } else {
     query = `
       SELECT DATE_FORMAT(p.PaymentDate, '%Y-%m-%d') as label, COALESCE(SUM(p.Amount), 0) as revenue
@@ -165,4 +188,53 @@ export const generateGarageOperationalReport = async (garageId, period = "monthl
       stockSnapshot
     }
   };
+};
+
+export const getServiceUsageStats = async (garageId, period = "monthly") => {
+  let interval = "INTERVAL 30 DAY";
+  if (period === "weekly") interval = "INTERVAL 7 DAY";
+  if (period === "yearly") interval = "INTERVAL 1 YEAR";
+
+  const [rows] = await db.query(
+    `SELECT 
+      gs.ServiceName,
+      COUNT(sr.RequestID) as usageCount,
+      SUM(COALESCE(gs.Price, 0)) as totalRevenue
+     FROM garageservices gs
+     LEFT JOIN servicerequests sr ON sr.GarageID = gs.GarageID 
+        AND FIND_IN_SET(TRIM(gs.ServiceName), REPLACE(REPLACE(sr.ServiceType, ' ,', ','), ', ', ','))
+        AND sr.Status = 'Completed'
+        AND sr.RequestDate >= DATE_SUB(CURDATE(), ${interval})
+     WHERE gs.GarageID = ?
+     GROUP BY gs.ServiceName
+     ORDER BY usageCount DESC`,
+    [garageId]
+  );
+  return rows;
+};
+
+export const getPartsUsageLog = async (garageId, period = "monthly") => {
+  let interval = "INTERVAL 30 DAY";
+  if (period === "weekly") interval = "INTERVAL 7 DAY";
+  if (period === "yearly") interval = "INTERVAL 1 YEAR";
+
+  const [rows] = await db.query(
+    `SELECT 
+      si.ItemID,
+      i.ItemName,
+      SUM(si.QuantityUsed) as totalQuantity,
+      AVG(i.SellingPrice) as avgPrice,
+      SUM(si.QuantityUsed * i.SellingPrice) as totalCost,
+      MAX(sr.RequestDate) as lastUsed
+     FROM serviceitems si
+     JOIN inventory i ON si.ItemID = i.ItemID
+     JOIN servicerequests sr ON si.RequestID = sr.RequestID
+     WHERE sr.GarageID = ? 
+       AND sr.Status = 'Completed'
+       AND sr.RequestDate >= DATE_SUB(CURDATE(), ${interval})
+     GROUP BY si.ItemID, i.ItemName
+     ORDER BY totalCost DESC`,
+    [garageId]
+  );
+  return rows;
 };

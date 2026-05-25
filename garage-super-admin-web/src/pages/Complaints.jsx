@@ -7,7 +7,7 @@ import ComplaintMessageModal from '../components/complaints/ComplaintMessageModa
 export default function Complaints() {
   const { t } = useTranslation();
 
-  const [activeTab, setActiveTab] = useState('escalated'); 
+  const [activeTab, setActiveTab] = useState('escalated');
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +28,7 @@ export default function Complaints() {
       setError('');
     } catch (err) {
       console.error('Failed to fetch complaints', err);
-      setError('Failed to load system complaints.');
+      setError(t('failedToLoadComplaints'));
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export default function Complaints() {
   const handleResolveComplaint = async (complaintId) => {
     try {
       await api.put(`/complaints/${complaintId}/resolve`, { status: 'Resolved' });
-      showSuccess('Escalated complaint marked as officially resolved');
+      showSuccess(t('complaintResolved'));
       setSelectedComplaint(null);
       fetchComplaints();
     } catch (err) {
@@ -72,16 +72,16 @@ export default function Complaints() {
         <div>
           <h1 className="text-3xl font-bold text-[#1890ff] flex items-center gap-2">
             <AlertTriangle size={28} />
-            System Complaints
+            {t('systemComplaints')}
           </h1>
-          <p className="text-gray-500 mt-1">Monitor user grievances and handle severe escalations.</p>
+          <p className="text-gray-500 mt-1">{t('monitorGrievances')}</p>
         </div>
 
-        {}
+        { }
         <div className="relative">
           <input
             type="text"
-            placeholder="Search by ID, Customer, Garage..."
+            placeholder={t('searchByIdCustomerGarage')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-[#1890ff] focus:border-transparent transition-all"
@@ -104,16 +104,16 @@ export default function Complaints() {
         </div>
       )}
 
-      {}
+      { }
       <div className="flex border-b border-gray-200">
         <button
           className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'escalated'
-              ? 'border-[#ef4444] text-[#ef4444]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            ? 'border-[#ef4444] text-[#ef4444]'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           onClick={() => setActiveTab('escalated')}
         >
-          Escalated Issues
+          {t('escalatedIssues')}
           {escalatedCount > 0 && (
             <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">
               {escalatedCount}
@@ -122,12 +122,12 @@ export default function Complaints() {
         </button>
         <button
           className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'all'
-              ? 'border-[#1890ff] text-[#1890ff]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            ? 'border-[#1890ff] text-[#1890ff]'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           onClick={() => setActiveTab('all')}
         >
-          All Complaints ({complaints.length})
+          {t('allComplaints')} ({complaints.length})
         </button>
       </div>
 
@@ -139,7 +139,7 @@ export default function Complaints() {
         ) : filteredComplaints.length === 0 ? (
           <div className="text-center py-10 bg-white rounded-xl border border-gray-200 border-dashed shadow-sm">
             <AlertCircle size={40} className="mx-auto text-gray-300 mb-2" />
-            <p className="text-gray-500">No complaints matching the criteria.</p>
+            <p className="text-gray-500">{t('noComplaintsMatchingCriteria')}</p>
           </div>
         ) : (
           <div className="overflow-hidden bg-white shadow-sm rounded-xl border border-gray-200">
@@ -148,12 +148,12 @@ export default function Complaints() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100 text-sm xl:text-base text-gray-500">
                     <th className="p-4 font-semibold w-20">ID</th>
-                    <th className="p-4 font-semibold w-24">Type</th>
-                    <th className="p-4 font-semibold">Customer</th>
-                    <th className="p-4 font-semibold">Garage</th>
-                    <th className="p-4 font-semibold min-w-xs">Description</th>
-                    <th className="p-4 font-semibold">Status</th>
-                    <th className="p-4 font-semibold text-right">Action</th>
+                    <th className="p-4 font-semibold w-24">{t('type')}</th>
+                    <th className="p-4 font-semibold">{t('customer')}</th>
+                    <th className="p-4 font-semibold">{t('garage')}</th>
+                    <th className="p-4 font-semibold min-w-xs">{t('description')}</th>
+                    <th className="p-4 font-semibold">{t('status')}</th>
+                    <th className="p-4 font-semibold text-right">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -163,19 +163,19 @@ export default function Complaints() {
                       <td className="p-4">
                         {complaint.IsEscalated === 1 ? (
                           <span className="px-2 py-1 bg-red-100 text-red-700 font-bold text-[10px] uppercase rounded flex w-min items-center gap-1">
-                            <AlertTriangle size={10} /> Escalate
+                            <AlertTriangle size={10} /> {t('escalate')}
                           </span>
                         ) : (
                           <span className="px-2 py-1 bg-gray-100 text-gray-600 font-bold text-[10px] uppercase rounded">
-                            Standard
+                            {t('standard')}
                           </span>
                         )}
                       </td>
                       <td className="p-4 font-medium text-gray-900">
-                        {complaint.CustomerName || `Customer #${complaint.CustomerID}`}
+                        {complaint.CustomerName || `${t('customerPlaceholder')} ${complaint.CustomerID}`}
                       </td>
                       <td className="p-4 font-medium text-[#1890ff]">
-                        {complaint.GarageName || `Garage #${complaint.GarageID}`}
+                        {complaint.GarageName || `${t('garagePlaceholder')} ${complaint.GarageID}`}
                       </td>
                       <td className="p-4 text-gray-600">
                         <div className="max-w-xs truncate" title={complaint.Description}>
@@ -184,9 +184,9 @@ export default function Complaints() {
                       </td>
                       <td className="p-4">
                         <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-[10px] uppercase tracking-wide border ${complaint.Status === 'Resolved' ? 'bg-green-50 text-green-700 border-green-200' :
-                            complaint.Status === 'InProgress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-orange-50 text-orange-700 border-orange-200'
+                          complaint.Status === 'InProgress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-orange-50 text-orange-700 border-orange-200'
                           }`}>
-                          {complaint.Status}
+                          {complaint.Status === 'Pending' ? t('Open') : t(complaint.Status)}
                         </span>
                       </td>
                       <td className="p-4 text-right">
@@ -195,7 +195,7 @@ export default function Complaints() {
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-[#1890ff] hover:text-white rounded-md font-semibold text-xs transition-colors shadow-sm"
                         >
                           <MessageCircle size={14} />
-                          {complaint.Status === 'Resolved' ? 'View Log' : 'Review'}
+                          {complaint.Status === 'Resolved' ? t('viewLog') : t('review')}
                         </button>
                       </td>
                     </tr>

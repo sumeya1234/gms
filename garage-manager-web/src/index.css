@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   --color-primary: #1890ff;
@@ -13,15 +14,18 @@
   --color-success: #52c41a;
   --color-warning: #faad14;
   --color-error: #f5222d;
+
+  --font-sans: "Outfit", sans-serif;
 }
 
 @layer base {
 html, body {
   @apply overflow-x-hidden;
+  font-family: var(--font-sans);
 }
 
 body {
-    @apply bg-[var(--color-secondary)] text-[var(--color-text-main)] antialiased;
+  @apply bg-[var(--color-secondary)] text-[var(--color-text-main)] antialiased;
 }
 }
 

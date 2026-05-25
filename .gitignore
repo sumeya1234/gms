@@ -1,4 +1,4 @@
-node_modules
+garage-backend/node_modules
 .env
 .env.example
 # garage-backend/scripts

@@ -35,28 +35,53 @@ export default function BottomTabNavigator({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <PagerView
-        ref={pagerRef}
-        style={styles.pager}
-        initialPage={0}
-        onPageSelected={onPageSelected}
-        overdrag={true}
-      >
-        <View key="home" style={styles.page}>
-          <HomeScreen navigation={navigation} goToPage={goToPage} />
+      {Platform.OS === 'web' ? (
+        <View style={styles.pager}>
+          {activeIndex === 0 && (
+            <View key="home" style={styles.page}>
+              <HomeScreen navigation={navigation} goToPage={goToPage} />
+            </View>
+          )}
+          {activeIndex === 1 && (
+            <View key="history" style={styles.page}>
+              <HistoryScreen navigation={navigation} />
+            </View>
+          )}
+          {activeIndex === 2 && (
+            <View key="vehicles" style={styles.page}>
+              <MyVehiclesScreen navigation={navigation} />
+            </View>
+          )}
+          {activeIndex === 3 && (
+            <View key="profile" style={styles.page}>
+              <ProfileScreen navigation={navigation} />
+            </View>
+          )}
         </View>
-        <View key="history" style={styles.page}>
-          <HistoryScreen navigation={navigation} />
-        </View>
-        <View key="vehicles" style={styles.page}>
-          <MyVehiclesScreen navigation={navigation} />
-        </View>
-        <View key="profile" style={styles.page}>
-          <ProfileScreen navigation={navigation} />
-        </View>
-      </PagerView>
+      ) : (
+        <PagerView
+          ref={pagerRef}
+          style={styles.pager}
+          initialPage={0}
+          onPageSelected={onPageSelected}
+          overdrag={true}
+        >
+          <View key="home" style={styles.page}>
+            <HomeScreen navigation={navigation} goToPage={goToPage} />
+          </View>
+          <View key="history" style={styles.page}>
+            <HistoryScreen navigation={navigation} />
+          </View>
+          <View key="vehicles" style={styles.page}>
+            <MyVehiclesScreen navigation={navigation} />
+          </View>
+          <View key="profile" style={styles.page}>
+            <ProfileScreen navigation={navigation} />
+          </View>
+        </PagerView>
+      )}
 
-      {}
+      { }
       <View style={[styles.tabBar, { paddingBottom: Platform.OS === 'ios' ? insets.bottom : 8 }]}>
         {TABS.map((tab, index) => {
           const isActive = activeIndex === index;

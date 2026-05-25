@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare, Package, Globe, Building2, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Wrench, Menu, X, LogOut, Settings, Bell, MessageSquare, Package, Globe, Building2, FileText, Car } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,7 @@ export const Layout = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  
+
   useEffect(() => {
     const savedLang = localStorage.getItem('language');
     if (savedLang && i18n.language !== savedLang) {
@@ -62,24 +62,26 @@ export const Layout = () => {
 
   const unreadCount = notifications.filter(n => !n.IsRead).length;
 
-  const role = user?.Role || user?.role;
-  const roleTitle = role === 'GarageOwner' ? 'GMS Owner' : role === 'Accountant' ? 'GMS Accountant' : 'GMS Manager';
+  const rawRole = user?.Role || user?.role || "";
+  const role = rawRole.toLowerCase() === 'manager' ? 'GarageManager' : rawRole;
+  const roleTitle = role === 'GarageOwner' ? t('gmsOwner') : role === 'Accountant' ? t('gmsAccountant') : t('gmsManager');
   const navItemsByRole = {
     GarageManager: [
       { path: '/', icon: LayoutDashboard, label: t('dashboard') },
       { path: '/bookings', icon: Calendar, label: t('bookings') },
-      { path: '/staff', icon: Users, label: 'Staff' },
+      { path: '/vehicles', icon: Car, label: t('vehicles') },
+      { path: '/staff', icon: Users, label: t('staff') },
       { path: '/services', icon: Wrench, label: t('services') },
       { path: '/inventory', icon: Package, label: t('inventory') },
       { path: '/feedback', icon: MessageSquare, label: t('feedback') },
       { path: '/settings', icon: Settings, label: t('settings') },
     ],
     GarageOwner: [
-      { path: '/', icon: FileText, label: 'Reports' },
+      { path: '/', icon: LayoutDashboard, label: t('dashboard') },
       { path: '/inventory', icon: Package, label: t('inventory') },
     ],
     Accountant: [
-      { path: '/', icon: LayoutDashboard, label: 'Accounting' },
+      { path: '/', icon: LayoutDashboard, label: t('accounting') },
       { path: '/settings', icon: Settings, label: t('settings') },
     ]
   };
@@ -87,7 +89,7 @@ export const Layout = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-secondary)] font-sans">
-      {}
+      { }
       <div className="md:hidden bg-white border-b border-[var(--color-border)] p-4 flex justify-between items-center z-20 fixed top-0 left-0 w-full h-16">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
@@ -162,14 +164,14 @@ export const Layout = () => {
             className="flex items-center space-x-3 p-3 w-full rounded-lg text-[var(--color-error)] hover:bg-[#fff1f0] transition-colors focus:outline-none"
           >
             <LogOut size={20} />
-            <span className="font-medium">{t('logout')}</span>
+            <span className="font-medium">{t('Logout')}</span>
           </button>
         </div>
       </aside>
 
-      {}
+      { }
       <main className="min-h-screen bg-[var(--color-secondary)] md:ml-64 flex flex-col pt-16">
-        {}
+        { }
         <div className="bg-white border-b border-[var(--color-border)] p-4 justify-end items-center hidden md:flex fixed top-0 right-0 left-0 md:left-64 h-16 z-20 shadow-sm">
           <button
             onClick={() => setIsNotificationOpen(true)}
@@ -201,7 +203,7 @@ export const Layout = () => {
         </div>
       </main>
 
-      {}
+      { }
       {isNotificationOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsNotificationOpen(false)}></div>
@@ -224,7 +226,7 @@ export const Layout = () => {
               {notifications.length === 0 ? (
                 <div className="text-center py-10 text-gray-400">
                   <Bell size={40} className="mx-auto mb-3 opacity-20" />
-                  <p>No notifications yet</p>
+                  <p>{t('noNotificationsYet')}</p>
                 </div>
               ) : (
                 <div className="space-y-1">

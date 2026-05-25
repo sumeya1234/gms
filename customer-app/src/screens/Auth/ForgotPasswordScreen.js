@@ -22,7 +22,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   const handleSendOTP = async () => {
     setLocalError('');
     if (!email) {
-      setLocalError('Please enter your email address');
+      setLocalError(t('Please enter your email address'));
       return;
     }
     

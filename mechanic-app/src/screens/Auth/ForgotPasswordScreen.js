@@ -4,22 +4,23 @@ import CustomAlert from '../../components/CustomAlert';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const { t } = useTranslation();
   const { requestPasswordReset } = useContext(AuthContext);
 
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
   const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
-  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+  const showAlert = (title, message, type = 'info', buttons = [{ text: t('OK'), onPress: closeAlert }]) => {
     setAlertConfig({ visible: true, title, message, type, buttons });
   };
 
   const handleRequestOTP = async () => {
     if (!email) {
-      setErrorMsg('Please enter your email address');
+      setErrorMsg(t('Please enter your email address'));
       return;
     }
     setLoading(true);
@@ -33,8 +34,8 @@ export default function ForgotPasswordScreen({ navigation }) {
       // In production, user would check their email.
       if (res.otp) {
         console.log('OTP received (DEV):', res.otp);
-        showAlert('Development Mode', `OTP: ${res.otp}`, 'info', [
-          { text: 'OK', onPress: () => { closeAlert(); navigation.navigate('VerifyOTP', { email, devOtp: res.otp }); } }
+        showAlert(t('Development Mode'), `OTP: ${res.otp}`, 'info', [
+          { text: t('OK'), onPress: () => { closeAlert(); navigation.navigate('VerifyOTP', { email, devOtp: res.otp }); } }
         ]);
       } else {
         navigation.navigate('VerifyOTP', { email });
@@ -57,22 +58,22 @@ export default function ForgotPasswordScreen({ navigation }) {
         >
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={colors.primary} />
-            <Text style={styles.backText}>Back to Login</Text>
+            <Text style={styles.backText}>{t('Back to Login')}</Text>
           </TouchableOpacity>
 
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>Enter your email address to receive a 6-digit verification code.</Text>
+            <Text style={styles.title}>{t('Forgot Password')}</Text>
+            <Text style={styles.subtitle}>{t('Enter your email address to receive a 6-digit verification code.')}</Text>
           </View>
 
           <View style={styles.formContainer}>
             {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email address</Text>
+              <Text style={styles.label}>{t('Email address')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email"
+                placeholder={t("Enter your email")}
                 placeholderTextColor="#666"
                 value={email}
                 onChangeText={setEmail}
@@ -85,7 +86,7 @@ export default function ForgotPasswordScreen({ navigation }) {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Send Code</Text>
+                <Text style={styles.buttonText}>{t('Send Code')}</Text>
               )}
             </TouchableOpacity>
           </View>

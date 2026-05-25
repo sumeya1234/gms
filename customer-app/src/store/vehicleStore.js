@@ -22,7 +22,7 @@ export const useVehicleStore = create((set, get) => ({
     try {
       await client.post('/api/vehicles', vehicleData);
 
-      
+
       await get().fetchVehicles();
 
       return true;
@@ -36,7 +36,7 @@ export const useVehicleStore = create((set, get) => ({
   deleteVehicle: async (vehicleId) => {
     set({ isLoading: true, error: null });
     try {
-      await client.delete(`/vehicles/${vehicleId}`);
+      await client.delete(`/api/vehicles/${vehicleId}`);
       set((state) => ({
         vehicles: state.vehicles.filter(v => (v.VehicleID || v.id) !== vehicleId),
         isLoading: false

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import { ChevronLeft, Plus, ShieldCheck } from 'lucide-react-native';
+import { ChevronLeft, Plus, ShieldCheck, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
@@ -9,8 +9,9 @@ import { useServiceStore } from '../../store/serviceStore';
 import Dropdown from '../../components/Dropdown';
 import showAlert from '../../utils/alert';
 import ServiceChip from '../../components/ServiceChip';
-
-const SERVICE_CATEGORIES = ['Towing', 'Diagnostics', 'Tires', 'Oil Change', 'Repair', 'Battery', 'Electrical'];
+import { useLocationStore } from '../../store/locationStore';
+import Skeleton from '../../components/Skeleton';
+const SERVICE_CATEGORIES = ['Towing', 'General Diagnosis', 'Tires', 'Oil Change', 'Repair', 'Battery', 'Electrical'];
 
 const generateDates = () => {
    const dates = [];
@@ -37,17 +38,25 @@ export default function ServiceRequestScreen({ navigation, route }) {
    const { t } = useTranslation();
    const garage = route.params?.garage || null;
    const defaultServices = route.params?.defaultServices || [];
+   const editMode = route.params?.editMode || false;
+   const requestId = route.params?.requestId || null;
+   const existingData = route.params?.existingData || null;
 
    const { vehicles, fetchVehicles, isLoading: vehiclesLoading } = useVehicleStore();
-   const { createRequest, checkAvailability, isLoading: requestLoading } = useServiceStore();
+   const { createRequest, updateRequest, checkAvailability, isLoading: requestLoading } = useServiceStore();
+   const { location, address } = useLocationStore();
 
    const [selectedVehicle, setSelectedVehicle] = useState(null);
-   const [selectedServices, setSelectedServices] = useState(defaultServices.length > 0 ? defaultServices : ['Repair']);
-   const [description, setDescription] = useState('');
+   const [selectedServices, setSelectedServices] = useState(
+      editMode && existingData?.serviceType
+         ? existingData.serviceType.split(', ')
+         : (defaultServices.length > 0 ? defaultServices : ['Repair'])
+   );
+   const [description, setDescription] = useState(editMode && existingData?.description ? existingData.description : '');
 
    // Scheduling State
-   const [selectedDate, setSelectedDate] = useState(DATES[0].dateString);
-   const [selectedTime, setSelectedTime] = useState(null);
+   const [selectedDate, setSelectedDate] = useState(editMode && existingData?.bookingDate ? existingData.bookingDate.split('T')[0] : DATES[0].dateString);
+   const [selectedTime, setSelectedTime] = useState(editMode && existingData?.dropOffTime ? existingData.dropOffTime.substring(0, 5) : null);
    const [availability, setAvailability] = useState({});
    const [isCheckingTime, setIsCheckingTime] = useState(false);
 
@@ -57,9 +66,17 @@ export default function ServiceRequestScreen({ navigation, route }) {
       fetchVehicles();
    }, []);
 
+
+
    useEffect(() => {
       if (vehicles.length > 0 && !selectedVehicle) {
-         setSelectedVehicle(vehicles[0]);
+         if (editMode && existingData?.vehicleId) {
+            const v = vehicles.find(veh => (veh.VehicleID || veh.id) === existingData.vehicleId);
+            if (v) setSelectedVehicle(v);
+            else setSelectedVehicle(vehicles[0]);
+         } else {
+            setSelectedVehicle(vehicles[0]);
+         }
       }
    }, [vehicles]);
 
@@ -120,16 +137,27 @@ export default function ServiceRequestScreen({ navigation, route }) {
          description: finalDescription,
          isEmergency: false,
          bookingDate: selectedDate,
-         dropOffTime: `${selectedTime}:00`
+         dropOffTime: `${selectedTime}:00`,
+         latitude: location?.coords?.latitude || null,
+         longitude: location?.coords?.longitude || null,
+         address: address ? `${address.district || address.name || ''}, ${address.city || ''}`.replace(/^, | ,|, $/g, '') : null
       };
 
-      const success = await createRequest(payload);
+      const success = editMode
+         ? await updateRequest(requestId, payload)
+         : await createRequest(payload);
+
       if (success) {
          showAlert(
-            t('Service Requested'),
-            t("We've sent your details to the garage. They will update you once they review the request."),
+            editMode ? t('Booking Updated') : t('Service Requested'),
+            editMode
+               ? t('Your service details have been updated successfully.')
+               : t("We've sent your details to the garage. They will update you once they review the request."),
             [{ text: t('Go to Dashboard'), onPress: () => navigation.navigate('Main') }]
          );
+      } else {
+         const errorMsg = useServiceStore.getState().error || 'Failed to process request. Please try again.';
+         showAlert(t('Error'), t(errorMsg), [], 'error');
       }
    };
 
@@ -139,23 +167,23 @@ export default function ServiceRequestScreen({ navigation, route }) {
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
                <ChevronLeft size={24} color={colors.textDark} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('Service Request', 'Service Request')}</Text>
+            <Text style={styles.headerTitle}>{t('Service Request')}</Text>
             <View style={styles.iconButton} />
          </View>
 
          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.headline}>
-               <Text style={styles.title}>{t('How can we help?', 'How can we help?')}</Text>
-               <Text style={styles.subtitle}>{t('Send a direct request to', 'Send a direct request to')} {garage ? garage.name : 'Unknown Garage'}</Text>
+               <Text style={styles.title}>{t('How can we help?')}</Text>
+               <Text style={styles.subtitle}>{t('Send a direct request to')} {garage ? garage.name : t('the garage')}</Text>
             </View>
 
-            <Text style={styles.sectionTitle}>{t('New Request', 'New Request')}</Text>
+            <Text style={styles.sectionTitle}>{t('New Request')}</Text>
 
-            <Text style={styles.label}>{t('Select Vehicle', 'Select Vehicle')}</Text>
+            <Text style={styles.label}>{t('Select Vehicle')}</Text>
             {vehiclesLoading && !selectedVehicle ? (
                <Skeleton width="100%" height={56} borderRadius={12} style={{ marginBottom: 16 }} />
             ) : vehicles.length === 0 ? (
-               <TouchableOpacity onPress={() => navigation.navigate('Vehicles')} style={styles.addVehiclePrompt}>
+               <TouchableOpacity onPress={() => navigation.navigate('AddVehicle')} style={styles.addVehiclePrompt}>
                   <Plus size={16} color={colors.primaryBlue} />
                   <Text style={styles.addVehiclePromptText}>{t('Add a vehicle first')}</Text>
                </TouchableOpacity>
@@ -164,13 +192,16 @@ export default function ServiceRequestScreen({ navigation, route }) {
                   options={vehicles}
                   selectedOption={selectedVehicle}
                   onSelect={setSelectedVehicle}
-                  placeholder={t('Choose your vehicle', 'Choose your vehicle')}
+                  placeholder={t('Choose your vehicle')}
                   keyExtractor={(v) => v.VehicleID || v.id}
                   labelExtractor={(v) => `${v.PlateNumber} • ${v.Model}`}
                />
             )}
 
-            <Text style={styles.label}>{t('Service Type', 'Service Type')} (Select Multiple)</Text>
+            <Text style={styles.label}>{t('Service Type')} {t('(Select Multiple)')}</Text>
+            <View style={styles.helpBox}>
+               <Text style={styles.helpText}>{t('Not sure what’s wrong? Choose')} <Text style={{ fontWeight: 'bold' }}>{t('General Diagnosis')}</Text> {t('and we will find out what happened!')}</Text>
+            </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
                {SERVICE_CATEGORIES.map(category => (
                   <View key={category} style={{ marginRight: 8 }}>
@@ -183,18 +214,20 @@ export default function ServiceRequestScreen({ navigation, route }) {
                ))}
             </ScrollView>
 
-            <Text style={styles.label}>{t('Problem Description (Optional)', 'Problem Description (Optional)')}</Text>
+            <Text style={styles.label}>{t('Problem Description (Optional)')}</Text>
             <TextInput
                style={styles.textArea}
                multiline
-               placeholder={t("Describe any specific issues or focus areas...", "Describe any specific issues or focus areas...")}
+               placeholder={t("Describe any specific issues or focus areas...")}
                placeholderTextColor={colors.textGray}
                value={description}
                onChangeText={setDescription}
             />
 
-            <Text style={[styles.sectionTitle, { marginTop: 16 }]}>{t('Schedule Drop-off', 'Schedule Drop-off')}</Text>
-            <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Date', 'Select Date')}</Text>
+
+
+            <Text style={[styles.sectionTitle, { marginTop: 16 }]}>{t('Schedule Drop-off')}</Text>
+            <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Date')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
                {DATES.map((d, index) => {
                   const isSelected = selectedDate === d.dateString;
@@ -215,7 +248,7 @@ export default function ServiceRequestScreen({ navigation, route }) {
                })}
             </ScrollView>
 
-            <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Time', 'Select Time')}</Text>
+            <Text style={[styles.label, { marginBottom: 12 }]}>{t('Select Time')}</Text>
             {isCheckingTime ? (
                <ActivityIndicator size="small" color={colors.primaryBlue} style={{ alignSelf: 'flex-start', marginVertical: 16 }} />
             ) : availability?.isClosedDay ? (
@@ -269,7 +302,7 @@ export default function ServiceRequestScreen({ navigation, route }) {
                {requestLoading ? (
                   <ActivityIndicator color={colors.white} />
                ) : (
-                  <Text style={styles.submitBtnText}>{t('Submit Request', 'Submit Request')}</Text>
+                  <Text style={styles.submitBtnText}>{t('Submit Request')}</Text>
                )}
             </TouchableOpacity>
             <View style={styles.trustWrap}>
@@ -349,5 +382,8 @@ const styles = StyleSheet.create({
       flexDirection: 'row', alignItems: 'center', gap: 8, padding: 16, backgroundColor: 'rgba(19, 127, 236, 0.05)',
       borderRadius: 12, borderWidth: 1, borderColor: colors.primaryBlue, borderStyle: 'dashed', marginBottom: 16
    },
-   addVehiclePromptText: { color: colors.primaryBlue, fontWeight: 'bold' }
+   addVehiclePromptText: { color: colors.primaryBlue, fontWeight: 'bold' },
+   helpBox: { backgroundColor: 'rgba(19, 127, 236, 0.05)', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(19, 127, 236, 0.2)', marginBottom: 12 },
+   helpText: { fontSize: 13, color: colors.primaryBlue },
+
 });

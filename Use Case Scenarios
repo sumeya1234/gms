@@ -1,0 +1,172 @@
+# Garage Management System (GMS) - Full Use Case Scenarios
+
+This document provides exhaustive scenarios for all identified use cases within the GMS. It incorporates standard workflows alongside edge cases, third-party integrations, and distinct actor responsibilities.
+
+---
+
+## 1. Authentication & Profile Management (Cross-Actor)
+
+### Use Case: User Registration & Login
+*   **Actor:** All Users
+*   **Description:** Accessing the platform securely.
+*   **Normal Flow:**
+    1.  User enters credentials.
+    2.  System authenticates and issues a JWT token.
+    3.  System routes user to their role-specific dashboard (`OwnerDashboard`, `Manager Dashboard`, or mobile home screen).
+*   **Alternative Flow (A1) - Forgot Password:**
+    1. System sends an SMTP email with an OTP for password reset.
+
+### Use Case: Manage User Profile
+*   **Actor:** All Users
+*   **Description:** Updating personal information and linked entities.
+*   **Normal Flow:**
+    1.  User updates phone number, name, or profile picture.
+*   **Alternative Flow (A1) - Vehicle Management (Customer Only):**
+    1. Customer adds/removes registered vehicles (Plate Number, Make, Model, Year).
+
+---
+
+## 2. Super Admin Scenarios (Platform Governance)
+
+### Use Case: Manage Garages (Register / Deactivate)
+*   **Actor:** Super Admin
+*   **Description:** Lifecycle management of platform tenants.
+*   **Normal Flow:**
+    1.  Super Admin inputs garage details and initial **Garage Owner** credentials.
+    2.  System creates the Garage, provisions the Owner account, and emails credentials.
+
+### Use Case: System Monitoring & Resolve Complaints
+*   **Actor:** Super Admin
+*   **Description:** Handling disputes and maintaining platform health.
+*   **Normal Flow:**
+    1.  Super Admin reviews the "Complaints" dashboard for tickets submitted by Customers.
+    2.  Super Admin adds a resolution note and marks the complaint as "Resolved". System notifies Customer and Garage Owner.
+
+### Use Case: Perform System Backup
+*   **Actor:** Super Admin
+*   **Description:** Creating snapshots of the core database for disaster recovery.
+*   **Normal Flow:**
+    1.  Super Admin triggers a database backup via the dashboard.
+    2.  Backend `backupService.js` creates a MySQL dump and stores it securely.
+    3.  System alerts Super Admin of success.
+
+---
+
+## 3. Garage Owner Scenarios (Executive Level)
+
+### Use Case: View Executive Analytics (Owner Dashboard)
+*   **Actor:** Garage Owner
+*   **Description:** High-level performance monitoring.
+*   **Normal Flow:**
+    1.  Owner views aggregated financial charts, average mechanic performance, and gross profit margins.
+
+### Use Case: Delegate Management Operations
+*   **Actor:** Garage Owner
+*   **Description:** Hiring and assigning Garage Managers.
+*   **Normal Flow:**
+    1.  Owner creates a new "Garage Manager" profile assigning them to oversee specific branches/garages.
+
+---
+
+## 4. Garage Manager Scenarios (Operational Level)
+
+### Use Case: Manage Bookings & Assignments
+*   **Actor:** Garage Manager
+*   **Description:** Assigning pending customer bookings.
+*   **Normal Flow:**
+    1.  Manager views pending bookings and evaluates mechanic workloads.
+    2.  Manager clicks "Assign Mechanic". System pushes a notification to the Mechanic.
+
+### Use Case: Process Walk-in Customer
+*   **Actor:** Garage Manager
+*   **Description:** Accommodating customers without the mobile app.
+*   **Normal Flow:**
+    1.  Manager creates a manual booking, entering the customer's vehicle info and requested service.
+    2.  System creates a standard "Pending" or "In Progress" request bypassing the customer app.
+
+### Use Case: Manage Service Catalog
+*   **Actor:** Garage Manager
+*   **Description:** Updating the list of services the garage offers (e.g., Engine Tuning, Tire Rotation).
+*   **Normal Flow:**
+    1.  Manager opens the "Catalog".
+    2.  Manager adds a new service description and base price. It instantly becomes visible on the Customer App.
+
+### Use Case: Configure Mechanic Skills
+*   **Actor:** Garage Manager
+*   **Description:** Tagging mechanics with specific specializations.
+*   **Normal Flow:**
+    1.  Manager assigns skill tags (e.g., Electrical, Transmission) to a mechanic, aiding in future job assignments.
+
+### Use Case: Inventory & Stock Management
+*   **Actor:** Garage Manager
+*   **Description:** Maintaining spare parts inventory.
+*   **Normal Flow:**
+    1.  Manager adds or restocks items (Name, Quantity, Supplier Info). System consolidates quantities for existing parts.
+
+---
+
+## 5. Accountant Scenarios
+
+### Use Case: Generate Invoices & Analytics
+*   **Actor:** Accountant
+*   **Description:** Finalizing the bill for completed services.
+*   **Normal Flow:**
+    1.  Accountant reviews an unbilled completed job.
+    2.  Accountant applies labor rates, summarizes used inventory, and applies taxes.
+    3.  System updates booking to "Payment Pending".
+
+---
+
+## 6. Customer Scenarios (Mobile Experience)
+
+### Use Case: Search & Book Service
+*   **Actor:** Customer
+*   **Description:** Finding and scheduling a garage.
+*   **Normal Flow:**
+    1.  Customer uses Location Services to find nearby garages, or searches manually.
+    2.  Customer selects a service from the garage's catalog, picks a time slot, and confirms.
+
+### Use Case: Emergency Service Request
+*   **Actor:** Customer
+*   **Description:** Flagging a booking as urgent.
+*   **Normal Flow:**
+    1.  Customer toggles "Is Emergency". System prioritizes the booking alert on the Manager's dashboard.
+
+### Use Case: Track Vehicle Status
+*   **Actor:** Customer
+*   **Description:** Real-time progress tracking via WebSockets.
+*   **Normal Flow:**
+    1.  Customer views live status (Pending -> In Progress -> Completed) updating instantly as mechanics work.
+
+### Use Case: Submit Quality Complaint
+*   **Actor:** Customer
+*   **Description:** Escalating an issue to the platform owners.
+*   **Normal Flow:**
+    1.  Customer opens a past booking and selects "File Complaint".
+    2.  System logs the ticket directly to the Super Admin's queue.
+
+### Use Case: Secure Digital Payment & Reviews
+*   **Actor:** Customer & Chapa
+*   **Description:** Settling invoices and providing feedback.
+*   **Normal Flow:**
+    1.  Customer pays via Chapa WebView.
+    2.  Webhook confirms payment in the backend. System marks as "Paid".
+    3.  Customer leaves a 1-5 star review.
+
+---
+
+## 7. Mechanic Scenarios (Task Execution)
+
+### Use Case: Receive & Update Tasks
+*   **Actor:** Mechanic
+*   **Description:** Executing repairs.
+*   **Normal Flow:**
+    1.  Mechanic receives push notification.
+    2.  Mechanic taps "Start Service".
+    3.  Mechanic notes consumed inventory (deducted from stock) and marks task "Completed".
+
+### Use Case: View Service History
+*   **Actor:** Mechanic
+*   **Description:** Tracking personal performance.
+*   **Normal Flow:**
+    1.  Mechanic reviews past tasks and vehicle records.

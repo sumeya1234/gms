@@ -36,16 +36,22 @@ export async function registerForPushNotificationsAsync() {
       console.log('Failed to get push token for push notification!');
       return;
     }
-    
-    
+
+
+    /*
     if (Constants.appOwnership === 'expo') {
       console.warn('Remote push notifications are not supported in Expo Go for SDK 53+. Please use a development build.');
       return;
     }
+    */
 
-    
+
     try {
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId ??
+        Constants?.manifest2?.extra?.expoClient?.extra?.eas?.projectId;
+
       if (!projectId) {
         console.warn('No projectId found in Constants. Push notifications may fail.');
       }
@@ -55,6 +61,8 @@ export async function registerForPushNotificationsAsync() {
       console.log('Expo Push Token:', token);
     } catch (e) {
       console.log('Error getting push token', e);
+      // Optional: If you want to show the error to the user for debugging
+      // Alert.alert('Push Token Error', e.message);
     }
   } else {
     console.log('Must use physical device for Push Notifications');
@@ -68,7 +76,7 @@ export async function sendTokenToBackend(token) {
   try {
     await apiClient.post('/api/users/push-token', {
       token: token,
-      deviceType: Platform.OS
+      deviceType: Platform.OS === 'android' ? 'Android' : 'iOS'
     });
     console.log('Push token successfully registered with backend');
   } catch (error) {

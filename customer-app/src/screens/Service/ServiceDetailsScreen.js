@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { ChevronLeft, MapPin } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -8,11 +9,13 @@ import { useLocationStore } from '../../store/locationStore';
 
 export default function ServiceDetailsScreen({ route, navigation }) {
   const { vehicleId, vehicle } = route.params;
+  const { t } = useTranslation();
   const { requestLocation, address, isLoading: locationLoading } = useLocationStore();
-  
+
   const [description, setDescription] = useState('');
   const [preferredDate, setPreferredDate] = useState('');
-  
+  const insets = useSafeAreaInsets();
+
   const handleProceed = () => {
     navigation.navigate('Confirmation', {
       vehicleId,
@@ -29,14 +32,14 @@ export default function ServiceDetailsScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft color={colors.white} size={28} />
         </TouchableOpacity>
-        <Text style={styles.title}>Service Details</Text>
+        <Text style={styles.title}>{t('Service Details')}</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.sectionTitle}>Describe the Problem</Text>
-        <Input 
-          placeholder="E.g., Engine making weird noise..."
+        <Text style={styles.sectionTitle}>{t('Describe the Problem')}</Text>
+        <Input
+          placeholder={t("E.g., Engine making weird noise...")}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -44,35 +47,35 @@ export default function ServiceDetailsScreen({ route, navigation }) {
           style={{ height: 100, textAlignVertical: 'top' }}
         />
 
-        <Text style={styles.sectionTitle}>Preferred Date</Text>
-        <Input 
-          placeholder="YYYY-MM-DD"
+        <Text style={styles.sectionTitle}>{t('Preferred Date')}</Text>
+        <Input
+          placeholder={t("YYYY-MM-DD")}
           value={preferredDate}
           onChangeText={setPreferredDate}
         />
 
-        <Text style={styles.sectionTitle}>Location Services</Text>
+        <Text style={styles.sectionTitle}>{t('Location Services')}</Text>
         <View style={styles.locationBox}>
           {address ? (
             <Text style={styles.locationText}>{address.city}, {address.region}</Text>
           ) : (
-            <Text style={styles.locationText}>Location not set for pickup/rescue</Text>
+            <Text style={styles.locationText}>{t('Location not set for pickup/rescue')}</Text>
           )}
-          <TouchableOpacity 
-            style={styles.locationBtn} 
+          <TouchableOpacity
+            style={styles.locationBtn}
             onPress={requestLocation}
             disabled={locationLoading}
           >
             {locationLoading ? <ActivityIndicator size="small" color={colors.accentBlue} /> : <MapPin size={20} color={colors.accentBlue} />}
-            <Text style={styles.locationBtnText}>Get Current Location</Text>
+            <Text style={styles.locationBtnText}>{t('Get Current Location')}</Text>
           </TouchableOpacity>
         </View>
 
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Button 
-          title="Proceed to Confirmation" 
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) + 12 }]}>
+        <Button
+          title={t("Proceed to Confirmation")}
           variant="secondary"
           onPress={handleProceed}
           disabled={!description}

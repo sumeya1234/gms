@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SOS Sent | Precision Garage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#ffb3ad",
+                    "primary-fixed": "#ffdad7",
+                    "on-error": "#690005",
+                    "primary": "#ffb3ad",
+                    "surface-container-low": "#1c1b1b",
+                    "surface-container-lowest": "#0e0e0e",
+                    "secondary-fixed-dim": "#ffb690",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "error": "#ffb4ab",
+                    "surface": "#131313",
+                    "on-secondary-fixed": "#341100",
+                    "surface-container": "#201f1f",
+                    "secondary-container": "#ec6a06",
+                    "secondary": "#ffb690",
+                    "on-tertiary-container": "#00285d",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary": "#552100",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-high": "#2a2a2a",
+                    "on-secondary-fixed-variant": "#783200",
+                    "surface-variant": "#353534",
+                    "on-secondary-container": "#4a1c00",
+                    "on-primary-fixed": "#410004",
+                    "tertiary": "#adc6ff",
+                    "on-tertiary-fixed": "#001a42",
+                    "on-primary": "#68000a",
+                    "on-background": "#e5e2e1",
+                    "surface-bright": "#3a3939",
+                    "secondary-fixed": "#ffdbca",
+                    "outline-variant": "#5b403e",
+                    "inverse-primary": "#b91a24",
+                    "on-tertiary": "#002e6a",
+                    "surface-container-highest": "#353534",
+                    "on-primary-fixed-variant": "#930013",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "outline": "#ab8986",
+                    "tertiary-container": "#4d8eff",
+                    "on-primary-container": "#5c0008",
+                    "tertiary-fixed": "#d8e2ff",
+                    "background": "#131313",
+                    "inverse-on-surface": "#313030",
+                    "surface-dim": "#131313",
+                    "inverse-surface": "#e5e2e1",
+                    "primary-container": "#ff5451",
+                    "on-surface-variant": "#e4beba"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-gap-sm": "8px",
+                    "stack-gap-lg": "32px",
+                    "unit": "8px",
+                    "touch-target-min": "56px",
+                    "stack-gap-md": "16px",
+                    "gutter": "16px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "label-caps": ["Outfit"],
+                    "status-number": ["Outfit"],
+                    "headline-lg-mobile": ["Outfit"],
+                    "display-hero": ["Outfit"],
+                    "body-lg": ["Outfit"],
+                    "headline-lg": ["Outfit"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "status-number": ["40px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "display-hero": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(23, 23, 23, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pulse-aura {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .technician-glow {
+            box-shadow: 0 0 20px rgba(236, 106, 6, 0.15);
+        }
+
+        .status-dot-active {
+            animation: shadow-pulse 1.5s infinite;
+        }
+
+        @keyframes shadow-pulse {
+            0% { box-shadow: 0 0 0 0px rgba(77, 142, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(77, 142, 255, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(77, 142, 255, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full h-16 z-50 flex items-center justify-between px-gutter bg-surface/70 backdrop-blur-xl border-b border-white/10 shadow-md">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary font-headline-md text-headline-md">shield_with_heart</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">PRECISION GARAGE</h1>
+</div>
+<button class="active:scale-95 duration-150 hover:opacity-80 transition-opacity text-on-surface-variant">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<main class="pt-24 px-container-margin max-w-md mx-auto space-y-stack-gap-lg">
+<!-- Success Header -->
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<div class="absolute inset-0 bg-green-500/20 rounded-full pulse-aura"></div>
+<div class="absolute inset-0 bg-green-500/10 rounded-full scale-125 pulse-aura" style="animation-delay: 0.5s;"></div>
+<div class="z-10 bg-green-500/90 text-surface w-16 h-16 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.4)]">
+<span class="material-symbols-outlined !text-[40px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="space-y-1">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Rescue is on the way!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant/80">Stay in your vehicle and remain calm.</p>
+</div>
+</section>
+<!-- ETA & Map Preview -->
+<section class="glass-card rounded-xl overflow-hidden shadow-2xl">
+<div class="relative h-48 w-full overflow-hidden">
+<img alt="Map location" class="w-full h-full object-cover grayscale opacity-60 brightness-50" data-alt="A highly stylized dark-mode map interface showing a glowing orange vehicle icon moving along a neon-blue street path through a minimalist 3D city grid. The environment is dark charcoal and black, with subtle glowing landmarks and a focused, urgent cinematic atmosphere that emphasizes rapid response and high-tech navigation." data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYTYMkauxK5A41hvl2jevPUjdsbjl0Z9r_mI2fEVo_-jEhLfjmwSiZjISUiIZiMxrI06KtCneFmTgP8H0rC5g2KzKGq1I63OLoVkuD2smbUvl132rfSXX-50A5Lm0G8ksVjlj7grF8vD1D-GJHQna4Z9TDN9KHeDTPVe1GRnyk-PMUH1FSaIWkJ9B2R0Tux-ELipxLAxWpwFscKpZIOmfVStSZiN492qz0nok-cFccqMuFgZF-x68Euh-BAjq-cYp1bXlTWN--cfKN"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+<!-- Countdown Overlay -->
+<div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+<div class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg shadow-lg">
+<span class="font-label-caps text-label-caps block opacity-80">ESTIMATED ARRIVAL</span>
+<span class="font-status-number text-status-number">12 <span class="text-xl">MINS</span></span>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="flex items-center gap-2 bg-surface/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_#4d8eff]"></span>
+<span class="font-label-caps text-label-caps text-tertiary">GPS LIVE</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Live Status Tracker -->
+<section class="space-y-stack-gap-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-1">TRACKING PROGRESS</h3>
+<div class="glass-card p-gutter rounded-xl space-y-6">
+<!-- Step 1: Completed -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center z-10">
+<span class="material-symbols-outlined !text-[16px] text-surface">check</span>
+</div>
+<div class="w-0.5 h-10 bg-green-500 mt-1 opacity-50"></div>
+</div>
+<div class="pt-0.5">
+<p class="font-body-md text-body-md font-semibold text-on-surface">Request Received</p>
+<p class="font-label-caps text-[10px] text-green-500/80">02:14 PM</p>
+</div>
+</div>
+<!-- Step 2: In Progress -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-tertiary/20 border-2 border-tertiary flex items-center justify-center z-10 status-dot-active">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+</div>
+<div class="w-0.5 h-10 bg-surface-variant mt-1"></div>
+</div>
+<div class="pt-0.5">
+<p class="font-body-md text-body-md font-semibold text-tertiary">Dispatcher Assigned</p>
+<p class="font-label-caps text-[10px] text-tertiary/60">IN PROGRESS</p>
+</div>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex items-start gap-4">
+<div class="relative flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center z-10">
+<div class="w-2 h-2 rounded-full bg-on-surface-variant/30"></div>
+</div>
+</div>
+<div class="pt-0.5">
+<p class="font-body-md text-body-md font-semibold text-on-surface-variant/50">Technician En Route</p>
+<p class="font-label-caps text-[10px] text-on-surface-variant/30">PENDING</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Technician Details -->
+<section class="glass-card p-gutter rounded-xl technician-glow flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-xl overflow-hidden border-2 border-secondary-container/30">
+<img alt="Marcus - Technician" class="w-full h-full object-cover" data-alt="A professional portrait of a skilled mechanic named Marcus in a dark garage setting. He is wearing a high-performance charcoal work uniform with subtle red accents. The lighting is dramatic and warm, with orange highlights reflecting off polished metal tools in the background, conveying a sense of expertise, reliability, and readiness for rescue operations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRpLrb4e7fgdoSiCBsj6mrADj5x7Znf7BgnNjz9iBgABKLCVzRNlUZbkJnj7lUHuqckP2D8_3l_CN8V3LhCPDHJ5IEylRiSsVj_kVfvpOTMWwdidStoJEEbgIOTRu_NFOfcdbFZtLVXFiOfdJcoh826p_s1-eA2tkubpiMPnJJY_5jW8kKj7mWz-NtFPgjq1aO5tQUBqfb_hhzZwAPxflv-Kx1MgTEta6oyxo3-EoudoQh1E6Fm-gZROKpKlAdacb4g1Ad8UDXOzrI"/>
+</div>
+<div>
+<h4 class="font-headline-md text-[20px] font-bold text-on-surface">Marcus</h4>
+<p class="font-label-caps text-[11px] text-on-surface-variant">FORD F-150 SERVICE TRUCK</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-status-number text-sm text-secondary">4.9</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant/50 ml-1">(1,240 REVIEWS)</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high w-12 h-12 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">verified</span>
+</div>
+</section>
+<!-- Support Actions -->
+<section class="grid grid-cols-2 gap-4">
+<button class="bg-secondary-container text-on-secondary-container h-touch-target-min rounded-xl font-headline-md text-body-md flex items-center justify-center gap-2 active:scale-95 duration-200 shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">call</span>
+                Call Marcus
+            </button>
+<button class="glass-card text-on-surface h-touch-target-min rounded-xl font-headline-md text-body-md flex items-center justify-center gap-2 active:scale-95 duration-200">
+<span class="material-symbols-outlined">chat_bubble</span>
+                Message
+            </button>
+</section>
+<!-- Bottom Action -->
+<section class="text-center pb-8">
+<button class="font-label-caps text-label-caps text-on-surface-variant/40 hover:text-error transition-colors uppercase tracking-[0.2em]">
+                Cancel Rescue Request
+            </button>
+</section>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-6 pb-safe bg-surface-container/80 backdrop-blur-2xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] rounded-t-xl">
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full w-12 h-12 shadow-inner active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</nav>
+<script>
+        // Simple timer simulation
+        let mins = 12;
+        const timerEl = document.querySelector('.font-status-number');
+        
+        setInterval(() => {
+            if(Math.random() > 0.95 && mins > 2) {
+                mins--;
+                timerEl.innerHTML = `${mins} <span class="text-xl">MINS</span>`;
+            }
+        }, 3000);
+
+        // Interaction Feedback
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const originalBg = btn.style.backgroundColor;
+                btn.style.filter = 'brightness(1.5)';
+                setTimeout(() => {
+                    btn.style.filter = 'brightness(1)';
+                }, 150);
+            });
+        });
+    </script>
+</body></html>

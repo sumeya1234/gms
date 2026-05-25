@@ -3,18 +3,19 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const { t } = useTranslation();
   const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setErrorMsg('Please enter email and password');
+      setErrorMsg(t('Please enter email and password'));
       return;
     }
     setLoading(true);
@@ -33,18 +34,18 @@ export default function LoginScreen({ navigation }) {
         style={styles.inner}
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Mechanic Portal</Text>
-          <Text style={styles.subtitle}>Garage Management System</Text>
+          <Text style={styles.title}>{t('Mechanic Portal')}</Text>
+          <Text style={styles.subtitle}>{t('Garage Management System')}</Text>
         </View>
 
         <View style={styles.formContainer}>
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email address</Text>
+            <Text style={styles.label}>{t('Email address')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
+              placeholder={t("Enter your email")}
               placeholderTextColor="#666"
               value={email}
               onChangeText={setEmail}
@@ -54,11 +55,11 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('Password')}</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
-                placeholder="Enter your password"
+                placeholder={t("Enter your password")}
                 placeholderTextColor="#666"
                 value={password}
                 onChangeText={setPassword}
@@ -74,14 +75,14 @@ export default function LoginScreen({ navigation }) {
             onPress={() => navigation.navigate('ForgotPassword')}
             style={styles.forgotPasswordContainer}
           >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>{t('Forgot Password?')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
             {loading ? (
               <ActivityIndicator color="#000" />
             ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>{t('Sign In')}</Text>
             )}
           </TouchableOpacity>
         </View>

@@ -8,6 +8,7 @@ import { useServiceStore } from '../../store/serviceStore';
 import { useLocationStore } from '../../store/locationStore';
 import apiClient from '../../api/client';
 import showAlert from '../../utils/alert';
+import * as Location from 'expo-location';
 import { colors } from '../../theme/colors';
 
 export default function TrackServiceScreen({ navigation, route }) {
@@ -15,56 +16,102 @@ export default function TrackServiceScreen({ navigation, route }) {
   const { job: initialJob } = route.params || {};
   const [job, setJob] = React.useState(initialJob);
   const [loading, setLoading] = React.useState(false);
+  const [nearbyGarages, setNearbyGarages] = React.useState([]);
+  const trackingStatuses = ['approved', 'inprogress'];
+  const currentStatus = (job?.status || job?.Status || '').toLowerCase();
 
-  
+
   React.useEffect(() => {
     if (!job?.RequestID) return;
 
     const fetchLatestStatus = async () => {
       try {
-        const response = await apiClient.get(`/api/services/request/${job.RequestID}`);
+        const response = await apiClient.get(`/api/services/${job.RequestID}`);
         if (response.data) {
           setJob(response.data);
+
+          if (response.data.IsEmergency && response.data.Status === 'Rejected' && nearbyGarages.length === 0) {
+            fetchNearbyGarages();
+          }
         }
       } catch (err) {
         console.error("Polling failed:", err.message);
       }
     };
 
-    const interval = setInterval(fetchLatestStatus, 15000); 
+    const fetchNearbyGarages = async () => {
+      try {
+        const response = await apiClient.get('/api/garages');
+        const filtered = response.data.filter(g => g.GarageID.toString() !== job.GarageID?.toString()).slice(0, 3);
+        setNearbyGarages(filtered);
+        showAlert(t('Request Rejected'), t('Unfortunately, the garage could not accept your emergency request. We have found some other nearby garages for you.'));
+      } catch (err) {
+        console.error("Failed to fetch nearby garages:", err.message);
+      }
+    };
+
+    const interval = setInterval(fetchLatestStatus, 15000);
     return () => clearInterval(interval);
   }, [job?.RequestID]);
 
   const { cancelRequest } = useServiceStore();
-  const [nearbyGarages, setNearbyGarages] = React.useState([]);
-
   const [showPayOptions, setShowPayOptions] = React.useState(false);
   const [paymentLoading, setPaymentLoading] = React.useState(false);
   const [mechanicLocation, setMechanicLocation] = React.useState(null);
 
   React.useEffect(() => {
     let socket;
-    if (job?.IsEmergency && job?.status?.toLowerCase() === 'approved') {
-      socket = io(apiClient.defaults.baseURL);
+    let locationWatcher;
 
-      socket.on('connect', () => {
-        socket.emit('join_tracking_room', {
-          requestId: job.RequestID,
-          role: 'Customer'
+    const setupTracking = async () => {
+      if (job?.IsEmergency && trackingStatuses.includes(currentStatus)) {
+        socket = io(apiClient.defaults.baseURL);
+
+        socket.on('connect', () => {
+          socket.emit('join_tracking_room', {
+            requestId: job.RequestID,
+            role: 'Customer'
+          });
         });
-      });
 
-      socket.on('mechanic_location_update', (data) => {
-        setMechanicLocation({ latitude: data.latitude, longitude: data.longitude });
-      });
-    }
+        socket.on('mechanic_location_update', (data) => {
+          setMechanicLocation({ latitude: data.latitude, longitude: data.longitude });
+        });
+
+        // Start sharing live location with mechanic
+        const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+        if (locStatus === 'granted') {
+          locationWatcher = await Location.watchPositionAsync(
+            {
+              accuracy: Location.Accuracy.High,
+              timeInterval: 10000,
+              distanceInterval: 10,
+            },
+            (loc) => {
+              if (socket && socket.connected) {
+                socket.emit('customer_location_update', {
+                  requestId: job.RequestID,
+                  latitude: loc.coords.latitude,
+                  longitude: loc.coords.longitude
+                });
+              }
+            }
+          );
+        }
+      }
+    };
+
+    setupTracking();
 
     return () => {
       if (socket) {
         socket.disconnect();
       }
+      if (locationWatcher) {
+        locationWatcher.remove();
+      }
     };
-  }, [job?.IsEmergency, job?.status, job?.RequestID]);
+  }, [job?.IsEmergency, currentStatus, job?.RequestID]);
 
   const { location: currentCustomerLocation } = useLocationStore();
   const customerLocation = currentCustomerLocation?.coords;
@@ -78,21 +125,23 @@ export default function TrackServiceScreen({ navigation, route }) {
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return (R * c).toFixed(1);
+    return (R * c);
   };
 
-  const distanceKm = calculateDistance(mechanicLocation?.latitude, mechanicLocation?.longitude, customerLocation?.latitude, customerLocation?.longitude);
+  const dist = calculateDistance(mechanicLocation?.latitude, mechanicLocation?.longitude, customerLocation?.latitude, customerLocation?.longitude);
+  const distanceKm = dist ? dist.toFixed(1) : null;
+  const etaMins = dist ? Math.ceil((dist / 30) * 60) : null;
 
   const depositAmount = job?.EstimatedPrice && job?.DepositPercentage
     ? Math.ceil((job.EstimatedPrice * job.DepositPercentage) / 100)
     : null;
 
   const handleApprove = () => {
-    
+
     if (depositAmount) {
       setShowPayOptions(true);
     } else {
-      
+
       confirmApproval();
     }
   };
@@ -114,7 +163,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     setShowPayOptions(false);
     setPaymentLoading(true);
     try {
-      
+
       const response = await apiClient.post('/api/payments/pay', {
         requestId: job.RequestID,
         amount: depositAmount,
@@ -125,7 +174,7 @@ export default function TrackServiceScreen({ navigation, route }) {
       if (method === 'Cash') {
         showAlert(
           t('Deposit Recorded'),
-          t('Please pay ') + depositAmount + t(' ETB at the garage. The accountant will confirm your payment.'),
+          t('Please pay {{amount}} ETB at the garage. The accountant will confirm your payment.', { amount: depositAmount }),
           [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
       } else {
@@ -147,7 +196,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     try {
       await apiClient.put(`/api/services/${job.RequestID}/status`, { status: 'Rejected', rejectionReason: 'Customer rejected estimate' });
 
-      
+
       const response = await apiClient.get('/api/garages');
       const filtered = response.data.filter(g => g.GarageID.toString() !== job.GarageID?.toString()).slice(0, 3);
       setNearbyGarages(filtered);
@@ -173,7 +222,7 @@ export default function TrackServiceScreen({ navigation, route }) {
             const result = await cancelRequest(job.RequestID);
             if (result === true) {
               showAlert(t('Success'), t('Your request has been cancelled.'));
-              navigation.navigate('History');
+              navigation.navigate('Main');
             } else {
               showAlert(t('Error'), result?.message || t('Failed to cancel request.'), [], 'error');
               setLoading(false);
@@ -200,7 +249,7 @@ export default function TrackServiceScreen({ navigation, route }) {
     );
   }
 
-  
+
   const statuses = ['pending', 'approved', 'inprogress', 'completed'];
   const currentStatusIndex = statuses.indexOf(job.status?.toLowerCase() || 'pending');
 
@@ -222,10 +271,10 @@ export default function TrackServiceScreen({ navigation, route }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {}
+        { }
         <View style={styles.summaryCard}>
-          <Text style={styles.plateNumber}>{job.vehicleId?.plateNumber || 'N/A'}</Text>
-          <Text style={styles.vehicleModel}>{job.vehicleId?.brand} {job.vehicleId?.model}</Text>
+          <Text style={styles.plateNumber}>{job.PlateNumber || 'N/A'}</Text>
+          <Text style={styles.vehicleModel}>{job.VehicleType} {job.Model}</Text>
           <View style={styles.divider} />
           <Text style={styles.descriptionLabel}>{t('Issue Description')}:</Text>
           <Text style={styles.descriptionText}>{job.description || t('No description provided')}</Text>
@@ -237,7 +286,24 @@ export default function TrackServiceScreen({ navigation, route }) {
           )}
         </View>
 
-        {}
+        {job.EstimatedCompletionTime && job.status?.toLowerCase() !== 'completed' && (
+          <View style={styles.etaInfoCard}>
+            <View style={styles.etaInfoIconBg}>
+              <Clock size={20} color={colors.primaryBlue} />
+            </View>
+            <View style={styles.etaInfoContent}>
+              <Text style={styles.etaInfoTitle}>{t('Estimated Completion')}</Text>
+              <Text style={styles.etaInfoValue}>
+                {(() => {
+                  const date = new Date(job.EstimatedCompletionTime);
+                  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                })()}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        { }
         {!!job.IsEmergency && !!job.EstimatedPrice && !job.IsDepositPaid && (
           <View style={styles.estimateCard}>
             <View style={styles.estimateHeader}>
@@ -254,7 +320,7 @@ export default function TrackServiceScreen({ navigation, route }) {
             </View>
 
             {(() => {
-              
+
               let payments = job.PaymentDetailsJson;
               if (typeof payments === 'string') {
                 try { payments = JSON.parse(payments); } catch (e) { payments = []; }
@@ -298,7 +364,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         )}
 
-        {}
+        { }
         {nearbyGarages.length > 0 ? (
           <View style={styles.nearbyContainer}>
             <Text style={styles.nearbyTitle}>{t('Other Nearby Garages')}</Text>
@@ -321,14 +387,14 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         ) : null}
 
-        {}
-        {job?.IsEmergency && job?.status?.toLowerCase() === 'approved' && (
+        { }
+        {job?.IsEmergency && trackingStatuses.includes(currentStatus) && job?.AssignedMechanicID && (
           <View style={styles.mapContainer}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={[styles.timelineTitle, { marginBottom: 12 }]}>{t('Mechanic is on the way!')}</Text>
               {distanceKm && (
                 <View style={{ backgroundColor: colors.surfaceLight, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, marginBottom: 10 }}>
-                  <Text style={{ fontWeight: 'bold', color: colors.primaryBlue }}>{distanceKm} km away</Text>
+                  <Text style={{ fontWeight: 'bold', color: colors.primaryBlue }}>{distanceKm} {t('km away')} ({etaMins} {t('mins away')})</Text>
                 </View>
               )}
             </View>
@@ -354,6 +420,17 @@ export default function TrackServiceScreen({ navigation, route }) {
                       <Wrench size={16} color="#fff" />
                     </View>
                   </Marker>
+                  {customerLocation && (
+                    <Marker coordinate={customerLocation} title={t('Your Current Location')} pinColor="blue" />
+                  )}
+                  {job.Latitude && job.Longitude && (
+                    <Marker
+                      coordinate={{ latitude: parseFloat(job.Latitude), longitude: parseFloat(job.Longitude) }}
+                      title={t('Service Location')}
+                      description={t('Where you requested the service')}
+                      pinColor="red"
+                    />
+                  )}
                 </MapView>
               ) : (
                 <View style={{ flex: 1, backgroundColor: colors.bgGray, justifyContent: 'center', alignItems: 'center' }}>
@@ -369,7 +446,7 @@ export default function TrackServiceScreen({ navigation, route }) {
 
         <Text style={styles.timelineTitle}>{t('Service Timeline')}</Text>
 
-        {}
+        { }
         <View style={styles.timelineContainer}>
           {steps.map((step, index) => {
             const isCompleted = index <= currentStatusIndex;
@@ -404,7 +481,7 @@ export default function TrackServiceScreen({ navigation, route }) {
           })}
         </View>
 
-        {}
+        { }
         {currentStatusIndex >= 1 && job.AssignedMechanicName && (
           <View style={styles.mechanicCard}>
             <Text style={styles.mechanicLabel}>{t('Assigned Mechanic')}</Text>
@@ -425,9 +502,27 @@ export default function TrackServiceScreen({ navigation, route }) {
           </View>
         )}
 
-        {}
+        { }
         {(job.status?.toLowerCase() === 'pending' || job.status?.toLowerCase() === 'approved') && (
-          <View style={{ marginTop: 20 }}>
+          <View style={{ marginTop: 20, gap: 12 }}>
+            <TouchableOpacity
+              style={styles.editBookingBtn}
+              onPress={() => navigation.navigate('ServiceRequest', {
+                garage: { id: job.GarageID, name: job.GarageName },
+                editMode: true,
+                requestId: job.RequestID,
+                existingData: {
+                  serviceType: job.ServiceType,
+                  description: job.description,
+                  vehicleId: job.VehicleID,
+                  bookingDate: job.BookingDate,
+                  dropOffTime: job.DropOffTime
+                }
+              })}
+            >
+              <Text style={styles.editBookingBtnText}>{t('Add / Edit Services')}</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.cancelBookingBtn}
               onPress={handleCancelRequest}
@@ -440,7 +535,7 @@ export default function TrackServiceScreen({ navigation, route }) {
         )}
       </ScrollView>
 
-      {}
+      { }
       <Modal transparent animationType="slide" visible={showPayOptions}>
         <View style={styles.payModalOverlay}>
           <View style={styles.payModalCard}>
@@ -455,14 +550,14 @@ export default function TrackServiceScreen({ navigation, route }) {
               <Banknote size={20} color="#fff" />
               <Text style={styles.payMethodText}>{t('Pay Cash at Garage')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.payMethodCancel} onPress={() => setShowPayOptions(false)}>
+            <TouchableOpacity style={styles.payModalCancel} onPress={() => setShowPayOptions(false)}>
               <Text style={{ color: colors.textGray, fontSize: 15 }}>{t('Cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {}
+      { }
       {
         paymentLoading && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', zIndex: 99 }}>
@@ -698,6 +793,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 12,
   },
+  editBookingBtn: {
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: colors.primaryBlue,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editBookingBtnText: {
+    color: colors.white,
+    fontSize: 15,
+    fontFamily: 'Inter-Bold',
+  },
   cancelBookingBtn: {
     height: 50,
     borderRadius: 12,
@@ -718,5 +825,44 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
     fontStyle: 'italic',
-  }
+  },
+  etaInfoCard: {
+    backgroundColor: '#eff6ff',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+  },
+  etaInfoIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  etaInfoContent: {
+    flex: 1,
+  },
+  etaInfoTitle: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: colors.textGray,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  etaInfoValue: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: colors.primaryBlue,
+    marginTop: 2,
+  },
 });

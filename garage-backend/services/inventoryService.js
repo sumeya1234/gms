@@ -26,13 +26,13 @@ const ensureSupplierColumns = async () => {
   supplierColumnsChecked = true;
 };
 
-export const createInventoryItem = async (itemName, quantity, unitPrice, supplierName, supplierEmail, supplierPhone, garageId, admin) => {
+export const createInventoryItem = async (itemName, quantity, unitPrice, sellingPrice, supplierName, supplierEmail, supplierPhone, garageId, admin) => {
   await ensureSupplierColumns();
 
   const normalizedSupplierName = supplierName?.trim?.() || null;
   const normalizedSupplierEmail = supplierEmail?.trim?.() || null;
   const normalizedSupplierPhone = supplierPhone?.trim?.() || null;
-  
+
   if (admin.role === "GarageManager") {
     const [manager] = await db.query(
       "SELECT 1 FROM garagemanagers WHERE UserID = ? AND GarageID = ?",
@@ -46,14 +46,14 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
   }
 
   const [garage] = await db.query("SELECT 1 FROM garages WHERE GarageID = ?", [garageId]);
-  
+
   if (garage.length === 0) {
     const error = new Error("Garage not found");
     error.status = 404;
     throw error;
   }
 
-  
+
   const [existingItems] = await db.query(
     "SELECT ItemID, ItemName, Quantity FROM inventory WHERE GarageID = ? AND LOWER(ItemName) = LOWER(?)",
     [garageId, itemName]
@@ -61,8 +61,8 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
 
   if (existingItems.length > 0) {
     const existing = existingItems[0];
-    
-    
+
+
     let bestName = existing.ItemName;
     const existingHasCaps = /[A-Z]/.test(existing.ItemName);
     const newHasCaps = /[A-Z]/.test(itemName);
@@ -70,24 +70,25 @@ export const createInventoryItem = async (itemName, quantity, unitPrice, supplie
       bestName = itemName;
     }
 
-    
+
     await db.query(
       `UPDATE inventory
        SET Quantity = Quantity + ?,
            UnitPrice = ?,
+           SellingPrice = ?,
            ItemName = ?,
            SupplierName = COALESCE(?, SupplierName),
            SupplierEmail = COALESCE(?, SupplierEmail),
            SupplierPhone = COALESCE(?, SupplierPhone)
        WHERE ItemID = ?`,
-      [quantity, unitPrice, bestName, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, existing.ItemID]
+      [quantity, unitPrice, sellingPrice, bestName, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, existing.ItemID]
     );
   } else {
-    
+
     await db.query(
-      `INSERT INTO inventory (ItemName, Quantity, UnitPrice, SupplierName, SupplierEmail, SupplierPhone, GarageID)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [itemName, quantity, unitPrice, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, garageId]
+      `INSERT INTO inventory (ItemName, Quantity, UnitPrice, SellingPrice, SupplierName, SupplierEmail, SupplierPhone, GarageID)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [itemName, quantity, unitPrice, sellingPrice, normalizedSupplierName, normalizedSupplierEmail, normalizedSupplierPhone, garageId]
     );
   }
 };
@@ -136,12 +137,13 @@ export const modifyInventoryItem = async (itemId, updateData, admin) => {
         itemName: 'ItemName',
         quantity: 'Quantity',
         unitPrice: 'UnitPrice',
+        sellingPrice: 'SellingPrice',
         supplierName: 'SupplierName',
         supplierEmail: 'SupplierEmail',
         supplierPhone: 'SupplierPhone'
       };
-      
-      if(fieldMap[key]) {
+
+      if (fieldMap[key]) {
         updates.push(`${fieldMap[key]} = ?`);
         values.push(value);
       }
@@ -169,6 +171,6 @@ export const removeInventoryItem = async (itemId, admin) => {
       throw error;
     }
   }
-  
+
   await db.query("DELETE FROM inventory WHERE ItemID = ?", [itemId]);
 };

@@ -13,7 +13,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const [staffType, setStaffType] = useState(defaultStaffType);
-  
+
   const [mechanics, setMechanics] = useState([]);
   const [accountants, setAccountants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,13 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
     setSuccessMessage(msg);
     setTimeout(() => setSuccessMessage(''), 3000);
   };
-  
+
+  const showErrorMsg = (msg) => {
+    setError(msg);
+    // Optional: Auto-hide after some time or let user dismiss
+    setTimeout(() => setError(''), 5000);
+  };
+
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -36,7 +42,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkill, setCustomSkill] = useState('');
   const [skillsLoading, setSkillsLoading] = useState(false);
-  
+
   // Form State
   const [formData, setFormData] = useState({
     fullName: '',
@@ -45,6 +51,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [regSkills, setRegSkills] = useState([]);
   const [regCustomSkill, setRegCustomSkill] = useState('');
   const [regStep, setRegStep] = useState(1);
@@ -91,32 +98,63 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleNextStep = (e) => {
+    if (e) e.preventDefault();
+    setFormError('');
+    const errors = {};
+    if (!formData.fullName.trim() || formData.fullName.trim().length < 6 || !/^[a-zA-Z\s]+$/.test(formData.fullName)) {
+      errors.fullName = "Full Name must be at least 6 characters and contain only letters and spaces.";
+    }
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!formData.phone.trim() || !/^(09|07)[0-9]{8}$/.test(formData.phone)) {
+      errors.phone = t('invalidPhone');
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
+
+    if (staffType === 'Mechanic') {
+      setRegStep(2);
+    } else {
+      handleAddStaff();
+    }
   };
 
   const handleAddStaff = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setFormError('');
     setFormLoading(true);
-    
+
     try {
       if (staffType === 'Mechanic') {
         await api.post(`/users/garage/${user.GarageID}/mechanics`, { ...formData, skills: regSkills });
       } else {
         await api.post(`/users/garage/${user.GarageID}/accountants`, formData);
       }
-      
-      
+
+
       setFormData({ fullName: '', email: '', phone: '' });
       setRegSkills([]);
       setRegCustomSkill('');
       setRegStep(1);
       setIsAddModalOpen(false);
-      
+
       // Refresh list
       await Promise.all([fetchMechanics(), fetchAccountants()]);
     } catch (err) {
       console.error(err);
-      const apiError = err.response?.data?.errors?.join(', ') || err.response?.data?.message || `Failed to add ${staffType.toLowerCase()}`;
+      const apiError = err.response?.data?.errors?.join(', ') || err.response?.data?.message || err.response?.data?.error || `Failed to add ${staffType.toLowerCase()}`;
       setFormError(apiError);
     } finally {
       setFormLoading(false);
@@ -139,7 +177,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
       fetchMechanics();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to update mechanic status');
+      showErrorMsg(err.response?.data?.message || 'Failed to update mechanic status');
     } finally {
       setFormLoading(false);
     }
@@ -160,7 +198,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
       fetchMechanics();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to archive mechanic');
+      showErrorMsg(err.response?.data?.message || 'Failed to archive mechanic');
     } finally {
       setFormLoading(false);
     }
@@ -174,7 +212,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
   };
 
   const toggleSkill = (skill) => {
-    setSelectedSkills(prev => 
+    setSelectedSkills(prev =>
       prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
     );
   };
@@ -197,7 +235,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
       fetchMechanics();
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to update skills');
+      showErrorMsg(err.response?.data?.message || 'Failed to update skills');
     } finally {
       setSkillsLoading(false);
     }
@@ -209,16 +247,16 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-primary)]">Staff Management</h1>
-          <p className="text-gray-500 mt-1">Manage mechanics and accountants assigned to your garage.</p>
+          <h1 className="text-3xl font-bold text-[var(--color-primary)]">{t('staffManagement')}</h1>
+          <p className="text-gray-500 mt-1">{t('manageStaffRole')}</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => setIsAddModalOpen(true)}
           className="btn-primary flex items-center gap-2 py-2 px-4 shadow-sm hover:shadow-md transition-all"
         >
           <UserPlus size={18} />
-          <span>{staffType === 'Mechanic' ? 'Add Mechanic' : 'Add Accountant'}</span>
+          <span>{staffType === 'Mechanic' ? t('addMechanic') : t('addAccountant')}</span>
         </button>
       </div>
 
@@ -227,11 +265,10 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
           <button
             key={type}
             onClick={() => setStaffType(type)}
-            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-              staffType === type ? 'bg-[var(--color-primary)] text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${staffType === type ? 'bg-[var(--color-primary)] text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
-            {type === 'Mechanic' ? 'Mechanics' : 'Accountants'}
+            {type === 'Mechanic' ? t('mechanicsList') : t('accountantsList')}
           </button>
         ))}
       </div>
@@ -249,7 +286,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
         </div>
       )}
 
-      {}
+      { }
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -267,11 +304,11 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               <thead>
                 <tr className="bg-gray-50/80 border-b border-[var(--color-border)] text-sm text-[var(--color-text-light)]">
                   <th className="p-4 font-semibold w-16">ID</th>
-                  <th className="p-4 font-semibold">Name</th>
-                  <th className="p-4 font-semibold">Email</th>
-                  <th className="p-4 font-semibold">Phone Number</th>
-                  <th className="p-4 font-semibold">Status</th>
-                  <th className="p-4 font-semibold text-right">Actions</th>
+                  <th className="p-4 font-semibold">{t('name')}</th>
+                  <th className="p-4 font-semibold">{t('emailAddress')}</th>
+                  <th className="p-4 font-semibold">{t('phoneNumber')}</th>
+                  <th className="p-4 font-semibold">{t('status')}</th>
+                  <th className="p-4 font-semibold text-right">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -298,10 +335,9 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                       {member.PhoneNumber}
                     </td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-xs uppercase tracking-wide ${
-                        member.Status === 'Active' ? 'bg-green-100 text-green-700' : 
+                      <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-xs uppercase tracking-wide ${member.Status === 'Active' ? 'bg-green-100 text-green-700' :
                         member.Status === 'Suspended' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
+                        }`}>
                         {member.Status || 'Active'}
                       </span>
                     </td>
@@ -318,11 +354,10 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                             </button>
                             <button
                               onClick={() => openStatusModal(member)}
-                              className={`p-1.5 rounded transition-colors ${
-                                member.Status === 'Suspended' 
-                                  ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                                  : 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
-                              }`}
+                              className={`p-1.5 rounded transition-colors ${member.Status === 'Suspended'
+                                ? 'text-green-600 bg-green-50 hover:bg-green-100'
+                                : 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100'
+                                }`}
                               title={member.Status === 'Suspended' ? "Activate Mechanic" : "Suspend Mechanic"}
                             >
                               <Power size={16} />
@@ -348,16 +383,16 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
         )}
       </div>
 
-      {}
+      { }
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {}
+            { }
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   <UserPlus size={20} className="text-[var(--color-primary)]" />
-                  Register New {staffType}
+                  {t('registerNew', { role: staffType === 'Mechanic' ? t('mechanic') : 'Accountant' })}
                 </h2>
                 {staffType === 'Mechanic' && (
                   <div className="flex items-center gap-2 mt-1">
@@ -375,52 +410,54 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               </button>
             </div>
 
-            {}
+            { }
             {regStep === 1 && (
-              <form onSubmit={e => { e.preventDefault(); setFormError(''); if (staffType === 'Mechanic') setRegStep(2); else handleAddStaff(e); }} className="p-6" autoComplete="off">
+              <form onSubmit={handleNextStep} className="p-6" autoComplete="off" noValidate>
                 {formError && (
                   <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
                 )}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="John Doe" className="input-field w-full" required minLength={3} />
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fullName')}</label>
+                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="John Doe" className={`input-field w-full ${fieldErrors.fullName ? 'border-red-500 ring-2 ring-red-500/20' : ''}`} />
+                    {fieldErrors.fullName && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.fullName}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="mechanic@garage.com" className="input-field w-full" autoComplete="off" required />
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('emailAddress')}</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="mechanic@garage.com" className={`input-field w-full ${fieldErrors.email ? 'border-red-500 ring-2 ring-red-500/20' : ''}`} autoComplete="off" />
+                    {fieldErrors.email && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.email}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+251 911 234 567" className="input-field w-full" required minLength={10} />
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">{t('phoneNumber')}</label>
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+251 911 234 567" className={`input-field w-full ${fieldErrors.phone ? 'border-red-500 ring-2 ring-red-500/20' : ''}`} />
+                    {fieldErrors.phone && <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.phone}</p>}
                   </div>
                   <p className="text-xs text-gray-400 italic">A temporary password will be auto-generated and emailed to the {staffType.toLowerCase()}.</p>
                 </div>
                 <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => { setIsAddModalOpen(false); setRegStep(1); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
+                  <button type="button" onClick={() => { setIsAddModalOpen(false); setRegStep(1); }} className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">{t('cancel')}</button>
                   <button type="submit" className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-lg transition-colors shadow-sm flex items-center gap-2">
-                    {staffType === 'Mechanic' ? <>Next: Add Skills <span>›</span></> : <>Create Account</>}
+                    {staffType === 'Mechanic' ? <>{t('addSkills')} <span>›</span></> : <>{t('createAccount')}</>}
                   </button>
                 </div>
               </form>
             )}
 
-            {}
+            { }
             {regStep === 2 && (
-              <form onSubmit={handleAddStaff} className="p-6">
+              <form onSubmit={handleAddStaff} className="p-6" noValidate>
                 {formError && (
                   <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">{formError}</div>
                 )}
-                <p className="text-sm text-gray-500 mb-3">Select the skills this mechanic specializes in <span className="text-gray-400">(optional)</span>:</p>
+                <p className="text-sm text-gray-500 mb-3">{t('skillsSpec')}</p>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {PREDEFINED_SKILLS.map(skill => {
                     const isSel = regSkills.includes(skill);
                     return (
                       <button key={skill} type="button"
                         onClick={() => setRegSkills(prev => isSel ? prev.filter(s => s !== skill) : [...prev, skill])}
-                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                          isSel ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                        }`}>
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${isSel ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm' : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                          }`}>
                         {isSel && <span className="mr-1">✓</span>}{skill}
                       </button>
                     );
@@ -433,18 +470,18 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                 ))}
                 <div className="flex gap-2 mt-2">
                   <input type="text" value={regCustomSkill} onChange={e => setRegCustomSkill(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const t = regCustomSkill.trim(); if (t && !regSkills.includes(t)) setRegSkills(prev => [...prev, t]); setRegCustomSkill(''); }}}
-                    placeholder="Add custom skill..." className="input-field flex-1 text-sm" />
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const t = regCustomSkill.trim(); if (t && !regSkills.includes(t)) setRegSkills(prev => [...prev, t]); setRegCustomSkill(''); } }}
+                    placeholder={t('addCustomSkill')} className="input-field flex-1 text-sm" />
                   <button type="button" disabled={!regCustomSkill.trim()}
-                    onClick={() => { const t = regCustomSkill.trim(); if (t && !regSkills.includes(t)) setRegSkills(prev => [...prev, t]); setRegCustomSkill(''); }}
-                    className="px-3 py-2 text-sm font-semibold text-[var(--color-primary)] bg-blue-50 hover:bg-blue-100 disabled:opacity-40 rounded-lg transition-colors">Add</button>
+                    onClick={() => { const tValue = regCustomSkill.trim(); if (tValue && !regSkills.includes(tValue)) setRegSkills(prev => [...prev, tValue]); setRegCustomSkill(''); }}
+                    className="px-3 py-2 text-sm font-semibold text-[var(--color-primary)] bg-blue-50 hover:bg-blue-100 disabled:opacity-40 rounded-lg transition-colors">{t('addLabel')}</button>
                 </div>
                 <div className="flex gap-3 justify-between mt-6 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => setRegStep(1)} className="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">← Back</button>
+                  <button type="button" onClick={() => setRegStep(1)} className="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">← {t('back')}</button>
                   <div className="flex gap-2">
                     <button type="submit" disabled={formLoading} className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center gap-2">
                       {formLoading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Check size={16} />}
-                      Create Account
+                      {t('createAccount')}
                     </button>
                   </div>
                 </div>
@@ -471,14 +508,14 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               </p>
             </div>
             <div className="flex gap-3 justify-center p-6 border-t border-gray-50 bg-gray-50/50">
-              <button 
+              <button
                 onClick={() => setIsStatusModalOpen(false)}
                 disabled={formLoading}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={confirmStatusChange}
                 disabled={formLoading}
                 className={`px-5 py-2.5 text-sm font-semibold text-white disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center justify-center ${selectedMechanic?.Status === 'Suspended' ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'}`}
@@ -508,14 +545,14 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
               </p>
             </div>
             <div className="flex gap-3 justify-center p-6 border-t border-gray-50 bg-gray-50/50">
-              <button 
+              <button
                 onClick={() => setIsArchiveModalOpen(false)}
                 disabled={formLoading}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={confirmArchive}
                 disabled={formLoading}
                 className="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:bg-opacity-70 rounded-lg transition-colors shadow-sm flex items-center justify-center"
@@ -554,11 +591,10 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                     <button
                       key={skill}
                       onClick={() => toggleSkill(skill)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                        isSelected
-                          ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm'
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
-                      }`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${isSelected
+                        ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]'
+                        }`}
                     >
                       {isSelected && <span className="mr-1">✓</span>}
                       {skill}
@@ -567,7 +603,7 @@ export default function Mechanics({ defaultStaffType = 'Mechanic' }) {
                 })}
               </div>
 
-              {}
+              { }
               {selectedSkills.filter(s => !PREDEFINED_SKILLS.includes(s)).length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Custom Skills</p>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, Platform, StatusBar, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../locale/i18n';
 import { useAuthStore } from '../../store/authStore';
 import { Camera, ChevronLeft, ArrowRight, Calendar, User as UserIcon, Mail, Phone, Lock, HelpCircle, LogOut } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
+import CustomAlert from '../../components/CustomAlert';
 
 export default function ProfileScreen({ navigation }) {
   const { t } = useTranslation();
@@ -14,12 +16,49 @@ export default function ProfileScreen({ navigation }) {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
 
-  const handleLogout = async () => {
-    await signOut();
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info',
+    buttons: []
+  });
+
+  const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
+  const showAlert = (title, message, type = 'info', buttons = []) => {
+    setAlertConfig({ visible: true, title, message, type, buttons });
   };
+
+  const handleLogout = () => {
+    showAlert(
+      t('Confirm Logout'),
+      t('Are you sure you want to log out?'),
+      'confirm',
+      [
+        { text: t('Cancel'), style: 'cancel', onPress: closeAlert },
+        { text: t('Logout'), style: 'destructive', onPress: async () => {
+            closeAlert();
+            await signOut();
+          } 
+        }
+      ]
+    );
+  };
+
+
 
   const handleEditToggle = async () => {
     if (isEditing) {
+      // Basic validation
+      if (!editPhone.trim()) {
+        Alert.alert(t('Error'), t('fieldRequired', { field: t('Phone') }));
+        return;
+      }
+      if (!/^(09|07)[0-9]{8}$/.test(editPhone)) {
+        Alert.alert(t('Error'), t('invalidPhone'));
+        return;
+      }
+
       // Save
       try {
         await require('../../api/client').default.put('/api/users/profile', {
@@ -39,7 +78,7 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const AVATAR_COLORS = ['#137fec', '#e74c3c', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#3498db', '#e91e63', '#00bcd4', '#ff5722'];
-  const fullName = user?.fullName ? user.fullName : "User";
+  const fullName = user?.fullName ? user.fullName : t("User");
   const colorIndex = fullName.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
   const avatarColor = AVATAR_COLORS[colorIndex];
   const avatarInitial = fullName.charAt(0).toUpperCase();
@@ -71,17 +110,17 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {}
+      { }
       <View style={styles.header}>
         <View style={styles.iconButton} />
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{t('Profile')}</Text>
         <TouchableOpacity style={styles.editBtn} onPress={handleEditToggle}>
           <Text style={styles.editBtnText}>{isEditing ? t('Save') : t('Edit')}</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {}
+        { }
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrap}>
             <View style={[styles.avatar, { backgroundColor: avatarColor, justifyContent: 'center', alignItems: 'center' }]}>
@@ -94,11 +133,11 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.userName}>{fullName}</Text>
           <View style={styles.roleWrap}>
             <CarFrontIcon />
-            <Text style={styles.roleText}>Vehicle Owner</Text>
+            <Text style={styles.roleText}>{t('Vehicle Owner')}</Text>
           </View>
         </View>
 
-        {}
+        { }
         {unreadCount > 0 && latestNotif && (
           <View style={styles.banner}>
             <View style={styles.bannerContent}>
@@ -108,7 +147,7 @@ export default function ProfileScreen({ navigation }) {
               </View>
               <Text style={styles.bannerSub} numberOfLines={2}>{latestNotif.Message}</Text>
               <TouchableOpacity style={styles.bannerLink} onPress={() => navigation.navigate('Notifications')}>
-                <Text style={styles.bannerLinkText}>View Details</Text>
+                <Text style={styles.bannerLinkText}>{t('View Details')}</Text>
                 <ArrowRight size={14} color={colors.primaryBlue} />
               </TouchableOpacity>
             </View>
@@ -116,7 +155,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         )}
 
-        {}
+        { }
         <Text style={styles.sectionTitle}>{t('Account Details')}</Text>
         <View style={styles.formGroup}>
           <View style={styles.formRow}>
@@ -174,7 +213,7 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={{ height: 24 }} />
 
-        {}
+        { }
         <Text style={styles.sectionTitle}>{t('Preferences')}</Text>
         <View style={[styles.formGroup, { paddingVertical: 12 }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
@@ -202,14 +241,16 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={{ height: 24 }} />
 
-        {}
-        <TouchableOpacity style={styles.helpBtn}>
+        { }
+        <TouchableOpacity style={styles.helpBtn} onPress={() => navigation.navigate('HelpSupport')}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <HelpCircle size={20} color={colors.textGray} />
-            <Text style={styles.helpText}>{t('Help & Support', 'Help & Support')}</Text>
+            <Text style={styles.helpText}>{t('Help & Support')}</Text>
           </View>
           <ChevronLeft style={{ transform: [{ rotate: '180deg' }] }} size={20} color={colors.textGray} />
         </TouchableOpacity>
+
+
 
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <LogOut size={20} color="#ef4444" />
@@ -218,6 +259,8 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      <CustomAlert {...alertConfig} />
     </SafeAreaView>
   );
 }
@@ -283,5 +326,6 @@ const styles = StyleSheet.create({
   langBtnText: { fontSize: 13, fontWeight: '600', color: colors.textGray },
   langBtnTextActive: { color: colors.white },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fef2f2', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#fca5a5', gap: 8 },
-  logoutText: { fontSize: 16, fontWeight: 'bold', color: '#ef4444' }
+  logoutText: { fontSize: 16, fontWeight: 'bold', color: '#ef4444' },
+
 });

@@ -4,14 +4,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import apiClient from '../api/client';
 
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// NOTE: Notifications.setNotificationHandler is configured in App.js at module level.
 
 export async function registerForPushNotificationsAsync() {
   let token;
@@ -37,7 +30,7 @@ export async function registerForPushNotificationsAsync() {
       return;
     }
 
-    
+
     try {
       const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
       if (!projectId) {
@@ -63,7 +56,7 @@ export async function sendTokenToBackend(token) {
   try {
     await apiClient.post('/api/users/push-token', {
       token: token,
-      deviceType: Platform.OS
+      deviceType: Platform.OS === 'ios' ? 'iOS' : 'Android'
     });
     console.log('Customer push token successfully registered with backend');
   } catch (error) {

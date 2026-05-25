@@ -1,4 +1,5 @@
 import db from "../config/db.js";
+import { createNotification } from "./notificationService.js";
 
 export const addComplaint = async (customerId, garageId, description, isEscalated = false) => {
   const [garage] = await db.query("SELECT 1 FROM garages WHERE GarageID = ?", [garageId]);
@@ -75,18 +76,42 @@ export const fetchAllComplaints = async () => {
 };
 
 export const addComplaintMessage = async (complaintId, senderId, message) => {
-  
-  const [complaint] = await db.query("SELECT 1 FROM complaints WHERE ComplaintID = ?", [complaintId]);
-  if (complaint.length === 0) {
+  const [complaints] = await db.query("SELECT CustomerID FROM complaints WHERE ComplaintID = ?", [complaintId]);
+  if (complaints.length === 0) {
     const error = new Error("Complaint not found");
     error.status = 404;
     throw error;
   }
 
+  const complaint = complaints[0];
+
   await db.query(
     "INSERT INTO complaintmessages (ComplaintID, SenderID, Message) VALUES (?, ?, ?)",
     [complaintId, senderId, message]
   );
+
+  try {
+    if (senderId === complaint.CustomerID) {
+      const [admins] = await db.query("SELECT UserID FROM users WHERE Role = 'SuperAdmin'");
+      for (const admin of admins) {
+        await createNotification(
+          admin.UserID,
+          "New Complaint Message",
+          `New message on complaint #${complaintId}: "${message.substring(0, 40)}${message.length > 40 ? '...' : ''}"`,
+          "COMPLAINT"
+        );
+      }
+    } else {
+      await createNotification(
+        complaint.CustomerID,
+        "Support Update",
+        `Support replied: "${message.substring(0, 40)}${message.length > 40 ? '...' : ''}"`,
+        "COMPLAINT"
+      );
+    }
+  } catch (err) {
+    console.error("Failed to deliver message notification:", err);
+  }
 };
 
 export const fetchComplaintMessages = async (complaintId) => {

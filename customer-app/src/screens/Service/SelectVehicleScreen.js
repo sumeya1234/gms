@@ -5,6 +5,7 @@ import { Search, ChevronLeft, Car } from 'lucide-react-native';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import apiClient from '../../api/client';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 
 export default function SelectVehicleScreen({ navigation }) {
@@ -12,9 +13,10 @@ export default function SelectVehicleScreen({ navigation }) {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    
+
     const fetchVehicles = async () => {
       try {
         const response = await apiClient.get('/api/vehicles');
@@ -40,13 +42,13 @@ export default function SelectVehicleScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ChevronLeft color={colors.white} size={28} />
         </TouchableOpacity>
-        <Text style={styles.title}>Select Vehicle</Text>
+        <Text style={styles.title}>{t('Select Vehicle')}</Text>
         <View style={{ width: 28 }} />
       </View>
 
       <View style={styles.content}>
         <Input
-          placeholder="Search your vehicles..."
+          placeholder={t("Search your vehicles...")}
           leftIcon={<Search color={colors.textGray} size={20} />}
         />
 
@@ -74,15 +76,15 @@ export default function SelectVehicleScreen({ navigation }) {
         )}
       </View>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) + 12 }]}>
         <Button
-          title="Cancel"
+          title={t("Cancel")}
           variant="outline"
           style={{ flex: 1 }}
           onPress={() => navigation.goBack()}
         />
         <Button
-          title="Next"
+          title={t("Next")}
           style={{ flex: 1 }}
           variant="secondary"
           disabled={!selectedVehicle}

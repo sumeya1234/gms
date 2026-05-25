@@ -63,13 +63,13 @@ export default function HistoryScreen({ navigation }) {
         </View>
       </View>
 
-      <Text style={styles.histComment}>{item.Description || 'No description provided.'}</Text>
+      <Text style={styles.histComment}>{item.Description || t('No description provided.')}</Text>
 
       {item.RejectionReason ? (
         <View style={styles.managerResponse}>
           <View style={styles.respHeader}>
             <Store size={14} color={colors.primaryBlue} />
-            <Text style={styles.respTitle}>Rejection Reason</Text>
+            <Text style={styles.respTitle}>{t('Rejection Reason')}</Text>
           </View>
           <Text style={styles.respText}>{item.RejectionReason}</Text>
         </View>
@@ -80,12 +80,12 @@ export default function HistoryScreen({ navigation }) {
           if (item.Status !== 'Completed') return null;
 
           const finalCost = Number(item.PartsCost) + Number(item.BaseServicePrice);
-          
+
           const paidSoFar = Number(item.TotalPaid) || 0;
           let owedAmount = finalCost - paidSoFar;
           if (owedAmount < 0) owedAmount = 0;
 
-          
+
           if (owedAmount === 0 && paidSoFar > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
@@ -93,39 +93,39 @@ export default function HistoryScreen({ navigation }) {
                   Total: {finalCost.toLocaleString()} ETB
                 </Text>
                 <View style={{ backgroundColor: '#d4edda', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
-                  <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>FULLY PAID ✓</Text>
+                  <Text style={{ color: '#155724', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>{t('FULLY PAID')} ✓</Text>
                 </View>
               </View>
             );
           }
 
-          
+
           if (item.PaymentStatus === 'Pending' && owedAmount > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 2 }}>
-                  Remaining: {owedAmount.toLocaleString()} ETB
+                  {t('Remaining')}: {owedAmount.toLocaleString()} ETB
                 </Text>
                 <View style={{ backgroundColor: '#fff3cd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }}>
                   <Text style={{ color: '#856404', fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase' }}>
-                    {item.PaymentMethod === 'Cash' ? 'Cash — Awaiting Confirmation' : 'Awaiting Accountant Verification'}
+                    {item.PaymentMethod === 'Cash' ? t('Cash — Awaiting Confirmation') : t('Awaiting Accountant Verification')}
                   </Text>
                 </View>
               </View>
             );
           }
 
-          
+
           if (owedAmount > 0) {
             return (
               <View style={{ alignItems: 'flex-end' }}>
                 {paidSoFar > 0 && (
                   <Text style={{ fontSize: 11, color: colors.textGray, marginBottom: 2 }}>
-                    Deposit paid: {paidSoFar.toLocaleString()} ETB
+                    {t('Deposit paid')}: {paidSoFar.toLocaleString()} ETB
                   </Text>
                 )}
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#dc3545', marginBottom: 6 }}>
-                  Remaining: {owedAmount.toLocaleString()} ETB
+                  {t('Remaining')}: {owedAmount.toLocaleString()} ETB
                 </Text>
                 {paymentLoading === item.RequestID ? (
                   <ActivityIndicator color={colors.primaryBlue} />
@@ -136,14 +136,14 @@ export default function HistoryScreen({ navigation }) {
                       onPress={() => handlePayNow(item, 'Chapa', owedAmount)}
                     >
                       <CreditCard size={14} color="#fff" />
-                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Online</Text>
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{t('Online')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={{ backgroundColor: '#0d6efd', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, gap: 4 }}
                       onPress={() => handlePayNow(item, 'Cash', owedAmount)}
                     >
                       <Banknote size={14} color="#fff" />
-                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Cash</Text>
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{t('Cash')}</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -152,7 +152,7 @@ export default function HistoryScreen({ navigation }) {
                     onPress={() => setShowPayOptions(item.RequestID)}
                   >
                     <CreditCard size={14} color="#fff" />
-                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>Pay Remaining</Text>
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{t('Pay Remaining')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -265,7 +265,7 @@ export default function HistoryScreen({ navigation }) {
     }
   };
 
-  
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', async (nextAppState) => {
       if (nextAppState === 'active' && pendingTxRef.current) {
@@ -282,7 +282,7 @@ export default function HistoryScreen({ navigation }) {
     return () => subscription.remove();
   }, []);
 
-  
+
   useEffect(() => {
     if (requests.length > 0) {
       const newlyCompleted = requests.find(
@@ -328,6 +328,42 @@ export default function HistoryScreen({ navigation }) {
     }
   };
 
+  const handleSkipReview = async (item) => {
+    try {
+      await api.post(`/api/services/${item.RequestID}/skip-review`);
+      fetchMyRequests();
+      showAlert(t('Dismissed'), t('You can still view this service in your history.'));
+    } catch (err) {
+      console.warn("Failed to skip review", err);
+      showAlert(t('Error'), t('Could not dismiss review prompt.'), [], 'error');
+    }
+  };
+
+  const handleDismissAllReviews = async () => {
+    showAlert(
+      t("Dismiss All"),
+      t("Are you sure you want to dismiss all pending review prompts?"),
+      [
+        { text: t("Cancel"), style: "cancel" },
+        {
+          text: t("Dismiss All"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await api.post('/api/services/my-requests/skip-all-reviews');
+              fetchMyRequests();
+              showAlert(t('Success'), t('All pending reviews have been dismissed.'));
+            } catch (err) {
+              console.warn("Failed to dismiss all reviews", err);
+              showAlert(t('Error'), t('Could not dismiss all reviews.'), [], 'error');
+            }
+          }
+        }
+      ],
+      'confirm'
+    );
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchMyRequests();
@@ -344,7 +380,7 @@ export default function HistoryScreen({ navigation }) {
     return colors.textGray;
   };
 
-  
+
   const isToday = (dateString) => {
     if (!dateString) return false;
     const d = new Date(dateString);
@@ -370,7 +406,7 @@ export default function HistoryScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('Service History', 'Service History')}</Text>
+        <Text style={styles.headerTitle}>{t('Service History')}</Text>
       </View>
 
       <View style={styles.tabsWrap}>
@@ -379,13 +415,13 @@ export default function HistoryScreen({ navigation }) {
             style={[styles.tabBtn, activeTab === 'History' && styles.tabBtnActive]}
             onPress={() => setActiveTab('History')}
           >
-            <Text style={[styles.tabText, activeTab === 'History' && styles.tabTextActive]}>{t('History', 'History')}</Text>
+            <Text style={[styles.tabText, activeTab === 'History' && styles.tabTextActive]}>{t('History')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, activeTab === 'Rate' && styles.tabBtnActive]}
             onPress={() => setActiveTab('Rate')}
           >
-            <Text style={[styles.tabText, activeTab === 'Rate' && styles.tabTextActive]}>{t('Rate Service', 'Rate Service')}</Text>
+            <Text style={[styles.tabText, activeTab === 'Rate' && styles.tabTextActive]}>{t('Rate Service')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -424,13 +460,20 @@ export default function HistoryScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {activeTab === 'Rate' ? (
             <View>
-              <Text style={styles.sectionTitle}>{t('Pending Reviews', 'Pending Reviews')}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('Pending Reviews')}</Text>
+                {unreviewedRequests.length > 1 && (
+                  <TouchableOpacity onPress={handleDismissAllReviews}>
+                    <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 13 }}>{t('Dismiss All')}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
 
               {unreviewedRequests.length === 0 ? (
                 <View style={{ alignItems: 'center', marginTop: 40 }}>
                   <CheckCircle size={48} color={colors.border} />
                   <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 12, fontSize: 16 }}>
-                    {t('All caught up! No services to review.', 'All caught up! No services to review.')}
+                    {t('All caught up! No services to review.')}
                   </Text>
                 </View>
               ) : (
@@ -450,7 +493,7 @@ export default function HistoryScreen({ navigation }) {
                     </View>
 
                     <View style={styles.pendingActionWrap}>
-                      <Text style={styles.askText}>{t('How was your experience?', 'How was your experience?')}</Text>
+                      <Text style={styles.askText}>{t('How was your experience?')}</Text>
                       <View style={styles.starsRow}>
                         {[1, 2, 3, 4, 5].map((star) => (
                           <TouchableOpacity key={star} onPress={() => setRatings(prev => ({ ...prev, [item.RequestID]: star }))} activeOpacity={0.7}>
@@ -465,7 +508,7 @@ export default function HistoryScreen({ navigation }) {
 
                       <TextInput
                         style={styles.textArea}
-                        placeholder={t("Share your experience... (optional)", "Share your experience... (optional)")}
+                        placeholder={t("Share your experience... (optional)")}
                         placeholderTextColor={colors.textGray}
                         multiline
                         value={comments[item.RequestID] || ''}
@@ -481,10 +524,19 @@ export default function HistoryScreen({ navigation }) {
                           <ActivityIndicator color={colors.white} />
                         ) : (
                           <>
-                            <Text style={styles.submitBtnText}>{t('Submit Feedback', 'Submit Feedback')}</Text>
+                            <Text style={styles.submitBtnText}>{t('Submit Feedback')}</Text>
                             <Send size={18} color={colors.white} />
                           </>
                         )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{ marginTop: 12, paddingVertical: 8 }}
+                        onPress={() => handleSkipReview(item)}
+                      >
+                        <Text style={{ color: colors.textGray, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' }}>
+                          {t("I don't want to review this")}
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -501,14 +553,14 @@ export default function HistoryScreen({ navigation }) {
                       onPress={() => setHistoryFilter(f)}
                       style={[styles.filterChip, historyFilter === f && styles.filterChipActive]}
                     >
-                      <Text style={[styles.filterChipText, historyFilter === f && styles.filterChipTextActive]}>{f}</Text>
+                      <Text style={[styles.filterChipText, historyFilter === f && styles.filterChipTextActive]}>{t(f)}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </View>
 
               {allRequests.length === 0 ? (
-                <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('You have no service requests yet.', 'You have no service requests yet.')}</Text>
+                <Text style={{ textAlign: 'center', color: colors.textGray, marginTop: 40 }}>{t('You have no service requests yet.')}</Text>
               ) : (
                 <View>
                   {(historyFilter === 'Upcoming') && upcomingRequests.length > 0 && (
@@ -548,21 +600,21 @@ export default function HistoryScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {}
+      { }
       {invoiceItem && (
         <Modal transparent animationType="slide" visible={!!invoiceItem}>
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, { padding: 0, width: '92%', alignItems: 'stretch', maxWidth: 400 }]}>
-              {}
+              { }
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: colors.border }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.textDark }}>Invoice Details</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.textDark }}>{t('Invoice Details')}</Text>
                 <TouchableOpacity style={{ padding: 8 }} onPress={() => setInvoiceItem(null)}>
                   <X size={22} color={colors.textGray} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView style={{ maxHeight: 450 }} contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-                {}
+                { }
                 <View style={{ backgroundColor: colors.bgGray, padding: 14, borderRadius: 12, marginBottom: 20 }}>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>#{invoiceItem.RequestID} — {invoiceItem.ServiceType}</Text>
                   {invoiceItem.GarageName && (
@@ -571,8 +623,8 @@ export default function HistoryScreen({ navigation }) {
                   <Text style={{ fontSize: 12, color: colors.textGray, marginTop: 4 }}>{new Date(invoiceItem.RequestDate).toLocaleDateString()}</Text>
                 </View>
 
-                {}
-                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Services</Text>
+                { }
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('Services')}</Text>
                 {invoiceItem.ServiceType.split(',').map((svc, idx) => {
                   const matched = invoiceCatalog.find(c => c.ServiceName === svc.trim());
                   const price = matched ? Number(matched.Price) : 0;
@@ -584,16 +636,16 @@ export default function HistoryScreen({ navigation }) {
                   );
                 })}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 20 }}>
-                  <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.primaryBlue }}>Service Subtotal</Text>
+                  <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.primaryBlue }}>{t('Service Subtotal')}</Text>
                   <Text style={{ fontSize: 15, fontWeight: 'bold', color: colors.primaryBlue }}>{Number(invoiceItem.BaseServicePrice || 0).toLocaleString()} ETB</Text>
                 </View>
 
-                {}
-                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Parts Used</Text>
+                { }
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: colors.textGray, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('Parts Used')}</Text>
                 {invoiceLoading ? (
                   <ActivityIndicator color={colors.primaryBlue} style={{ marginVertical: 16 }} />
                 ) : invoiceParts.length === 0 ? (
-                  <Text style={{ fontSize: 13, color: colors.textGray, fontStyle: 'italic', textAlign: 'center', paddingVertical: 12 }}>No parts were used</Text>
+                  <Text style={{ fontSize: 13, color: colors.textGray, fontStyle: 'italic', textAlign: 'center', paddingVertical: 12 }}>{t('No parts were used')}</Text>
                 ) : (
                   invoiceParts.map((part, idx) => (
                     <View key={idx} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.border }}>
@@ -606,21 +658,21 @@ export default function HistoryScreen({ navigation }) {
                   ))
                 )}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, marginBottom: 20 }}>
-                  <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#8b5cf6' }}>Parts Subtotal</Text>
+                  <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#8b5cf6' }}>{t('Parts Subtotal')}</Text>
                   <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#8b5cf6' }}>{Number(invoiceItem.PartsCost || 0).toLocaleString()} ETB</Text>
                 </View>
 
-                {}
+                { }
                 <View style={{ backgroundColor: colors.primaryBlue, borderRadius: 12, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.white }}>Total</Text>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.white }}>{t('Total')}</Text>
                   <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.white }}>{(Number(invoiceItem.BaseServicePrice || 0) + Number(invoiceItem.PartsCost || 0)).toLocaleString()} ETB</Text>
                 </View>
               </ScrollView>
 
-              {}
+              { }
               <View style={{ padding: 20, borderTopWidth: 1, borderTopColor: colors.border }}>
                 <TouchableOpacity style={{ backgroundColor: colors.bgGray, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 20, alignItems: 'center' }} onPress={() => setInvoiceItem(null)}>
-                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>Close</Text>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textDark }}>{t('Close')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -678,7 +730,7 @@ const styles = StyleSheet.create({
   respTitle: { fontSize: 12, fontWeight: 'bold', color: '#ef4444' },
   respText: { fontSize: 12, color: colors.textGray, fontStyle: 'italic' },
   histFooter: { flexDirection: 'row', justifyContent: 'flex-end', borderTopWidth: 1, borderTopColor: colors.bgGray, paddingTop: 12 },
-  
+
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   modalCard: { backgroundColor: colors.white, borderRadius: 20, padding: 32, alignItems: 'center', width: '100%', maxWidth: 340 },
   modalClose: { position: 'absolute', top: 12, right: 12, padding: 4 },

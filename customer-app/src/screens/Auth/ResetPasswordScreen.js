@@ -26,11 +26,11 @@ export default function ResetPasswordScreen({ navigation, route }) {
   const handleReset = async () => {
     setLocalError('');
     if (!newPassword) {
-      setLocalError('Please enter a new password');
+      setLocalError(t('Please enter a new password'));
       return;
     }
     if (newPassword.length < 8) {
-      setLocalError('Password must be at least 8 characters long');
+      setLocalError(t('Password must be at least 8 characters long'));
       return;
     }
 

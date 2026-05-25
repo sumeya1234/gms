@@ -1,14 +1,17 @@
-import { registerUser, loginUser, generatePasswordResetOTP, verifyAndResetPassword } from "../services/authService.js";
-import { sendPasswordResetOTP } from "../services/emailService.js";
+import { registerUser, loginUser, generatePasswordResetOTP, verifyAndResetPassword, generateRegistrationOTP, verifyRegistrationOTP } from "../services/authService.js";
+import { sendPasswordResetOTP, sendRegistrationOTP } from "../services/emailService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 
 
 export const register = asyncHandler(async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone, password, otp } = req.body;
 
-  
-  const assignedRole = "Customer"; 
+
+  await verifyRegistrationOTP(email, otp);
+
+
+  const assignedRole = "Customer";
 
   const result = await registerUser({
     fullName,
@@ -19,6 +22,22 @@ export const register = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json({ message: "User registered successfully", role: result.role });
+});
+
+export const requestRegistrationOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const otp = await generateRegistrationOTP(email);
+
+  const emailSent = await sendRegistrationOTP(email, otp);
+
+  if (!emailSent) {
+    const error = new Error("Failed to send verification email. Please try again.");
+    error.status = 500;
+    throw error;
+  }
+
+  res.json({ message: "Verification code sent to your email successfully" });
 });
 
 
@@ -32,17 +51,17 @@ export const login = asyncHandler(async (req, res) => {
 
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  
+
   const otp = await generatePasswordResetOTP(email);
-  
+
   const emailSent = await sendPasswordResetOTP(email, otp);
-  
+
   if (!emailSent) {
     const error = new Error("Failed to send OTP email. Please try again.");
     error.status = 500;
     throw error;
   }
-  
+
   res.json({ message: "OTP sent to your email successfully" });
 });
 

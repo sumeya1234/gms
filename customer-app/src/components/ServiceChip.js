@@ -2,21 +2,23 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 
-export default function ServiceChip({ title, isSelected, onPress }) {
+export default function ServiceChip({ title, isSelected, onPress, isSpecial }) {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onPress}
       style={[
         styles.container,
-        isSelected && styles.containerSelected
+        isSelected && styles.containerSelected,
+        isSpecial && !isSelected && styles.containerSpecial
       ]}
     >
       <Text style={[
         styles.text,
-        isSelected && styles.textSelected
+        isSelected && styles.textSelected,
+        isSpecial && !isSelected && styles.textSpecial
       ]}>
-        {title}
+        {isSpecial ? `❓ ${title}` : title}
       </Text>
     </TouchableOpacity>
   );
@@ -45,5 +47,14 @@ const styles = StyleSheet.create({
   },
   textSelected: {
     color: colors.white,
+  },
+  containerSpecial: {
+    backgroundColor: 'rgba(19, 127, 236, 0.1)',
+    borderColor: 'rgba(19, 127, 236, 0.5)',
+    borderWidth: 1.5,
+  },
+  textSpecial: {
+    color: colors.primaryBlue,
+    fontWeight: 'bold',
   }
 });

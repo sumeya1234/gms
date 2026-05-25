@@ -1,12 +1,17 @@
-import { createServiceRequest, fetchCustomerRequests, fetchGarageRequests, fetchFilteredBookings, fetchRequestById, fetchGarageAvailability, hideCustomerRequest, cancelServiceRequest } from "../services/bookingService.js";
-import { assignServiceMechanic, updateServiceStatus, completeServiceRequest, updateAssignmentStatus, documentAssignmentItems, fetchRequestItems } from "../services/jobService.js";
+import { createServiceRequest, createWalkInRequest, updateServiceRequest, findVehicleByPlate, fetchCustomerRequests, fetchGarageRequests, fetchFilteredBookings, fetchRequestById, fetchGarageAvailability, hideCustomerRequest, cancelServiceRequest, skipReviewRequest, skipAllReviews, fetchVehicleHistory } from "../services/bookingService.js";
+import { assignServiceMechanic, updateServiceStatus, completeServiceRequest, updateAssignmentStatus, documentAssignmentItems, fetchRequestItems, setEstimatedCompletionTime } from "../services/jobService.js";
 import { fetchMechanicAssignments } from "../services/mechanicService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const createService = asyncHandler(async (req, res) => {
-  const { serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime, customerStatus } = req.body;
-  await createServiceRequest(serviceType, vehicleId, garageId, description, isEmergency, bookingDate, dropOffTime, customerStatus);
+  await createServiceRequest(req.body);
   res.json({ message: "Service request created" });
+});
+
+export const createWalkIn = asyncHandler(async (req, res) => {
+  const { garageId, phone, plateNumber, model, type, serviceType, description, isEmergency, latitude, longitude, address, fullName } = req.body;
+  const requestId = await createWalkInRequest(garageId, { phone, plateNumber, model, type, serviceType, description, isEmergency, latitude, longitude, address, fullName });
+  res.status(201).json({ message: "Walk-in service request created", requestId });
 });
 
 export const assignMechanic = asyncHandler(async (req, res) => {
@@ -71,7 +76,7 @@ export const getRequest = asyncHandler(async (req, res) => {
 
 export const getAvailability = asyncHandler(async (req, res) => {
   const garageId = req.params.garageId ?? req.params.id;
-  const { date } = req.query; 
+  const { date } = req.query;
 
   if (!date) {
     return res.status(400).json({ error: "Date parameter is required" });
@@ -102,4 +107,42 @@ export const cancelRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
   await cancelServiceRequest(requestId, req.user.id);
   res.json({ message: "Service request cancelled successfully" });
+});
+export const dismissReview = asyncHandler(async (req, res) => {
+  const { requestId } = req.params;
+  await skipReviewRequest(requestId);
+  res.json({ message: "Review request dismissed" });
+});
+export const dismissAllReviews = asyncHandler(async (req, res) => {
+  await skipAllReviews(req.user.id);
+  res.json({ message: "All reviews dismissed" });
+});
+export const updateBooking = asyncHandler(async (req, res) => {
+  const { requestId } = req.params;
+  const { serviceType, description, plateNumber, model, type } = req.body;
+  await updateServiceRequest(requestId, { serviceType, description, plateNumber, model, type, garageId: req.user.GarageID, user: req.user });
+  res.json({ message: "Booking updated successfully" });
+});
+
+export const checkPlate = asyncHandler(async (req, res) => {
+  const vehicle = await findVehicleByPlate(req.params.plateNumber);
+  if (!vehicle) {
+    return res.status(404).json({ message: "Vehicle not found" });
+  }
+  res.json(vehicle);
+});
+
+export const setAssignmentEta = asyncHandler(async (req, res) => {
+  const { assignmentId } = req.params;
+  const { estimatedMinutes } = req.body;
+  const result = await setEstimatedCompletionTime(assignmentId, estimatedMinutes, req.user.id);
+  res.json({ message: `ETA set to ${result.timeStr} (~${estimatedMinutes} min)`, ...result });
+});
+
+export const getVehicleHistory = asyncHandler(async (req, res) => {
+  const { vehicleId, id } = req.params;
+  // If 'id' is present in params (from /garages/:id/vehicles/...), use it as the garageId filter
+  const garageIdFilter = id || req.query.garageId;
+  const history = await fetchVehicleHistory(vehicleId, garageIdFilter);
+  res.json(history);
 });

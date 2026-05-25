@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, FlatList, ActivityIndicator, ScrollView } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import apiClient from '../../api/apiClient';
 import { useTranslation } from 'react-i18next';
 import { Bell, AlertTriangle } from 'lucide-react-native';
+import FloatingHint from '../../components/FloatingHint';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DashboardScreen({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -14,26 +16,50 @@ export default function DashboardScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState('All');
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [tutorialStep, setTutorialStep] = useState(null);
+
+  useEffect(() => {
+    const checkTutorial = async () => {
+      const completed = await AsyncStorage.getItem('mechanic_tutorial_completed');
+      if (completed !== 'true') {
+        const step = await AsyncStorage.getItem('mechanic_tutorial_step');
+        setTutorialStep(step ? parseInt(step, 10) : 1);
+      }
+    };
+    checkTutorial();
+  }, []);
+
+  const nextHint = async () => {
+    const nextStep = tutorialStep + 1;
+    if (nextStep > 3) {
+      // Step 4 and beyond happen in TaskDetailScreen
+      setTutorialStep(null);
+      await AsyncStorage.setItem('mechanic_tutorial_step', '4');
+    } else {
+      setTutorialStep(nextStep);
+      await AsyncStorage.setItem('mechanic_tutorial_step', nextStep.toString());
+    }
+  };
+
   const filteredTasks = tasks
     .filter(t => {
       if (activeFilter === 'All') return true;
       return t.AssignmentStatus === activeFilter;
     })
-    
     .sort((a, b) => {
       if (b.IsEmergency !== a.IsEmergency) return (b.IsEmergency ? 1 : 0) - (a.IsEmergency ? 1 : 0);
       return new Date(b.AssignedDate) - new Date(a.AssignedDate);
     });
 
-  const fetchTasks = async () => {
-    setLoading(true);
+  const fetchTasks = async (showSpinner = false) => {
+    if (showSpinner) setLoading(true);
     try {
       const response = await apiClient.get('/api/services/my-assignments');
       setTasks(response.data);
     } catch (error) {
       console.log('Error fetching tasks', error);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   };
 
@@ -48,15 +74,21 @@ export default function DashboardScreen({ navigation }) {
   };
 
   useEffect(() => {
+    // Initial fetch with spinner
+    fetchTasks(true);
+    fetchNotificationCount();
+
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchTasks();
+      // Refresh on focus, but without spinner to avoid jumping
+      fetchTasks(false);
       fetchNotificationCount();
     });
 
     const interval = setInterval(() => {
-      fetchTasks();
+      // Quiet polling
+      fetchTasks(false);
       fetchNotificationCount();
-    }, 30000); 
+    }, 30000);
 
     return () => {
       unsubscribe();
@@ -72,7 +104,7 @@ export default function DashboardScreen({ navigation }) {
       {!!item.IsEmergency && (
         <View style={styles.emergencyBanner}>
           <AlertTriangle size={14} color="#fff" />
-          <Text style={styles.emergencyBannerText}>EMERGENCY — Handle Immediately</Text>
+          <Text style={styles.emergencyBannerText}>{t('emergencyBanner')}</Text>
         </View>
       )}
       <View style={styles.taskHeader}>
@@ -109,6 +141,14 @@ export default function DashboardScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      <FloatingHint
+        visible={tutorialStep === 1}
+        message={t("Welcome! I'll guide you through. Here you can check notifications and alerts.")}
+        position={{ top: 80, right: 20 }}
+        arrowPosition="top"
+        onDismiss={nextHint}
+      />
+
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>{tasks.length}</Text>
@@ -125,10 +165,18 @@ export default function DashboardScreen({ navigation }) {
             <Text style={[styles.statValue, { color: '#ff4444' }]}>
               {tasks.filter(t => t.IsEmergency).length}
             </Text>
-            <Text style={[styles.statLabel, { color: '#ff4444' }]}>Emergency</Text>
+            <Text style={[styles.statLabel, { color: '#ff4444' }]}>{t('Emergency')}</Text>
           </View>
         )}
       </View>
+
+      <FloatingHint
+        visible={tutorialStep === 2}
+        message={t("Monitor your active workload and emergency assignments here at a glance.")}
+        position={{ top: 220, left: 20 }}
+        arrowPosition="top"
+        onDismiss={nextHint}
+      />
 
       <View style={styles.listContainer}>
         <View style={styles.listHeaderRow}>
@@ -163,6 +211,14 @@ export default function DashboardScreen({ navigation }) {
           />
         )}
       </View>
+
+      <FloatingHint
+        visible={tutorialStep === 3}
+        message={t("Tap a task to view full details and start working.")}
+        position={{ bottom: 150, left: 20 }}
+        arrowPosition="bottom"
+        onDismiss={nextHint}
+      />
     </SafeAreaView>
   );
 }
@@ -266,7 +322,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     marginBottom: 16,
-    marginHorizontal: -20, 
+    marginHorizontal: -20,
   },
   filterScroll: {
     paddingHorizontal: 20,
@@ -302,15 +358,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   taskCardEmergency: {
-    borderColor: '#ff4444',
+    borderColor: colors.emergency,
     borderWidth: 1.5,
-    backgroundColor: 'rgba(255, 68, 68, 0.04)',
+    backgroundColor: 'rgba(220, 38, 38, 0.04)',
   },
   emergencyBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#ff4444',
+    backgroundColor: colors.emergency,
     marginHorizontal: -16,
     marginTop: -16,
     paddingHorizontal: 12,

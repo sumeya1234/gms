@@ -899,3 +899,298 @@
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:50"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:07:56"}
 {"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-04-28 06:09:02"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:32"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:32"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:36"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:36"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:44"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:44"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:47"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:26:47"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:34:51"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:34:51"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:34:55"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:34:55"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:36:20"}
+{"level":"error","message":"500 - Unknown column 'ReviewDate' in 'order clause' - /api/reviews/garage/1 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-18 13:36:20"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-18 18:28:34"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-18 18:29:02"}
+{"level":"error","message":"400 - Fixed price for 'Diagnostics, Electrical' is not configured in this garage's Service Catalog. Please configure it before approving. - /api/services/15/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-18 18:34:03"}
+{"level":"error","message":"400 - Fixed price for 'Diagnostics, Electrical' is not configured in this garage's Service Catalog. Please configure it before approving. - /api/services/15/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-18 18:34:44"}
+{"level":"error","message":"400 - Fixed price for 'Diagnostics, Electrical' is not configured in this garage's Service Catalog. Please configure it before approving. - /api/services/15/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-18 18:35:24"}
+{"level":"error","message":"400 - Fixed price for 'Diagnostics, Electrical' is not configured in this garage's Service Catalog. Please configure it before approving. - /api/services/15/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 11:59:12"}
+{"level":"error","message":"400 - Fixed price for 'Diagnostics, Electrical' is not configured in this garage's Service Catalog. Please configure it before approving. - /api/services/15/status - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 12:00:03"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 13:55:22"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:06:18"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:07:03"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:07:38"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:08:23"}
+{"level":"error","message":"400 - Invalid current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:08:43"}
+{"level":"error","message":"400 - Incorrect current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:14:44"}
+{"level":"error","message":"400 - Incorrect current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:19:32"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:39:20"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:39:44"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:40:01"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:40:10"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:41:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:42:45"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:43:02"}
+{"level":"error","message":"409 - Email already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:47:22"}
+{"level":"error","message":"409 - Phone number already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:47:40"}
+{"level":"error","message":"409 - Phone number already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:47:43"}
+{"level":"error","message":"409 - Phone number already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:47:45"}
+{"level":"error","message":"409 - Phone number already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:48:08"}
+{"level":"error","message":"409 - Phone number already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:56:41"}
+{"level":"error","message":"409 - Email already exists - /api/users/garage/7/mechanics - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 14:56:58"}
+{"level":"error","message":"409 - Email already exists - /api/users/garage/7/accountants - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 15:03:26"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 15:40:37"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 15:41:09"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 15:41:48"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-19 15:56:02"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-19 15:56:10"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 16:26:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 16:27:37"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-19 16:27:58"}
+{"level":"error","message":"500 - Unknown column 'v.OwnerID' in 'on clause' - /api/services/check-plate/hjjhn - GET - ::ffff:127.0.0.1","timestamp":"2026-05-19 23:43:55"}
+{"level":"error","message":"500 - Unknown column 'v.OwnerID' in 'on clause' - /api/services/check-plate/AA%2012345 - GET - ::ffff:127.0.0.1","timestamp":"2026-05-19 23:44:18"}
+{"level":"error","message":"500 - Unknown column 'v.OwnerID' in 'on clause' - /api/services/check-plate/asdfj - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 00:03:53"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 08:49:39"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 08:49:48"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 08:50:06"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 08:50:14"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 08:50:16"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:20:15"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:20:54"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:23:56"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:27:56"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:27:57"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:28:57"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:31:00"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:31:03"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:31:12"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:31:46"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:32:41"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:33:35"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:33:46"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:35:07"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:36:17"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:36:28"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:37:39"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:37:44"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:38:15"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:38:59"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:41:45"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 09:44:43"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 10:21:35"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 10:32:51"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:29"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:29"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:34"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:34"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:58"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:16:58"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:19:02"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:19:02"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:21:06"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:21:06"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:21:16"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:21:16"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:22:23"}
+{"level":"error","message":"500 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'GROUP BY g.GarageID' at line 13 - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:22:23"}
+{"level":"error","message":"500 - Unknown column 'g.subaccountId' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:25:03"}
+{"level":"error","message":"500 - Unknown column 'g.subaccountId' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:25:03"}
+{"level":"error","message":"500 - Unknown column 'g.subaccountId' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:27:29"}
+{"level":"error","message":"500 - Unknown column 'g.subaccountId' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:27:29"}
+{"level":"error","message":"500 - Unknown column 'g.CreatedAt' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:27:45"}
+{"level":"error","message":"500 - Unknown column 'g.CreatedAt' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:27:45"}
+{"level":"error","message":"500 - Unknown column 'g.CreatedAt' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:29:42"}
+{"level":"error","message":"500 - Unknown column 'g.CreatedAt' in 'field list' - /api/garages - GET - ::ffff:127.0.0.1","timestamp":"2026-05-20 12:29:42"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:22:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:33:53"}
+{"level":"error","message":"500 - Illegal arguments: undefined, number - /api/users/admin/managers - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:38:41"}
+{"level":"error","message":"500 - Illegal arguments: undefined, number - /api/users/admin/managers - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:38:58"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:52:32"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:54:28"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:54:54"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:57:27"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 13:57:37"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 17:58:43"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:22:31"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:24:00"}
+{"level":"error","message":"500 - currentStatus is not defined - /api/services/46/cancel - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:24:31"}
+{"level":"error","message":"500 - currentStatus is not defined - /api/services/46/cancel - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:24:53"}
+{"level":"error","message":"500 - currentStatus is not defined - /api/services/46/cancel - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:25:02"}
+{"level":"error","message":"500 - currentStatus is not defined - /api/services/50/cancel - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:32:03"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:38:53"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 22:39:48"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:42:58"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:43:02"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:43:22"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:43:30"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:43:36"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:43:49"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:44:04"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:44:41"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:45:11"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:46:05"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:47:35"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-20 22:48:06"}
+{"level":"error","message":"409 - Email already exists - /api/auth/register - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 23:14:10"}
+{"level":"error","message":"500 - Duplicate entry 'AA 12345' for key 'PlateNumber' - /api/vehicles - POST - ::ffff:192.168.78.156","timestamp":"2026-05-20 23:18:57"}
+{"level":"error","message":"400 - Cannot cancel: Work has already started on this vehicle. - /api/services/12/cancel - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:37:00"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:51:05"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:51:13"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:51:17"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:51:33"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:53:09"}
+{"level":"error","message":"400 - Cannot update status of a Rejected service request - /api/services/14/status - PUT - ::ffff:192.168.78.156","timestamp":"2026-05-21 11:59:58"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:02:19"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:02:56"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:02:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:05"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:09"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:22"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:34"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:44"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:48"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:03:54"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:04:00"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:04:09"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:04:16"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:09:41"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:15:20"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:15:26"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:15:57"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:16:28"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:16:59"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:17:29"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:17:45"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:17:52"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:17:55"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:17:58"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:17:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:18:02"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:18:10"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:18:14"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:18:19"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:18:29"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:18:46"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:18:59"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:19:30"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 12:19:42"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:20:01"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:20:32"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:21:03"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:21:34"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:22:05"}
+{"level":"error","message":"403 - Unauthorized: You do not manage this garage - /api/services/garage/7?status=All&page=1&limit=10&search=&date=&arrivalTime=&sort=desc&isEmergency=true - GET - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:22:36"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:23:03"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:23:15"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:23:21"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::1","timestamp":"2026-05-21 12:35:01"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::1","timestamp":"2026-05-21 12:37:25"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:40:21"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-21 12:47:01"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.64","timestamp":"2026-05-21 13:54:24"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:192.168.78.64","timestamp":"2026-05-21 13:54:29"}
+{"level":"error","message":"413 - request entity too large - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:15:13"}
+{"level":"error","message":"413 - request entity too large - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:15:43"}
+{"level":"error","message":"413 - request entity too large - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:15:48"}
+{"level":"error","message":"413 - request entity too large - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:16:00"}
+{"level":"error","message":"413 - request entity too large - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:16:03"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:20:49"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:21:13"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:21:19"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:21:29"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:21:34"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:22:28"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:23:13"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:24:25"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments?status=Completed - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:24:25"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:24:55"}
+{"level":"error","message":"500 - Unknown column 'IssueImage' in 'field list' - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 15:25:10"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:25:25"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:25:55"}
+{"level":"error","message":"500 - Unknown column 'sr.IssueImage' in 'field list' - /api/services/my-assignments - GET - ::ffff:192.168.78.64","timestamp":"2026-05-21 15:26:25"}
+{"level":"error","message":"404 - No pending online payment found for this request. - /api/payments/confirm-online/85?category=Deposit - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-21 15:32:48"}
+{"level":"error","message":"404 - No pending cash payment found for this request. - /api/payments/confirm-cash/84?category=Final - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-21 15:59:27"}
+{"level":"error","message":"404 - No pending cash payment found for this request. - /api/payments/confirm-cash/84?category=Final - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-21 15:59:31"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:26:59"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:27:08"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:27:15"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:27:47"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:28:14"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-21 16:29:19"}
+{"level":"error","message":"409 - Email already registered - /api/auth/request-registration-otp - POST - ::ffff:192.168.78.156","timestamp":"2026-05-23 17:30:48"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-23 17:38:08"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-23 17:38:32"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-23 17:38:35"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::1","timestamp":"2026-05-23 17:38:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::1","timestamp":"2026-05-23 17:38:59"}
+{"level":"error","message":"500 - Duplicate entry 'AA 12345' for key 'PlateNumber' - /api/vehicles - POST - ::ffff:192.168.78.156","timestamp":"2026-05-23 18:08:51"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-23 18:20:46"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-23 18:20:54"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-23 18:20:59"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-23 18:21:04"}
+{"level":"error","message":"500 - Unknown column 'EstimatedCompletionTime' in 'field list' - /api/services/assignments/26/eta - PUT - ::ffff:192.168.78.156","timestamp":"2026-05-24 00:37:38"}
+{"level":"error","message":"500 - Unknown column 'EstimatedCompletionTime' in 'field list' - /api/services/assignments/26/eta - PUT - ::ffff:192.168.78.156","timestamp":"2026-05-24 00:37:53"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 10:04:45"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-24 11:38:19"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:13:12"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:14:04"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:15:20"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:16:36"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:17:13"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:17:53"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:18:34"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:19:19"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:19:56"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:20:50"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 13:23:03"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:192.168.78.156","timestamp":"2026-05-24 13:32:04"}
+{"level":"error","message":"400 - Expected property name or '}' in JSON at position 1 (line 1 column 2) - /api/garages/1 - PUT - ::1","timestamp":"2026-05-24 13:42:38"}
+{"level":"error","message":"400 - This mechanic is already assigned to an active emergency task (Request #30). A mechanic can only handle one emergency at a time. - /api/services/assign - POST - ::ffff:127.0.0.1","timestamp":"2026-05-24 13:59:49"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 15:16:36"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 15:17:11"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 15:17:47"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 15:22:33"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 15:24:18"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 16:38:21"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 16:40:30"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-24 16:41:27"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::1","timestamp":"2026-05-25 07:29:17"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 07:50:24"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 07:50:26"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 08:17:02"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 08:18:09"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 08:39:00"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 08:39:13"}
+{"level":"error","message":"400 - This vehicle already has an active service request. - /api/services - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 08:39:19"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:21:37"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:21:37"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:24:41"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:24:41"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:27:50"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:27:50"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:30:17"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:30:17"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:34:04"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:34:04"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:34:52"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:34:52"}
+{"level":"error","message":"500 - Unknown column 'Phone' in 'field list' - /api/auth/register - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:36:33"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:36:33"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:36:33"}
+{"level":"error","message":"500 - Unknown column 'Phone' in 'field list' - /api/auth/register - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:37:35"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:37:35"}
+{"level":"error","message":"400 - User not found - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:37:35"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:38:41"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 11:59:19"}
+{"level":"error","message":"500 - Unknown column 'Type' in 'field list' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:06:28"}
+{"level":"error","message":"400 - Incorrect current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:06:39"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:06:49"}
+{"level":"error","message":"500 - Unknown column 'Type' in 'field list' - /api/vehicles/ - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:11:47"}
+{"level":"error","message":"400 - Incorrect current password - /api/users/password - PUT - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:11:53"}
+{"level":"error","message":"401 - Invalid credentials - /api/auth/login - POST - ::ffff:127.0.0.1","timestamp":"2026-05-25 12:11:57"}
+{"level":"error","message":"403 - You can only file a complaint against a garage after a completed service - /api/complaints - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 14:12:10"}
+{"level":"error","message":"403 - You can only file a complaint against a garage after a completed service - /api/complaints - POST - ::ffff:192.168.78.156","timestamp":"2026-05-25 14:13:59"}

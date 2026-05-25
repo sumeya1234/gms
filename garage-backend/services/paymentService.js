@@ -2,7 +2,7 @@ import db from "../config/db.js";
 import axios from "axios";
 
 export const createChapaSubaccount = async (businessName, accountName, bankCode, accountNumber) => {
-  
+
   const isTestMode = process.env.CHAPA_SECRET_KEY?.startsWith('CHASECK_TEST');
   if (isTestMode) {
     const placeholderId = `test-sub-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -80,7 +80,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   let redirectUrl = null;
 
   if (method === 'Cash') {
-    
+
     await db.query(
       `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
        VALUES (?, ?, 'Cash', 'Pending', NOW(), ?, ?)
@@ -88,10 +88,10 @@ export const createPayment = async (requestId, amount, method, category = 'Final
       [requestId, amount, tx_ref, category, amount, tx_ref]
     );
 
-    
-    
 
-    
+
+
+
     try {
       const [garageInfo] = await db.query(
         `SELECT sr.GarageID, gm.UserID as ManagerUserID
@@ -103,7 +103,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
 
       const garageId = garageInfo[0]?.GarageID;
       if (garageId) {
-        
+
         const [accountants] = await db.query(`SELECT UserID FROM accountants WHERE GarageID = ?`, [garageId]);
 
         const notifyUserIDs = new Set();
@@ -125,11 +125,11 @@ export const createPayment = async (requestId, amount, method, category = 'Final
   }
 
   if (method === 'Chapa') {
-    
+
     let sanitizedPhone = user.PhoneNumber ? user.PhoneNumber.replace(/\D/g, '') : '';
     if (sanitizedPhone.startsWith('251')) sanitizedPhone = '0' + sanitizedPhone.slice(3);
 
-    
+
     const isValidTestPhone = /^(09|07)\d{8}$/.test(sanitizedPhone);
 
     const payload = {
@@ -142,6 +142,10 @@ export const createPayment = async (requestId, amount, method, category = 'Final
       tx_ref: tx_ref,
       reference: tx_ref,
       callback_url: process.env.PUBLIC_BACKEND_URL ? `${process.env.PUBLIC_BACKEND_URL}/api/payments/webhook` : `https://webhook.site/placeholder_for_chapa`,
+      meta: {
+        requestId: requestId,
+        tx_ref: tx_ref
+      },
       customization: {
         title: "Garage Service",
         description: `Payment for Service Request ${requestId}`
@@ -180,7 +184,7 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     }
   }
 
-  
+
   await db.query(
     `INSERT INTO payments (RequestID, Amount, PaymentMethod, PaymentStatus, PaymentDate, TransactionRef, PaymentCategory)
      VALUES (?, ?, ?, 'Pending', NOW(), ?, ?)
@@ -188,8 +192,8 @@ export const createPayment = async (requestId, amount, method, category = 'Final
     [requestId, amount, method, tx_ref, category, amount, method, tx_ref]
   );
 
-  
-  
+
+
 
   return { checkout_url: redirectUrl, tx_ref };
 };
@@ -203,13 +207,13 @@ export const verifyChapaPayment = async (tx_ref) => {
     });
 
     if (response.data.status === 'success' && response.data.data.status === 'success') {
-      
+
       await db.query(
         "UPDATE payments SET PaymentStatus = 'Completed', PaymentDate = NOW() WHERE TransactionRef = ?",
         [tx_ref]
       );
 
-      
+
       try {
         const [paymentInfo] = await db.query(
           `SELECT p.RequestID, p.Amount, p.PaymentCategory, sr.GarageID, gm.UserID as ManagerUserID
@@ -275,19 +279,19 @@ export const handleWebhook = async (reqBody) => {
   const { trx_ref, status } = reqBody;
 
   if (status === 'success') {
-    
+
     const [existing] = await db.query("SELECT PaymentStatus FROM payments WHERE TransactionRef = ?", [trx_ref]);
     if (existing.length > 0 && existing[0].PaymentStatus === 'Completed') {
-      return; 
+      return;
     }
 
-    
+
     await verifyChapaPayment(trx_ref);
   }
 };
 
 export const confirmCashPayment = async (requestId, accountantId, category) => {
-  
+
   const [payment] = await db.query(
     "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
@@ -298,12 +302,13 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
     throw error;
   }
 
-  
+
   const [auth] = await db.query(
     `SELECT 1 FROM servicerequests sr
-     JOIN accountants a ON sr.GarageID = a.GarageID
-     WHERE sr.RequestID = ? AND a.UserID = ?`,
-    [requestId, accountantId]
+     LEFT JOIN accountants a ON sr.GarageID = a.GarageID AND a.UserID = ?
+     LEFT JOIN garagemanagers gm ON sr.GarageID = gm.GarageID AND gm.UserID = ?
+     WHERE sr.RequestID = ? AND (a.UserID IS NOT NULL OR gm.UserID IS NOT NULL)`,
+    [accountantId, accountantId, requestId]
   );
   if (auth.length === 0) {
     const error = new Error("Unauthorized: You are not assigned to this garage.");
@@ -311,18 +316,18 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
     throw error;
   }
 
-  
+
   await db.query(
     "UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentMethod = 'Cash' AND PaymentCategory = ?",
     [requestId, category]
   );
 
-  
+
   if (category === 'Deposit') {
     await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
-  
+
   try {
     const [custInfo] = await db.query(
       `SELECT v.CustomerID FROM servicerequests sr
@@ -344,7 +349,7 @@ export const confirmCashPayment = async (requestId, accountantId, category) => {
 };
 
 export const confirmOnlinePayment = async (requestId, accountantId, category) => {
-  
+
   const [payment] = await db.query(
     "SELECT * FROM payments WHERE RequestID = ? AND PaymentMethod = 'Chapa' AND PaymentStatus = 'Pending' AND PaymentCategory = ?",
     [requestId, category]
@@ -355,12 +360,13 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     throw error;
   }
 
-  
+
   const [auth] = await db.query(
     `SELECT 1 FROM servicerequests sr
-     JOIN accountants a ON sr.GarageID = a.GarageID
-     WHERE sr.RequestID = ? AND a.UserID = ?`,
-    [requestId, accountantId]
+     LEFT JOIN accountants a ON sr.GarageID = a.GarageID AND a.UserID = ?
+     LEFT JOIN garagemanagers gm ON sr.GarageID = gm.GarageID AND gm.UserID = ?
+     WHERE sr.RequestID = ? AND (a.UserID IS NOT NULL OR gm.UserID IS NOT NULL)`,
+    [accountantId, accountantId, requestId]
   );
   if (auth.length === 0) {
     const error = new Error("Unauthorized: You are not assigned to this garage.");
@@ -368,7 +374,7 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     throw error;
   }
 
-  
+
   const tx_ref = payment[0].TransactionRef;
   try {
     const response = await axios.get(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
@@ -376,20 +382,20 @@ export const confirmOnlinePayment = async (requestId, accountantId, category) =>
     });
     if (response.data.status === 'success' && response.data.data.status === 'success') {
       await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
-      
+
     }
   } catch (e) {
     console.log("Chapa verify failed, using manual confirm:", e.message);
-    
+
     await db.query("UPDATE payments SET PaymentStatus = 'Completed' WHERE RequestID = ? AND PaymentCategory = ?", [requestId, category]);
   }
 
-  
+
   if (category === 'Deposit') {
     await db.query("UPDATE servicerequests SET IsDepositPaid = 1 WHERE RequestID = ?", [requestId]);
   }
 
-  
+
   try {
     const [custInfo] = await db.query(
       `SELECT v.CustomerID FROM servicerequests sr

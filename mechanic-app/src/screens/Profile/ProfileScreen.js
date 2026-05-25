@@ -18,28 +18,30 @@ export default function ProfileScreen() {
 
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
   const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
-  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+  const showAlert = (title, message, type = 'info', buttons = [{ text: t('OK'), onPress: closeAlert }]) => {
     setAlertConfig({ visible: true, title, message, type, buttons });
   };
 
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword) {
-      showAlert('Error', 'Please enter both old and new passwords.', 'error');
+      showAlert(t('Error'), t('Please enter both old and new passwords.'), 'error');
       return;
     }
     setLoadingPassword(true);
     try {
       await apiClient.put('/api/users/password', { oldPassword, newPassword });
-      showAlert('Success', 'Password updated successfully!', 'success');
+      showAlert(t('Success'), t('Password updated successfully!'), 'success');
       setPasswordModalVisible(false);
       setOldPassword('');
       setNewPassword('');
     } catch (err) {
-      showAlert('Error', err.response?.data?.message || 'Failed to change password', 'error');
+      showAlert(t('Error'), err.response?.data?.message || t('Failed to change password'), 'error');
     } finally {
       setLoadingPassword(false);
     }
   };
+
+
 
   const changeLanguage = async (lng) => {
     i18n.changeLanguage(lng);
@@ -53,17 +55,17 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Name</Text>
-        <Text style={styles.value}>{user?.fullName || 'Mechanic'}</Text>
+        <Text style={styles.label}>{t('Name')}</Text>
+        <Text style={styles.value}>{user?.fullName || t('Mechanic')}</Text>
 
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{t('Email')}</Text>
         <Text style={styles.value}>{user?.email || 'N/A'}</Text>
 
-        <Text style={styles.label}>Phone</Text>
+        <Text style={styles.label}>{t('Phone')}</Text>
         <Text style={styles.value}>{user?.phone || 'N/A'}</Text>
 
         <TouchableOpacity style={styles.changePwdBtn} onPress={() => setPasswordModalVisible(true)}>
-          <Text style={styles.changePwdText}>Change Password</Text>
+          <Text style={styles.changePwdText}>{t('Change Password')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -91,6 +93,8 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+
+
       <TouchableOpacity style={styles.logoutBtn} onPress={() => {
         showAlert(t('Confirm Logout'), t('Are you sure you want to log out?'), 'confirm', [
           { text: t('Cancel'), style: 'cancel', onPress: closeAlert },
@@ -100,22 +104,22 @@ export default function ProfileScreen() {
         <Text style={styles.logoutText}>{t('Logout')}</Text>
       </TouchableOpacity>
 
-      {}
+      { }
       <Modal visible={isPasswordModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Change Password</Text>
+            <Text style={styles.modalTitle}>{t('Change Password')}</Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Old Password"
+              placeholder={t("Old Password")}
               secureTextEntry
               value={oldPassword}
               onChangeText={setOldPassword}
             />
             <TextInput
               style={styles.input}
-              placeholder="New Password"
+              placeholder={t("New Password")}
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
@@ -123,10 +127,10 @@ export default function ProfileScreen() {
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.modalCancel} onPress={() => setPasswordModalVisible(false)}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={styles.modalCancelText}>{t('Cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.modalSave} onPress={handleChangePassword} disabled={loadingPassword}>
-                {loadingPassword ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSaveText}>Save</Text>}
+                {loadingPassword ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalSaveText}>{t('Save')}</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -171,5 +175,6 @@ const styles = StyleSheet.create({
   modalCancel: { padding: 12 },
   modalCancelText: { color: colors.textMuted, fontWeight: 'bold' },
   modalSave: { backgroundColor: colors.primary, padding: 12, borderRadius: 8, minWidth: 80, alignItems: 'center' },
-  modalSaveText: { color: '#fff', fontWeight: 'bold' }
+  modalSaveText: { color: '#fff', fontWeight: 'bold' },
+
 });

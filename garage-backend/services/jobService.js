@@ -27,6 +27,24 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
         throw error;
     }
 
+    // Prevent assigning a mechanic if they are already handling an active emergency task
+    const [activeEmergency] = await db.query(
+        `SELECT ma.AssignmentID, ma.RequestID FROM mechanicassignments ma
+         JOIN servicerequests sr ON ma.RequestID = sr.RequestID
+         WHERE ma.MechanicID = ? AND sr.IsEmergency = 1
+         AND ma.Status NOT IN ('Completed')
+         AND ma.RequestID != ?`,
+        [mechanicId, requestId]
+    );
+
+    if (activeEmergency.length > 0) {
+        const error = new Error(
+            `This mechanic is already assigned to an active emergency task (Request #${activeEmergency[0].RequestID}). They cannot be assigned to another task until the emergency is completed.`
+        );
+        error.status = 400;
+        throw error;
+    }
+
     await db.query("DELETE FROM mechanicassignments WHERE RequestID = ?", [requestId]);
 
     await db.query(
@@ -41,6 +59,24 @@ export const assignServiceMechanic = async (requestId, mechanicId) => {
         `You have been assigned to service request #${requestId}.`,
         "ASSIGNMENT"
     );
+
+    // Notify Customer
+    try {
+        const [customerInfo] = await db.query(
+            "SELECT v.CustomerID FROM servicerequests sr JOIN vehicles v ON sr.VehicleID = v.VehicleID WHERE sr.RequestID = ?",
+            [requestId]
+        );
+        if (customerInfo.length > 0) {
+            await createNotification(
+                customerInfo[0].CustomerID,
+                "Mechanic Assigned",
+                `A mechanic has been assigned to your request #${requestId}.`,
+                "MECHANIC_ASSIGNED"
+            );
+        }
+    } catch (err) {
+        console.error("Failed to notify customer of assignment:", err.message);
+    }
 };
 
 export const updateServiceStatus = async (requestId, status, admin, rejectionReason = "", estimatedPrice = null, depositPercentage = null) => {
@@ -82,7 +118,7 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
         }
     }
 
-    const validStatuses = ["Pending", "Approved", "Rejected", "InProgress", "Completed"];
+    const validStatuses = ["Pending", "Approved", "Rejected", "InProgress", "Arrived", "Working", "Completed"];
     if (!validStatuses.includes(status)) {
         const error = new Error("Invalid status");
         error.status = 400;
@@ -94,8 +130,10 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
 
     const allowedTransitions = {
         'Pending': ['Approved', 'Rejected'],
-        'Approved': ['InProgress', 'Completed', 'Rejected'],
-        'InProgress': ['Completed']
+        'Approved': ['InProgress', 'Working', 'Completed', 'Rejected'],
+        'InProgress': ['Arrived', 'Working', 'Completed'],
+        'Arrived': ['Working', 'Completed'],
+        'Working': ['Completed']
     };
     const allowed = allowedTransitions[currentStatus];
     if (allowed && !allowed.includes(status)) {
@@ -107,9 +145,9 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
     let finalEstimatedPrice = estimatedPrice;
     let finalDepositPercentage = depositPercentage;
 
-    
+
     if (status === 'Approved' && request[0].IsEmergency) {
-        
+
         const [serviceData] = await db.query(
             "SELECT Price FROM garageservices WHERE GarageID = ? AND ServiceName = ?",
             [request[0].GarageID, request[0].ServiceType]
@@ -123,7 +161,7 @@ export const updateServiceStatus = async (requestId, status, admin, rejectionRea
             throw error;
         }
 
-        
+
         const [garageData] = await db.query(
             "SELECT EmergencyDepositPercentage FROM garages WHERE GarageID = ?",
             [request[0].GarageID]
@@ -196,7 +234,14 @@ export const updateAssignmentStatus = async (assignmentId, status, userId) => {
     if (vehicle.length > 0) {
         const customerId = vehicle[0].CustomerID;
         if (status === 'InProgress') {
-            await createNotification(customerId, "Repair Started", "Your vehicle is now being worked on by the assigned mechanic.", "REPAIR_STARTED");
+            const [request] = await db.query("SELECT IsEmergency FROM servicerequests WHERE RequestID = ?", [requestId]);
+            const isEmergency = request[0]?.IsEmergency;
+            const message = isEmergency ? "The assigned mechanic is now on their way to your location." : "Your vehicle is now being worked on by the assigned mechanic.";
+            await createNotification(customerId, isEmergency ? "Mechanic En Route" : "Repair Started", message, "REPAIR_STARTED");
+        } else if (status === 'Arrived') {
+            await createNotification(customerId, "Mechanic Arrived", "The mechanic has arrived at your location.", "MECHANIC_ARRIVED");
+        } else if (status === 'Working') {
+            await createNotification(customerId, "Work Started", "The mechanic has started working on your vehicle.", "WORK_STARTED");
         } else if (status === 'Completed') {
             await createNotification(customerId, "Service Ready", "Your vehicle service has been completed and is ready for pickup!", "CAR_READY");
         }
@@ -252,7 +297,7 @@ export const documentAssignmentItems = async (assignmentId, itemsUsed, mechanicI
 
         await connection.commit();
 
-        
+
         for (const note of notificationsToSend) {
             createNotification(note.userId, note.title, note.message, note.type).catch(err =>
                 console.error("Delayed notification failed:", err)
@@ -321,7 +366,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
         await connection.query("UPDATE servicerequests SET Status = 'Completed' WHERE RequestID = ?", [requestId]);
 
-        
+
         const [vehicle] = await connection.query("SELECT CustomerID FROM vehicles WHERE VehicleID = ?", [service[0].VehicleID]);
         if (vehicle.length > 0) {
             notificationsToSend.push({
@@ -334,7 +379,7 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
         await connection.commit();
 
-        
+
         for (const note of notificationsToSend) {
             createNotification(note.userId, note.title, note.message, note.type).catch(err =>
                 console.error("Delayed notification failed:", err)
@@ -352,12 +397,77 @@ export const completeServiceRequest = async (requestId, itemsUsed = []) => {
 
 export const fetchRequestItems = async (requestId) => {
     const [rows] = await db.query(
-        `SELECT si.ItemID, SUM(si.QuantityUsed) AS QuantityUsed, i.ItemName, i.UnitPrice AS SellingPrice
+        `SELECT si.ItemID, SUM(si.QuantityUsed) AS QuantityUsed, i.ItemName, i.SellingPrice AS SellingPrice
      FROM serviceitems si
      JOIN inventory i ON si.ItemID = i.ItemID
      WHERE si.RequestID = ?
-     GROUP BY si.ItemID, i.ItemName, i.UnitPrice`,
+     GROUP BY si.ItemID, i.ItemName, i.SellingPrice`,
         [requestId]
     );
     return rows;
+};
+
+export const setEstimatedCompletionTime = async (assignmentId, estimatedMinutes, mechanicId) => {
+    const [assignment] = await db.query(
+        "SELECT ma.RequestID, sr.GarageID, v.CustomerID FROM mechanicassignments ma JOIN servicerequests sr ON ma.RequestID = sr.RequestID JOIN vehicles v ON sr.VehicleID = v.VehicleID WHERE ma.AssignmentID = ? AND ma.MechanicID = ?",
+        [assignmentId, mechanicId]
+    );
+
+    if (assignment.length === 0) {
+        const error = new Error("Assignment not found or unauthorized");
+        error.status = 404;
+        throw error;
+    }
+
+    const { RequestID: requestId, GarageID: garageId, CustomerID: customerId } = assignment[0];
+
+    // Save ETA as absolute datetime = NOW + estimatedMinutes
+    await db.query(
+        "UPDATE servicerequests SET EstimatedCompletionTime = DATE_ADD(NOW(), INTERVAL ? MINUTE) WHERE RequestID = ?",
+        [estimatedMinutes, requestId]
+    );
+
+    // Format duration string
+    let durationStr = `${estimatedMinutes} minute(s)`;
+    if (estimatedMinutes >= 1440) {
+        const days = Math.floor(estimatedMinutes / 1440);
+        const hours = Math.round((estimatedMinutes % 1440) / 60);
+        durationStr = `${days} day(s)${hours > 0 ? ` and ${hours} hour(s)` : ''}`;
+    } else if (estimatedMinutes >= 60) {
+        const hours = Math.floor(estimatedMinutes / 60);
+        const mins = estimatedMinutes % 60;
+        durationStr = `${hours} hour(s)${mins > 0 ? ` and ${mins} minute(s)` : ''}`;
+    }
+
+    // Format human-readable target time
+    const etaDate = new Date(Date.now() + estimatedMinutes * 60 * 1000);
+    const timeStr = etaDate.toLocaleString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+
+    // Notify customer
+    await createNotification(
+        customerId,
+        "Work Update — ETA Set",
+        `Your mechanic estimates the job will be done in approximately ${durationStr} (by ${timeStr}).`,
+        "ETA_UPDATE"
+    );
+
+    // Notify garage manager
+    const [garage] = await db.query("SELECT ManagerID FROM garages WHERE GarageID = ?", [garageId]);
+    if (garage.length > 0 && garage[0].ManagerID) {
+        await createNotification(
+            garage[0].ManagerID,
+            "Mechanic ETA Update",
+            `Mechanic set an ETA of ~${durationStr} (by ${timeStr}) for Request #${requestId}.`,
+            "ETA_UPDATE"
+        );
+    }
+
+    return { estimatedMinutes, timeStr };
 };

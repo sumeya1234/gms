@@ -7,7 +7,7 @@ const extractErrorMessage = (error, defaultMsg) => {
   if (!error?.response?.data) return defaultMsg;
   const { data } = error.response;
   if (data.errors && Array.isArray(data.errors)) {
-    
+
     return data.errors.map(err => err.replace(/"/g, '')).join('\n');
   }
   return (data.error || data.message || defaultMsg).replace(/"/g, '');
@@ -28,7 +28,7 @@ export const useAuthStore = create((set) => ({
   user: null,
   token: null,
   isLoading: false,
-  isRestoring: true, 
+  isRestoring: true,
   isSignout: false,
   error: null,
   clearError: () => set({ error: null }),
@@ -79,6 +79,7 @@ export const useAuthStore = create((set) => ({
         email: userData.email,
         phone: userData.phone,
         password: userData.password,
+        otp: userData.otp,
       };
 
       await apiClient.post('/api/auth/register', payload);
@@ -90,10 +91,25 @@ export const useAuthStore = create((set) => ({
       const profileRes = await apiClient.get('/api/users/profile');
 
       set({ user: profileRes.data.user, token, isSignout: false, isLoading: false });
+      registerPush();
     } catch (error) {
       set({
         isLoading: false,
         error: extractErrorMessage(error, 'Registration failed')
+      });
+      throw error;
+    }
+  },
+
+  requestRegistrationOTP: async (email) => {
+    set({ isLoading: true, error: null });
+    try {
+      await apiClient.post('/api/auth/request-registration-otp', { email });
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        isLoading: false,
+        error: extractErrorMessage(error, 'Failed to send verification code')
       });
       throw error;
     }
@@ -109,7 +125,7 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await apiClient.post('/api/auth/forgot-password', { email });
       set({ isLoading: false });
-      return response.data.otp; 
+      return response.data.otp;
     } catch (error) {
       set({ isLoading: false, error: extractErrorMessage(error, 'Failed to request reset') });
       throw error;

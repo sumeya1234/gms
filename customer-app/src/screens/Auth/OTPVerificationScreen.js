@@ -22,11 +22,11 @@ export default function OTPVerificationScreen({ navigation, route }) {
   const handleVerify = () => {
     setLocalError('');
     if (!otp) {
-      setLocalError('Please enter the OTP code');
+      setLocalError(t('Please enter the OTP code'));
       return;
     }
     if (otp.length !== 6) {
-      setLocalError('OTP code must be 6 digits');
+      setLocalError(t('OTP code must be 6 digits'));
       return;
     }
     

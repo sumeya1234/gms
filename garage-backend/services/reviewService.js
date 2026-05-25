@@ -2,14 +2,14 @@ import db from "../config/db.js";
 
 export const createReview = async (rating, comment, customerId, garageId, requestId = null) => {
   const [garage] = await db.query("SELECT 1 FROM garages WHERE GarageID = ?", [garageId]);
-  
+
   if (garage.length === 0) {
     const error = new Error("Garage not found");
     error.status = 404;
     throw error;
   }
 
-  
+
   const [completedService] = await db.query(
     `SELECT 1 FROM servicerequests sr 
      JOIN vehicles v ON sr.VehicleID = v.VehicleID 
@@ -23,7 +23,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
     throw error;
   }
 
-  
+
   if (requestId) {
     const [existing] = await db.query(
       "SELECT 1 FROM reviews WHERE RequestID = ?", [requestId]
@@ -44,7 +44,7 @@ export const createReview = async (rating, comment, customerId, garageId, reques
 
 export const fetchGarageReviews = async (garageId) => {
   const [rows] = await db.query(
-    "SELECT * FROM reviews WHERE GarageID = ? ORDER BY ReviewDate DESC",
+    "SELECT * FROM reviews WHERE GarageID = ? ORDER BY CreatedAt DESC",
     [garageId]
   );
   return rows;
@@ -52,7 +52,7 @@ export const fetchGarageReviews = async (garageId) => {
 
 export const fetchCustomerReviews = async (customerId) => {
   const [rows] = await db.query(
-    "SELECT * FROM reviews WHERE CustomerID = ? ORDER BY ReviewDate DESC",
+    "SELECT * FROM reviews WHERE CustomerID = ? ORDER BY CreatedAt DESC",
     [customerId]
   );
   return rows;

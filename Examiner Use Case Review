@@ -1,0 +1,139 @@
+# Examiner-Style Critical Review: GMS Use Case Model
+
+As a university examiner reviewing this final-year software engineering project, I see a solid foundation. However, to meet academic standards for a professional UML Use Case Diagram, the model currently lacks granularity in time-management (scheduling), error-handling (alternative flows via `<<extend>>`), standard reuse mechanisms (`<<include>>`), and proper actor generalization.
+
+Here is the critical evaluation and the required corrections to make the diagram defense-ready.
+
+---
+
+## A. Missing Actors to Add
+
+For a fully realistic system diagram, you must include both time-triggered internal actors and distinct external service APIs.
+
+### 1. Internal Actors
+*   **System (Time / Scheduler)**: A non-human actor required for triggering automated tasks, such as sending upcoming appointment reminders, auto-canceling unpaid/expired bookings, or sending low-inventory alerts.
+*   **Garage Staff (Abstract Actor)**: To prevent duplicate use cases in the diagram, `Garage Owner` and `Garage Manager` should inherit from a generalized actor.
+
+### 2. External Third-Party Services
+*   **Maps / Location API (e.g., Google Maps)**: Customers use this to search via proximity radius, and the system relies on it to calculate distances.
+*   **Email/SMS Gateway (SMTP/Firebase)**: Required for OTP delivery and official receipt transmission. *Note: Chapa is already correctly identified.*
+
+---
+
+## B. Missing Use Cases to Add
+
+The operational lifecycle of a garage was too simplified. A real GMS must handle the following realities:
+
+### Booking & Scheduling
+1.  **Check Time-Slot Availability:** Before a booking is confirmed, the system must verify garage capacity.
+2.  **Estimate Repair Cost & Time:** Mechanics/Managers rarely start work blindly. They estimate first.
+3.  **Approve Repair Estimate:** A customer must explicitly approve cost changes before major parts are ordered.
+4.  **Reschedule Booking:** Both Customers and Managers need the ability to change dates.
+5.  **Cancel Booking:** The booking lifecycle must include a cancellation state.
+
+### Workshop Operations (Queue & Inventory)
+6.  **Manage Service Queue:** If a garage is full, vehicles enter a "Waiting Queue" before being "In Progress."
+7.  **Request Spare Parts:** A mechanic realizes mid-repair they need a part that isn't at their station.
+8.  **Notify Low Stock:** The system automatically flags the manager when oil or parts drop below a threshold.
+
+### Exceptions
+9.  **Process Payment Refund:** If a booking is canceled post-payment, or a dispute is won.
+
+---
+
+## C. Recommended UML Relationships (<<include>> and <<extend>>)
+
+To properly construct the UML diagram, apply these structural relationships.
+
+### `<<include>>` (Mandatory usage/reuse)
+*   `Book Service` **<<include>>** `Check Time-Slot Availability` *(You cannot book without checking slots).*
+*   `Secure Digital Payment` **<<include>>** `Process Chapa Transaction`.
+*   `Complete Service Task` **<<include>>** `Generate Final Invoice`.
+*   `Generate Final Invoice` **<<include>>** `Calculate Inventory Usage`.
+*   `Register User / Login` **<<include>>** `Authenticate Credentials`.
+
+### `<<extend>>` (Optional, conditional, or exceptional flows)
+*   `Login` **<-- <<extend>> --** `Reset Password (Forgot Password)` *(Only happens if the user forgets).*
+*   `Book Service` **<-- <<extend>> --** `Request Emergency Prioritization` *(Only if the user ticks 'Is Emergency').*
+*   `Track Vehicle Status` **<-- <<extend>> --** `Cancel Booking` *(Customer realizes they can't make it).*
+*   `Track Vehicle Status` **<-- <<extend>> --** `Approve Repair Estimate` *(Only triggered if cost exceeds original quote).*
+*   `Update Repair Progress` **<-- <<extend>> --** `Request Spare Parts` *(Only if parts run out mid-job).*
+*   `Secure Digital Payment` **<-- <<extend>> --** `Process Payment Refund` *(Only happens on failure/cancellation).*
+
+### Actor Generalization (Inheritance)
+*   `Garage Manager` **--|>** `Garage Staff`
+*   `Garage Owner` **--|>** `Garage Staff` 
+*   *(Both inherit the ability to "Manage Inventory", "Manage Bookings", preventing diagram clutter).*
+*   `Super Admin` **--|>** `System Administrator`
+
+---
+
+## D. Diagram Readiness & Final Corrected Use Case List
+
+**Diagram Readiness Verdict:** *Previously Not Ready. Now Ready.* 
+Without explicitly mapping the `<<include>>` and `<<extend>>` dependencies, the diagram would have been too bloated with flat use cases, losing marks for architectural depth. 
+
+Here is the **Academic-Ready Use Case List** mapped by Actor:
+
+### Human Actors
+**1. Customer**
+*   Login / Register User
+*   Manage Vehicle Profile
+*   Search Garages *(External: Location API)*
+*   Book Service
+    *   *<<include>> Check Time-Slot Availability*
+    *   *<<extend>> Request Emergency Prioritization*
+*   Reschedule Booking
+*   Cancel Booking
+*   Track Vehicle Status
+    *   *<<extend>> Approve Repair Estimate*
+*   Secure Digital Payment
+    *   *<<include>> Process Chapa Transaction*
+*   Leave Review & Rating
+*   Submit Quality Complaint
+
+**2. Mechanic**
+*   Receive & Accept Assigned Task
+*   Update Repair Progress
+    *   *<<extend>> Request Spare Parts*
+*   Estimate Repair Cost & Time
+*   Complete Service Task
+*   View Service History
+
+**3. Garage Staff (Abstract - Inherited by Owner & Manager)**
+*   Manage Bookings & Assign Mechanics
+*   Process Walk-in Customer
+*   Manage Service Catalog 
+*   Manage Parts Inventory
+
+**4. Garage Manager (Inherits Garage Staff)**
+*   Manage Service Queue (Waitlist)
+*   Configure Mechanic Skills
+
+**5. Garage Owner (Inherits Garage Staff)**
+*   Delegate Management (Hire Managers)
+*   View Executive Analytics
+
+**6. Accountant**
+*   Generate Final Invoice
+    *   *<<include>> Calculate Inventory Usage*
+*   View Financial Analytics
+
+**7. Super Admin**
+*   Manage Garages (Register / Deactivate)
+*   Resolve Customer Complaints
+*   Perform System Backup
+    *   *<<extend>> Restore System Backup*
+
+### Non-Human Actors
+**8. System (Timer/Scheduler)**
+*   Send Service Reminders *(External: Email/SMS API)*
+*   Notify Low Stock
+*   Auto-Cancel Expired Pending Bookings
+
+**9. Chapa Payment API**
+*   Process Chapa Transaction
+*   Process Payment Refund
+
+**10. Location / Maps API**
+*   Provide Proximity Coordinates (Search)

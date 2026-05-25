@@ -37,6 +37,8 @@ export const createNotification = async (userId, title, message, type = 'GENERAL
             title: title,
             body: message,
             data: { type },
+            channelId: 'default',
+            priority: 'high',
           });
         }
 

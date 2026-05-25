@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { colors } from '../../theme/colors';
 import Button from '../../components/Button';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useServiceStore } from '../../store/serviceStore';
 import { useTranslation } from 'react-i18next';
 import showAlert from '../../utils/alert';
@@ -10,6 +11,7 @@ export default function ConfirmationScreen({ route, navigation }) {
   const { vehicleId, vehicle, description, address, preferredDate, garageId, serviceType, bookingDate, dropOffTime } = route.params;
   const { createRequest, isLoading } = useServiceStore();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   const handleConfirm = async () => {
     if (!garageId || !serviceType) {
@@ -44,49 +46,49 @@ export default function ConfirmationScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Confirmation</Text>
+        <Text style={styles.title}>{t('Confirmation')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Vehicle Summary</Text>
+          <Text style={styles.sectionTitle}>{t('Vehicle Summary')}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Brand</Text>
+            <Text style={styles.label}>{t('Brand')}</Text>
             <Text style={styles.value}>{vehicle?.brand}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Model</Text>
+            <Text style={styles.label}>{t('Model')}</Text>
             <Text style={styles.value}>{vehicle?.model}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Plate No</Text>
+            <Text style={styles.label}>{t('Plate No')}</Text>
             <Text style={styles.value}>{vehicle?.plateNumber}</Text>
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Request Details</Text>
+          <Text style={styles.sectionTitle}>{t('Request Details')}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Description</Text>
+            <Text style={styles.label}>{t('Problem Description (Optional)')}</Text>
             <Text style={styles.value} numberOfLines={2}>{description}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Location</Text>
-            <Text style={styles.value}>{address ? `${address.city}` : 'Not provided'}</Text>
+            <Text style={styles.label}>{t('Location')}</Text>
+            <Text style={styles.value}>{address ? `${address.city}` : t('Not provided')}</Text>
           </View>
         </View>
 
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) + 12 }]}>
         <Button
-          title="Edit Details"
+          title={t('Edit Details')}
           variant="outline"
           onPress={() => navigation.goBack()}
           style={{ marginBottom: 10 }}
         />
         <Button
-          title={isLoading ? 'Booking...' : "Confirm Book"}
+          title={isLoading ? t('Booking...') : t("Confirm Book")}
           variant="secondary"
           onPress={handleConfirm}
           disabled={isLoading}

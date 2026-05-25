@@ -34,13 +34,13 @@ export default function HistoryScreen({ navigation }) {
       onPress={() => navigation.navigate('TaskDetail', { task: item })}
     >
       <View style={styles.taskHeader}>
-        <Text style={styles.vehicleName}>{item.Model ? `${item.Model} (${item.PlateNumber})` : `Request #${item.RequestID}`}</Text>
+        <Text style={styles.vehicleName}>{item.Model ? `${item.Model} (${item.PlateNumber})` : `${t('Request')} #${item.RequestID}`}</Text>
         <View style={styles.statusBadge}>
           <Text style={styles.statusText}>{item.AssignmentStatus}</Text>
         </View>
       </View>
       <Text style={styles.taskDesc}>{item.Description || item.ServiceType}</Text>
-      <Text style={styles.taskDate}>Finished: {new Date(item.CompletionDate || item.AssignedDate).toLocaleDateString()}</Text>
+      <Text style={styles.taskDate}>{t('Finished')}: {new Date(item.CompletionDate || item.AssignedDate).toLocaleDateString()}</Text>
     </TouchableOpacity>
   );
 
@@ -59,7 +59,7 @@ export default function HistoryScreen({ navigation }) {
             keyExtractor={item => item.AssignmentID?.toString() || Math.random().toString()}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 100 }}
-            ListEmptyComponent={<Text style={styles.emptyText}>No completed tasks found.</Text>}
+            ListEmptyComponent={<Text style={styles.emptyText}>{t('No completed tasks found.')}</Text>}
           />
         )}
       </View>

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Mail, Lock, ShieldCheck, KeyRound, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1); 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -24,10 +26,10 @@ export default function ForgotPassword() {
 
     try {
       const response = await api.post('/auth/forgot-password', { email });
-      setSuccess(response.data.message || 'OTP sent successfully!');
+      setSuccess(response.data.message || t('otpSentSuccess'));
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+      setError(err.response?.data?.message || t('failedToSendOTP'));
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +39,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError('');
     if (otp.length < 6) {
-      setError('Please enter a valid 6-digit OTP.');
+      setError(t('validationPasswordMin'));
       return;
     }
     setStep(3);
@@ -48,7 +50,7 @@ export default function ForgotPassword() {
     setError('');
     
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('passwordsDoNotMatch'));
       return;
     }
     
@@ -60,12 +62,12 @@ export default function ForgotPassword() {
         otp, 
         newPassword 
       });
-      setSuccess(response.data.message || 'Password reset successfully!');
+      setSuccess(response.data.message || t('passwordResetSuccess'));
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
+      setError(err.response?.data?.message || t('failedToResetPassword'));
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +75,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-50 p-6 relative overflow-hidden font-sans">
-      {}
+      { }
       <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-15%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-[120px] pointer-events-none"></div>
       
@@ -84,11 +86,11 @@ export default function ForgotPassword() {
             <div className="w-16 h-16 bg-blue-50 rounded-[1.25rem] flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-sm border border-blue-100">
               <ShieldCheck size={32} />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Recover Password</h1>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{t('recoverPassword')}</h1>
             <p className="text-slate-500 mt-2 font-medium">
-              {step === 1 && "Enter admin email to receive an OTP"}
-              {step === 2 && "Enter the 6-digit OTP sent to your email"}
-              {step === 3 && "Create a new secure password"}
+              {step === 1 && t('enterEmailToReceiveOTP')}
+              {step === 2 && t('enterSixDigitOTP')}
+              {step === 3 && t('createNewSecurePassword')}
             </p>
           </div>
 
@@ -98,7 +100,7 @@ export default function ForgotPassword() {
           {step === 1 && (
             <form onSubmit={handleSendOTP} className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label flex htmlFor="email" className="font-bold text-sm text-slate-700 ml-1">Email Address <span className="text-red-500">*</span></label>
+                <label htmlFor="email" className="font-bold text-sm text-slate-700 ml-1">{t('emailAddressLabel')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -121,9 +123,9 @@ export default function ForgotPassword() {
                 {isLoading ? (
                   <>
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Sending...
+                    {t('sending')}
                   </>
-                ) : 'Send OTP'}
+                ) : t('sendOTP')}
               </button>
             </form>
           )}
@@ -131,7 +133,7 @@ export default function ForgotPassword() {
           {step === 2 && (
             <form onSubmit={handleVerifyOTP} className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label htmlFor="otp" className="font-bold text-sm text-slate-700 ml-1">Security Code (OTP) <span className="text-red-500">*</span></label>
+                <label htmlFor="otp" className="font-bold text-sm text-slate-700 ml-1">{t('securityCodeOTP')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -150,7 +152,7 @@ export default function ForgotPassword() {
                 type="submit" 
                 className="mt-2 w-full py-4 text-base font-bold text-white bg-blue-600 rounded-2xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:bg-blue-700 hover:-translate-y-0.5 transition-all outline-none focus:ring-4 focus:ring-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-2" 
               >
-                Verify OTP
+                {t('verifyOTP')}
               </button>
             </form>
           )}
@@ -158,7 +160,7 @@ export default function ForgotPassword() {
           {step === 3 && (
             <form onSubmit={handleResetPassword} className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label htmlFor="newPassword" className="font-bold text-sm text-slate-700 ml-1">New Password <span className="text-red-500">*</span></label>
+                <label htmlFor="newPassword" className="font-bold text-sm text-slate-700 ml-1">{t('newPasswordLabel')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -181,7 +183,7 @@ export default function ForgotPassword() {
               </div>
               
               <div className="flex flex-col gap-2">
-                <label htmlFor="confirmPassword" className="font-bold text-sm text-slate-700 ml-1">Confirm Password <span className="text-red-500">*</span></label>
+                <label htmlFor="confirmPassword" className="font-bold text-sm text-slate-700 ml-1">{t('confirmPasswordLabel')} <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input 
@@ -211,9 +213,9 @@ export default function ForgotPassword() {
                 {isLoading ? (
                   <>
                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Resetting...
+                    {t('saving')}
                   </>
-                ) : 'Reset Password'}
+                ) : t('resetPassword')}
               </button>
             </form>
           )}
@@ -221,7 +223,7 @@ export default function ForgotPassword() {
           <div className="mt-8 text-center">
             <Link to="/login" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors">
               <ArrowLeft size={16} />
-              Back to Login
+              {t('backToLogin')}
             </Link>
           </div>
         </div>

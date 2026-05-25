@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { Filter, Edit2, UserPlus, X, Check, Eye, Wrench, DollarSign, AlertCircle, Clock3, Search, CalendarDays, ArrowUpDown } from 'lucide-react';
+import { Filter, Edit2, UserPlus, X, Check, Eye, Wrench, DollarSign, AlertCircle, Clock3, Search, CalendarDays, ArrowUpDown, ChevronLeft, ChevronRight, MapPin, Navigation } from 'lucide-react';
 
 export default function Bookings() {
   const { t } = useTranslation();
@@ -19,9 +19,36 @@ export default function Bookings() {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [walkInModalOpen, setWalkInModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [walkInErrors, setWalkInErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [existingVehicle, setExistingVehicle] = useState(null);
+  const [checkingPlate, setCheckingPlate] = useState(false);
+  const [prefilledModel, setPrefilledModel] = useState('');
+  const [prefilledType, setPrefilledType] = useState('Car');
+  const [walkInStep, setWalkInStep] = useState(1);
+  const [walkInFormData, setWalkInFormData] = useState({
+    phone: '',
+    fullName: '',
+    plateNumber: '',
+    model: '',
+    type: 'Car',
+    description: '',
+    isEmergency: false
+  });
   const [requestItems, setRequestItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
+  const [editStep, setEditStep] = useState(1);
+  const [editFormData, setEditFormData] = useState({
+    plateNumber: '',
+    model: '',
+    type: 'Car',
+    description: '',
+    isEmergency: false
+  });
 
   // Status Update State
   const [newStatus, setNewStatus] = useState('');
@@ -34,28 +61,29 @@ export default function Bookings() {
 
   // Filters
   const [filter, setFilter] = useState('All');
+  const [requestType, setRequestType] = useState('regular'); // 'regular' or 'emergency'
   const [searchId, setSearchId] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterArrivalTime, setFilterArrivalTime] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
 
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const limit = 10;
 
-  
+
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, text: '', onConfirm: null, isAlert: false });
 
-  const fetchRequests = useCallback(async () => {
+  const fetchRequests = useCallback(async (isSilent = false) => {
     if (!user?.GarageID) {
       setLoading(false);
       return;
     }
     try {
-      setLoading(true);
+      if (!isSilent) setLoading(true);
       const params = {
         status: filter,
         page: currentPage,
@@ -63,7 +91,8 @@ export default function Bookings() {
         search: searchId,
         date: filterDate,
         arrivalTime: filterArrivalTime,
-        sort: sortOrder
+        sort: sortOrder,
+        isEmergency: requestType === 'emergency'
       };
       let response;
       if (userRole === 'GarageManager') {
@@ -76,11 +105,11 @@ export default function Bookings() {
       setTotalCount(response.data.total);
     } catch (err) {
       console.error(err);
-      setError('Failed to load bookings.');
+      setError(t('failedToLoadBookings'));
     } finally {
       setLoading(false);
     }
-  }, [user?.GarageID, userRole, filter, currentPage, searchId, filterDate, filterArrivalTime, sortOrder]);
+  }, [user?.GarageID, userRole, filter, requestType, currentPage, searchId, filterDate, filterArrivalTime, sortOrder]);
 
   const fetchMechanics = useCallback(async () => {
     if (!user?.GarageID) return;
@@ -108,9 +137,8 @@ export default function Bookings() {
     fetchServices();
 
     const interval = setInterval(() => {
-      
-      fetchRequests();
-    }, 30000); 
+      fetchRequests(true);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [fetchRequests, fetchMechanics, fetchServices]);
@@ -119,7 +147,7 @@ export default function Bookings() {
     e.preventDefault();
     try {
       if (newStatus === 'Rejected' && !rejectionReason.trim()) {
-        setConfirmModal({ isOpen: true, text: "Please provide a rejection reason.", isAlert: true });
+        setConfirmModal({ isOpen: true, text: t('provideRejectionReason'), isAlert: true });
         return;
       }
 
@@ -145,7 +173,7 @@ export default function Bookings() {
     e.preventDefault();
     try {
       if (!selectedMechanic) {
-        setConfirmModal({ isOpen: true, text: "Please select a mechanic.", isAlert: true });
+        setConfirmModal({ isOpen: true, text: t('selectMechanic'), isAlert: true });
         return;
       }
       await api.post(`/services/assign`, {
@@ -181,14 +209,14 @@ export default function Bookings() {
   const handleConfirmCash = (requestId) => {
     setConfirmModal({
       isOpen: true,
-      text: 'Confirm that cash payment has been received?',
+      text: t('confirmCashPayment'),
       onConfirm: async () => {
         try {
           await api.put(`/payments/confirm-cash/${requestId}`);
           fetchRequests();
-          setConfirmModal({ isOpen: true, text: 'Cash payment confirmed!', isAlert: true });
+          setConfirmModal({ isOpen: true, text: t('cashPaymentConfirmed'), isAlert: true });
         } catch (err) {
-          setConfirmModal({ isOpen: true, text: err.response?.data?.error || 'Failed to confirm cash payment.', isAlert: true });
+          setConfirmModal({ isOpen: true, text: err.response?.data?.error || t('failedToConfirmCash'), isAlert: true });
         }
       }
     });
@@ -197,17 +225,163 @@ export default function Bookings() {
   const handleConfirmOnline = (requestId) => {
     setConfirmModal({
       isOpen: true,
-      text: 'Confirm this online payment as received?',
+      text: t('confirmOnlinePayment'),
       onConfirm: async () => {
         try {
           await api.put(`/payments/confirm-online/${requestId}`);
           fetchRequests();
-          setConfirmModal({ isOpen: true, text: 'Online payment confirmed!', isAlert: true });
+          setConfirmModal({ isOpen: true, text: t('onlinePaymentConfirmed'), isAlert: true });
         } catch (err) {
-          setConfirmModal({ isOpen: true, text: err.response?.data?.error || 'Failed to confirm online payment.', isAlert: true });
+          setConfirmModal({ isOpen: true, text: err.response?.data?.error || t('failedToConfirmOnline'), isAlert: true });
         }
       }
     });
+  };
+
+  const handleServiceToggle = (serviceName) => {
+    setSelectedServices(prev =>
+      prev.includes(serviceName)
+        ? prev.filter(s => s !== serviceName)
+        : [...prev, serviceName]
+    );
+  };
+
+  const checkPlateExistence = async (plate) => {
+    if (!plate || plate.length < 3) return;
+    try {
+      setCheckingPlate(true);
+      const res = await api.get(`/services/check-plate/${plate}`);
+      if (res.data) {
+        setExistingVehicle(res.data);
+        setPrefilledModel(res.data.Model || '');
+        setPrefilledType(res.data.Type || 'Car');
+        // Auto-fill phone and name for existing vehicle
+        setWalkInFormData(prev => ({
+          ...prev,
+          phone: res.data.OwnerPhone || prev.phone,
+          fullName: res.data.OwnerName || prev.fullName,
+          model: res.data.Model || prev.model,
+          type: res.data.Type || prev.type
+        }));
+      } else {
+        setExistingVehicle(null);
+      }
+    } catch (err) {
+      setExistingVehicle(null);
+    } finally {
+      setCheckingPlate(false);
+    }
+  };
+
+  const handleWalkInSubmit = async (e) => {
+    e.preventDefault();
+    const data = {
+      phone: walkInFormData.phone,
+      fullName: walkInFormData.fullName,
+      plateNumber: walkInFormData.plateNumber,
+      model: prefilledModel || walkInFormData.model,
+      type: prefilledType || walkInFormData.type,
+      serviceType: selectedServices.join(', '),
+      description: walkInFormData.description,
+      isEmergency: walkInFormData.isEmergency,
+      garageId: user.GarageID
+    };
+
+    // Client-side Validation (final check)
+    const errors = {};
+    if (!data.phone || !/^(09|07)\d{8}$/.test(data.phone)) {
+      errors.phone = 'Please enter a valid 10-digit phone number (09... or 07...)';
+    }
+    if (!data.plateNumber || !/^[A-Z0-9\-\s]{3,15}$/i.test(data.plateNumber)) {
+      errors.plateNumber = 'Please enter a valid plate number (3-15 chars).';
+    }
+    if (!data.model || data.model.trim().length < 1) {
+      errors.model = 'Car Name / Model is required.';
+    }
+    if (selectedServices.length === 0) {
+      errors.serviceType = 'Please select at least one service.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setWalkInErrors(errors);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post('/services/walk-in', data);
+      setWalkInModalOpen(false);
+      setWalkInStep(1);
+      setWalkInFormData({
+        phone: '',
+        plateNumber: '',
+        model: '',
+        type: 'Car',
+        description: '',
+        isEmergency: false
+      });
+      setSelectedServices([]);
+      setExistingVehicle(null);
+      setPrefilledModel('');
+      setPrefilledType('Car');
+      fetchRequests(true);
+      setSuccessMessage('Walk-in booking created successfully!');
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data?.errors) {
+        setWalkInErrors(err.response.data.errors);
+      } else {
+        setConfirmModal({ isOpen: true, text: err.response?.data?.error || 'Failed to create walk-in booking', isAlert: true });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const data = {
+      plateNumber: editFormData.plateNumber,
+      model: editFormData.model,
+      type: editFormData.type,
+      serviceType: selectedServices.join(', '),
+      description: editFormData.description,
+    };
+
+    // Validation
+    const errors = {};
+    if (!data.plateNumber || !/^[A-Z0-9\-\s]{3,15}$/i.test(data.plateNumber)) {
+      errors.plateNumber = 'Invalid plate format.';
+    }
+    if (!data.model || data.model.trim().length < 1) {
+      errors.model = 'Car Name / Model is required.';
+    }
+    if (selectedServices.length === 0) {
+      errors.serviceType = 'Select at least one service.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setWalkInErrors(errors);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.patch(`/services/${selectedRequest.RequestID}`, data);
+      setEditModalOpen(false);
+      setDetailsModalOpen(false);
+      setWalkInErrors({});
+      setEditStep(1);
+      fetchRequests(true);
+      setSuccessMessage('Booking updated successfully!');
+      setTimeout(() => setSuccessMessage(null), 5000);
+    } catch (err) {
+      console.error(err);
+      setConfirmModal({ isOpen: true, text: err.response?.data?.error || 'Failed to update booking', isAlert: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -225,11 +399,11 @@ export default function Bookings() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchId, filterDate, filterArrivalTime, sortOrder]);
+  }, [filter, requestType, searchId, filterDate, filterArrivalTime, sortOrder]);
 
   return (
     <div className="space-y-6">
-      {}
+      { }
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-blue-600 bg-clip-text text-transparent">
@@ -237,12 +411,51 @@ export default function Bookings() {
           </h1>
           <p className="text-gray-500 text-sm mt-1 flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Manage and track all garage service requests
+            {t('manageServiceRequests')}
           </p>
         </div>
+        <button
+          onClick={() => {
+            setWalkInErrors({});
+            setSelectedServices([]);
+            setExistingVehicle(null);
+            setPrefilledModel('');
+            setPrefilledType('Car');
+            setWalkInModalOpen(true);
+          }}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-[var(--color-primary-hover)] transition-all active:scale-95"
+        >
+          <UserPlus size={18} />
+          {t('addWalkIn')}
+        </button>
       </div>
 
-      {}
+      {/* Request Type Tabs */}
+      <div className="flex gap-4 border-b border-gray-100">
+        <button
+          onClick={() => setRequestType('regular')}
+          className={`pb-3 px-1 text-sm font-bold transition-all ${requestType === 'regular'
+            ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
+            : 'text-gray-400 hover:text-gray-600'
+            }`}
+        >
+          Regular Requests
+        </button>
+        <button
+          onClick={() => setRequestType('emergency')}
+          className={`pb-3 px-1 text-sm font-bold transition-all flex items-center gap-2 ${requestType === 'emergency'
+            ? 'text-red-600 border-b-2 border-red-600'
+            : 'text-gray-400 hover:text-gray-600'
+            }`}
+        >
+          Emergency Requests
+          {requestType !== 'emergency' && requests.some(r => r.IsEmergency) && (
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          )}
+        </button>
+      </div>
+
+      { }
       <div className="flex flex-wrap gap-2 p-1 bg-gray-100/50 rounded-xl w-fit border border-gray-100">
         {['All', 'Pending', 'Approved', 'InProgress', 'Completed', 'Rejected', 'Cancelled'].map((status) => (
           <button
@@ -253,14 +466,14 @@ export default function Bookings() {
               : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
               }`}
           >
-            {status}
+            {t(status === 'All' ? 'all' : status === 'InProgress' ? 'inProgress' : status.toLowerCase())}
           </button>
         ))}
       </div>
 
-      {}
+      { }
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col xl:flex-row items-center gap-4 transition-all hover:shadow-md group">
-        {}
+        { }
         <div className="relative flex-1 w-full lg:w-auto">
           <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -272,9 +485,9 @@ export default function Bookings() {
           />
         </div>
 
-        {}
+        { }
         <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-          {}
+          { }
           <div className="flex bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setFilterDate('today')}
@@ -292,7 +505,7 @@ export default function Bookings() {
             </button>
           </div>
 
-          {}
+          { }
           <div className="relative group/date w-full sm:w-[150px]">
             <CalendarDays size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-colors group-hover/date:text-blue-500" />
             <input
@@ -374,6 +587,13 @@ export default function Bookings() {
         </div>
       </div>
 
+      {successMessage && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+          <Check size={18} />
+          <span className="font-semibold">{successMessage}</span>
+        </div>
+      )}
+
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
           {error}
@@ -398,9 +618,9 @@ export default function Bookings() {
                 <tr className="bg-gray-50 border-b border-[var(--color-border)] text-sm text-[var(--color-text-light)]">
                   <th className="p-4 font-semibold">ID</th>
                   <th className="p-4 font-semibold">{t('serviceType')}</th>
-                  <th className="p-4 font-semibold">{t('vehicle')}</th>
+                  <th className="p-4 font-semibold">{t('plateName')}</th>
                   <th className="p-4 font-semibold">Schedule</th>
-                  <th className="p-4 font-semibold">Location</th>
+                  <th className="p-4 font-semibold">Customer Location</th>
                   <th className="p-4 font-semibold">{t('mechanic')}</th>
                   <th className="p-4 font-semibold">{t('status')}</th>
                   <th className="p-4 font-semibold">Payment</th>
@@ -414,16 +634,10 @@ export default function Bookings() {
                     <td className="p-4 text-[var(--color-text-main)] font-medium">
                       <div className="flex items-center gap-2">
                         <span>{req.ServiceType}</span>
-                        {req.IsEmergency ? (
-                          <span className="px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold uppercase">Emergency</span>
-                        ) : null}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]" title={req.Description}>
-                        {req.Description}
                       </div>
                     </td>
-                    <td className="p-4 text-gray-600">
-                      Vehicle #{req.VehicleID}
+                    <td className="p-4 text-gray-800 font-bold uppercase tracking-tight">
+                      {req.VehiclePlateNumber || req.PlateNumber || '-'}
                     </td>
                     <td className="p-4">
                       {req.BookingDate ? (
@@ -435,7 +649,25 @@ export default function Bookings() {
                         <span className="text-gray-400 text-xs italic">Unscheduled</span>
                       )}
                     </td>
-                    <td className="p-4 text-gray-600">{req.GarageLocation || '-'}</td>
+                    <td className="p-4">
+                      {req.Address ? (
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-800">{req.Address}</span>
+                          {req.Latitude && req.Longitude && (
+                            <a
+                              href={`https://www.google.com/maps?q=${req.Latitude},${req.Longitude}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-blue-600 hover:underline mt-0.5"
+                            >
+                              📍 Open in Maps
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">No location</span>
+                      )}
+                    </td>
                     <td className="p-4">
                       {req.AssignedMechanicName ? (
                         <span className="text-[var(--color-primary)] font-medium">{req.AssignedMechanicName}</span>
@@ -444,9 +676,16 @@ export default function Bookings() {
                       )}
                     </td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded inline-flex font-semibold capitalize ${getStatusColor(req.Status)}`}>
-                        {req.Status}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`px-2.5 py-1 rounded inline-flex font-semibold capitalize ${getStatusColor(req.Status)}`}>
+                          {t(req.Status === 'InProgress' ? 'inProgress' : req.Status.toLowerCase())}
+                        </span>
+                        {req.EstimatedCompletionTime && (req.Status === 'InProgress' || req.Status === 'Working' || req.Status === 'Arrived') && (
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-blue-600 uppercase bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 w-fit">
+                            <Clock3 size={10} /> {t('eta')}: {new Date(req.EstimatedCompletionTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       {req.PaymentStatus === 'Completed' ? (
@@ -498,7 +737,7 @@ export default function Bookings() {
                               e.stopPropagation();
                               setConfirmModal({
                                 isOpen: true,
-                                text: 'You cannot manually assign a mechanic while the request is still pending. Please click the "Status" button to review and approve the request first.',
+                                text: 'assignPendingAlert',
                                 isAlert: true
                               });
                             }}
@@ -569,9 +808,7 @@ export default function Bookings() {
                   className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                 >
                   <span className="sr-only">Previous</span>
-                  <X size={20} className="rotate-90" /> {/* Using X as a placeholder for chevron, or better yet, Lucide icons if I had them easily */}
-                  {/* Better: chevron-left icon if available. I see Lucide icons used. I'll use X as a temp or check Lucide list. */}
-                  {/* Actually, I'll use simple text for now or Lucide names I know. */}
+                  <X size={20} className="rotate-90" />
                 </button>
                 {[...Array(totalPages)].map((_, i) => (
                   <button
@@ -645,7 +882,7 @@ export default function Bookings() {
                 </select>
               </div>
 
-              {selectedRequest.IsEmergency && newStatus === 'Approved' && (
+              {!!selectedRequest.IsEmergency && newStatus === 'Approved' && (
                 <div className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-lg animate-in fade-in slide-in-from-top-2 duration-300">
                   <div className="flex items-start gap-3">
                     <DollarSign className="text-indigo-600 mt-1" size={18} />
@@ -692,16 +929,13 @@ export default function Bookings() {
 
       {/* Assign Mechanic Modal */}
       {assignModalOpen && selectedRequest && (() => {
-        // Parse the requested service types into an array for matching
         const requestedServices = (selectedRequest.ServiceType || '')
           .split(',')
           .map(s => s.trim().toLowerCase())
           .filter(Boolean);
 
-        // Calculate match score for each mechanic
         const scoredMechanics = [...mechanics].map(m => {
           const skills = (m.Skills || []).map(s => s.toLowerCase());
-          // Count how many requested services this mechanic has a matching skill for
           const matchedServices = requestedServices.filter(svc =>
             skills.some(skill => skill === svc || skill.includes(svc) || svc.includes(skill))
           );
@@ -719,18 +953,12 @@ export default function Bookings() {
           };
         });
 
-        // Sort: full matches first, then partial (by count desc), then none. Active before inactive. Then by name.
         scoredMechanics.sort((a, b) => {
-          // 1. Match score (descending)
           if (b.matchCount !== a.matchCount) return b.matchCount - a.matchCount;
-          // 2. Active mechanics first
           if (a.Status === 'Active' && b.Status !== 'Active') return -1;
           if (a.Status !== 'Active' && b.Status === 'Active') return 1;
-          // 3. Alphabetical
           return (a.FullName || '').localeCompare(b.FullName || '');
         });
-
-        const bestMatchCount = scoredMechanics.length > 0 ? scoredMechanics[0].matchCount : 0;
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -749,7 +977,6 @@ export default function Bookings() {
                     {selectedRequest.IsEmergency ? <span className="ml-2 px-1.5 py-0.5 bg-red-100 text-red-600 rounded text-[10px] font-bold uppercase">Emergency</span> : null}
                   </p>
 
-                  {/* Skills required summary */}
                   {requestedServices.length > 0 && (
                     <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
                       <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1.5">Skills Needed for This Service</p>
@@ -778,7 +1005,6 @@ export default function Bookings() {
                             ? { text: `◐ Partial (${m.matchCount}/${requestedServices.length})`, cls: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200' }
                             : { text: 'No Match', cls: 'bg-gray-100 text-gray-500' };
 
-                        // Determine row highlight
                         let rowHighlight = '';
                         if (isSelected) {
                           rowHighlight = 'border-[var(--color-primary)] bg-blue-50/50 ring-1 ring-[var(--color-primary)]';
@@ -790,7 +1016,6 @@ export default function Bookings() {
                           rowHighlight = 'border-transparent hover:bg-gray-50';
                         }
 
-                        // Add a separator before "no match" group
                         const showSeparator = idx > 0 && m.matchCount === 0 && scoredMechanics[idx - 1].matchCount > 0;
 
                         return (
@@ -876,30 +1101,341 @@ export default function Bookings() {
         );
       })()}
 
-      {/* Details Modal */}
+      {/* Walk-in Modal */}
+      {walkInModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-xl font-bold text-gray-900">{t('addWalkIn')} {walkInStep === 2 && '- ' + t('serviceType')}</h2>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-1">
+                  <div className={`w-2 h-2 rounded-full ${walkInStep === 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${walkInStep === 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                </div>
+                <button onClick={() => { setWalkInModalOpen(false); setWalkInStep(1); }} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleWalkInSubmit} className="p-6 space-y-4">
+              {walkInStep === 1 ? (
+                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('phoneNumber')}</label>
+                      <input
+                        name="phone"
+                        type="tel"
+                        value={walkInFormData.phone}
+                        onChange={(e) => setWalkInFormData({ ...walkInFormData, phone: e.target.value })}
+                        placeholder="0911223344"
+                        className={`input-field ${walkInErrors.phone ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''} ${existingVehicle ? 'bg-gray-50 cursor-not-allowed opacity-80' : ''}`}
+                        required
+                        readOnly={!!existingVehicle}
+                      />
+                      {walkInErrors.phone && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.phone}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('fullName') || 'Customer Full Name'}</label>
+                      <input
+                        name="fullName"
+                        type="text"
+                        value={walkInFormData.fullName}
+                        onChange={(e) => setWalkInFormData({ ...walkInFormData, fullName: e.target.value })}
+                        placeholder="John Doe"
+                        className={`input-field ${walkInErrors.fullName ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''} ${existingVehicle ? 'bg-gray-50 cursor-not-allowed opacity-80' : ''}`}
+                        required={!existingVehicle}
+                        readOnly={!!existingVehicle}
+                      />
+                      {walkInErrors.fullName && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.fullName}</p>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('plateName')}</label>
+                      <div className="relative">
+                        <input
+                          name="plateNumber"
+                          type="text"
+                          value={walkInFormData.plateNumber}
+                          onChange={(e) => setWalkInFormData({ ...walkInFormData, plateNumber: e.target.value })}
+                          placeholder="AA 12345"
+                          className={`input-field ${walkInErrors.plateNumber ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''}`}
+                          required
+                          onBlur={(e) => checkPlateExistence(e.target.value)}
+                        />
+                        {checkingPlate && <span className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>}
+                      </div>
+                      {walkInErrors.plateNumber && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.plateNumber}</p>}
+                    </div>
+                  </div>
+
+                  {existingVehicle && (
+                    <div className={`p-3 border rounded-lg animate-in slide-in-from-left-2 duration-200 ${existingVehicle.ActiveBookingCount > 0 ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                      <div className="flex gap-2">
+                        {existingVehicle.ActiveBookingCount > 0 ? (
+                          <AlertCircle size={16} className="text-red-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                        )}
+                        <div>
+                          <p className={`text-xs font-bold ${existingVehicle.ActiveBookingCount > 0 ? 'text-red-800' : 'text-amber-800'}`}>
+                            {existingVehicle.ActiveBookingCount > 0 ? 'Active Booking Detected!' : 'Existing Vehicle Detected'}
+                          </p>
+                          <p className={`text-[10px] mt-0.5 ${existingVehicle.ActiveBookingCount > 0 ? 'text-red-700' : 'text-amber-700'}`}>
+                            This plate is registered to <span className="font-bold">{existingVehicle.OwnerName}</span> ({existingVehicle.OwnerPhone}).
+                            Car: <span className="font-bold">{existingVehicle.Model}</span>.
+                            {existingVehicle.ActiveBookingCount > 0 && (
+                              <span className="block mt-1 font-black underline uppercase">This vehicle currently has an ONGOING service. Multiple active bookings are restricted.</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('vehicleModel')}</label>
+                      <input
+                        name="model"
+                        type="text"
+                        placeholder="Toyota Corolla"
+                        value={prefilledModel || walkInFormData.model}
+                        onChange={(e) => {
+                          setPrefilledModel(e.target.value);
+                          setWalkInFormData({ ...walkInFormData, model: e.target.value });
+                        }}
+                        className={`input-field ${walkInErrors.model ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''} ${existingVehicle ? 'bg-gray-50 cursor-not-allowed opacity-80' : ''}`}
+                        readOnly={!!existingVehicle}
+                      />
+                      {walkInErrors.model && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.model}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('vehicleType')}</label>
+                      <select
+                        name="type"
+                        className={`input-field ${existingVehicle ? 'bg-gray-50 cursor-not-allowed opacity-80' : ''}`}
+                        value={prefilledType || walkInFormData.type}
+                        onChange={(e) => {
+                          setPrefilledType(e.target.value);
+                          setWalkInFormData({ ...walkInFormData, type: e.target.value });
+                        }}
+                        disabled={!!existingVehicle}
+                      >
+                        <option value="Car">Car</option>
+                        <option value="Truck">Truck</option>
+                        <option value="Motorcycle">Motorcycle</option>
+                        <option value="Bus">Bus</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const errors = {};
+                        if (!walkInFormData.phone) {
+                          errors.phone = t('fieldRequired', { field: t('phoneNumber') });
+                        } else if (!/^(09|07)[0-9]{8}$/.test(walkInFormData.phone)) {
+                          errors.phone = t('invalidPhone');
+                        }
+                        if (!walkInFormData.fullName && !existingVehicle) {
+                          errors.fullName = t('fieldRequired', { field: t('fullName') });
+                        }
+                        if (!walkInFormData.plateNumber) errors.plateNumber = t('plateRequired');
+                        if (!(prefilledModel || walkInFormData.model)) errors.model = t('modelRequired');
+
+
+                        if (Object.keys(errors).length > 0) {
+                          setWalkInErrors(errors);
+                          return;
+                        }
+                        if (existingVehicle?.ActiveBookingCount > 0) {
+                          setConfirmModal({
+                            isOpen: true,
+                            text: "activeBookingAlert",
+                            isAlert: true
+                          });
+                          return;
+                        }
+                        setWalkInErrors({});
+                        setWalkInStep(2);
+                      }}
+                      className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-md flex items-center gap-2 group"
+                    >
+                      Next Step <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('serviceType')}</label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedServices.map(svc => (
+                        <span key={svc} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-[10px] font-bold shadow-sm animate-in zoom-in-90">
+                          {svc}
+                          <button type="button" onClick={() => handleServiceToggle(svc)} className="hover:text-blue-100 p-0.5">
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                        </span>
+                      ))}
+                      {selectedServices.length === 0 && <span className="text-xs text-slate-400 italic py-1.5">No services selected yet...</span>}
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Available Services</p>
+                      <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto custom-scrollbar">
+                        {services.map(svc => (
+                          <button
+                            key={svc.ServiceID}
+                            type="button"
+                            onClick={() => handleServiceToggle(svc.ServiceName)}
+                            className={`px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${selectedServices.includes(svc.ServiceName)
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-md scale-95'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                              }`}
+                          >
+                            {svc.ServiceName}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {walkInErrors.serviceType && <p className="text-red-500 text-[10px] mt-2 font-bold italic pl-1">{walkInErrors.serviceType}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('description')}</label>
+                    <textarea
+                      name="description"
+                      value={walkInFormData.description}
+                      onChange={(e) => setWalkInFormData({ ...walkInFormData, description: e.target.value })}
+                      placeholder={t('entryDescription')}
+                      className="input-field min-h-[80px] resize-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 py-2">
+                    <input
+                      type="checkbox"
+                      name="isEmergency"
+                      id="isEmergencyWalkIn"
+                      checked={walkInFormData.isEmergency}
+                      onChange={(e) => setWalkInFormData({ ...walkInFormData, isEmergency: e.target.checked })}
+                      className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                    />
+                    <label htmlFor="isEmergencyWalkIn" className="text-sm font-bold text-red-600 uppercase tracking-wide cursor-pointer">
+                      {t('emergencyService')}
+                    </label>
+                  </div>
+
+                  <div className="flex gap-3 justify-between mt-8 border-t border-gray-100 pt-5">
+                    <button
+                      type="button"
+                      onClick={() => setWalkInStep(1)}
+                      className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <ChevronLeft size={18} /> Back
+                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setWalkInModalOpen(false);
+                          setExistingVehicle(null);
+                          setWalkInStep(1);
+                        }}
+                        className="px-5 py-2.5 text-sm font-semibold text-gray-400 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        {t('cancel')}
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-6 py-2.5 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {loading ? 'Creating...' : <><Check size={18} /> {t('createBooking')}</>}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
       {detailsModalOpen && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900">Request Details</h2>
-              <button onClick={() => setDetailsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <X size={20} />
-              </button>
+              <h2 className="text-xl font-bold text-gray-900">{t('bookingDetails')}</h2>
+              <div className="flex items-center gap-2">
+                {userRole === 'GarageManager' && (
+                  <button
+                    onClick={() => {
+                      setWalkInErrors({});
+                      setSelectedServices((selectedRequest.ServiceType || '').split(', ').filter(Boolean));
+                      setEditFormData({
+                        plateNumber: selectedRequest.VehiclePlateNumber || selectedRequest.PlateNumber || '',
+                        model: selectedRequest.VehicleModel || selectedRequest.Model || '',
+                        type: selectedRequest.VehicleType || selectedRequest.Type || 'Car',
+                        description: selectedRequest.Description || '',
+                        isEmergency: !!selectedRequest.IsEmergency
+                      });
+                      setEditStep(1);
+                      setEditModalOpen(true);
+                    }}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title={t('editBooking')}
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                )}
+                <button onClick={() => setDetailsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
                 <h3 className="font-bold text-lg text-slate-800 mb-1">#{selectedRequest.RequestID} - {selectedRequest.ServiceType}</h3>
-                <p className="text-sm text-slate-500 mb-3">{selectedRequest.Description || 'No description provided.'}</p>
+                <div className="mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('description')}</span>
+                  <p className="text-sm text-slate-600 mt-0.5">{selectedRequest.Description || 'No description provided.'}</p>
+                </div>
                 <div className="grid grid-cols-2 gap-4 text-sm mt-4">
                   <div>
-                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">Status</span>
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold ${getStatusColor(selectedRequest.Status)}`}>{selectedRequest.Status}</span>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('plateName')}</span>
+                    <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.VehiclePlateNumber || selectedRequest.PlateNumber || '-'}</span>
                   </div>
                   <div>
-                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">Mechanic</span>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('vehicleModel')}</span>
+                    <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.VehicleModel || selectedRequest.Model || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('status')}</span>
+                    <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-bold ${getStatusColor(selectedRequest.Status)}`}>{t(selectedRequest.Status.toLowerCase())}</span>
+                  </div>
+                  <div>
+                    <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider">{t('mechanic')}</span>
                     <span className="block mt-1 font-semibold text-slate-700">{selectedRequest.AssignedMechanicName || 'Unassigned'}</span>
                   </div>
+                  {selectedRequest.EstimatedCompletionTime && (
+                    <div className="col-span-2 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-3">
+                      <Clock size={20} className="text-blue-600" />
+                      <div>
+                        <span className="block text-blue-800 text-xs font-bold uppercase tracking-wide">{t('eta')}</span>
+                        <span className="block text-blue-900 font-bold text-lg">
+                          {new Date(selectedRequest.EstimatedCompletionTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="col-span-2 pt-2 border-t border-slate-200/60 mt-2">
                     <span className="block text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Payment Details</span>
                     {selectedRequest.PaymentMethod ? (
@@ -916,6 +1452,36 @@ export default function Bookings() {
                     )}
                   </div>
                 </div>
+
+                {/* Location Details - Only for Emergencies */}
+                {!!selectedRequest.IsEmergency && (selectedRequest.Address || (selectedRequest.Latitude && selectedRequest.Longitude)) && (
+                  <div className="mt-4 p-4 bg-orange-50 border border-orange-100 rounded-lg">
+                    <h4 className="flex items-center gap-2 text-orange-800 font-bold text-sm mb-2 uppercase tracking-wide">
+                      <MapPin size={16} /> Customer Location
+                    </h4>
+                    {selectedRequest.Address && (
+                      <p className="text-orange-900 text-sm font-medium mb-3">
+                        <span className="text-orange-600 block text-xs font-bold uppercase mb-0.5">Physical Address:</span>
+                        {selectedRequest.Address}
+                      </p>
+                    )}
+                    {selectedRequest.Latitude && selectedRequest.Longitude && (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-xs text-orange-700">
+                          Coordinates: <span className="font-mono">{selectedRequest.Latitude}, {selectedRequest.Longitude}</span>
+                        </p>
+                        <a
+                          href={`https://www.google.com/maps?q=${selectedRequest.Latitude},${selectedRequest.Longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-700 transition-all shadow-sm w-fit"
+                        >
+                          <Navigation size={14} /> Open in Google Maps
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Invoice Breakdown */}
@@ -930,7 +1496,6 @@ export default function Bookings() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {/* Service line items */}
                     {(() => {
                       const serviceNames = selectedRequest.ServiceType ? selectedRequest.ServiceType.split(',').map(s => s.trim()) : [];
                       return serviceNames.map((svcName, idx) => {
@@ -952,7 +1517,6 @@ export default function Bookings() {
                       });
                     })()}
 
-                    {/* Parts line items */}
                     {loadingItems ? (
                       <tr>
                         <td colSpan="4" className="p-6 text-center">
@@ -1030,7 +1594,7 @@ export default function Bookings() {
               <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
                 {confirmModal.isAlert ? 'Approval Required' : 'Confirm Action'}
               </h3>
-              <p className="text-center text-gray-600 text-sm">{confirmModal.text}</p>
+              <p className="text-center text-gray-600 text-sm">{t(confirmModal.text)}</p>
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
               {!confirmModal.isAlert && (
@@ -1051,6 +1615,166 @@ export default function Bookings() {
                 {confirmModal.isAlert ? 'Understood' : 'Yes, Confirm'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {editModalOpen && selectedRequest && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-xl font-bold text-gray-900">{t('editBooking')} #{selectedRequest.RequestID} {editStep === 2 && '- ' + t('serviceType')}</h2>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-1">
+                  <div className={`w-2 h-2 rounded-full ${editStep === 1 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${editStep === 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                </div>
+                <button onClick={() => setEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              {editStep === 1 ? (
+                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('plateName')}</label>
+                      <input
+                        name="plateNumber"
+                        type="text"
+                        value={editFormData.plateNumber}
+                        onChange={(e) => setEditFormData({ ...editFormData, plateNumber: e.target.value })}
+                        className={`input-field ${walkInErrors.plateNumber ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''}`}
+                        required
+                      />
+                      {walkInErrors.plateNumber && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.plateNumber}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('vehicleModel')}</label>
+                      <input
+                        name="model"
+                        type="text"
+                        value={editFormData.model}
+                        onChange={(e) => setEditFormData({ ...editFormData, model: e.target.value })}
+                        className={`input-field ${walkInErrors.model ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : ''}`}
+                        required
+                      />
+                      {walkInErrors.model && <p className="text-red-500 text-[10px] mt-1 font-bold italic">{walkInErrors.model}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('vehicleType')}</label>
+                    <select
+                      name="type"
+                      className="input-field"
+                      value={editFormData.type}
+                      onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value })}
+                    >
+                      <option value="Car">Car</option>
+                      <option value="Truck">Truck</option>
+                      <option value="Motorcycle">Motorcycle</option>
+                      <option value="Bus">Bus</option>
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const errors = {};
+                        if (!editFormData.plateNumber) errors.plateNumber = 'Plate info required.';
+                        if (!editFormData.model) errors.model = 'Model required.';
+
+                        if (Object.keys(errors).length > 0) {
+                          setWalkInErrors(errors);
+                          return;
+                        }
+                        setWalkInErrors({});
+                        setEditStep(2);
+                      }}
+                      className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-md flex items-center gap-2 group"
+                    >
+                      Next Step <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('serviceType')}</label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedServices.map(svc => (
+                        <span key={svc} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-[10px] font-bold shadow-sm animate-in zoom-in-90">
+                          {svc}
+                          <button type="button" onClick={() => handleServiceToggle(svc)} className="hover:text-blue-100 p-0.5">
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                        </span>
+                      ))}
+                      {selectedServices.length === 0 && <span className="text-xs text-slate-400 italic py-1.5">No services selected yet...</span>}
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Available Services</p>
+                      <div className="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto custom-scrollbar">
+                        {services.map(svc => (
+                          <button
+                            key={svc.ServiceID}
+                            type="button"
+                            onClick={() => handleServiceToggle(svc.ServiceName)}
+                            className={`px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all ${selectedServices.includes(svc.ServiceName)
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-md scale-95'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600'
+                              }`}
+                          >
+                            {svc.ServiceName}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {walkInErrors.serviceType && <p className="text-red-500 text-[10px] mt-2 font-bold italic pl-1">{walkInErrors.serviceType}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t('description')}</label>
+                    <textarea
+                      name="description"
+                      value={editFormData.description}
+                      onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                      placeholder={t('entryDescription')}
+                      className="input-field min-h-[80px] resize-none text-sm"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 justify-between mt-8 border-t border-gray-100 pt-5">
+                    <button
+                      type="button"
+                      onClick={() => setEditStep(1)}
+                      className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <ChevronLeft size={18} /> Back
+                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEditModalOpen(false)}
+                        className="px-5 py-2.5 text-sm font-semibold text-gray-400 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        {t('cancel')}
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-6 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {loading ? 'Updating...' : <><Check size={18} /> {t('updateBooking')}</>}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </div>
       )}

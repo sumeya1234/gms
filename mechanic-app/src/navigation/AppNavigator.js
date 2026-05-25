@@ -16,6 +16,7 @@ import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { useTranslation } from 'react-i18next';
+import { navigationRef } from '../api/navigationRef';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,25 +42,45 @@ function TabNavigator({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <PagerView
-        ref={pagerRef}
-        style={styles.pager}
-        initialPage={0}
-        onPageSelected={onPageSelected}
-        overdrag={true}
-      >
-        <View key="home" style={styles.page}>
-          <DashboardScreen navigation={navigation} />
+      {Platform.OS === 'web' ? (
+        <View style={styles.pager}>
+          {activeIndex === 0 && (
+            <View key="home" style={styles.page}>
+              <DashboardScreen navigation={navigation} />
+            </View>
+          )}
+          {activeIndex === 1 && (
+            <View key="history" style={styles.page}>
+              <HistoryScreen navigation={navigation} />
+            </View>
+          )}
+          {activeIndex === 2 && (
+            <View key="profile" style={styles.page}>
+              <ProfileScreen navigation={navigation} />
+            </View>
+          )}
         </View>
-        <View key="history" style={styles.page}>
-          <HistoryScreen navigation={navigation} />
-        </View>
-        <View key="profile" style={styles.page}>
-          <ProfileScreen navigation={navigation} />
-        </View>
-      </PagerView>
+      ) : (
+        <PagerView
+          ref={pagerRef}
+          style={styles.pager}
+          initialPage={0}
+          onPageSelected={onPageSelected}
+          overdrag={true}
+        >
+          <View key="home" style={styles.page}>
+            <DashboardScreen navigation={navigation} />
+          </View>
+          <View key="history" style={styles.page}>
+            <HistoryScreen navigation={navigation} />
+          </View>
+          <View key="profile" style={styles.page}>
+            <ProfileScreen navigation={navigation} />
+          </View>
+        </PagerView>
+      )}
 
-      {}
+      { }
       <View style={[styles.tabBar, { paddingBottom: Platform.OS === 'ios' ? 20 : 5 }]}>
         {TABS.map((tab, index) => {
           const isActive = activeIndex === index;
@@ -139,7 +160,7 @@ export default function AppNavigator() {
   };
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer theme={navTheme} ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {userToken == null ? (
           <>

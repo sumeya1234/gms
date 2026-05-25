@@ -33,9 +33,9 @@ export default function WelcomeScreen({ navigation }) {
               <Text style={styles.badgeText}>GaragePro</Text>
             </View>
           </View>
-          <Text style={styles.main}>Your vehicle's{'\n'}<Text style={{ color: colors.primaryBlue }}>best friend</Text></Text>
+          <Text style={styles.main}>{t("Your vehicle's")}{'\n'}<Text style={{ color: colors.primaryBlue }}>{t("best friend")}</Text></Text>
           <Text style={styles.sub}>
-            Compare prices, find nearby mechanics, and manage your vehicle services all in one place.
+            {t("Compare prices, find nearby mechanics, and manage your vehicle services all in one place.")}
           </Text>
         </View>
 

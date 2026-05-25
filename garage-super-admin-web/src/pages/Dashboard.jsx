@@ -22,7 +22,7 @@ const StatCard = ({ icon: Icon, label, value, colorClass, iconBgClass, sub, tren
         </span>
       )}
     </div>
-    
+
     <div>
       <p className="text-3xl font-black text-slate-800 tracking-tight">{value}</p>
       <p className="text-sm font-semibold text-slate-500 mt-1">{label}</p>
@@ -43,7 +43,7 @@ export default function Dashboard() {
         const res = await api.get('/users/admin/dashboard');
         setStats(res.data);
       } catch (err) {
-        setError('Failed to load dashboard stats. Please check your connection.');
+        setError(t('errorFailedStats'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -67,11 +67,11 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      {}
+      { }
       <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <div className="inline-flex items-center gap-2 text-blue-600 text-xs font-bold mb-2 uppercase tracking-wide">
-            <Sparkles size={14} /> Super Admin
+            <Sparkles size={14} /> {t('superAdminRole')}
           </div>
           <h2 className="text-2xl font-bold text-slate-900">{t('welcomeBack')}</h2>
           <p className="text-slate-500 text-sm font-medium mt-1">{t('overviewOf')} <span className="font-bold text-blue-600">GMS</span> {t('platformToday')}</p>
@@ -85,7 +85,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {}
+      { }
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           icon={Building2}
@@ -125,13 +125,13 @@ export default function Dashboard() {
         />
       </section>
 
-      {}
+      { }
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {}
+
+        { }
         <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <h3 className="text-lg font-bold text-slate-900 mb-4">{t('quickActions')}</h3>
-          
+
           <div className="space-y-3 flex-1 flex flex-col justify-center">
             <button
               id="quick-action-add-garage"
@@ -163,7 +163,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {}
+        { }
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
             <h3 className="text-lg font-bold text-slate-900">{t('systemHealth')}</h3>
@@ -172,7 +172,7 @@ export default function Dashboard() {
               <button className="px-3 py-1.5 text-slate-500 hover:text-slate-900 rounded text-xs font-bold transition-colors">{t('weekly')}</button>
             </div>
           </div>
-          
+
           <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50 border border-slate-100 rounded-xl">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 relative">
               <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-30" />

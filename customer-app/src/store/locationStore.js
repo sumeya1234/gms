@@ -7,6 +7,10 @@ export const useLocationStore = create((set) => ({
   isLoading: false,
   error: null,
 
+  setManualLocation: (location, address) => {
+    set({ location, address, error: null });
+  },
+
   requestLocation: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -17,13 +21,13 @@ export const useLocationStore = create((set) => ({
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      
-      
+
+
       let addressArray = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
-      
+
       let address = addressArray.length > 0 ? addressArray[0] : null;
 
       set({ location, address, isLoading: false });

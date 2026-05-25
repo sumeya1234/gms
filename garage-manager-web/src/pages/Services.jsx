@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit2, Trash2, Check, Scissors, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, Scissors, X, ShieldAlert } from 'lucide-react';
 
 export default function Services() {
   const { t } = useTranslation();
@@ -26,14 +26,13 @@ export default function Services() {
   // Form State
   const [formData, setFormData] = useState({
     serviceName: '',
-    price: ''
+    price: '',
+    isEmergency: false
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
-  // Quick Add State (Inline)
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [quickFormData, setQuickFormData] = useState({ serviceName: '', price: '' });
+
 
   const fetchServices = useCallback(async () => {
     if (!user?.GarageID) return;
@@ -59,9 +58,17 @@ export default function Services() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const isDuplicateService = (name, currentId = null) => {
+    const normalizedName = name.trim().toLowerCase();
+    return services.some(s =>
+      s.ServiceName.trim().toLowerCase() === normalizedName &&
+      s.ServiceID !== currentId
+    );
+  };
+
   const openAddModal = () => {
     setEditingItem(null);
-    setFormData({ serviceName: '', price: '' });
+    setFormData({ serviceName: '', price: '', isEmergency: false });
     setFormError('');
     setIsModalOpen(true);
   };
@@ -70,7 +77,8 @@ export default function Services() {
     setEditingItem(item);
     setFormData({
       serviceName: item.ServiceName,
-      price: item.Price
+      price: item.Price,
+      isEmergency: !!item.IsEmergency
     });
     setFormError('');
     setIsModalOpen(true);
@@ -84,20 +92,28 @@ export default function Services() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+
+    if (isDuplicateService(formData.serviceName, editingItem?.ServiceID)) {
+      setFormError(`A service with the name "${formData.serviceName.trim()}" already exists.`);
+      return;
+    }
+
     setFormLoading(true);
 
     try {
       if (editingItem) {
         await api.put(`/catalog/${editingItem.ServiceID}`, {
           serviceName: formData.serviceName,
-          price: Number(formData.price)
+          price: Number(formData.price),
+          isEmergency: formData.isEmergency
         });
         showSuccess(`Service "${formData.serviceName}" updated successfully!`);
       } else {
         await api.post(`/catalog`, {
           serviceName: formData.serviceName,
           price: Number(formData.price),
-          garageId: user.GarageID
+          garageId: user.GarageID,
+          isEmergency: formData.isEmergency
         });
         showSuccess(`Service "${formData.serviceName}" added successfully!`);
       }
@@ -131,25 +147,18 @@ export default function Services() {
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--color-primary)]">Service Catalog</h1>
-          <p className="text-gray-500 mt-1">Manage the labor services your garage provides.</p>
+          <h1 className="text-3xl font-bold text-[var(--color-primary)]">{t('serviceCatalog')}</h1>
+          <p className="text-gray-500 mt-1">{t('defineServices')}</p>
         </div>
 
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowQuickAdd(!showQuickAdd)}
-            className={`flex items-center gap-2 py-2 px-4 rounded-lg text-sm font-semibold transition-all border ${showQuickAdd ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'
-              }`}
-          >
-            {showQuickAdd ? <X size={18} /> : <Plus size={18} />}
-            <span>{showQuickAdd ? 'Cancel Quick Add' : 'Quick Add'}</span>
-          </button>
+
           <button
             onClick={openAddModal}
             className="btn-primary flex items-center gap-2 py-2 px-4 shadow-sm hover:shadow-md transition-all"
           >
             <Plus size={18} />
-            <span>Add Service</span>
+            <span>{t('addService')}</span>
           </button>
         </div>
       </div>
@@ -167,7 +176,7 @@ export default function Services() {
         </div>
       )}
 
-      {}
+      { }
       <div className="card overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center h-48">
@@ -176,8 +185,8 @@ export default function Services() {
         ) : services.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-56 text-gray-500 bg-gray-50/50">
             <Scissors size={56} className="mb-4 text-gray-300" />
-            <p className="font-medium text-gray-600 text-lg">No services found.</p>
-            <p className="text-sm mt-1">Add a service like "Oil Change" or "Tire Alignment" to get started.</p>
+            <p className="font-medium text-gray-600 text-lg">{t('noServicesFound')}</p>
+            <p className="text-sm mt-1">{t('addServiceGetStarted')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -185,68 +194,25 @@ export default function Services() {
               <thead>
                 <tr className="bg-gray-50/80 border-b border-[var(--color-border)] text-sm text-[var(--color-text-light)]">
                   <th className="p-4 font-semibold w-16">ID</th>
-                  <th className="p-4 font-semibold">Service Name</th>
-                  <th className="p-4 font-semibold text-right">Price</th>
-                  <th className="p-4 font-semibold text-right w-32">Actions</th>
+                  <th className="p-4 font-semibold">{t('serviceName')}</th>
+                  <th className="p-4 font-semibold text-right">{t('price')}</th>
+                  <th className="p-4 font-semibold text-right w-32">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {showQuickAdd && (
-                  <tr className="bg-blue-50/50 border-b border-blue-100 animate-in slide-in-from-top-2 duration-300">
-                    <td className="p-4 text-blue-400 font-mono text-xs">NEW</td>
-                    <td className="p-4">
-                      <input
-                        className="w-full bg-white border border-blue-200 rounded px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all font-semibold"
-                        placeholder="Service name..."
-                        value={quickFormData.serviceName}
-                        onChange={e => setQuickFormData({ ...quickFormData, serviceName: e.target.value })}
-                        autoFocus
-                      />
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="text-xs text-gray-400 font-bold">ETB</span>
-                        <input
-                          type="number"
-                          className="w-24 bg-white border border-blue-200 rounded px-2 py-1 text-sm text-right outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all font-bold"
-                          placeholder="0.00"
-                          value={quickFormData.price}
-                          onChange={e => setQuickFormData({ ...quickFormData, price: e.target.value })}
-                        />
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <button
-                        disabled={!quickFormData.serviceName || !quickFormData.price || formLoading}
-                        onClick={async () => {
-                          setFormLoading(true);
-                          try {
-                            await api.post(`/catalog`, {
-                              serviceName: quickFormData.serviceName,
-                              price: Number(quickFormData.price),
-                              garageId: user.GarageID
-                            });
-                            showSuccess(`Service "${quickFormData.serviceName}" added!`);
-                            setQuickFormData({ serviceName: '', price: '' });
-                            fetchServices();
-                          } catch (err) {
-                            alert(err.response?.data?.message || 'Failed to add service');
-                          } finally {
-                            setFormLoading(false);
-                          }
-                        }}
-                        className="p-1.5 text-white bg-blue-600 hover:bg-blue-700 rounded shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
-                      >
-                        {formLoading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span> : <Check size={16} />}
-                      </button>
-                    </td>
-                  </tr>
-                )}
+
                 {services.map((service) => (
                   <tr key={service.ServiceID} className="border-b border-[var(--color-border)] hover:bg-slate-50/50 transition-colors">
                     <td className="p-4 text-gray-500 font-mono">#{service.ServiceID}</td>
-                    <td className="p-4 text-[var(--color-text-main)] font-bold">
-                      {service.ServiceName}
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[var(--color-text-main)] font-bold">{service.ServiceName}</span>
+                        {!!service.IsEmergency && (
+                          <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
+                            <ShieldAlert size={12} className="stroke-[3px]" /> {t('emergency')}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 text-right text-[var(--color-text-main)] font-semibold">
                       ETB {Number(service.Price).toFixed(2)}
@@ -277,14 +243,14 @@ export default function Services() {
         )}
       </div>
 
-      {}
+      { }
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 bg-gray-50/50">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Scissors size={20} className="text-[var(--color-primary)]" />
-                {editingItem ? 'Edit Service' : 'Add New Service'}
+                {editingItem ? t('editService') : t('addNewService')}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -303,7 +269,7 @@ export default function Services() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Service Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">{t('serviceName')}</label>
                   <input
                     type="text"
                     name="serviceName"
@@ -317,7 +283,7 @@ export default function Services() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Price (ETB)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">{t('price')} (ETB)</label>
                   <input
                     type="number"
                     name="price"
@@ -330,6 +296,24 @@ export default function Services() {
                     required
                   />
                 </div>
+
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 mt-2">
+                  <input
+                    type="checkbox"
+                    id="isEmergency"
+                    checked={formData.isEmergency}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isEmergency: e.target.checked }))}
+                    className="w-5 h-5 text-[var(--color-primary)] border-gray-300 rounded focus:ring-[var(--color-primary)]"
+                  />
+                  <div>
+                    <label htmlFor="isEmergency" className="text-sm font-bold text-gray-900 block cursor-pointer">
+                      {t('markAsEmergency')}
+                    </label>
+                    <p className="text-[10px] text-gray-500 leading-tight">
+                      {t('emergencyServiceOnly')}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-gray-100">
@@ -339,7 +323,7 @@ export default function Services() {
                   disabled={formLoading}
                   className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
@@ -351,7 +335,7 @@ export default function Services() {
                   ) : (
                     <Check size={16} />
                   )}
-                  {editingItem ? 'Save Changes' : 'Create Service'}
+                  {editingItem ? t('saveChanges') : t('createService')}
                 </button>
               </div>
             </form>
@@ -359,7 +343,7 @@ export default function Services() {
         </div>
       )}
 
-      {}
+      { }
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -367,7 +351,7 @@ export default function Services() {
               <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Service</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('deleteService')}</h3>
               <p className="text-gray-500 text-sm">
                 Are you sure you want to delete <span className="font-semibold text-gray-800">"{editingItem?.ServiceName}"</span>? This action cannot be undone.
               </p>
@@ -378,7 +362,7 @@ export default function Services() {
                 disabled={formLoading}
                 className="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleDelete}
@@ -388,7 +372,7 @@ export default function Services() {
                 {formLoading ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                 ) : (
-                  "Yes, Delete It"
+                  t('yesDeleteIt')
                 )}
               </button>
             </div>

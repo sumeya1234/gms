@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Ale
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { useVehicleStore } from '../../store/vehicleStore';
@@ -11,6 +12,7 @@ import showAlert from '../../utils/alert';
 export default function AddVehicleScreen({ navigation }) {
   const { t } = useTranslation();
   const { addVehicle, isLoading } = useVehicleStore();
+  const insets = useSafeAreaInsets();
 
   const [plateNumber, setPlateNumber] = useState('');
   const [model, setModel] = useState('');
@@ -22,6 +24,15 @@ export default function AddVehicleScreen({ navigation }) {
 
     if (!plateNumber.trim() || !model.trim() || !type.trim()) {
       setError(t('All fields are required'));
+      return;
+    }
+
+    // Ethiopian plate format: 1-3 letters, optional separator, 4-5 digits, optional trailing letter
+    // e.g. AA 12345, 3-12345, AA12345A, ABC-1234
+    const plateRegex = /^[A-Za-z0-9]{1,3}[\s-]?\d{4,5}[A-Za-z]?$/;
+    const cleanedPlate = plateNumber.trim().toUpperCase();
+    if (!plateRegex.test(cleanedPlate)) {
+      setError(t('Please enter a valid plate number (e.g. AA 12345 or AA-12345).'));
       return;
     }
 
@@ -80,7 +91,7 @@ export default function AddVehicleScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) + 12 }]}>
         <Button
           title={t('Save Vehicle')}
           onPress={handleAddVehicle}

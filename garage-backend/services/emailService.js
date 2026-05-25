@@ -4,30 +4,30 @@ import logger from '../utils/logger.js';
 let transporter;
 
 async function initTransporter() {
-    if (transporter) return transporter;
+  if (transporter) return transporter;
 
-    
-    transporter = nodemailer.createTransport({
-  service: 'gmail', 
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    
-    rejectUnauthorized: false 
-  }
-});
-    
-    try {
-      await transporter.verify();
-      logger.info("SMTP Transporter is ready to send emails");
-    } catch (err) {
-      logger.error(`SMTP Connection Error: ${err.message}`);
+
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+
+      rejectUnauthorized: false
     }
+  });
 
-    return transporter;
+  try {
+    await transporter.verify();
+    logger.info("SMTP Transporter is ready to send emails");
+  } catch (err) {
+    logger.error(`SMTP Connection Error: ${err.message}`);
   }
+
+  return transporter;
+}
 
 export const sendTemporaryPasswordEmail = async (email, name, password, accountType = "Mechanic") => {
   try {
@@ -54,7 +54,7 @@ export const sendTemporaryPasswordEmail = async (email, name, password, accountT
     });
 
     logger.info(`Email successfully sent to ${email}. Message ID: ${info.messageId}`);
-    
+
     return true;
   } catch (error) {
     logger.error(`Failed to send email to ${email}: ${error.message}`);
@@ -93,6 +93,38 @@ export const sendPasswordResetOTP = async (email, otp) => {
   } catch (error) {
     logger.error(`Failed to send password reset email to ${email}: ${error.message}`);
     console.error("Password reset email sending failed:", error);
+    return false;
+  }
+};
+export const sendRegistrationOTP = async (email, otp) => {
+  try {
+    const mailer = await initTransporter();
+
+    const info = await mailer.sendMail({
+      from: `"Garage Management System" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Email Verification - GMS",
+      text: `Hello,\n\nThank you for signing up for Garage Management System. Your 6-digit verification code is: ${otp}\n\nThis code is valid for 15 minutes.\n\nBest regards,\nGMS Team`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+          <h2 style="color: #1890ff;">Verify Your Email</h2>
+          <p>Hello,</p>
+          <p>Thank you for signing up for Garage Management System. To complete your registration, please enter the following verification code:</p>
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; font-size: 24px; font-weight: bold; letter-spacing: 5px; text-align: center; color: #1890ff;">
+            ${otp}
+          </div>
+          <p>This code is valid for <strong>15 minutes</strong>.</p>
+          <br/>
+          <p>Best regards,<br/>GMS Team</p>
+        </div>
+      `,
+    });
+
+    logger.info(`Registration OTP email sent to ${email}. Message ID: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    logger.error(`Failed to send registration email to ${email}: ${error.message}`);
+    console.error("Registration email sending failed:", error);
     return false;
   }
 };

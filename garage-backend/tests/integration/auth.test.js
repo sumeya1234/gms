@@ -9,7 +9,8 @@ describe('Auth Endpoints', () => {
         email: `testuser-${Date.now()}@example.com`,
         phone: `+123456${Date.now().toString().slice(-4)}`, 
         password: 'strongPassword123!',
-        role: 'Customer'
+        role: 'Customer',
+        otp: '123456'
     };
 
     let userToken = '';

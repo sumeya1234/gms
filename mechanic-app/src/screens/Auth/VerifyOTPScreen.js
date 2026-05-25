@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView } from 'react-native';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function VerifyOTPScreen({ navigation, route }) {
   const { email, devOtp } = route.params;
+  const { t } = useTranslation();
   const [otp, setOtp] = useState(devOtp || ''); // Pre-fill in dev mode if provided
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -19,7 +21,7 @@ export default function VerifyOTPScreen({ navigation, route }) {
 
   const handleVerify = () => {
     if (otp.length !== 6) {
-      setErrorMsg('Please enter the 6-digit code');
+      setErrorMsg(t('Please enter the 6-digit code'));
       return;
     }
     
@@ -40,12 +42,12 @@ export default function VerifyOTPScreen({ navigation, route }) {
         >
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
-          <Text style={styles.backText}>Change Email</Text>
+          <Text style={styles.backText}>{t('Change Email')}</Text>
         </TouchableOpacity>
 
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Verify OTP</Text>
-          <Text style={styles.subtitle}>Enter the 6-digit code sent to {email}</Text>
+          <Text style={styles.title}>{t('Verify OTP')}</Text>
+          <Text style={styles.subtitle}>{t('Enter the 6-digit code sent to')} {email}</Text>
         </View>
 
         <View style={styles.formContainer}>
@@ -65,7 +67,7 @@ export default function VerifyOTPScreen({ navigation, route }) {
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleVerify} disabled={loading}>
-            <Text style={styles.buttonText}>Verify Code</Text>
+            <Text style={styles.buttonText}>{t('Verify Code')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -74,7 +76,7 @@ export default function VerifyOTPScreen({ navigation, route }) {
             onPress={() => {}}
           >
             <Text style={[styles.resendText, timer > 0 && styles.resendDisabled]}>
-              {timer > 0 ? `Resend code in ${timer}s` : 'Resend Code'}
+              {timer > 0 ? `${t('Resend code in')} ${timer}s` : t('Resend Code')}
             </Text>
             </TouchableOpacity>
           </View>

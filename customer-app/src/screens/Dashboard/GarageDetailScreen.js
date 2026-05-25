@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator, Linking, Platform } from 'react-native';
-import { ChevronLeft, Heart, CheckCircle, MapPin, Star, MessageSquare, CalendarClock, AlertTriangle, Navigation } from 'lucide-react-native';
+import { ChevronLeft, CheckCircle, MapPin, Star, MessageSquare, CalendarClock, AlertTriangle, Navigation } from 'lucide-react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { useFeedbackStore } from '../../store/feedbackStore';
 import Skeleton from '../../components/Skeleton';
@@ -10,6 +11,7 @@ import Skeleton from '../../components/Skeleton';
 const { width } = Dimensions.get('window');
 
 export default function GarageDetailScreen({ route, navigation }) {
+  const { t } = useTranslation();
   const { garage, intentServices, isEmergency } = route.params;
 
   const { garageReviews, fetchGarageReviews, isLoading } = useFeedbackStore();
@@ -21,27 +23,27 @@ export default function GarageDetailScreen({ route, navigation }) {
     fetchGarageReviews(garage.id || garage.GarageID);
   }, []);
 
-  
+
   const [selectedServices, setSelectedServices] = useState(intentServices || []);
   const dayLabels = {
-    monday: 'Monday',
-    tuesday: 'Tuesday',
-    wednesday: 'Wednesday',
-    thursday: 'Thursday',
-    friday: 'Friday',
-    saturday: 'Saturday',
-    sunday: 'Sunday'
+    monday: t('Monday'),
+    tuesday: t('Tuesday'),
+    wednesday: t('Wednesday'),
+    thursday: t('Thursday'),
+    friday: t('Friday'),
+    saturday: t('Saturday'),
+    sunday: t('Sunday')
   };
   const workingHours = garage.workingHours || {};
   const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
   const shortDay = {
-    monday: 'Mon',
-    tuesday: 'Tue',
-    wednesday: 'Wed',
-    thursday: 'Thu',
-    friday: 'Fri',
-    saturday: 'Sat',
-    sunday: 'Sun'
+    monday: t('Mon'),
+    tuesday: t('Tue'),
+    wednesday: t('Wed'),
+    thursday: t('Thu'),
+    friday: t('Fri'),
+    saturday: t('Sat'),
+    sunday: t('Sun')
   };
 
   const formatTime12h = (timeStr) => {
@@ -54,7 +56,7 @@ export default function GarageDetailScreen({ route, navigation }) {
   };
 
   const getHourLabel = (day) => {
-    if (!day?.isOpen || !day?.open || !day?.close) return 'Closed';
+    if (!day?.isOpen || !day?.open || !day?.close) return t('Closed');
     return `${formatTime12h(day.open)} - ${formatTime12h(day.close)}`;
   };
 
@@ -74,11 +76,11 @@ export default function GarageDetailScreen({ route, navigation }) {
     return groups;
   })();
 
-  const toggleService = (service) => {
-    if (selectedServices.includes(service)) {
-      setSelectedServices(selectedServices.filter(s => s !== service));
+  const toggleService = (serviceName) => {
+    if (selectedServices.includes(serviceName)) {
+      setSelectedServices(selectedServices.filter(s => s !== serviceName));
     } else {
-      setSelectedServices([...selectedServices, service]);
+      setSelectedServices([...selectedServices, serviceName]);
     }
   };
 
@@ -87,7 +89,7 @@ export default function GarageDetailScreen({ route, navigation }) {
     const lng = garage.location.longitude;
     const label = encodeURIComponent(garage.name);
 
-    
+
     if (!lat || !lng) return;
 
     const url = Platform.select({
@@ -104,28 +106,56 @@ export default function GarageDetailScreen({ route, navigation }) {
         <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
           <ChevronLeft size={24} color={colors.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Garage Details</Text>
-        <TouchableOpacity style={styles.iconButton}>
-          <Heart size={24} color={colors.textDark} />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('Garage Details')}</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-        {}
+        {/* Garage Images */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesScroll}>
-          <View style={styles.imageWrapper}>
-            <Image source={{ uri: garage.imageUrl }} style={styles.garageImage} />
-          </View>
-          <View style={styles.imageWrapper}>
-            <Image source={{ uri: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
-          </View>
-          <View style={styles.imageWrapper}>
-            <Image source={{ uri: "https://images.unsplash.com/photo-1632823438641-69279dc60db7?auto=format&fit=crop&w=600&q=80" }} style={styles.garageImage} />
-          </View>
+          {(() => {
+            let images = [];
+            try {
+              const logo = garage.LogoUrl || garage.logoUrl;
+              const rawImages = garage.Images || garage.images;
+
+              if (logo && logo.trim() !== "") {
+                images.push(logo);
+              }
+
+              if (rawImages) {
+                const parsedImages = typeof rawImages === 'string' ? JSON.parse(rawImages) : rawImages;
+                if (Array.isArray(parsedImages)) {
+                  parsedImages.forEach(img => {
+                    if (img && img.trim() !== "" && img !== logo) {
+                      images.push(img);
+                    }
+                  });
+                }
+              }
+            } catch (e) {
+              console.warn("Failed to parse garage images", e);
+            }
+
+            if (images.length === 0) {
+              const fallbackUrl = garage.imageUrl || "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=800&q=80";
+              return (
+                <View style={styles.imageWrapper}>
+                  <Image source={{ uri: fallbackUrl }} style={styles.garageImage} />
+                </View>
+              );
+            }
+
+            return images.map((imgUrl, index) => (
+              <View key={index} style={styles.imageWrapper}>
+                <Image source={{ uri: imgUrl }} style={styles.garageImage} />
+              </View>
+            ));
+          })()}
         </ScrollView>
 
         <View style={styles.content}>
-          {}
+          { }
           <View style={styles.titleRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.garageName}>{garage.name}</Text>
@@ -133,10 +163,9 @@ export default function GarageDetailScreen({ route, navigation }) {
                 {garage.isVerified && (
                   <View style={styles.verifiedBadge}>
                     <CheckCircle size={12} color={colors.primaryBlue} />
-                    <Text style={styles.verifiedText}>Verified Business</Text>
+                    <Text style={styles.verifiedText}>{t('Verified Business')}</Text>
                   </View>
                 )}
-                <Text style={styles.estText}>• Est. 2015</Text>
               </View>
             </View>
             <View style={styles.statusBadge}>
@@ -146,8 +175,21 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.locationRow}>
             <MapPin size={16} color={colors.textGray} />
-            <Text style={styles.locationText}>{garage.distance} miles away • {garage.location.latitude}, {garage.location.longitude}</Text>
+            <Text style={styles.locationText}>{garage.address || t('Address not specified')} • {garage.distance} mi</Text>
           </View>
+          {garage.contactNumber ? (
+            <TouchableOpacity
+              style={[styles.locationRow, { marginTop: 0, marginBottom: 12 }]}
+              onPress={() => Linking.openURL(`tel:${garage.contactNumber}`)}
+            >
+              <View style={{ width: 16, alignItems: 'center' }}>
+                <Text style={{ fontSize: 14 }}>📞</Text>
+              </View>
+              <Text style={[styles.locationText, { color: colors.primaryBlue, fontWeight: 'bold' }]}>
+                {garage.contactNumber} ({t('Tap to Call')})
+              </Text>
+            </TouchableOpacity>
+          ) : null}
 
           <View style={styles.ratingRow}>
             <View style={styles.ratingBadge}>
@@ -161,7 +203,7 @@ export default function GarageDetailScreen({ route, navigation }) {
               <Star size={16} color={colors.primaryBlue} />
             </View>
             <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: reviewsSectionY.current, animated: true })}>
-              <Text style={styles.reviewsText}>See all {garageReviews.length} reviews</Text>
+              <Text style={styles.reviewsText}>{t('See all {{count}} reviews', { count: garageReviews.length })}</Text>
             </TouchableOpacity>
           </View>
 
@@ -169,36 +211,36 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.divider} />
 
-          {}
+          { }
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Tap to add to request</Text>
+            <Text style={styles.sectionTitle}>{t('Tap to add to request')}</Text>
           </View>
 
-          {garage.services.map((service, index) => {
-            const isSelected = selectedServices.includes(service);
+          {(garage.serviceDetails || []).map((service, index) => {
+            const isSelected = selectedServices.includes(service.ServiceName);
             return (
               <TouchableOpacity
                 key={index}
                 style={[styles.serviceItem, isSelected && { borderColor: colors.primaryBlue, backgroundColor: 'rgba(19, 127, 236, 0.03)' }]}
-                onPress={() => toggleService(service)}
+                onPress={() => toggleService(service.ServiceName)}
                 activeOpacity={0.8}
               >
                 <View style={[styles.serviceIconWrap, isSelected && { backgroundColor: colors.primaryBlue }]}>
                   <CheckCircle size={20} color={isSelected ? colors.white : colors.primaryBlue} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.serviceName}>{service}</Text>
-                  <Text style={styles.serviceSub}>Expert mechanics</Text>
+                  <Text style={styles.serviceName}>{t(service.ServiceName)}</Text>
+                  <Text style={styles.serviceSub}>{t('Expert mechanics')}</Text>
                 </View>
-                <Text style={styles.servicePrice}>From ETB {garage.startingPrice + index * 10}</Text>
+                <Text style={styles.servicePrice}>ETB {service.Price}</Text>
               </TouchableOpacity>
             );
           })}
 
           <View style={styles.divider} />
 
-          {}
-          <Text style={styles.sectionTitle}>Working Hours</Text>
+          { }
+          <Text style={styles.sectionTitle}>{t('Working Hours')}</Text>
           {groupedHours.map((group) => {
             const dayText = group.start === group.end
               ? shortDay[group.start]
@@ -207,7 +249,7 @@ export default function GarageDetailScreen({ route, navigation }) {
               <View key={`${group.start}-${group.end}-${group.label}`} style={styles.hoursRow}>
                 <Text style={styles.dayText}>{dayText}</Text>
                 {group.label === 'Closed' ? (
-                  <Text style={styles.closedText}>Closed</Text>
+                  <Text style={styles.closedText}>{t('Closed')}</Text>
                 ) : (
                   <Text style={styles.hoursText}>{group.label}</Text>
                 )}
@@ -216,10 +258,10 @@ export default function GarageDetailScreen({ route, navigation }) {
           })}
 
           <View style={[styles.sectionHeader, { marginTop: 16 }]}>
-            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Location</Text>
+            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>{t('Location')}</Text>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }} onPress={openDirections}>
               <Navigation size={16} color={colors.primaryBlue} />
-              <Text style={styles.viewAll}>Get Directions</Text>
+              <Text style={styles.viewAll}>{t('Get Directions')}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.mapWrap}>
@@ -238,11 +280,11 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <View style={styles.divider} />
 
-          {}
+          { }
           <View onLayout={(e) => { reviewsSectionY.current = e.nativeEvent.layout.y; }} style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Customer Reviews ({garageReviews.length})</Text>
+            <Text style={styles.sectionTitle}>{t('Customer Reviews ({{count}})', { count: garageReviews.length })}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('AddReview', { garage })}>
-              <Text style={styles.viewAll}>Write a Review</Text>
+              <Text style={styles.viewAll}>{t('Write a Review')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -270,7 +312,7 @@ export default function GarageDetailScreen({ route, navigation }) {
               </View>
             </View>
           ) : garageReviews.length === 0 ? (
-            <Text style={{ color: colors.textGray, marginBottom: 16 }}>No reviews yet. Be the first to leave one!</Text>
+            <Text style={{ color: colors.textGray, marginBottom: 16 }}>{t('No reviews yet. Be the first to leave one!')}</Text>
           ) : (
             <View style={{ gap: 12, marginBottom: 16 }}>
               {garageReviews.map((rev, idx) => (
@@ -300,19 +342,23 @@ export default function GarageDetailScreen({ route, navigation }) {
 
           <TouchableOpacity style={styles.complaintBtn} onPress={() => navigation.navigate('AddComplaint', { garage })}>
             <AlertTriangle size={18} color="#ef4444" />
-            <Text style={styles.complaintText}>Report an Issue (Private)</Text>
+            <Text style={styles.complaintText}>{t('Report an Issue (Private)')}</Text>
           </TouchableOpacity>
 
         </View>
       </ScrollView>
 
-      {}
+      { }
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom || 16 }]}>
         <TouchableOpacity style={styles.chatBtn}>
           <MessageSquare size={24} color={colors.primaryBlue} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.requestBtn} onPress={() => navigation.navigate('ServiceRequest', { garage, defaultServices: selectedServices, isEmergency })}>
-          <Text style={styles.requestBtnText}>Request Service{selectedServices.length > 0 ? ` (${selectedServices.length})` : ''}</Text>
+          <Text style={styles.requestBtnText}>
+            {selectedServices.length > 0 
+              ? t('Request Service ({{count}})', { count: selectedServices.length }) 
+              : t('Request Service')}
+          </Text>
           <CalendarClock size={20} color={colors.white} />
         </TouchableOpacity>
       </View>
@@ -345,7 +391,6 @@ const styles = StyleSheet.create({
   verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   verifiedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(19,127,236,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, gap: 4 },
   verifiedText: { fontSize: 12, color: colors.primaryBlue, fontWeight: 'bold' },
-  estText: { fontSize: 12, color: colors.textGray },
   statusBadge: { backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
   statusText: { color: '#16a34a', fontSize: 12, fontWeight: 'bold' },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginVertical: 12 },

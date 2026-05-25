@@ -4,9 +4,11 @@ import CustomAlert from '../../components/CustomAlert';
 import { AuthContext } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 export default function ResetPasswordScreen({ navigation, route }) {
   const { email, otp } = route.params;
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,21 +18,21 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'info', buttons: [] });
   const closeAlert = () => setAlertConfig(prev => ({ ...prev, visible: false }));
-  const showAlert = (title, message, type = 'info', buttons = [{ text: 'OK', onPress: closeAlert }]) => {
+  const showAlert = (title, message, type = 'info', buttons = [{ text: t('OK'), onPress: closeAlert }]) => {
     setAlertConfig({ visible: true, title, message, type, buttons });
   };
 
   const handleResetPassword = async () => {
     if (!password || !confirmPassword) {
-      setErrorMsg('Please enter and confirm your new password');
+      setErrorMsg(t('Please enter and confirm your new password'));
       return;
     }
     if (password !== confirmPassword) {
-      setErrorMsg('Passwords do not match');
+      setErrorMsg(t('Passwords do not match'));
       return;
     }
     if (password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters long');
+      setErrorMsg(t('Password must be at least 6 characters long'));
       return;
     }
 
@@ -42,10 +44,10 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
     if (res.success) {
       showAlert(
-        'Success',
-        'Your password has been reset successfully. Please log in with your new password.',
+        t('Success'),
+        t('Your password has been reset successfully. Please log in with your new password.'),
         'success',
-        [{ text: 'OK', onPress: () => { closeAlert(); navigation.navigate('Login'); } }]
+        [{ text: t('OK'), onPress: () => { closeAlert(); navigation.navigate('Login'); } }]
       );
     } else {
       setErrorMsg(res.error);
@@ -64,19 +66,19 @@ export default function ResetPasswordScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>New Password</Text>
-            <Text style={styles.subtitle}>Set a secure password for your account.</Text>
+            <Text style={styles.title}>{t('New Password')}</Text>
+            <Text style={styles.subtitle}>{t('Set a secure password for your account.')}</Text>
           </View>
 
           <View style={styles.formContainer}>
             {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>New Password</Text>
+              <Text style={styles.label}>{t('New Password')}</Text>
               <View style={styles.passwordWrapper}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Enter new password"
+                  placeholder={t("Enter new password")}
                   placeholderTextColor="#666"
                   value={password}
                   onChangeText={setPassword}
@@ -89,10 +91,10 @@ export default function ResetPasswordScreen({ navigation, route }) {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm New Password</Text>
+              <Text style={styles.label}>{t('Confirm New Password')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Confirm new password"
+                placeholder={t("Confirm new password")}
                 placeholderTextColor="#666"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -104,7 +106,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Reset Password</Text>
+                <Text style={styles.buttonText}>{t('Reset Password')}</Text>
               )}
             </TouchableOpacity>
           </View>

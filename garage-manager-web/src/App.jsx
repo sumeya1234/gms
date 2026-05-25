@@ -6,7 +6,6 @@ import OwnerDashboard from './pages/OwnerDashboard';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import { useAuthStore } from './stores/authStore';
-
 import Bookings from './pages/Bookings';
 import Mechanics from './pages/Mechanics';
 import Services from './pages/Services';
@@ -14,10 +13,12 @@ import Inventory from './pages/Inventory';
 import Settings from './pages/Settings';
 import Feedback from './pages/Feedback';
 import AccountantPortal from './pages/AccountantPortal';
+import Vehicles from './pages/Vehicles';
 
 function App() {
   const { isAuthenticated, loading, fetchProfile, user } = useAuthStore();
-  const role = user?.Role || user?.role;
+  const rawRole = user?.Role || user?.role || "";
+  const role = rawRole.toLowerCase() === 'manager' ? 'GarageManager' : rawRole;
 
   React.useEffect(() => {
     fetchProfile();
@@ -42,7 +43,7 @@ function App() {
 
   return (
     <Routes>
-      {}
+      { }
       <Route path="/login" element={
         isAuthenticated ? <Navigate to="/" replace /> : <Login />
       } />
@@ -50,15 +51,16 @@ function App() {
         isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />
       } />
 
-      {}
+      { }
       <Route
         path="/"
         element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
       >
         <Route index element={getDashboard()} />
 
-        {}
+        { }
         <Route path="bookings" element={role === 'GarageManager' ? <Bookings /> : <Navigate to="/" replace />} />
+        <Route path="vehicles" element={role === 'GarageManager' ? <Vehicles /> : <Navigate to="/" replace />} />
         <Route path="staff" element={role === 'GarageManager' ? <Mechanics /> : <Navigate to="/" replace />} />
         <Route path="mechanics" element={<Navigate to="/staff" replace />} />
         <Route path="accountants" element={<Navigate to="/staff" replace />} />
@@ -67,11 +69,11 @@ function App() {
         <Route path="feedback" element={role === 'GarageManager' ? <Feedback /> : <Navigate to="/" replace />} />
         <Route path="settings" element={role !== 'GarageOwner' ? <Settings /> : <Navigate to="/" replace />} />
 
-        {}
+        { }
         <Route path="accounting" element={<Navigate to="/" replace />} />
       </Route>
 
-      {}
+      { }
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

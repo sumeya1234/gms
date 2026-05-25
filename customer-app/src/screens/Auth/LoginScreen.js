@@ -10,7 +10,7 @@ import { colors } from '../../theme/colors';
 export default function LoginScreen({ navigation }) {
   const { t } = useTranslation();
   const { signIn, isLoading, error, clearError } = useAuthStore();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
@@ -24,19 +24,19 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     setLocalError('');
     if (!email || !password) {
-      setLocalError('Please fill in all fields');
+      setLocalError(t('Please fill in all fields'));
       return;
     }
     try {
       await signIn(email, password);
     } catch (err) {
-      
+
     }
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
@@ -48,7 +48,7 @@ export default function LoginScreen({ navigation }) {
           </View>
         )}
 
-        <Input 
+        <Input
           label={t('Email')}
           placeholder="your@email.com"
           value={email}
@@ -57,7 +57,7 @@ export default function LoginScreen({ navigation }) {
           keyboardType="email-address"
         />
 
-        <Input 
+        <Input
           label={t('Password')}
           placeholder="••••••••"
           value={password}
@@ -66,14 +66,14 @@ export default function LoginScreen({ navigation }) {
           leftIcon={<Lock color={colors.textGray} size={20} />}
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.forgotPasswordWrap}
           onPress={() => navigation.navigate('ForgotPassword')}
         >
           <Text style={styles.forgotPasswordText}>{t('Forgot Password?')}</Text>
         </TouchableOpacity>
 
-        <Button 
+        <Button
           title={t('Login')}
           onPress={handleLogin}
           style={{ marginTop: 20 }}
@@ -81,7 +81,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={styles.footerText}>{t("Don't have an account? ")}</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.footerLink}>{t('Register')}</Text>
           </TouchableOpacity>
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     justifyContent: 'center',
+    paddingBottom: 80,
   },
   title: {
     fontSize: 32,

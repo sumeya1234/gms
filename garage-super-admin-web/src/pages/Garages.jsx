@@ -17,15 +17,58 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
     bankAccountNumber: garage?.BankAccountNumber || '',
     bankAccountName: garage?.BankAccountName || ''
   });
-  const [loading, setLoading] = useState(false);
+
+  const [step, setStep] = useState(1);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [owners, setOwners] = useState([]);
-  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [managerInput, setManagerInput] = useState('');
   const [ownerInput, setOwnerInput] = useState('');
   const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false);
   const [isOwnerDropdownOpen, setIsOwnerDropdownOpen] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [banks, setBanks] = useState([]);
+
+  const updateFormField = (field, value) => {
+    setForm(f => ({ ...f, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (garage) {
+      setForm({
+        Name: garage.Name || '',
+        Location: garage.Location || '',
+        ContactNumber: garage.ContactNumber || '',
+        ManagerID: garage.ManagerID || '',
+        OwnerID: garage.OwnerID || '',
+        bankCode: garage.BankCode || '',
+        bankAccountNumber: garage.BankAccountNumber || '',
+        bankAccountName: garage.BankAccountName || ''
+      });
+      setStep(1);
+      setError(null);
+      setFieldErrors({});
+    } else {
+      setForm({
+        Name: '', Location: '', ContactNumber: '',
+        ManagerID: '', OwnerID: '',
+        bankCode: '', bankAccountNumber: '', bankAccountName: ''
+      });
+      setStep(1);
+      setFieldErrors({});
+      setError(null);
+    }
+  }, [garage]);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,8 +95,10 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
       const m = managers.find(u => u.UserID == form.ManagerID);
       if (m) {
         setManagerInput(m.FullName);
+        return;
       }
     }
+    setManagerInput('');
   }, [form.ManagerID, managers.length]);
 
   useEffect(() => {
@@ -61,8 +106,10 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
       const o = owners.find(u => u.UserID == form.OwnerID);
       if (o) {
         setOwnerInput(o.FullName);
+        return;
       }
     }
+    setOwnerInput('');
   }, [form.OwnerID, owners.length]);
 
   const filteredManagers = managers.filter(m =>
@@ -75,21 +122,85 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
     o.Email?.toLowerCase().includes(ownerInput.toLowerCase())
   );
 
+  const validateStep = () => {
+    const newFieldErrors = {};
+    if (step === 1) {
+      if (!form.Name.trim() || form.Name.length < 3) {
+        newFieldErrors.Name = t('garagesValidationNameMin');
+      } else if (!/^[a-zA-Z\s\-\.]+$/.test(form.Name)) {
+        newFieldErrors.Name = t('garagesValidationNameRegex');
+      }
+      if (!form.Location.trim() || form.Location.length < 3) {
+        newFieldErrors.Location = t('garagesValidationLocation');
+      }
+      if (form.ContactNumber && !/^(09|07)[0-9]{8}$/.test(form.ContactNumber)) {
+        newFieldErrors.ContactNumber = t('garagesValidationPhone');
+      }
+    } else if (step === 2) {
+      if (!form.bankCode) {
+        newFieldErrors.bankCode = t('garagesValidationBank');
+      }
+      if (!form.bankAccountNumber.trim()) {
+        newFieldErrors.bankAccountNumber = t('garagesValidationAccNum');
+      } else if (!/^[0-9]{10,20}$/.test(form.bankAccountNumber)) {
+        newFieldErrors.bankAccountNumber = t('garagesValidationAccNumFormat');
+      }
+      if (!form.bankAccountName.trim()) {
+        newFieldErrors.bankAccountName = t('garagesValidationAccName');
+      } else if (form.bankAccountName.trim().length < 3) {
+        newFieldErrors.bankAccountName = t('garagesValidationAccNameLength');
+      } else if (!/^[a-zA-Z\s\-]+$/.test(form.bankAccountName)) {
+        newFieldErrors.bankAccountName = t('garagesValidationAccNameRegex');
+      }
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
+      return false;
+    }
+    return true;
+  };
+
+
+  const handleNext = () => {
+    if (validateStep()) {
+      setStep(prev => prev + 1);
+      setError(null);
+    }
+  };
+
+  const handleBack = () => {
+    setStep(prev => prev - 1);
+    setError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.Name.trim() || !form.Location.trim()) { setError('Garages must have a name and location.'); return; }
-    if (!form.bankCode || !form.bankAccountNumber.trim() || !form.bankAccountName.trim()) { setError('Garages must have full bank details configured.'); return; }
+    if (step < 3) {
+      handleNext();
+      return;
+    }
 
-    
+    setError(null);
+    if (!validateStep()) return;
+
     if (form.ManagerID) {
       const isAssignedElsewhere = allGarages.some(g => g.ManagerID == form.ManagerID && g.GarageID !== garage?.GarageID);
       if (isAssignedElsewhere) {
-        setError('This manager is already assigned to another garage. A manager can only be assigned to one garage.');
+        setError(t('garagesValidationManager'));
         return;
       }
     }
 
-    setLoading(true); setError(null);
+    if (form.OwnerID) {
+      const isOwnerElsewhere = allGarages.some(g => g.OwnerID == form.OwnerID && g.GarageID !== garage?.GarageID);
+      if (isOwnerElsewhere) {
+        setError(t('onlyOwnersAssignedOnce'));
+        return;
+      }
+    }
+
+    setLoading(true); setFieldErrors({});
     try {
       const payload = {
         name: form.Name,
@@ -102,11 +213,22 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
         bankAccountName: form.bankAccountName
       };
 
-      if (isEditing) { await api.put(`/garages/${garage.GarageID}`, payload); }
-      else { await api.post('/garages', payload); }
+      console.log(`[GarageModal] Submitting ${isEditing ? 'PUT' : 'POST'} to /garages${isEditing ? `/${garage.GarageID}` : ''}`, payload);
+
+      if (isEditing) {
+        await api.put(`/garages/${garage.GarageID}`, payload);
+      } else {
+        await api.post('/garages', payload);
+      }
+
       onSaved();
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || 'Failed to save garage.');
+      const backendErrors = err.response?.data?.errors;
+      if (Array.isArray(backendErrors)) {
+        setError(backendErrors.join(', '));
+      } else {
+        setError(err.response?.data?.message || err.response?.data?.error || t('errorSavingGarage'));
+      }
     } finally { setLoading(false); }
   };
 
@@ -115,7 +237,7 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
       <div className="bg-white rounded-3xl p-8 w-full max-w-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] ">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-slate-900 ">
-            {isEditing ? t('Edit Garage') || 'Edit Garage' : t('addNewGarage')}
+            {isEditing ? t('editGarage') : t('addNewGarage')}
           </h2>
           <button id="modal-close-btn" onClick={onClose} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors">
             <X size={20} className="text-slate-500 " />
@@ -123,235 +245,276 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3 items-center text-red-600 mb-6 text-sm font-bold">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3 items-center text-red-600 mb-6 text-sm font-bold animate-in fade-in slide-in-from-top-2 duration-300">
             <AlertCircle size={18} /> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label htmlFor="garage-name" className="font-bold text-sm text-slate-700 ">{t('garageName')} <span className="text-red-500">*</span></label>
-              <input
-                id="garage-name"
-                value={form.Name}
-                onChange={e => setForm(f => ({ ...f, Name: e.target.value }))}
-                placeholder="e.g. Sunrise Auto"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-              />
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              <label htmlFor="garage-location" className="font-bold text-sm text-slate-700 ">{t('location')} <span className="text-red-500">*</span></label>
-              <input
-                id="garage-location"
-                value={form.Location}
-                onChange={e => setForm(f => ({ ...f, Location: e.target.value }))}
-                placeholder="e.g. Bole, Addis Ababa"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label htmlFor="garage-contact" className="font-bold text-sm text-slate-700 ">{t('phone')} / {t('contact')}</label>
-              <input
-                id="garage-contact"
-                value={form.ContactNumber}
-                onChange={e => setForm(f => ({ ...f, ContactNumber: e.target.value }))}
-                placeholder="e.g. 0911234567"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-              />
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="font-bold text-sm text-slate-700 ">Bank <span className="text-red-500">*</span></label>
-              <select
-                value={form.bankCode}
-                onChange={e => setForm(f => ({ ...f, bankCode: e.target.value }))}
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
+        {/* Step Indicator */}
+        <div className="flex items-center gap-2 mb-8">
+          {[1, 2, 3].map((s) => (
+            <React.Fragment key={s}>
+              <div
+                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all ${step >= s ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-slate-100 text-slate-400'
+                  }`}
               >
-                <option value="">Select a Bank...</option>
-                {banks.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+                {step > s ? <CheckCircle size={16} /> : s}
+              </div>
+              {s < 3 && (
+                <div className={`flex-1 h-1 rounded-full transition-all ${step > s ? 'bg-blue-600' : 'bg-slate-100'}`} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
 
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="font-bold text-sm text-slate-700 ">Account Number <span className="text-red-500">*</span></label>
-              <input
-                value={form.bankAccountNumber}
-                onChange={e => setForm(f => ({ ...f, bankAccountNumber: e.target.value }))}
-                placeholder="e.g. 1000123456789"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-              />
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="font-bold text-sm text-slate-700 ">Ext. Account Name <span className="text-red-500">*</span></label>
-              <input
-                value={form.bankAccountName}
-                onChange={e => setForm(f => ({ ...f, bankAccountName: e.target.value }))}
-                placeholder="e.g. Natnael Habtamu"
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2 relative">
-              <label htmlFor="garage-manager" className="font-bold text-sm text-slate-700 ">Garage Manager (Optional)</label>
-              <div className="relative">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          {step === 1 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="garage-name" className="font-bold text-sm text-slate-700 ">{t('garageName')} <span className="text-red-500">*</span></label>
                 <input
-                  id="garage-manager"
-                  type="text"
-                  value={managerInput}
-                  onChange={e => {
-                    setManagerInput(e.target.value);
-                    setIsManagerDropdownOpen(true);
-                    if (form.ManagerID) {
-                      setForm(f => ({ ...f, ManagerID: '' }));
-                    }
-                  }}
-                  onFocus={() => setIsManagerDropdownOpen(true)}
-                  onBlur={() => setTimeout(() => setIsManagerDropdownOpen(false), 200)}
-                  placeholder="Type or select a manager..."
-                  className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
+                  id="garage-name"
+                  value={form.Name}
+                  onChange={e => updateFormField('Name', e.target.value)}
+                  placeholder="e.g. Sunrise Auto"
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.Name ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
                 />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsManagerDropdownOpen(!isManagerDropdownOpen);
-                  }}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
-                >
-                  <svg className={`w-5 h-5 text-slate-400 transition-transform ${isManagerDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                {fieldErrors.Name && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.Name}</p>}
               </div>
 
-              {isManagerDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
-                  <div
-                    className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-slate-700 "
-                    onClick={() => {
-                      setManagerInput('');
-                      setForm(f => ({ ...f, ManagerID: '' }));
-                      setIsManagerDropdownOpen(false);
+              <div className="flex flex-col gap-2">
+                <label htmlFor="garage-location" className="font-bold text-sm text-slate-700 ">{t('location')} <span className="text-red-500">*</span></label>
+                <input
+                  id="garage-location"
+                  value={form.Location}
+                  onChange={e => updateFormField('Location', e.target.value)}
+                  placeholder="e.g. Bole, Addis Ababa"
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.Location ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
+                />
+                {fieldErrors.Location && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.Location}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="garage-contact" className="font-bold text-sm text-slate-700 ">{t('phone')} / {t('contact')}</label>
+                <input
+                  id="garage-contact"
+                  value={form.ContactNumber}
+                  onChange={e => updateFormField('ContactNumber', e.target.value)}
+                  placeholder="e.g. 0911234567"
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.ContactNumber ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
+                />
+                {fieldErrors.ContactNumber && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.ContactNumber}</p>}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex flex-col gap-2">
+                <label className="font-bold text-sm text-slate-700 ">{t('bank')} <span className="text-red-500">*</span></label>
+                <select
+                  value={form.bankCode}
+                  onChange={e => updateFormField('bankCode', e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.bankCode ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
+                >
+                  <option value="">{t('selectBank')}</option>
+                  {banks.map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+                {fieldErrors.bankCode && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.bankCode}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-bold text-sm text-slate-700 ">{t('accountNumber')} <span className="text-red-500">*</span></label>
+                <input
+                  value={form.bankAccountNumber}
+                  onChange={e => updateFormField('bankAccountNumber', e.target.value)}
+                  placeholder="e.g. 1000123456789"
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.bankAccountNumber ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
+                />
+                {fieldErrors.bankAccountNumber && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.bankAccountNumber}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-bold text-sm text-slate-700 ">{t('extAccountName')} <span className="text-red-500">*</span></label>
+                <input
+                  value={form.bankAccountName}
+                  onChange={e => updateFormField('bankAccountName', e.target.value)}
+                  placeholder="e.g. John Doe / Prime Motors"
+                  className={`w-full px-4 py-3 rounded-xl border ${fieldErrors.bankAccountName ? 'border-red-500 ring-2 ring-red-500/10' : 'border-slate-300'} bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm`}
+                />
+                {fieldErrors.bankAccountName && <p className="text-red-500 text-xs font-bold mt-1">{fieldErrors.bankAccountName}</p>}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex flex-col gap-2 relative">
+                <label htmlFor="garage-manager" className="font-bold text-sm text-slate-700 ">{t('garageManager')}</label>
+                <div className="relative">
+                  <input
+                    id="garage-manager"
+                    type="text"
+                    value={managerInput}
+                    onChange={e => {
+                      setManagerInput(e.target.value);
+                      setIsManagerDropdownOpen(true);
+                      if (form.ManagerID) {
+                        setForm(f => ({ ...f, ManagerID: '' }));
+                      }
                     }}
+                    onFocus={() => setIsManagerDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setIsManagerDropdownOpen(false), 200)}
+                    placeholder={t('typeOrSelectManager')}
+                    className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsManagerDropdownOpen(!isManagerDropdownOpen);
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
                   >
-                    <span className="italic">Unassigned</span>
-                  </div>
-                  {filteredManagers.length === 0 && managerInput && (
-                    <div className="px-4 py-2 text-slate-500 ">
-                      No managers found.
-                    </div>
-                  )}
-                  {filteredManagers.map(user => (
+                    <svg className={`w-5 h-5 text-slate-400 transition-transform ${isManagerDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {isManagerDropdownOpen && (
+                  <div className="absolute bottom-full left-0 right-0 mb-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
                     <div
-                      key={user.UserID}
-                      className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex flex-col border-t border-slate-100 "
-                      onClick={() => {
-                        setManagerInput(user.FullName);
-                        setForm(f => ({ ...f, ManagerID: user.UserID }));
+                      className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-slate-700 "
+                      onMouseDown={() => {
+                        setManagerInput('');
+                        updateFormField('ManagerID', '');
                         setIsManagerDropdownOpen(false);
                       }}
                     >
-                      <span className="font-medium text-slate-900 ">{user.FullName}</span>
-                      <span className="text-xs text-slate-500 ">{user.Email}</span>
+                      <span className="italic">{t('unassigned')}</span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2 relative">
-              <label htmlFor="garage-owner" className="font-bold text-sm text-slate-700 ">Garage Owner (Optional)</label>
-              <div className="relative">
-                <input
-                  id="garage-owner"
-                  type="text"
-                  value={ownerInput}
-                  onChange={e => {
-                    setOwnerInput(e.target.value);
-                    setIsOwnerDropdownOpen(true);
-                    if (form.OwnerID) {
-                      setForm(f => ({ ...f, OwnerID: '' }));
-                    }
-                  }}
-                  onFocus={() => setIsOwnerDropdownOpen(true)}
-                  onBlur={() => setTimeout(() => setIsOwnerDropdownOpen(false), 200)}
-                  placeholder="Type or select an owner..."
-                  className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
-                />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsOwnerDropdownOpen(!isOwnerDropdownOpen);
-                  }}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
-                >
-                  <svg className={`w-5 h-5 text-slate-400 transition-transform ${isOwnerDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                    {filteredManagers.length === 0 && managerInput && (
+                      <div className="px-4 py-2 text-slate-500 ">
+                        {t('noManagersFound')}
+                      </div>
+                    )}
+                    {filteredManagers.map(user => (
+                      <div
+                        key={user.UserID}
+                        className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex flex-col border-t border-slate-100 "
+                        onMouseDown={() => {
+                          setManagerInput(user.FullName);
+                          updateFormField('ManagerID', user.UserID);
+                          setIsManagerDropdownOpen(false);
+                        }}
+                      >
+                        <span className="font-medium text-slate-900 ">{user.FullName}</span>
+                        <span className="text-xs text-slate-500 ">{user.Email}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {isOwnerDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
-                  <div
-                    className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-slate-700 "
-                    onClick={() => {
-                      setOwnerInput('');
-                      setForm(f => ({ ...f, OwnerID: '' }));
-                      setIsOwnerDropdownOpen(false);
+              <div className="flex flex-col gap-2 relative">
+                <label htmlFor="garage-owner" className="font-bold text-sm text-slate-700 ">{t('garageOwner')}</label>
+                <div className="relative">
+                  <input
+                    id="garage-owner"
+                    type="text"
+                    value={ownerInput}
+                    onChange={e => {
+                      setOwnerInput(e.target.value);
+                      setIsOwnerDropdownOpen(true);
+                      if (form.OwnerID) {
+                        setForm(f => ({ ...f, OwnerID: '' }));
+                      }
                     }}
+                    onFocus={() => setIsOwnerDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setIsOwnerDropdownOpen(false), 200)}
+                    placeholder={t('typeOrSelectOwner')}
+                    className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-base shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsOwnerDropdownOpen(!isOwnerDropdownOpen);
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
                   >
-                    <span className="italic">Unassigned</span>
-                  </div>
-                  {filteredOwners.length === 0 && ownerInput && (
-                    <div className="px-4 py-2 text-slate-500 ">
-                      No owners found.
-                    </div>
-                  )}
-                  {filteredOwners.map(user => (
+                    <svg className={`w-5 h-5 text-slate-400 transition-transform ${isOwnerDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+
+                {isOwnerDropdownOpen && (
+                  <div className="absolute bottom-full left-0 right-0 mb-2 z-10 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg">
                     <div
-                      key={user.UserID}
-                      className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex flex-col border-t border-slate-100 "
-                      onClick={() => {
-                        setOwnerInput(user.FullName);
-                        setForm(f => ({ ...f, OwnerID: user.UserID }));
+                      className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-slate-700 "
+                      onMouseDown={() => {
+                        setOwnerInput('');
+                        updateFormField('OwnerID', '');
                         setIsOwnerDropdownOpen(false);
                       }}
                     >
-                      <span className="font-medium text-slate-900 ">{user.FullName}</span>
-                      <span className="text-xs text-slate-500 ">{user.Email}</span>
+                      <span className="italic">{t('unassigned')}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    {filteredOwners.length === 0 && ownerInput && (
+                      <div className="px-4 py-2 text-slate-500 ">
+                        {t('noOwnersFound')}
+                      </div>
+                    )}
+                    {filteredOwners.map(user => (
+                      <div
+                        key={user.UserID}
+                        className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex flex-col border-t border-slate-100 "
+                        onMouseDown={() => {
+                          setOwnerInput(user.FullName);
+                          updateFormField('OwnerID', user.UserID);
+                          setIsOwnerDropdownOpen(false);
+                        }}
+                      >
+                        <span className="font-medium text-slate-900 ">{user.FullName}</span>
+                        <span className="text-xs text-slate-500 ">{user.Email}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+          )}
 
-          </div>
           <div className="flex gap-4 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors"
-            >
-              {t('cancel')}
-            </button>
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+              >
+                {t('cancel')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="flex-1 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors"
+              >
+                {t('backBtn', 'Back')}
+              </button>
+            )}
+
             <button
               id="modal-submit-btn"
               type="submit"
               disabled={loading}
               className="flex-1 py-3 rounded-xl border-2 border-blue-600 bg-blue-600 text-white font-bold hover:bg-blue-700 hover:border-blue-700 transition-colors shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading ? 'Saving...' : (isEditing ? t('saveChanges') : t('createGarage'))}
+              {loading ? t('saving') : (step < 3 ? t('nextBtn') : (isEditing ? t('saveChanges') : t('createGarage')))}
             </button>
           </div>
         </form>
@@ -361,16 +524,16 @@ function GarageModal({ garage, allGarages, onClose, onSaved }) {
 }
 
 
-function ConfirmDialog({ garage, onClose, onConfirm, loading }) {
+function ConfirmDialog({ garage, onClose, onConfirm, loading, t }) {
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-4">
       <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] text-center">
         <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
           <Trash2 size={32} className="text-red-500 " />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Archive Garage?</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('archiveGarageConfirm')}</h2>
         <p className="text-slate-500 mb-8 font-medium">
-          <strong className="text-slate-900 ">{garage.Name}</strong> will be archived and hidden from the public view. This action can be reversed.
+          <strong className="text-slate-900 ">{garage.Name}</strong> {t('archiveGarageDesc')}
         </p>
         <div className="flex gap-4">
           <button
@@ -378,7 +541,7 @@ function ConfirmDialog({ garage, onClose, onConfirm, loading }) {
             disabled={loading}
             className="flex-1 py-3 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors disabled:opacity-70"
           >
-            Cancel
+            {t('cancelDesc')}
           </button>
           <button
             id="confirm-archive-btn"
@@ -386,7 +549,7 @@ function ConfirmDialog({ garage, onClose, onConfirm, loading }) {
             disabled={loading}
             className="flex-1 py-3 rounded-xl border-2 border-red-600 bg-red-600 text-white font-bold hover:bg-red-700 hover:border-red-700 transition-colors shadow-lg shadow-red-500/30 hover:shadow-red-500/40 disabled:opacity-70"
           >
-            {loading ? 'Archiving...' : 'Yes, Archive'}
+            {loading ? t('archiving') : t('yesArchive')}
           </button>
         </div>
       </div>
@@ -419,27 +582,33 @@ export default function Garages() {
       const res = await api.get('/garages');
       setGarages(res.data);
     } catch (err) {
-      showToast('Failed to load garages.', 'error');
+      showToast(t('errorLoadingGarages'), 'error');
     } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchGarages(); }, []);
 
   const handleSaved = () => {
-    setShowModal(false); setEditTarget(null);
-    showToast(editTarget ? 'Garage updated successfully.' : 'Garage created successfully.');
-    fetchGarages();
+    const isEdit = !!editTarget;
+    setShowModal(false);
+    setEditTarget(null);
+    showToast(isEdit ? t('garageUpdatedSuccess') : t('garageCreatedSuccess'));
+
+    // Small delay to ensure DB commit is visible on subsequent GET
+    setTimeout(() => {
+      fetchGarages();
+    }, 500);
   };
 
   const handleArchive = async () => {
     setArchiving(true);
     try {
       await api.delete(`/garages/${archiveTarget.GarageID}`);
-      showToast(`"${archiveTarget.Name}" has been archived.`);
+      showToast(`"${archiveTarget.Name}" ${t('garageArchived')}`);
       setArchiveTarget(null);
       fetchGarages();
     } catch (err) {
-      showToast('Failed to archive garage.', 'error');
+      showToast(t('errorArchivingGarage'), 'error');
     } finally { setArchiving(false); }
   };
 
@@ -447,7 +616,7 @@ export default function Garages() {
 
   return (
     <div className="flex flex-col gap-6">
-      {}
+      { }
       {toast && (
         <div className={`fixed bottom-6 right-6 z-[2000] rounded-xl px-5 py-3 flex items-center gap-2 shadow-lg font-medium text-sm border
           ${toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
@@ -456,11 +625,11 @@ export default function Garages() {
         </div>
       )}
 
-      {}
+      { }
       <div className="flex justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 ">{t('garages') || 'Garages'}</h1>
-          <p className="text-slate-500 text-sm mt-1">{garages.length} {t('garages')?.toLowerCase() || 'garages'} {t('activeOnConfig')}</p>
+          <h1 className="text-2xl font-bold text-slate-900 ">{t('garages')}</h1>
+          <p className="text-slate-500 text-sm mt-1">{garages.length} {t('garages').toLowerCase()} {t('activeOnConfigLower')}</p>
         </div>
         <button
           id="add-garage-btn"
@@ -471,19 +640,19 @@ export default function Garages() {
         </button>
       </div>
 
-      {}
+      { }
       <div className="relative w-full max-w-[400px]">
         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           id="garage-search"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder={t('searchGarage') || "Search by name or location..."}
+          placeholder={t('searchByAddress')}
           className="w-full pl-11 pr-5 py-2.5 rounded-full border border-slate-300 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm text-sm"
         />
       </div>
 
-      {}
+      { }
       {loading ? (
         <div className="flex flex-col gap-3">
           {[...Array(4)].map((_, i) => (
@@ -507,7 +676,7 @@ export default function Garages() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  {[t('garageName') || 'Garage', t('location') || 'Location', t('manager') || 'Manager', t('actions') || 'Actions'].map(h => (
+                  {[t('garageName'), t('location'), t('owner'), t('manager'), t('actions')].map(h => (
                     <th key={h} className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-widest">{h}</th>
                   ))}
                 </tr>
@@ -530,13 +699,24 @@ export default function Garages() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {g.ManagerID ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/50">
-                          Manager #{g.ManagerID}
+                      {g.OwnerID ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/50">
+                          {g.OwnerName || `${t('ownerLabelPlaceholder')} ${g.OwnerID}`}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/50 italic">
-                          Unassigned
+                          {t('unassigned')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {g.ManagerID ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+                          {g.ManagerName || `${t('managerLabelPlaceholder')} ${g.ManagerID}`}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/50 italic">
+                          {t('unassigned')}
                         </span>
                       )}
                     </td>
@@ -547,14 +727,14 @@ export default function Garages() {
                           onClick={() => { setEditTarget(g); setShowModal(true); }}
                           className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-700 text-sm font-semibold transition-all shadow-sm"
                         >
-                          <Pencil size={16} className="text-slate-400" /> Edit
+                          <Pencil size={16} className="text-slate-400" /> {t('editText')}
                         </button>
                         <button
                           id={`archive-garage-${g.GarageID}`}
                           onClick={() => setArchiveTarget(g)}
                           className="flex items-center gap-2 px-3 py-2 rounded-lg border border-red-100 bg-red-50 hover:bg-red-100 hover:border-red-200 text-red-600 text-sm font-semibold transition-all"
                         >
-                          <Trash2 size={16} /> Archive
+                          <Trash2 size={16} /> {t('archiveText')}
                         </button>
                       </div>
                     </td>
@@ -566,7 +746,7 @@ export default function Garages() {
         </div>
       )}
 
-      {}
+      { }
       {showModal && (
         <GarageModal
           garage={editTarget}
@@ -581,6 +761,7 @@ export default function Garages() {
           onClose={() => setArchiveTarget(null)}
           onConfirm={handleArchive}
           loading={archiving}
+          t={t}
         />
       )}
     </div>

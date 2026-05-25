@@ -11,8 +11,8 @@ router.get("/banks", protect, fetchBanks);
 router.post("/pay", protect, authorize("Customer"), validate(validatePayment), makePayment);
 router.get("/verify/:tx_ref", protect, verifyPayment);
 router.put("/cancel/:tx_ref", protect, cancelPayment);
-router.post("/webhook", webhookPayment); 
-router.put("/confirm-cash/:requestId", protect, authorize("Accountant"), confirmCash);
-router.put("/confirm-online/:requestId", protect, authorize("Accountant"), confirmOnline);
+router.post("/webhook", webhookPayment);
+router.put("/confirm-cash/:requestId", protect, authorize("Accountant", "GarageManager"), confirmCash);
+router.put("/confirm-online/:requestId", protect, authorize("Accountant", "GarageManager"), confirmOnline);
 
 export default router;

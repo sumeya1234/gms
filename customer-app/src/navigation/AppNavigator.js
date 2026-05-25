@@ -22,6 +22,9 @@ import NotificationScreen from '../screens/Dashboard/NotificationScreen';
 import AddReviewScreen from '../screens/Dashboard/AddReviewScreen';
 import AddComplaintScreen from '../screens/Dashboard/AddComplaintScreen';
 import EmergencyScreen from '../screens/Dashboard/EmergencyScreen';
+import LocationSelectorScreen from '../screens/Dashboard/LocationSelectorScreen';
+import HelpSupportScreen from '../screens/Profile/HelpSupportScreen';
+import ChatScreen from '../screens/Dashboard/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,13 +49,13 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {token == null ? (
-          
+
           <Stack.Screen
             name="Auth"
             component={AuthNavigator}
           />
         ) : (
-          
+
           <Stack.Group>
             <Stack.Screen name="Main" component={BottomTabNavigator} />
             <Stack.Screen name="AddVehicle" component={AddVehicleScreen} />
@@ -63,9 +66,12 @@ export default function AppNavigator() {
             <Stack.Screen name="GarageDetail" component={GarageDetailScreen} />
             <Stack.Screen name="ServiceRequest" component={ServiceRequestScreen} />
             <Stack.Screen name="Emergency" component={EmergencyScreen} />
+            <Stack.Screen name="LocationSelector" component={LocationSelectorScreen} />
             <Stack.Screen name="Notifications" component={NotificationScreen} />
             <Stack.Screen name="AddReview" component={AddReviewScreen} />
             <Stack.Screen name="AddComplaint" component={AddComplaintScreen} />
+            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <Stack.Screen name="Chat" component={ChatScreen} />
           </Stack.Group>
         )}
       </Stack.Navigator>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Emergency SOS | Precision Garage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#201f1f",
+                    "secondary-container": "#ec6a06",
+                    "on-primary": "#68000a",
+                    "inverse-surface": "#e5e2e1",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "surface-container-low": "#1c1b1b",
+                    "surface-bright": "#3a3939",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "primary": "#ffb3ad",
+                    "tertiary-fixed": "#d8e2ff",
+                    "outline": "#ab8986",
+                    "primary-fixed": "#ffdad7",
+                    "surface-container-highest": "#353534",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "outline-variant": "#5b403e",
+                    "on-error": "#690005",
+                    "tertiary": "#adc6ff",
+                    "secondary-fixed-dim": "#ffb690",
+                    "on-surface-variant": "#e4beba",
+                    "inverse-primary": "#b91a24",
+                    "on-background": "#e5e2e1",
+                    "on-tertiary-container": "#00285d",
+                    "on-secondary-fixed": "#341100",
+                    "on-surface": "#e5e2e1",
+                    "secondary": "#ffb690",
+                    "surface-dim": "#131313",
+                    "on-error-container": "#ffdad6",
+                    "error": "#ffb4ab",
+                    "on-secondary-fixed-variant": "#783200",
+                    "primary-container": "#ff5451",
+                    "surface": "#131313",
+                    "surface-variant": "#353534",
+                    "on-secondary-container": "#4a1c00",
+                    "on-tertiary": "#002e6a",
+                    "on-secondary": "#552100",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container-high": "#2a2a2a",
+                    "error-container": "#93000a",
+                    "surface-tint": "#ffb3ad",
+                    "on-tertiary-fixed": "#001a42",
+                    "background": "#131313",
+                    "on-primary-fixed-variant": "#930013",
+                    "on-primary-container": "#5c0008",
+                    "on-primary-fixed": "#410004",
+                    "tertiary-container": "#4d8eff",
+                    "secondary-fixed": "#ffdbca",
+                    "inverse-on-surface": "#313030"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "touch-target-min": "56px",
+                    "stack-gap-sm": "8px",
+                    "container-margin": "24px",
+                    "stack-gap-lg": "32px",
+                    "stack-gap-md": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Outfit"],
+                    "status-number": ["Outfit"],
+                    "body-md": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "display-hero": ["Outfit"],
+                    "headline-lg-mobile": ["Outfit"],
+                    "body-lg": ["Outfit"],
+                    "label-caps": ["Outfit"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "status-number": ["40px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-hero": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(32, 31, 31, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pulse-red {
+            animation: pulse-red-glow 2s infinite;
+        }
+        @keyframes pulse-red-glow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 84, 81, 0.6); transform: scale(1); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 84, 81, 0); transform: scale(1.05); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 84, 81, 0); transform: scale(1); }
+        }
+
+        .pulse-button {
+            animation: pulse-button-glow 2.5s infinite ease-in-out;
+        }
+        @keyframes pulse-button-glow {
+            0% { transform: scale(1); box-shadow: 0 10px 30px rgba(147, 0, 10, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 45px rgba(255, 84, 81, 0.3); }
+            100% { transform: scale(1); box-shadow: 0 10px 30px rgba(147, 0, 10, 0.4); }
+        }
+
+        .vibrate-alert {
+            animation: vibrate 4s infinite linear;
+        }
+        @keyframes vibrate {
+            0%, 80%, 100% { transform: translate(0); }
+            82% { transform: translate(-2px, 2px); }
+            84% { transform: translate(-2px, -2px); }
+            86% { transform: translate(2px, 2px); }
+            88% { transform: translate(2px, -2px); }
+            90% { transform: translate(0); }
+        }
+
+        .slide-up-entrance {
+            animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes slide-up {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-3d {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            box-shadow: 0 10px 0 0 rgba(0,0,0,0.3);
+        }
+        .card-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 0 rgba(0,0,0,0.3);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary/30 min-h-screen pb-40">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl border-b border-white/10 shadow-md h-16 flex items-center justify-between px-gutter">
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined text-primary-container pulse-red rounded-full p-1" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">PRECISION GARAGE</h1>
+</div>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined">info</span>
+</button>
+</header>
+<main class="pt-24 px-container-margin max-w-lg mx-auto space-y-stack-gap-lg overflow-x-hidden">
+<!-- Emergency Type Selection -->
+<section class="grid grid-cols-2 gap-4 slide-up-entrance" style="animation-delay: 0.1s;">
+<button class="card-3d glass-card rounded-xl p-5 border-2 border-primary-container/40 flex flex-col items-center text-center gap-3 group active:border-primary">
+<div class="w-14 h-14 rounded-full bg-primary-container/20 flex items-center justify-center text-primary-container mb-1">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">auto_towing</span>
+</div>
+<span class="font-headline-md text-sm md:text-base leading-tight font-bold text-on-surface">I Need a Tow</span>
+</button>
+<button class="card-3d glass-card rounded-xl p-5 border-2 border-secondary-container/40 flex flex-col items-center text-center gap-3 group active:border-secondary">
+<div class="w-14 h-14 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary-container mb-1">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">build</span>
+</div>
+<span class="font-headline-md text-sm md:text-base leading-tight font-bold text-on-surface">Mechanical Emergency</span>
+</button>
+</section>
+<!-- Repair Pill Scroller -->
+<section class="space-y-stack-gap-sm slide-up-entrance" style="animation-delay: 0.2s;">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-1 uppercase tracking-widest">Select Symptoms</h3>
+<div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+<label class="flex-shrink-0 cursor-pointer">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-surface-container peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-sm peer-checked:block hidden">check_circle</span>
+<span class="font-bold text-sm">Engine Smoke</span>
+</div>
+</label>
+<label class="flex-shrink-0 cursor-pointer">
+<input checked="" class="hidden peer" type="checkbox"/>
+<div class="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-surface-container peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-sm peer-checked:block">check_circle</span>
+<span class="font-bold text-sm">Brake Failure</span>
+</div>
+</label>
+<label class="flex-shrink-0 cursor-pointer">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-surface-container peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-sm peer-checked:block hidden">check_circle</span>
+<span class="font-bold text-sm">Flat Tire</span>
+</div>
+</label>
+<label class="flex-shrink-0 cursor-pointer">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-surface-container peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-all">
+<span class="material-symbols-outlined text-sm peer-checked:block hidden">check_circle</span>
+<span class="font-bold text-sm">Dead Battery</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Description Input -->
+<section class="space-y-stack-gap-sm slide-up-entrance" style="animation-delay: 0.3s;">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-1 uppercase tracking-widest">Details</h3>
+<div class="relative group">
+<textarea class="w-full bg-surface-container-high border-2 border-transparent rounded-2xl p-4 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary-container/40 focus:ring-0 focus:outline-none transition-all shadow-inner" placeholder="Describe your situation..." rows="3"></textarea>
+<div class="absolute inset-0 rounded-2xl pointer-events-none group-focus-within:shadow-[0_0_15px_rgba(255,84,81,0.2)] transition-shadow"></div>
+</div>
+</section>
+<!-- Evidence Section -->
+<section class="space-y-stack-gap-sm slide-up-entrance" style="animation-delay: 0.4s;">
+<div class="flex justify-between items-center px-1">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Photo Evidence</h3>
+<span class="text-xs text-primary font-bold">3/5 Uploaded</span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div class="aspect-square relative rounded-xl overflow-hidden group">
+<img class="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKVpYNDW8GdhEuNLV2FKXxpbH7mNSg8d5JE7I0JPS8nG8FRUxd_CUcQBhkGd7uCqtKZi9NS7vD4jxtgRU8yi56nGmMTg1TO-Go5RLjfOQnOCfh6B5Nyt_Y-yFdC-joGGl3YdB79x_JhRHazoNSQvQkyWb6fXyO1C5oi_R63T1iRBYBtRvIy5SNA0l3UR9_hKbZQic2-mHpjlNUlgRiNL1Lp0pMIqQhiQ2sxSxMn0Va7nbuqtDPMUsJKo_REkJv3IMdq_B_LEvCoDzR"/>
+<button class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-container/60 backdrop-blur-md flex items-center justify-center text-error border border-white/10 hover:bg-error hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xs">close</span>
+</button>
+</div>
+<div class="aspect-square relative rounded-xl overflow-hidden group">
+<img class="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASkpXOK_68w1-tN8ClcAlzkboslKBYn6Za0dFgUjDRr-ztFQucx9EI7NDJs8syg4n6J9_-ViMuQ8ymfcCa8qHYMcUO2Q1GwIQq2D1xqiGAU3p-wJ524qimpGEXTpNLC8CCStx82u4KN18ePDVe5anfZQlJ8CzeG_Dnk9WJCoAFEYKjXChksANNGRiCNy8MUNzjArizeFdl_LL0zNA39EPZ8dxxR0DWQzW7vgmFJPQY01saz9eLoD_-pkIfklBM4Om4sfyMuqWULKFS"/>
+<button class="absolute top-1 right-1 w-6 h-6 rounded-full bg-surface-container/60 backdrop-blur-md flex items-center justify-center text-error border border-white/10 hover:bg-error hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xs">close</span>
+</button>
+</div>
+<button class="aspect-square rounded-xl border-2 border-dashed border-white/10 bg-surface-container flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary-container">add_a_photo</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter text-on-surface-variant">Add Media</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Fixed SOS Action & Nav Shell -->
+<div class="fixed bottom-0 left-0 w-full z-50">
+<!-- Massive SOS Button Container -->
+<div class="px-gutter pb-4">
+<button class="w-full h-20 bg-error-container/90 backdrop-blur-lg text-on-error-container rounded-2xl flex items-center justify-center gap-4 pulse-button active:scale-95 active:shadow-none transition-all duration-150 overflow-hidden relative group" id="sos-trigger">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<!-- Progress Fill Overlay -->
+<div class="absolute left-0 top-0 bottom-0 bg-white/20 transition-all ease-linear pointer-events-none" id="sos-fill" style="width: 0%;"></div>
+<div class="z-10 flex items-center gap-4 transition-transform duration-300" id="sos-content">
+<span class="material-symbols-outlined text-3xl vibrate-alert" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-headline-md text-xl font-extrabold tracking-tighter uppercase italic" id="sos-text">Hold to Send SOS</span>
+</div>
+<!-- Success Checkmark (Hidden) -->
+<div class="absolute inset-0 flex items-center justify-center translate-y-full transition-transform duration-500 z-20" id="sos-success">
+<span class="material-symbols-outlined text-4xl">check_circle</span>
+<span class="ml-2 font-headline-md text-xl font-extrabold uppercase italic">SOS Dispatched</span>
+</div>
+</button>
+</div>
+<!-- Bottom Nav Bar Shell -->
+<nav class="bg-surface-container/80 backdrop-blur-2xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] h-20 px-6 flex justify-around items-center">
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full w-12 h-12 shadow-inner active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">location_on</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-12 h-12 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+</a>
+</nav>
+</div>
+<script>
+    const sosBtn = document.getElementById('sos-trigger');
+    const sosFill = document.getElementById('sos-fill');
+    const sosText = document.getElementById('sos-text');
+    const sosContent = document.getElementById('sos-content');
+    const sosSuccess = document.getElementById('sos-success');
+    
+    let holdTimer;
+    const holdDuration = 2000; // 2 seconds
+    let startTime;
+
+    function handleStart(e) {
+        if (sosBtn.classList.contains('sent')) return;
+        
+        startTime = Date.now();
+        sosBtn.classList.add('scale-95');
+        sosBtn.classList.remove('pulse-button');
+        sosFill.style.transitionDuration = holdDuration + 'ms';
+        sosFill.style.width = '100%';
+        
+        holdTimer = setTimeout(() => {
+            dispatchSOS();
+        }, holdDuration);
+    }
+
+    function handleEnd() {
+        if (sosBtn.classList.contains('sent')) return;
+
+        clearTimeout(holdTimer);
+        sosBtn.classList.remove('scale-95');
+        sosBtn.classList.add('pulse-button');
+        sosFill.style.transitionDuration = '300ms';
+        sosFill.style.width = '0%';
+    }
+
+    function dispatchSOS() {
+        sosBtn.classList.add('sent');
+        sosBtn.classList.remove('pulse-button');
+        sosBtn.classList.replace('bg-error-container/90', 'bg-green-600');
+        
+        sosFill.style.width = '0%';
+        sosText.textContent = 'SENDING...';
+        
+        // Success animation sequence
+        setTimeout(() => {
+            sosContent.classList.add('-translate-y-full', 'opacity-0');
+            sosSuccess.classList.remove('translate-y-full');
+            
+            // Optional: Trigger phone vibration if available
+            if ("vibrate" in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }, 500);
+    }
+
+    sosBtn.addEventListener('mousedown', handleStart);
+    sosBtn.addEventListener('mouseup', handleEnd);
+    sosBtn.addEventListener('mouseleave', handleEnd);
+    
+    sosBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleStart();
+    }, { passive: false });
+    sosBtn.addEventListener('touchend', handleEnd);
+
+    // Horizontal scroll momentum and styling for pills
+    const scroller = document.querySelector('.no-scrollbar');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    scroller.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - scroller.offsetLeft;
+        scrollLeft = scroller.scrollLeft;
+    });
+    scroller.addEventListener('mouseleave', () => isDown = false);
+    scroller.addEventListener('mouseup', () => isDown = false);
+    scroller.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - scroller.offsetLeft;
+        const walk = (x - startX) * 2;
+        scroller.scrollLeft = scrollLeft - walk;
+    });
+</script>
+</body></html>

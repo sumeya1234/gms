@@ -8,9 +8,9 @@ import ComplaintMessageModal from '../components/complaints/ComplaintMessageModa
 export default function Feedback() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  
-  const [activeTab, setActiveTab] = useState('reviews'); 
-  
+
+  const [activeTab, setActiveTab] = useState('reviews');
+
   const [reviews, setReviews] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,20 +25,20 @@ export default function Feedback() {
 
   const fetchFeedbackParams = useCallback(async () => {
     if (!user?.GarageID) return;
-    
+
     try {
       setLoading(true);
       const [reviewsRes, complaintsRes] = await Promise.all([
         api.get(`/reviews/garage/${user.GarageID}`),
         api.get(`/complaints/garage/${user.GarageID}`)
       ]);
-      
+
       setReviews(reviewsRes.data);
       setComplaints(complaintsRes.data);
       setError('');
     } catch (err) {
       console.error('Failed to fetch feedback', err);
-      setError('Failed to load feedback metrics.');
+      setError(t('failedToLoadFeedback'));
     } finally {
       setLoading(false);
     }
@@ -51,12 +51,12 @@ export default function Feedback() {
   const handleResolveComplaint = async (complaintId) => {
     try {
       await api.put(`/complaints/${complaintId}/resolve`, { status: 'Resolved' });
-      showSuccess('Complaint officially marked as resolved');
+      showSuccess(t('complaintMarkedResolved'));
       setSelectedComplaint(null);
       fetchFeedbackParams();
     } catch (err) {
       console.error('Failed to resolve complaint', err);
-      alert(err.response?.data?.message || 'Failed to update complaint status');
+      alert(err.response?.data?.message || t('failedToUpdateComplaint'));
     }
   };
 
@@ -72,9 +72,9 @@ export default function Feedback() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-primary)] flex items-center gap-2">
             <MessageSquare size={28} />
-            Customer Feedback
+            {t('feedbackPageTitle')}
           </h1>
-          <p className="text-gray-500 mt-1">Monitor reviews and resolve customer complaints.</p>
+          <p className="text-gray-500 mt-1">{t('monitorReviewsComplaints')}</p>
         </div>
       </div>
 
@@ -92,27 +92,25 @@ export default function Feedback() {
         </div>
       )}
 
-      {}
+      { }
       <div className="flex border-b border-gray-200">
         <button
-          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${
-            activeTab === 'reviews'
-              ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
+          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'reviews'
+            ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           onClick={() => setActiveTab('reviews')}
         >
-          Customer Reviews ({reviews.length})
+          {t('tabCustomerReviews')} ({reviews.length})
         </button>
         <button
-          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${
-            activeTab === 'complaints'
-              ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
+          className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'complaints'
+            ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
           onClick={() => setActiveTab('complaints')}
         >
-          Active Complaints
+          {t('tabActiveComplaints')}
           {complaints.filter(c => c.Status !== 'Resolved').length > 0 && (
             <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">
               {complaints.filter(c => c.Status !== 'Resolved').length}
@@ -128,7 +126,7 @@ export default function Feedback() {
           </div>
         ) : (
           <>
-            {}
+            { }
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] flex items-center gap-6">
@@ -141,18 +139,18 @@ export default function Feedback() {
                       <Star size={16} fill="currentColor" />
                       <Star size={16} fill="currentColor" />
                     </div>
-                    <span className="text-xs text-gray-500 mt-2">{reviews.length} total reviews</span>
+                    <span className="text-xs text-gray-500 mt-2">{reviews.length} {t('totalReviews')}</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">Overall Rating</h3>
-                    <p className="text-sm text-gray-500">Based on verified completed service requests.</p>
+                    <h3 className="text-lg font-bold text-gray-900">{t('overallRating')}</h3>
+                    <p className="text-sm text-gray-500">{t('basedOnVerified')}</p>
                   </div>
                 </div>
 
                 {reviews.length === 0 ? (
                   <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
                     <Star size={40} className="mx-auto text-gray-300 mb-2" />
-                    <p className="text-gray-500">No reviews have been published yet.</p>
+                    <p className="text-gray-500">{t('noReviewsYet')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,7 +162,7 @@ export default function Feedback() {
                               <Star key={i} size={16} fill={i < review.Rating ? "currentColor" : "none"} className={i >= review.Rating ? "text-gray-200" : ""} />
                             ))}
                           </div>
-                          <span className="text-xs text-gray-400">{new Date(review.ReviewDate).toLocaleDateString()}</span>
+                          <span className="text-xs text-gray-400">{new Date(review.CreatedAt).toLocaleDateString()}</span>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed">"{review.Comment}"</p>
                       </div>
@@ -174,13 +172,13 @@ export default function Feedback() {
               </div>
             )}
 
-            {}
+            { }
             {activeTab === 'complaints' && (
               <div className="space-y-4">
                 {complaints.length === 0 ? (
                   <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
                     <AlertCircle size={40} className="mx-auto text-gray-300 mb-2" />
-                    <p className="text-gray-500">No complaints have been filed against your garage!</p>
+                    <p className="text-gray-500">{t('noComplaintsYet')}</p>
                   </div>
                 ) : (
                   <div className="overflow-hidden bg-white shadow-sm rounded-xl border border-[var(--color-border)]">
@@ -188,10 +186,10 @@ export default function Feedback() {
                       <thead>
                         <tr className="bg-gray-50 border-b border-gray-100 text-sm text-gray-500">
                           <th className="p-4 font-semibold w-24">ID</th>
-                          <th className="p-4 font-semibold">Customer</th>
-                          <th className="p-4 font-semibold">Description</th>
-                          <th className="p-4 font-semibold">Status</th>
-                          <th className="p-4 font-semibold text-right">Action</th>
+                          <th className="p-4 font-semibold">{t('customer')}</th>
+                          <th className="p-4 font-semibold">{t('description')}</th>
+                          <th className="p-4 font-semibold">{t('status')}</th>
+                          <th className="p-4 font-semibold text-right">{t('actions')}</th>
                         </tr>
                       </thead>
                       <tbody className="text-sm">
@@ -205,11 +203,10 @@ export default function Feedback() {
                               {complaint.Description}
                             </td>
                             <td className="p-4">
-                              <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-[10px] uppercase tracking-wide border ${
-                                complaint.Status === 'Resolved' ? 'bg-green-50 text-green-700 border-green-200' : 
+                              <span className={`px-2.5 py-1 rounded inline-flex font-semibold text-[10px] uppercase tracking-wide border ${complaint.Status === 'Resolved' ? 'bg-green-50 text-green-700 border-green-200' :
                                 complaint.Status === 'InProgress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'
-                              }`}>
-                                {complaint.Status}
+                                }`}>
+                                {t(complaint.Status.toLowerCase()) || complaint.Status}
                               </span>
                             </td>
                             <td className="p-4 text-right">
@@ -218,7 +215,7 @@ export default function Feedback() {
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-semibold text-xs transition-colors"
                               >
                                 <MessageCircle size={14} />
-                                View Thread
+                                {t('viewThread')}
                               </button>
                             </td>
                           </tr>
@@ -234,9 +231,9 @@ export default function Feedback() {
       </div>
 
       {selectedComplaint && (
-        <ComplaintMessageModal 
-          complaint={selectedComplaint} 
-          onClose={() => setSelectedComplaint(null)} 
+        <ComplaintMessageModal
+          complaint={selectedComplaint}
+          onClose={() => setSelectedComplaint(null)}
           onResolved={handleResolveComplaint}
         />
       )}

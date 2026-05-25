@@ -6,7 +6,13 @@ export const validateVehicle = Joi.object({
   model: Joi.string().min(2).required()
 });
 
-const idSchema = Joi.alternatives().try(Joi.number().integer().positive(), Joi.string().uuid());
+const idSchema = Joi.alternatives().try(
+  Joi.number().integer().positive(),
+  Joi.string().uuid()
+).messages({
+  'alternatives.match': 'ID must be a valid number or unique identifier.',
+  'any.required': 'ID is required.'
+});
 
 export const validateVehicleUpdate = Joi.object({
   plateNumber: Joi.string().min(2).optional(),

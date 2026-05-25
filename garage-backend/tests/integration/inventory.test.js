@@ -14,7 +14,7 @@ describe('inventory Endpoints', () => {
         mechanic = await createTestUserWithToken('Mechanic');
 
         
-        await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
+        const resA = await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "Garage A",
                 location: "Downtown",
@@ -23,7 +23,7 @@ describe('inventory Endpoints', () => {
                 bankAccountNumber: "1000123456789",
                 bankAccountName: "Garage A Account"
             });
-        await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
+        const resB = await request(app).post('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`)
             .send({
                 name: "Garage B",
                 location: "Uptown",
@@ -33,9 +33,8 @@ describe('inventory Endpoints', () => {
                 bankAccountName: "Garage B Account"
             });
 
-        const garages = await request(app).get('/api/garages/').set('Authorization', `Bearer ${superAdmin.token}`);
-        garageAId = garages.body.find(g => g.Name === "Garage A").GarageID;
-        garageBId = garages.body.find(g => g.Name === "Garage B").GarageID;
+        garageAId = resA.body.garageId;
+        garageBId = resB.body.garageId;
 
         
         await request(app).put(`/api/users/${managerA.userId}/garage`).set('Authorization', `Bearer ${superAdmin.token}`).send({ garageId: garageAId });
@@ -50,6 +49,7 @@ describe('inventory Endpoints', () => {
                 itemName: "Brake Pads",
                 quantity: 50,
                 unitPrice: 25.50,
+                sellingPrice: 35.00,
                 garageId: garageAId
             });
 

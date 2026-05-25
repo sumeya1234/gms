@@ -1,5 +1,5 @@
-import { getAllGarages, addGarage, fetchGarageById, modifyGarage, removeGarage } from "../services/garageService.js";
-import { getGarageManagerStats, getGarageOwnerOverview, getGarageRevenueByPeriod, generateGarageOperationalReport } from "../services/dashboardService.js";
+import { getAllGarages, addGarage, fetchGarageById, modifyGarage, removeGarage, getGarageVehicles } from "../services/garageService.js";
+import { getGarageManagerStats, getGarageOwnerOverview, getGarageRevenueByPeriod, generateGarageOperationalReport, getServiceUsageStats, getPartsUsageLog } from "../services/dashboardService.js";
 import { assignUserToGarage } from "../services/userService.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
@@ -10,11 +10,11 @@ export const getGarages = asyncHandler(async (req, res) => {
 });
 
 export const createGarage = asyncHandler(async (req, res) => {
-  const { name, location, contact, managerId, ownerId, bankCode, bankAccountNumber, bankAccountName, timezone, workingHours } = req.body;
+  const { name, location, contact, managerId, ownerId, bankCode, bankAccountNumber, bankAccountName, timezone, workingHours, emergencyMechanicSlots } = req.body;
   console.log(`[createGarage] Payload:`, req.body);
 
   try {
-    const garageId = await addGarage(name, location, contact, bankCode, bankAccountNumber, bankAccountName, timezone, workingHours);
+    const garageId = await addGarage(name, location, contact, bankCode, bankAccountNumber, bankAccountName, timezone, workingHours, emergencyMechanicSlots);
     console.log(`[createGarage] Garage created with ID: ${garageId}`);
 
     if (managerId && req.user) {
@@ -50,7 +50,7 @@ export const updateGarageDetails = asyncHandler(async (req, res) => {
       console.log(`[updateGarageDetails] Assigning/Updating manager ${managerId} for garage ${req.params.id}`);
       await assignUserToGarage(managerId, req.params.id, req.user);
     } else if (managerId === null && req.user && req.user.role === 'SuperAdmin') {
-      
+
       const { unassignManagerFromGarage } = await import('../services/userService.js');
       console.log(`[updateGarageDetails] Unassigning manager from garage ${req.params.id}`);
       await unassignManagerFromGarage(req.params.id);
@@ -59,6 +59,10 @@ export const updateGarageDetails = asyncHandler(async (req, res) => {
     if (ownerId && req.user) {
       console.log(`[updateGarageDetails] Assigning owner ${ownerId} to garage ${req.params.id}`);
       await assignUserToGarage(ownerId, req.params.id, req.user);
+    } else if (ownerId === null && req.user && req.user.role === 'SuperAdmin') {
+      const { unassignOwnerFromGarage } = await import('../services/userService.js');
+      console.log(`[updateGarageDetails] Unassigning owner from garage ${req.params.id}`);
+      await unassignOwnerFromGarage(req.params.id);
     }
 
     res.json({ message: "Garage updated successfully" });
@@ -93,4 +97,21 @@ export const getOperationalReport = asyncHandler(async (req, res) => {
   const { period = "monthly" } = req.query;
   const report = await generateGarageOperationalReport(req.params.id, period);
   res.json(report);
+});
+
+export const getServiceTrends = asyncHandler(async (req, res) => {
+  const { period = "monthly" } = req.query;
+  const stats = await getServiceUsageStats(req.params.id, period);
+  res.json(stats);
+});
+
+export const getPartsUsageReport = asyncHandler(async (req, res) => {
+  const { period = "monthly" } = req.query;
+  const log = await getPartsUsageLog(req.params.id, period);
+  res.json(log);
+});
+
+export const getVehicles = asyncHandler(async (req, res) => {
+  const vehicles = await getGarageVehicles(req.params.id);
+  res.json(vehicles);
 });

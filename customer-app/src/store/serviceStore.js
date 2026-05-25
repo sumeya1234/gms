@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import client from '../api/client';
+import { Alert } from 'react-native';
 
 export const useServiceStore = create((set, get) => ({
   requests: [],
@@ -21,12 +22,12 @@ export const useServiceStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await client.post('/api/services', requestData);
-      
+
       await get().fetchMyRequests();
       return true;
     } catch (error) {
-      console.log('Create Request Error', error?.response?.data || error);
-      set({ error: error?.response?.data?.message || 'Failed to submit request', isLoading: false });
+      const backendMsg = (error?.response?.data?.message || error?.response?.data?.error || 'Failed to submit request').trim();
+      set({ error: backendMsg, isLoading: false });
       return false;
     }
   },
@@ -52,6 +53,19 @@ export const useServiceStore = create((set, get) => ({
       const msg = error?.response?.data?.message || error?.response?.data?.error || 'Failed to cancel request';
       set({ error: msg, isLoading: false });
       return { success: false, message: msg };
+    }
+  },
+  updateRequest: async (requestId, updateData) => {
+    set({ isLoading: true, error: null });
+    try {
+      await client.patch(`/api/services/${requestId}`, updateData);
+      await get().fetchMyRequests();
+      return true;
+    } catch (error) {
+      console.log('Update Request Error', error?.response?.data || error);
+      const msg = error?.response?.data?.message || error?.response?.data?.error || 'Failed to update request';
+      set({ error: msg, isLoading: false });
+      return false;
     }
   }
 }));

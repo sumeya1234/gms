@@ -1,59 +1,73 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { Star, MapPin, Heart } from 'lucide-react-native';
+import { Star, MapPin } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/colors';
 
 export default function GarageCard({ item, onPress }) {
+  const { t } = useTranslation();
+
   return (
     <TouchableOpacity activeOpacity={0.9} style={styles.card} onPress={onPress}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
-        
+        <Image
+          source={{ uri: item.imageUrl || "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=800&q=80" }}
+          style={styles.image}
+          resizeMode="cover"
+        />
         <View style={styles.ratingBadge}>
           <Star size={14} color="#eab308" fill="#eab308" />
-          <Text style={styles.ratingText}>{item.rating} ({item.reviews})</Text>
+          <Text style={styles.ratingText}>{item.rating}</Text>
         </View>
-        
-        {item.isVerified && (
-          <View style={styles.verifiedBadge}>
-            <Text style={styles.verifiedText}>Verified</Text>
-          </View>
-        )}
       </View>
-
       <View style={styles.detailsContainer}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.title}>{item.name}</Text>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+              <Text style={styles.title}>{item.name}</Text>
+              {item.isVerified && (
+                <View style={styles.verifiedBadgeSmall}>
+                  <Text style={styles.verifiedTextSmall}>{t('Verified Business')}</Text>
+                </View>
+              )}
+            </View>
             <View style={styles.distanceRow}>
               <MapPin size={14} color={colors.textGray} />
               <Text style={styles.distanceText}>
-                {item.distance} mi away • {item.availability}
+                {item.distance} {t('km away')} • {item.availability}
               </Text>
             </View>
+            {item.contactNumber ? (
+              <View style={styles.contactRow}>
+                <Text style={styles.contactText}>📞 {item.contactNumber}</Text>
+              </View>
+            ) : null}
           </View>
-          
-          <TouchableOpacity style={styles.favoriteButton}>
-            <Heart size={18} color={colors.textGray} />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.tagsContainer}>
-          {item.services.map((service, index) => (
+          {item.services.slice(0, 3).map((service, index) => (
             <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{service}</Text>
+              <Text style={styles.tagText}>{t(service)}</Text>
             </View>
           ))}
+          {item.services.length > 3 && (
+            <View style={[styles.tag, { backgroundColor: 'rgba(19, 127, 236, 0.05)', borderColor: 'rgba(19, 127, 236, 0.2)', borderWidth: 1 }]}>
+              <Text style={[styles.tagText, { color: colors.primaryBlue, fontWeight: 'bold' }]}>
+                +{item.services.length - 3}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.footerRow}>
           <View>
-            <Text style={styles.startsAt}>Starts at</Text>
+            <Text style={styles.startsAt}>{t('Starts at')}</Text>
             <Text style={styles.price}>ETB {item.startingPrice}</Text>
           </View>
-          
+
           <TouchableOpacity style={styles.bookButton} onPress={onPress}>
-            <Text style={styles.bookText}>Book Now</Text>
+            <Text style={styles.bookText}>{t('Book Now')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -101,19 +115,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textDark,
   },
-  verifiedBadge: {
-    position: 'absolute',
-    bottom: 12,
-    left: 12,
+  verifiedBadgeSmall: {
     backgroundColor: colors.primaryBlue,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
-  verifiedText: {
-    fontSize: 12,
+  verifiedTextSmall: {
+    fontSize: 10,
     fontWeight: 'bold',
     color: colors.white,
+  },
+  ratingAndFav: {
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  ratingBadgeInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bgGray,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
   },
   detailsContainer: {
     padding: 16,
@@ -137,6 +161,14 @@ const styles = StyleSheet.create({
   distanceText: {
     fontSize: 13,
     color: colors.textGray,
+  },
+  contactRow: {
+    marginTop: 2,
+  },
+  contactText: {
+    fontSize: 12,
+    color: colors.primaryBlue,
+    fontWeight: 'bold',
   },
   favoriteButton: {
     width: 32,
